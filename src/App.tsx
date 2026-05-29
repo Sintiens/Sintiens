@@ -32,6 +32,27 @@ import DevModeOverlay from "./components/DevModeOverlay";
 import DevErrorBoundary from "./components/DevErrorBoundary";
 import todoTasks from "../todo.json";
 
+const IA_TASK_EXPLANATIONS: Record<string, { summary: string; changes: string; howToTest: string; isVisual: boolean }> = {
+  t_gancho_reflexivo: {
+    summary: "Banner de Gancho Reflexivo Introductorio",
+    changes: "Se ha diseñado e integrado un bloque interactivo de enganche emocional al inicio de la página en la pestaña 'Grafo'. Este banner utiliza una tipografía moderna, un fondo con degradado premium y una pregunta reflexiva ('¿Comes carne pero te gustan los animales?') que conecta directamente con la misión del proyecto.",
+    howToTest: "La página se ha desplazado automáticamente al banner al inicio. Puedes interactuar con él, ver su diseño adaptado a móviles y experimentar la fluidez del botón de acción principal.",
+    isVisual: true
+  },
+  t_bug_scroll_propagation: {
+    summary: "Corrección: Propagación de Scroll en Tarjeta de Detalles",
+    changes: "Se ha resuelto un problema de comportamiento en la experiencia de usuario. Antes, al deslizar hasta el final en el panel lateral de detalles de un concepto, el scroll 'traspasaba' el panel y movía la página web completa de fondo. Se ha corregido aplicando una propiedad de CSS llamada `overscroll-behavior: contain` en el contenedor del panel lateral.",
+    howToTest: "Al ser un ajuste de comportamiento técnico y no una sección nueva, no añade bloques visuales permanentes. Para probarlo: haz clic en cualquier concepto del grafo para abrir su panel lateral de detalles, desliza hacia abajo hasta el final del contenido de la tarjeta y continúa deslizando. Verás que el cuerpo de fondo de la web se mantiene estático y el scroll ya no se propaga.",
+    isVisual: false
+  },
+  t_glosario_desplegable: {
+    summary: "Glosario: Sección 'Ver más sobre esto' Colapsable",
+    changes: "Se ha rediseñado la sección del glosario de términos. Antes, todas las referencias cruzadas y sugerencias ('Ver más sobre esto') se mostraban expandidas de inicio, saturando la pantalla con demasiado texto. Ahora se ha convertido en un menú colapsable (dropdown) interactivo, limpio y ordenado, que solo revela las referencias cuando el usuario hace clic de forma explícita.",
+    howToTest: "La página se ha desplazado a la sección del glosario. Ve al término que tiene referencias y haz clic en el nuevo botón desplegable interactivo. Verás una transición sumamente fluida y cómo se despliega la lista sin sobrecargar el espacio visual.",
+    isVisual: true
+  }
+};
+
 type TabType = "grafo" | "cronologia" | "dialectica" | "calculadora" | "validador";
 
 export default function App() {
@@ -45,10 +66,14 @@ export default function App() {
     return "dark";
   });
 
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [showIaExplanation, setShowIaExplanation] = useState(true);
+
   const activePreviewId = localStorage.getItem("dev-mode-preview-task-id");
   const activePreviewTask = activePreviewId ? todoTasks.find((t: any) => t.id === activePreviewId) : null;
 
   const handleCancelPreview = async (taskId: string) => {
+    setIsTransitioning(true);
     try {
       const originalTitle = activePreviewTask?.title;
       const res = await fetch(`/api/dev/tasks/${taskId}/reject`, { method: "POST" });
@@ -70,16 +95,19 @@ export default function App() {
         localStorage.removeItem("dev-mode-preview-task-id");
         window.location.reload();
       } else {
+        setIsTransitioning(false);
         const errorData = await res.json();
         alert(`Error al cancelar previsualización: ${errorData.error || "Algo salió mal"}`);
       }
     } catch (e) {
+      setIsTransitioning(false);
       console.error(e);
       alert("Error de red al cancelar previsualización.");
     }
   };
 
   const handleApprovePreview = async (taskId: string) => {
+    setIsTransitioning(true);
     try {
       const res = await fetch(`/api/dev/tasks/${taskId}/approve`, { method: "POST" });
       if (res.ok) {
@@ -87,14 +115,17 @@ export default function App() {
         alert("¡Previsualización aprobada y fusionada con éxito en tu código principal!");
         window.location.reload();
       } else {
+        setIsTransitioning(false);
         const errorData = await res.json();
         alert(`Error al aprobar previsualización: ${errorData.error || "Algo salió mal"}`);
       }
     } catch (e) {
+      setIsTransitioning(false);
       console.error(e);
       alert("Error de red al aprobar previsualización.");
     }
   };
+
 
   // Listen to Escape key to abort preview
   useEffect(() => {
@@ -189,38 +220,90 @@ export default function App() {
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 font-sans text-zinc-800 dark:text-zinc-200 selection:bg-zinc-200 dark:selection:bg-zinc-800 selection:text-zinc-900 dark:selection:text-white flex flex-col justify-between transition-colors duration-300 pb-24 md:pb-0 dev-sidebar-resizer">
       {/* Active Preview Control Bar */}
       {activePreviewTask && (
-        <div className="bg-zinc-950 text-white border-b border-rose-500/20 py-3.5 px-4 sm:px-6 sticky top-0 z-[100] shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 select-none w-full">
-          <div className="flex items-center gap-3">
-            <span className="flex h-2.5 w-2.5 shrink-0 relative items-center justify-center">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-rose-500" />
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-rose-500" />
-            </span>
-            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-              <span className="text-[10px] font-mono font-black tracking-widest uppercase bg-rose-500/10 text-rose-400 border border-rose-500/20 px-2 py-0.5 rounded font-bold">
-                Previsualización IA
+        <div className="bg-zinc-950 text-white border-b border-rose-500/20 py-4.5 px-4 sm:px-6 relative z-[100] shadow-xl flex flex-col gap-4 select-none w-full">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <span className="flex h-2.5 w-2.5 shrink-0 relative items-center justify-center">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-rose-500" />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-rose-500" />
               </span>
-              <p className="text-xs font-light text-zinc-350">
-                Probando cambios para: <span className="font-bold text-white">{activePreviewTask.title.replace("[IA: Listo para verificar]", "").trim()}</span>
-              </p>
+              <div className="flex flex-col gap-1 text-left">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-[10px] font-mono font-black tracking-widest uppercase bg-rose-500/10 text-rose-400 border border-rose-500/20 px-2 py-0.5 rounded font-bold">
+                    Previsualización IA
+                  </span>
+                  <p className="text-xs font-light text-zinc-350">
+                    Probando cambios para: <span className="font-bold text-white">{activePreviewTask.title.replace("[IA: Listo para verificar]", "").trim()}</span>
+                  </p>
+                  {IA_TASK_EXPLANATIONS[activePreviewTask.id] && (
+                    <button
+                      onClick={() => setShowIaExplanation(!showIaExplanation)}
+                      className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-md border flex items-center gap-1 transition-all cursor-pointer ${
+                        showIaExplanation 
+                          ? "bg-rose-500/20 text-rose-350 border-rose-500/30 hover:bg-rose-500/30" 
+                          : "bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white hover:border-zinc-700"
+                      }`}
+                    >
+                      <span>🔍</span>
+                      <span>{showIaExplanation ? "Ocultar explicación" : "Explicación de cambios"}</span>
+                    </button>
+                  )}
+                </div>
+                <p className="text-[9.5px] text-zinc-400 font-light leading-none mt-0.5 flex items-center gap-1">
+                  <span className="text-[10px] select-none text-rose-400">💡</span>
+                  <span>Tus comentarios en <strong>Ajustar</strong> se guardarán localmente en <code>todo.json</code> para que la IA los procese en su siguiente ejecución.</span>
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3 shrink-0 self-start md:self-auto">
+              <span className="hidden lg:inline text-[10px] font-mono text-zinc-550 mr-2">(o pulsa ESC para salir)</span>
+              <button
+                onClick={() => handleCancelPreview(activePreviewTask.id)}
+                className="flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold font-mono text-zinc-400 hover:text-white border border-zinc-800 hover:border-zinc-700 bg-zinc-900 hover:bg-zinc-850 cursor-pointer transition-all duration-200"
+              >
+                <X className="w-3.5 h-3.5" />
+                <span>Dejar de ver</span>
+              </button>
+              <button
+                onClick={() => handleApprovePreview(activePreviewTask.id)}
+                className="flex items-center justify-center gap-1 px-3.5 py-1.5 rounded-lg text-xs font-bold font-mono text-white bg-rose-500 hover:bg-rose-600 border border-rose-400/20 shadow-md cursor-pointer transition-all duration-200"
+              >
+                <Check className="w-3.5 h-3.5" />
+                <span>Aprobar Cambios</span>
+              </button>
             </div>
           </div>
-          <div className="flex items-center gap-3 shrink-0">
-            <span className="hidden md:inline text-[10px] font-mono text-zinc-550 mr-2">(o pulsa ESC para salir)</span>
-            <button
-              onClick={() => handleCancelPreview(activePreviewTask.id)}
-              className="flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold font-mono text-zinc-400 hover:text-white border border-zinc-800 hover:border-zinc-700 bg-zinc-900 hover:bg-zinc-850 cursor-pointer transition-all duration-200"
-            >
-              <X className="w-3.5 h-3.5" />
-              <span>Dejar de ver</span>
-            </button>
-            <button
-              onClick={() => handleApprovePreview(activePreviewTask.id)}
-              className="flex items-center justify-center gap-1 px-3.5 py-1.5 rounded-lg text-xs font-bold font-mono text-white bg-rose-500 hover:bg-rose-600 border border-rose-400/20 shadow-md cursor-pointer transition-all duration-200"
-            >
-              <Check className="w-3.5 h-3.5" />
-              <span>Aprobar Cambios</span>
-            </button>
-          </div>
+
+          {/* AI Task Explanatory Panel */}
+          {showIaExplanation && IA_TASK_EXPLANATIONS[activePreviewTask.id] && (
+            <div className="border-t border-zinc-900 pt-3.5 mt-1 text-xs space-y-3.5 animate-in fade-in slide-in-from-top duration-300">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-zinc-950/40 border border-zinc-900/60 rounded-xl p-3.5 text-left">
+                  <h5 className="font-bold text-rose-400 flex items-center gap-1.5 mb-1.5 text-[10.5px] uppercase tracking-wider font-mono">
+                    🛠️ ¿Qué cambios se han realizado?
+                  </h5>
+                  <p className="text-zinc-350 leading-relaxed font-light text-[11.5px]">
+                    {IA_TASK_EXPLANATIONS[activePreviewTask.id].changes}
+                  </p>
+                </div>
+                <div className="bg-zinc-950/40 border border-zinc-900/60 rounded-xl p-3.5 text-left">
+                  <h5 className="font-bold text-purple-400 flex items-center gap-1.5 mb-1.5 text-[10.5px] uppercase tracking-wider font-mono">
+                    💡 ¿Cómo probarlos en vivo?
+                  </h5>
+                  <p className="text-zinc-350 leading-relaxed font-light text-[11.5px]">
+                    {IA_TASK_EXPLANATIONS[activePreviewTask.id].howToTest}
+                  </p>
+                </div>
+              </div>
+              {!IA_TASK_EXPLANATIONS[activePreviewTask.id].isVisual && (
+                <div className="text-[10px] text-amber-400/90 bg-amber-500/5 border border-amber-500/10 px-3 py-2 rounded-xl flex items-center gap-1.5 text-left">
+                  <span>ℹ️</span>
+                  <span>Este cambio es una <strong>mejora de comportamiento o corrección lógica</strong>, por lo que no añade elementos visuales nuevos en la pantalla pero mejora la experiencia de navegación de forma directa.</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -228,7 +311,7 @@ export default function App() {
       <div className="absolute top-0 left-0 right-0 h-[450px] bg-radial from-purple-950/5 dark:from-purple-950/15 via-transparent to-transparent pointer-events-none z-0" />
 
       {/* Primary header navbar container */}
-      <header className={`border-b border-zinc-200 dark:border-zinc-900 bg-white/80 dark:bg-zinc-950/85 backdrop-blur-md sticky ${activePreviewTask ? "top-[92px] sm:top-[53px]" : "top-0"} z-50 transition-all duration-300`}>
+      <header className="border-b border-zinc-200 dark:border-zinc-900 bg-white/80 dark:bg-zinc-950/85 backdrop-blur-md sticky top-0 z-50 transition-all duration-300">
         <div id="navigation-bar" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           
           {/* Logo and Identity */}
@@ -496,6 +579,23 @@ export default function App() {
           );
         })}
       </div>
+
+      {/* Fullscreen premium transition loader overlay */}
+      {isTransitioning && (
+        <div className="fixed inset-0 z-[999999] bg-zinc-950/90 backdrop-blur-md flex flex-col items-center justify-center font-sans select-none">
+          <div className="flex flex-col items-center max-w-sm px-6 text-center space-y-6 animate-in fade-in duration-300">
+            <div className="w-12 h-12 border-3 border-rose-500/10 rounded-full border-top-rose-500 animate-spin" style={{ borderTopColor: '#f43f5e', borderTopWidth: '3px' }} />
+            <div className="space-y-2">
+              <h3 className="text-lg font-bold text-white font-heading tracking-tight">
+                Procesando cambios...
+              </h3>
+              <p className="text-xs text-zinc-400 leading-relaxed font-light">
+                Comunicándonos con el entorno local de Git para aplicar los cambios de forma segura. La página se actualizará en un instante sin perder tu estado.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
