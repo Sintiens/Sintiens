@@ -15,8 +15,7 @@
     "rh": 100,
     "priority": "high",
     "status": "todo",
-    "createdAt": "2026-05-29T11:00:00.000Z",
-    "originalBranch": "main"
+    "createdAt": "2026-05-29T11:00:00.000Z"
   },
   {
     "id": "t_bug_scroll_propagation",
