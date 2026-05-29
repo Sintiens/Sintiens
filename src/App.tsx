@@ -50,8 +50,23 @@ export default function App() {
 
   const handleCancelPreview = async (taskId: string) => {
     try {
+      const originalTitle = activePreviewTask?.title;
       const res = await fetch(`/api/dev/tasks/${taskId}/reject`, { method: "POST" });
       if (res.ok) {
+        if (originalTitle) {
+          try {
+            await fetch(`/api/dev/tasks/${taskId}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                title: originalTitle,
+                status: "todo"
+              })
+            });
+          } catch (putErr) {
+            console.error("Failed to restore task title and status:", putErr);
+          }
+        }
         localStorage.removeItem("dev-mode-preview-task-id");
         window.location.reload();
       } else {
