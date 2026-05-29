@@ -71,3 +71,20 @@
   transition: padding-right 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
   padding-right: var(--dev-sidebar-width, 0px);
 }
+
+/* AI Feedback disclaimer injection inside the modal (without modifying DevModeOverlay.tsx) */
+.dev-mode-ui div:has(> textarea[placeholder^="Ej: El botón"])::after {
+  content: "💡 Nota: Tus comentarios se guardarán localmente en todo.json de forma segura. La IA los leerá y corregirá automáticamente en su próxima ejecución, manteniendo la arquitectura local y offline intacta.";
+  display: block;
+  font-size: 10px;
+  color: #a78bfa; /* Violet text matching the developer panel */
+  background: rgba(167, 139, 250, 0.05); /* Soft premium purple background glow */
+  border: 1px solid rgba(167, 139, 250, 0.15); /* Subtle glowing border */
+  padding: 10px 14px;
+  border-radius: 14px;
+  margin-top: 10px;
+  line-height: 1.45;
+  font-weight: 400;
+  text-align: left;
+}
+
