@@ -375,21 +375,24 @@ app.post("/api/dev/tasks/:id/preview", async (req, res) => {
       return res.json({ success: true, activeBranch: branchName });
     }
 
-    task.originalBranch = currentBranch;
-
+    let hasStashedChanges = false;
     // Si el usuario tiene cambios locales sin confirmar, los stasheamos
     const { stdout: status } = await runGitSecure(["status", "--porcelain"]);
     if (status.length > 0) {
       console.log("Stashing local changes before preview...");
       await runGitSecure(["stash", "save", `AI Preview Auto-Stash [${id}]`]);
-      task.hasStashedChanges = true;
+      hasStashedChanges = true;
     }
 
-    // Guardar cambios del originalBranch / hasStashedChanges antes de cambiar rama
-    await dbMutex.run(async () => {
-      tasks[index] = task;
-      await writeTasks(tasks);
-    });
+    // Usar preview_state.json para no modificar todo.json que causa conflictos con git
+    const previewStatePath = path.join(os.homedir(), ".gemini", "antigravity", "preview_state.json");
+    try {
+      const state = JSON.parse(await fs.readFile(previewStatePath, 'utf8').catch(() => '{}'));
+      state[id] = { originalBranch: currentBranch, hasStashedChanges };
+      await fs.writeFile(previewStatePath, JSON.stringify(state, null, 2));
+    } catch (e) {
+      console.warn("Failed to write preview state", e);
+    }
 
     // Hacer el checkout de la rama de la IA
     await runGitSecure(["checkout", branchName]);
@@ -424,7 +427,19 @@ app.post("/api/dev/tasks/:id/approve", async (req, res) => {
 
     const { task, index, tasks } = taskResult;
     const branchName = `ai-review-${id}`;
-    const originalBranch = task.originalBranch || "main";
+    
+    let originalBranch = task.originalBranch || "main";
+    let hasStashedChanges = task.hasStashedChanges || false;
+    const previewStatePath = path.join(os.homedir(), ".gemini", "antigravity", "preview_state.json");
+    try {
+      const state = JSON.parse(await fs.readFile(previewStatePath, 'utf8').catch(() => '{}'));
+      if (state[id]) {
+        originalBranch = state[id].originalBranch || originalBranch;
+        hasStashedChanges = state[id].hasStashedChanges || hasStashedChanges;
+        delete state[id];
+        await fs.writeFile(previewStatePath, JSON.stringify(state, null, 2));
+      }
+    } catch (e) {}
 
     // Cambiar de vuelta a la rama original del usuario
     await runGitSecure(["checkout", originalBranch]);
@@ -441,7 +456,7 @@ app.post("/api/dev/tasks/:id/approve", async (req, res) => {
     }
 
     // Deshacer el stash si existía alguno para esta previsualización
-    if (task.hasStashedChanges) {
+    if (hasStashedChanges) {
       try {
         console.log("Popping preview stash...");
         await runGitSecure(["stash", "pop"]);
@@ -501,7 +516,19 @@ app.post("/api/dev/tasks/:id/reject", async (req, res) => {
 
     const { task, index, tasks } = taskResult;
     const branchName = `ai-review-${id}`;
-    const originalBranch = task.originalBranch || "main";
+    
+    let originalBranch = task.originalBranch || "main";
+    let hasStashedChanges = task.hasStashedChanges || false;
+    const previewStatePath = path.join(os.homedir(), ".gemini", "antigravity", "preview_state.json");
+    try {
+      const state = JSON.parse(await fs.readFile(previewStatePath, 'utf8').catch(() => '{}'));
+      if (state[id]) {
+        originalBranch = state[id].originalBranch || originalBranch;
+        hasStashedChanges = state[id].hasStashedChanges || hasStashedChanges;
+        delete state[id];
+        await fs.writeFile(previewStatePath, JSON.stringify(state, null, 2));
+      }
+    } catch (e) {}
 
     // Volver a la rama original
     await runGitSecure(["checkout", originalBranch]);
@@ -514,7 +541,7 @@ app.post("/api/dev/tasks/:id/reject", async (req, res) => {
     }
 
     // Deshacer el stash
-    if (task.hasStashedChanges) {
+    if (hasStashedChanges) {
       try {
         console.log("Popping preview stash on reject...");
         await runGitSecure(["stash", "pop"]);
@@ -582,13 +609,25 @@ app.post("/api/dev/tasks/:id/feedback", async (req, res) => {
     }
 
     const { task, index, tasks } = taskResult;
-    const originalBranch = task.originalBranch || "main";
+    
+    let originalBranch = task.originalBranch || "main";
+    let hasStashedChanges = task.hasStashedChanges || false;
+    const previewStatePath = path.join(os.homedir(), ".gemini", "antigravity", "preview_state.json");
+    try {
+      const state = JSON.parse(await fs.readFile(previewStatePath, 'utf8').catch(() => '{}'));
+      if (state[id]) {
+        originalBranch = state[id].originalBranch || originalBranch;
+        hasStashedChanges = state[id].hasStashedChanges || hasStashedChanges;
+        delete state[id];
+        await fs.writeFile(previewStatePath, JSON.stringify(state, null, 2));
+      }
+    } catch (e) {}
 
     // Volver a la rama original
     await runGitSecure(["checkout", originalBranch]);
 
     // Deshacer el stash
-    if (task.hasStashedChanges) {
+    if (hasStashedChanges) {
       try {
         console.log("Popping preview stash on feedback submission...");
         await runGitSecure(["stash", "pop"]);
