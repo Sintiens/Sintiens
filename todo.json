@@ -15,7 +15,8 @@
     "rh": 100,
     "priority": "high",
     "status": "todo",
-    "createdAt": "2026-05-27T16:35:00.000Z"
+    "createdAt": "2026-05-29T11:00:00.000Z",
+    "originalBranch": "main"
   },
   {
     "id": "t_bug_scroll_propagation",
@@ -33,7 +34,7 @@
     "rh": 96,
     "priority": "high",
     "status": "todo",
-    "createdAt": "2026-05-27T16:35:00.000Z"
+    "createdAt": "2026-05-29T11:00:00.000Z"
   },
   {
     "id": "t_glosario_desplegable",
@@ -51,7 +52,7 @@
     "rh": 18,
     "priority": "normal",
     "status": "todo",
-    "createdAt": "2026-05-27T16:35:00.000Z"
+    "createdAt": "2026-05-29T11:00:00.000Z"
   },
   {
     "id": "t_unificar_cronograma",
