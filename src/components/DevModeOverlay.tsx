@@ -193,6 +193,7 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
     } else {
       localStorage.removeItem("dev-mode-preview-task-id");
     }
+    window.dispatchEvent(new Event("preview-state-changed"));
   }, [activePreviewTaskId]);
 
   // Flush pending delete on unmount/cleanup
@@ -364,8 +365,7 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
       const res = await fetch(`/api/dev/tasks/${taskId}/preview`, { method: "POST" });
       if (res.ok) {
         setActivePreviewTaskId(taskId);
-        // Refresh page so Vite reloads all files and Hot Module Replacement triggers.
-        window.location.reload();
+        // HMR se encargará de refrescar los componentes sin recargar la página entera
       } else {
         const errorData = await res.json();
         alert(`Error al iniciar previsualización: ${errorData.error || "Algo salió mal"}`);
@@ -385,7 +385,6 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
       if (res.ok) {
         setActivePreviewTaskId(null);
         alert("¡Previsualización aprobada y fusionada con éxito en tu código principal!");
-        window.location.reload();
       } else {
         const errorData = await res.json();
         alert(`Error al aprobar: ${errorData.error || "Algo salió mal"}`);
@@ -408,7 +407,6 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
       if (res.ok) {
         setActivePreviewTaskId(null);
         alert("Cambios rechazados de forma segura. Volviendo a tu código original.");
-        window.location.reload();
       } else {
         const errorData = await res.json();
         alert(`Error al rechazar: ${errorData.error || "Algo salió mal"}`);
@@ -438,7 +436,7 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
         setFeedbackTaskId(null);
         setPreviewFeedbackText("");
         alert("Feedback enviado a la IA de forma segura. Volviendo a tu código original.");
-        window.location.reload();
+        window.dispatchEvent(new Event("preview-state-changed"));
       } else {
         const errorData = await res.json();
         alert(`Error al enviar comentarios: ${errorData.error || "Algo salió mal"}`);

@@ -69,31 +69,27 @@ export default function App() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showIaExplanation, setShowIaExplanation] = useState(true);
 
-  const activePreviewId = localStorage.getItem("dev-mode-preview-task-id");
+  const [activePreviewId, setActivePreviewId] = useState(() => localStorage.getItem("dev-mode-preview-task-id"));
+
+  useEffect(() => {
+    const handleStorage = () => setActivePreviewId(localStorage.getItem("dev-mode-preview-task-id"));
+    window.addEventListener("storage", handleStorage);
+    window.addEventListener("preview-state-changed", handleStorage);
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("preview-state-changed", handleStorage);
+    };
+  }, []);
   const activePreviewTask = activePreviewId ? todoTasks.find((t: any) => t.id === activePreviewId) : null;
 
   const handleCancelPreview = async (taskId: string) => {
     setIsTransitioning(true);
     try {
-      const originalTitle = activePreviewTask?.title;
-      const res = await fetch(`/api/dev/tasks/${taskId}/reject`, { method: "POST" });
+      const res = await fetch(`/api/dev/tasks/${taskId}/stop-preview`, { method: "POST" });
       if (res.ok) {
-        if (originalTitle) {
-          try {
-            await fetch(`/api/dev/tasks/${taskId}`, {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                title: originalTitle,
-                status: "todo"
-              })
-            });
-          } catch (putErr) {
-            console.error("Failed to restore task title and status:", putErr);
-          }
-        }
         localStorage.removeItem("dev-mode-preview-task-id");
-        window.location.reload();
+        window.dispatchEvent(new Event("preview-state-changed"));
+        setIsTransitioning(false);
       } else {
         setIsTransitioning(false);
         const errorData = await res.json();
@@ -112,8 +108,9 @@ export default function App() {
       const res = await fetch(`/api/dev/tasks/${taskId}/approve`, { method: "POST" });
       if (res.ok) {
         localStorage.removeItem("dev-mode-preview-task-id");
+        window.dispatchEvent(new Event("preview-state-changed"));
+        setIsTransitioning(false);
         alert("¡Previsualización aprobada y fusionada con éxito en tu código principal!");
-        window.location.reload();
       } else {
         setIsTransitioning(false);
         const errorData = await res.json();
