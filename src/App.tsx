@@ -16,7 +16,9 @@ import {
   Sun,
   Moon,
   Clock,
-  History
+  History,
+  Check,
+  X
 } from "lucide-react";
 import ConceptExplorer from "./components/ConceptExplorer";
 import TimelineExplorer from "./components/TimelineExplorer";
@@ -28,6 +30,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { CORE_NODES } from "./types";
 import DevModeOverlay from "./components/DevModeOverlay";
 import DevErrorBoundary from "./components/DevErrorBoundary";
+import todoTasks from "../todo.json";
 
 type TabType = "grafo" | "cronologia" | "dialectica" | "calculadora" | "validador";
 
@@ -41,6 +44,86 @@ export default function App() {
     // Default to dark for premium bioethical vibe
     return "dark";
   });
+
+  const activePreviewId = localStorage.getItem("dev-mode-preview-task-id");
+  const activePreviewTask = activePreviewId ? todoTasks.find((t: any) => t.id === activePreviewId) : null;
+
+  const handleCancelPreview = async (taskId: string) => {
+    try {
+      const res = await fetch(`/api/dev/tasks/${taskId}/reject`, { method: "POST" });
+      if (res.ok) {
+        localStorage.removeItem("dev-mode-preview-task-id");
+        window.location.reload();
+      } else {
+        const errorData = await res.json();
+        alert(`Error al cancelar previsualización: ${errorData.error || "Algo salió mal"}`);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Error de red al cancelar previsualización.");
+    }
+  };
+
+  const handleApprovePreview = async (taskId: string) => {
+    try {
+      const res = await fetch(`/api/dev/tasks/${taskId}/approve`, { method: "POST" });
+      if (res.ok) {
+        localStorage.removeItem("dev-mode-preview-task-id");
+        alert("¡Previsualización aprobada y fusionada con éxito en tu código principal!");
+        window.location.reload();
+      } else {
+        const errorData = await res.json();
+        alert(`Error al aprobar previsualización: ${errorData.error || "Algo salió mal"}`);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Error de red al aprobar previsualización.");
+    }
+  };
+
+  // Listen to Escape key to abort preview
+  useEffect(() => {
+    if (!activePreviewId) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleCancelPreview(activePreviewId);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activePreviewId]);
+
+  // Auto-scroll & Highlight target element in preview mode
+  useEffect(() => {
+    if (!activePreviewId || !activePreviewTask || !activePreviewTask.selector) return;
+
+    // Switch tab if necessary
+    if (activePreviewTask.tab && activePreviewTask.tab !== "general" && activePreviewTask.tab !== activeTab) {
+      setActiveTab(activePreviewTask.tab as any);
+    }
+
+    const timer = setTimeout(() => {
+      try {
+        const el = document.querySelector(activePreviewTask.selector) as HTMLElement | null;
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+          
+          // Temporary pulse highlighting effect
+          el.classList.add("ring-4", "ring-rose-500/50", "transition-all", "duration-1000");
+          setTimeout(() => {
+            el.classList.remove("ring-4", "ring-rose-500/50");
+          }, 3500);
+        }
+      } catch (e) {
+        console.warn("Failed to scroll to preview selector:", e);
+      }
+    }, 1200);
+
+    return () => clearTimeout(timer);
+  }, [activePreviewId, activePreviewTask]);
 
   useEffect(() => {
     if (theme === "dark") {
@@ -89,11 +172,48 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 font-sans text-zinc-800 dark:text-zinc-200 selection:bg-zinc-200 dark:selection:bg-zinc-800 selection:text-zinc-900 dark:selection:text-white flex flex-col justify-between transition-colors duration-300 pb-24 md:pb-0 dev-sidebar-resizer">
+      {/* Active Preview Control Bar */}
+      {activePreviewTask && (
+        <div className="bg-zinc-950 text-white border-b border-rose-500/20 py-3.5 px-4 sm:px-6 sticky top-0 z-[100] shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 select-none w-full">
+          <div className="flex items-center gap-3">
+            <span className="flex h-2.5 w-2.5 shrink-0 relative items-center justify-center">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-rose-500" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-rose-500" />
+            </span>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+              <span className="text-[10px] font-mono font-black tracking-widest uppercase bg-rose-500/10 text-rose-400 border border-rose-500/20 px-2 py-0.5 rounded font-bold">
+                Previsualización IA
+              </span>
+              <p className="text-xs font-light text-zinc-350">
+                Probando cambios para: <span className="font-bold text-white">{activePreviewTask.title.replace("[IA: Listo para verificar]", "").trim()}</span>
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 shrink-0">
+            <span className="hidden md:inline text-[10px] font-mono text-zinc-550 mr-2">(o pulsa ESC para salir)</span>
+            <button
+              onClick={() => handleCancelPreview(activePreviewTask.id)}
+              className="flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold font-mono text-zinc-400 hover:text-white border border-zinc-800 hover:border-zinc-700 bg-zinc-900 hover:bg-zinc-850 cursor-pointer transition-all duration-200"
+            >
+              <X className="w-3.5 h-3.5" />
+              <span>Dejar de ver</span>
+            </button>
+            <button
+              onClick={() => handleApprovePreview(activePreviewTask.id)}
+              className="flex items-center justify-center gap-1 px-3.5 py-1.5 rounded-lg text-xs font-bold font-mono text-white bg-rose-500 hover:bg-rose-600 border border-rose-400/20 shadow-md cursor-pointer transition-all duration-200"
+            >
+              <Check className="w-3.5 h-3.5" />
+              <span>Aprobar Cambios</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Dynamic Upper Ambient Border Glow */}
       <div className="absolute top-0 left-0 right-0 h-[450px] bg-radial from-purple-950/5 dark:from-purple-950/15 via-transparent to-transparent pointer-events-none z-0" />
 
       {/* Primary header navbar container */}
-      <header className="border-b border-zinc-200 dark:border-zinc-900 bg-white/80 dark:bg-zinc-950/85 backdrop-blur-md sticky top-0 z-50 transition-colors duration-300">
+      <header className={`border-b border-zinc-200 dark:border-zinc-900 bg-white/80 dark:bg-zinc-950/85 backdrop-blur-md sticky ${activePreviewTask ? "top-[92px] sm:top-[53px]" : "top-0"} z-50 transition-all duration-300`}>
         <div id="navigation-bar" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           
           {/* Logo and Identity */}
