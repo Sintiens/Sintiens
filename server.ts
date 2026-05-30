@@ -661,6 +661,61 @@ app.post("/api/dev/tasks/:id/feedback", async (req, res) => {
   }
 });
 
+// Endpoint: Salir de la previsualización sin rechazar la tarea (mantener rama)
+app.post("/api/dev/tasks/:id/stop-preview", async (req, res) => {
+  if (process.env.NODE_ENV === "production") {
+    return res.status(403).json({ error: "No permitido en producción" });
+  }
+  
+  const { id } = req.params;
+  if (!id || typeof id !== "string" || /[^a-zA-Z0-9_-]/.test(id)) {
+    return res.status(400).json({ error: "ID de tarea inválido o inseguro." });
+  }
+
+  try {
+    const taskResult = await dbMutex.run(async () => {
+      const tasks = await readTasks();
+      const index = tasks.findIndex((t) => t.id === id);
+      if (index === -1) return null;
+      return { task: tasks[index], index, tasks };
+    });
+
+    if (!taskResult) {
+      return res.status(404).json({ error: "Tarea no encontrada." });
+    }
+
+    let originalBranch = "main";
+    let hasStashedChanges = false;
+    const previewStatePath = path.join(os.homedir(), ".gemini", "antigravity", "preview_state.json");
+    try {
+      const state = JSON.parse(await fs.readFile(previewStatePath, 'utf8').catch(() => '{}'));
+      if (state[id]) {
+        originalBranch = state[id].originalBranch || originalBranch;
+        hasStashedChanges = state[id].hasStashedChanges || hasStashedChanges;
+        delete state[id];
+        await fs.writeFile(previewStatePath, JSON.stringify(state, null, 2));
+      }
+    } catch (e) {}
+
+    // Volver a la rama original
+    await runGitSecure(["checkout", originalBranch]);
+
+    // Deshacer el stash
+    if (hasStashedChanges) {
+      try {
+        console.log("Popping preview stash on stop-preview...");
+        await runGitSecure(["stash", "pop"]);
+      } catch (stashErr) {
+        console.warn("Failed to pop stash on stop-preview.", stashErr);
+      }
+    }
+
+    res.json({ success: true, status: "stopped" });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // API routes FIRST
 app.post("/api/analyze-argument", async (req, res) => {
   try {
