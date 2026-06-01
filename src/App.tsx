@@ -1,3 +1,4 @@
+// Sintiens — ¿Qué vidas importan? — Premium Ethical & Bioethical Portal
 import { useState, useEffect } from "react";
 import { 
   Compass, 
