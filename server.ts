@@ -6,10 +6,7 @@ import { createServer as createViteServer } from "vite";
 import fs from "fs/promises";
 import { fileURLToPath } from "url";
 import os from "os";
-import { execFile as execFileCallback } from "child_process";
-import { promisify } from "util";
 
-const execFile = promisify(execFileCallback);
 
 dotenv.config();
 
@@ -111,16 +108,7 @@ async function atomicWriteFile(filePath: string, data: string): Promise<void> {
   }
 }
 
-// Secure Git command execution using execFile (avoids shell injection)
-async function runGitSecure(args: string[]): Promise<{ stdout: string; stderr: string }> {
-  try {
-    const { stdout, stderr } = await execFile("git", args, { cwd: tasksDirectory });
-    return { stdout: stdout.trim(), stderr: stderr.trim() };
-  } catch (err: any) {
-    console.error(`Error running Git command: git ${args.join(" ")}`, err);
-    throw new Error(`Git error: ${err.message}`);
-  }
-}
+
 
 // Helper to read tasks with safe recovery from backup (fixed empty-task false-positive)
 async function readTasks(): Promise<any[]> {
@@ -233,6 +221,34 @@ app.post("/api/dev/tasks", async (req, res) => {
   }
 });
 
+app.put("/api/dev/tasks", async (req, res) => {
+  if (process.env.NODE_ENV === "production") {
+    return res.status(403).json({ error: "No permitido en producción" });
+  }
+  try {
+    const tasks = req.body;
+    if (!Array.isArray(tasks)) {
+      return res.status(400).json({ error: "Se requiere un array de tareas válido." });
+    }
+    
+    // Validate that each item has a title
+    for (const task of tasks) {
+      if (!task.title || typeof task.title !== "string" || !task.title.trim()) {
+        return res.status(400).json({ error: "Todas las tareas importadas deben contener un título válido." });
+      }
+    }
+    
+    const success = await dbMutex.run(async () => writeTasks(tasks));
+    if (!success) {
+      throw new Error("No se pudieron guardar las tareas importadas.");
+    }
+    
+    res.json({ message: `Se importaron ${tasks.length} tareas correctamente.` });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.put("/api/dev/tasks/:id", async (req, res) => {
   if (process.env.NODE_ENV === "production") {
     return res.status(403).json({ error: "No permitido en producción" });
@@ -319,402 +335,104 @@ app.delete("/api/dev/tasks/:id", async (req, res) => {
   }
 });
 
-// Endpoint: Obtener el estado actual de Git (Safe execFile wrapper)
-app.get("/api/dev/git-status", async (req, res) => {
+// --- BACKUP & RESTORE SYSTEM ENDPOINTS ---
+const BACKUPS_DIR = path.join(tasksDirectory, "backups");
+
+app.get("/api/dev/tasks/backups", async (req, res) => {
   if (process.env.NODE_ENV === "production") {
     return res.status(403).json({ error: "No permitido en producción" });
   }
   try {
-    const { stdout: branch } = await runGitSecure(["branch", "--show-current"]);
-    const { stdout: status } = await runGitSecure(["status", "--porcelain"]);
-    res.json({
-      branch,
-      hasUncommittedChanges: status.length > 0,
+    await fs.mkdir(BACKUPS_DIR, { recursive: true });
+    const files = await fs.readdir(BACKUPS_DIR);
+    const backupFiles = files.filter(f => f.startsWith("todo_backup_") && f.endsWith(".json"));
+    
+    const backups = await Promise.all(
+      backupFiles.map(async (filename) => {
+        const filePath = path.join(BACKUPS_DIR, filename);
+        const stats = await fs.stat(filePath);
+        return {
+          filename,
+          size: stats.size,
+          createdAt: stats.mtime.toISOString(),
+        };
+      })
+    );
+    
+    // Sort backups from newest to oldest
+    backups.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    res.json(backups);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/api/dev/tasks/backup", async (req, res) => {
+  if (process.env.NODE_ENV === "production") {
+    return res.status(403).json({ error: "No permitido en producción" });
+  }
+  try {
+    await fs.mkdir(BACKUPS_DIR, { recursive: true });
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const backupFilename = `todo_backup_${timestamp}.json`;
+    const backupFilePath = path.join(BACKUPS_DIR, backupFilename);
+    
+    // Read the current tasks
+    const tasks = await dbMutex.run(async () => readTasks());
+    
+    // Write atomically to the backups folder
+    await atomicWriteFile(backupFilePath, JSON.stringify(tasks, null, 2));
+    
+    res.status(201).json({ 
+      message: "Copia de seguridad creada correctamente.",
+      filename: backupFilename,
+      createdAt: new Date().toISOString()
     });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// Endpoint: Iniciar previsualización en vivo de una tarea
-app.post("/api/dev/tasks/:id/preview", async (req, res) => {
+app.post("/api/dev/tasks/restore", async (req, res) => {
   if (process.env.NODE_ENV === "production") {
     return res.status(403).json({ error: "No permitido en producción" });
   }
-  
-  const { id } = req.params;
-  if (!id || typeof id !== "string" || /[^a-zA-Z0-9_-]/.test(id)) {
-    return res.status(400).json({ error: "ID de tarea inválido o inseguro." });
-  }
-
-  try {
-    const taskResult = await dbMutex.run(async () => {
-      const tasks = await readTasks();
-      const index = tasks.findIndex((t) => t.id === id);
-      if (index === -1) return null;
-      return { task: tasks[index], index, tasks };
-    });
-
-    if (!taskResult) {
-      return res.status(404).json({ error: "Tarea no encontrada." });
-    }
-
-    const { task, index, tasks } = taskResult;
-    const branchName = `ai-review-${id}`;
-
-    // Verificar si la rama existe localmente (con execFile wrapper, safe and shell-bypass)
-    try {
-      await runGitSecure(["show-ref", "--verify", `refs/heads/${branchName}`]);
-    } catch (e) {
-      return res.status(400).json({ error: `La rama ${branchName} para previsualizar no existe.` });
-    }
-
-    const { stdout: currentBranch } = await runGitSecure(["branch", "--show-current"]);
-    
-    if (currentBranch === branchName) {
-      return res.json({ success: true, activeBranch: branchName });
-    }
-
-    let hasStashedChanges = false;
-    // Si el usuario tiene cambios locales sin confirmar, los stasheamos
-    const { stdout: status } = await runGitSecure(["status", "--porcelain"]);
-    if (status.length > 0) {
-      console.log("Stashing local changes before preview...");
-      await runGitSecure(["stash", "save", `AI Preview Auto-Stash [${id}]`]);
-      hasStashedChanges = true;
-    }
-
-    // Usar preview_state.json para no modificar todo.json que causa conflictos con git
-    const previewStatePath = path.join(os.homedir(), ".gemini", "antigravity", "preview_state.json");
-    try {
-      const state = JSON.parse(await fs.readFile(previewStatePath, 'utf8').catch(() => '{}'));
-      state[id] = { originalBranch: currentBranch, hasStashedChanges };
-      await fs.writeFile(previewStatePath, JSON.stringify(state, null, 2));
-    } catch (e) {
-      console.warn("Failed to write preview state", e);
-    }
-
-    // Hacer el checkout de la rama de la IA
-    await runGitSecure(["checkout", branchName]);
-    res.json({ success: true, activeBranch: branchName });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Endpoint: Aprobar y fusionar cambios de una tarea
-app.post("/api/dev/tasks/:id/approve", async (req, res) => {
-  if (process.env.NODE_ENV === "production") {
-    return res.status(403).json({ error: "No permitido en producción" });
+  const { backupFilename } = req.body;
+  if (!backupFilename || typeof backupFilename !== "string" || /[^a-zA-Z0-9_.-]/.test(backupFilename)) {
+    return res.status(400).json({ error: "Nombre de archivo de copia de seguridad no válido o peligroso." });
   }
   
-  const { id } = req.params;
-  if (!id || typeof id !== "string" || /[^a-zA-Z0-9_-]/.test(id)) {
-    return res.status(400).json({ error: "ID de tarea inválido o inseguro." });
-  }
-
   try {
-    const taskResult = await dbMutex.run(async () => {
-      const tasks = await readTasks();
-      const index = tasks.findIndex((t) => t.id === id);
-      if (index === -1) return null;
-      return { task: tasks[index], index, tasks };
-    });
-
-    if (!taskResult) {
-      return res.status(404).json({ error: "Tarea no encontrada." });
-    }
-
-    const { task, index, tasks } = taskResult;
-    const branchName = `ai-review-${id}`;
+    const backupFilePath = path.join(BACKUPS_DIR, backupFilename);
     
-    let originalBranch = task.originalBranch || "main";
-    let hasStashedChanges = task.hasStashedChanges || false;
-    const previewStatePath = path.join(os.homedir(), ".gemini", "antigravity", "preview_state.json");
+    // Check if backup file exists
     try {
-      const state = JSON.parse(await fs.readFile(previewStatePath, 'utf8').catch(() => '{}'));
-      if (state[id]) {
-        originalBranch = state[id].originalBranch || originalBranch;
-        hasStashedChanges = state[id].hasStashedChanges || hasStashedChanges;
-        delete state[id];
-        await fs.writeFile(previewStatePath, JSON.stringify(state, null, 2));
-      }
-    } catch (e) {}
-
-    // Cambiar de vuelta a la rama original del usuario
-    await runGitSecure(["checkout", originalBranch]);
-
-    // Fusionar la rama de la IA en la rama original
-    console.log(`Merging ${branchName} into ${originalBranch}...`);
-    await runGitSecure(["merge", branchName, "--no-edit", "-m", `Merge branch '${branchName}' via AI Dev Board`]);
-
-    // Eliminar la rama temporal
-    try {
-      await runGitSecure(["branch", "-D", branchName]);
-    } catch (e) {
-      console.warn("Failed to delete merged branch:", e);
+      await fs.access(backupFilePath);
+    } catch {
+      return res.status(404).json({ error: "Copia de seguridad no encontrada." });
     }
-
-    // Deshacer el stash si existía alguno para esta previsualización
-    if (hasStashedChanges) {
-      try {
-        console.log("Popping preview stash...");
-        await runGitSecure(["stash", "pop"]);
-      } catch (stashErr) {
-        console.warn("Failed to pop stash, local changes might be conflicted. Stash remains safe in Git history.", stashErr);
-      }
-    }
-
-    // Limpiar el prefijo de título de la IA
-    let cleanTitle = task.title;
-    const prefixes = ["[IA: Listo para verificar]", "[IA: Listo para verificar (V2)]", "[IA: Ajustes Solicitados]", "[IA: Sugerencia de Diseño]"];
-    for (const prefix of prefixes) {
-      if (cleanTitle.startsWith(prefix)) {
-        cleanTitle = cleanTitle.substring(prefix.length).trim();
-      }
-    }
-
-    task.title = cleanTitle;
-    task.status = "done";
-    task.originalBranch = undefined;
-    task.hasStashedChanges = undefined;
-    task.aiFeedback = undefined;
-
+    
+    // Read from backup and write to main todo.json
     await dbMutex.run(async () => {
-      tasks[index] = task;
-      await writeTasks(tasks);
+      const data = await fs.readFile(backupFilePath, "utf-8");
+      const tasks = JSON.parse(data);
+      if (!Array.isArray(tasks)) {
+        throw new Error("El archivo de copia de seguridad no contiene una lista de tareas válida.");
+      }
+      const success = await writeTasks(tasks);
+      if (!success) {
+        throw new Error("No se pudo escribir la base de datos restaurada.");
+      }
     });
-
-    res.json({ success: true, status: "done" });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Endpoint: Rechazar y borrar cambios de una tarea
-app.post("/api/dev/tasks/:id/reject", async (req, res) => {
-  if (process.env.NODE_ENV === "production") {
-    return res.status(403).json({ error: "No permitido en producción" });
-  }
-  
-  const { id } = req.params;
-  if (!id || typeof id !== "string" || /[^a-zA-Z0-9_-]/.test(id)) {
-    return res.status(400).json({ error: "ID de tarea inválido o inseguro." });
-  }
-
-  try {
-    const taskResult = await dbMutex.run(async () => {
-      const tasks = await readTasks();
-      const index = tasks.findIndex((t) => t.id === id);
-      if (index === -1) return null;
-      return { task: tasks[index], index, tasks };
-    });
-
-    if (!taskResult) {
-      return res.status(404).json({ error: "Tarea no encontrada." });
-    }
-
-    const { task, index, tasks } = taskResult;
-    const branchName = `ai-review-${id}`;
     
-    let originalBranch = task.originalBranch || "main";
-    let hasStashedChanges = task.hasStashedChanges || false;
-    const previewStatePath = path.join(os.homedir(), ".gemini", "antigravity", "preview_state.json");
-    try {
-      const state = JSON.parse(await fs.readFile(previewStatePath, 'utf8').catch(() => '{}'));
-      if (state[id]) {
-        originalBranch = state[id].originalBranch || originalBranch;
-        hasStashedChanges = state[id].hasStashedChanges || hasStashedChanges;
-        delete state[id];
-        await fs.writeFile(previewStatePath, JSON.stringify(state, null, 2));
-      }
-    } catch (e) {}
-
-    // Volver a la rama original
-    await runGitSecure(["checkout", originalBranch]);
-
-    // Borrar la rama de la IA
-    try {
-      await runGitSecure(["branch", "-D", branchName]);
-    } catch (e) {
-      console.warn(`Branch ${branchName} did not exist or could not be deleted.`);
-    }
-
-    // Deshacer el stash
-    if (hasStashedChanges) {
-      try {
-        console.log("Popping preview stash on reject...");
-        await runGitSecure(["stash", "pop"]);
-      } catch (stashErr) {
-        console.warn("Failed to pop stash on reject.", stashErr);
-      }
-    }
-
-    await dbMutex.run(async () => {
-      // Si es una sugerencia pura de la IA, la eliminamos; de lo contrario restauramos el TODO
-      if (task.title.startsWith("[IA: Sugerencia de Diseño]")) {
-        const filteredTasks = tasks.filter((t) => t.id !== id);
-        await writeTasks(filteredTasks);
-      } else {
-        let cleanTitle = task.title;
-        const prefixes = ["[IA: Listo para verificar]", "[IA: Listo para verificar (V2)]", "[IA: Ajustes Solicitados]"];
-        for (const prefix of prefixes) {
-          if (cleanTitle.startsWith(prefix)) {
-            cleanTitle = cleanTitle.substring(prefix.length).trim();
-          }
-        }
-        task.title = cleanTitle;
-        task.status = "todo";
-        task.originalBranch = undefined;
-        task.hasStashedChanges = undefined;
-        task.aiFeedback = undefined;
-        tasks[index] = task;
-        await writeTasks(tasks);
-      }
-    });
-
-    res.json({ success: true, status: "todo" });
+    res.json({ message: "Tablero restaurado correctamente desde la copia de seguridad." });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// Endpoint: Enviar comentarios de ajuste (Feedback) a la IA
-app.post("/api/dev/tasks/:id/feedback", async (req, res) => {
-  if (process.env.NODE_ENV === "production") {
-    return res.status(403).json({ error: "No permitido en producción" });
-  }
-  
-  const { id } = req.params;
-  if (!id || typeof id !== "string" || /[^a-zA-Z0-9_-]/.test(id)) {
-    return res.status(400).json({ error: "ID de tarea inválido o inseguro." });
-  }
 
-  try {
-    const { feedback } = req.body;
 
-    if (!feedback || typeof feedback !== "string" || !feedback.trim()) {
-      return res.status(400).json({ error: "El comentario no puede estar vacío." });
-    }
-
-    const taskResult = await dbMutex.run(async () => {
-      const tasks = await readTasks();
-      const index = tasks.findIndex((t) => t.id === id);
-      if (index === -1) return null;
-      return { task: tasks[index], index, tasks };
-    });
-
-    if (!taskResult) {
-      return res.status(404).json({ error: "Tarea no encontrada." });
-    }
-
-    const { task, index, tasks } = taskResult;
-    
-    let originalBranch = task.originalBranch || "main";
-    let hasStashedChanges = task.hasStashedChanges || false;
-    const previewStatePath = path.join(os.homedir(), ".gemini", "antigravity", "preview_state.json");
-    try {
-      const state = JSON.parse(await fs.readFile(previewStatePath, 'utf8').catch(() => '{}'));
-      if (state[id]) {
-        originalBranch = state[id].originalBranch || originalBranch;
-        hasStashedChanges = state[id].hasStashedChanges || hasStashedChanges;
-        delete state[id];
-        await fs.writeFile(previewStatePath, JSON.stringify(state, null, 2));
-      }
-    } catch (e) {}
-
-    // Volver a la rama original
-    await runGitSecure(["checkout", originalBranch]);
-
-    // Deshacer el stash
-    if (hasStashedChanges) {
-      try {
-        console.log("Popping preview stash on feedback submission...");
-        await runGitSecure(["stash", "pop"]);
-      } catch (stashErr) {
-        console.warn("Failed to pop stash on feedback.", stashErr);
-      }
-    }
-
-    let cleanTitle = task.title;
-    const prefixes = ["[IA: Listo para verificar]", "[IA: Listo para verificar (V2)]", "[IA: Ajustes Solicitados]"];
-    for (const prefix of prefixes) {
-      if (cleanTitle.startsWith(prefix)) {
-        cleanTitle = cleanTitle.substring(prefix.length).trim();
-      }
-    }
-
-    task.title = `[IA: Ajustes Solicitados] ${cleanTitle}`;
-    task.aiFeedback = feedback.trim();
-    task.status = "todo";
-    task.originalBranch = undefined;
-    task.hasStashedChanges = undefined;
-    
-    await dbMutex.run(async () => {
-      tasks[index] = task;
-      await writeTasks(tasks);
-    });
-
-    res.json({ success: true, updatedTask: task });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Endpoint: Salir de la previsualización sin rechazar la tarea (mantener rama)
-app.post("/api/dev/tasks/:id/stop-preview", async (req, res) => {
-  if (process.env.NODE_ENV === "production") {
-    return res.status(403).json({ error: "No permitido en producción" });
-  }
-  
-  const { id } = req.params;
-  if (!id || typeof id !== "string" || /[^a-zA-Z0-9_-]/.test(id)) {
-    return res.status(400).json({ error: "ID de tarea inválido o inseguro." });
-  }
-
-  try {
-    const taskResult = await dbMutex.run(async () => {
-      const tasks = await readTasks();
-      const index = tasks.findIndex((t) => t.id === id);
-      if (index === -1) return null;
-      return { task: tasks[index], index, tasks };
-    });
-
-    if (!taskResult) {
-      return res.status(404).json({ error: "Tarea no encontrada." });
-    }
-
-    let originalBranch = "main";
-    let hasStashedChanges = false;
-    const previewStatePath = path.join(os.homedir(), ".gemini", "antigravity", "preview_state.json");
-    try {
-      const state = JSON.parse(await fs.readFile(previewStatePath, 'utf8').catch(() => '{}'));
-      if (state[id]) {
-        originalBranch = state[id].originalBranch || originalBranch;
-        hasStashedChanges = state[id].hasStashedChanges || hasStashedChanges;
-        delete state[id];
-        await fs.writeFile(previewStatePath, JSON.stringify(state, null, 2));
-      }
-    } catch (e) {}
-
-    // Volver a la rama original
-    await runGitSecure(["checkout", originalBranch]);
-
-    // Deshacer el stash
-    if (hasStashedChanges) {
-      try {
-        console.log("Popping preview stash on stop-preview...");
-        await runGitSecure(["stash", "pop"]);
-      } catch (stashErr) {
-        console.warn("Failed to pop stash on stop-preview.", stashErr);
-      }
-    }
-
-    res.json({ success: true, status: "stopped" });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
-  }
-});
 
 // API routes FIRST
 app.post("/api/analyze-argument", async (req, res) => {

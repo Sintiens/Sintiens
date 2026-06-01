@@ -1,7 +1,7 @@
 [
   {
     "id": "t_gancho_reflexivo",
-    "title": "[IA: Listo para verificar] Añadir banner de gancho reflexivo introductorio",
+    "title": "Añadir banner de gancho reflexivo introductorio",
     "description": "Diseñar un bloque de enganche emocional e introductorio al inicio de la página que capte la atención y active la reflexión inmediata (ej: '¿Comes carne pero te gustan los animales?').",
     "tab": "grafo",
     "x": 2,
@@ -19,7 +19,7 @@
   },
   {
     "id": "t_bug_scroll_propagation",
-    "title": "[IA: Listo para verificar] Bug de scroll-propagation en tarjetas de detalles expandidas",
+    "title": "Bug de scroll-propagation en tarjetas de detalles expandidas",
     "description": "Al scrolear hasta el final de la descripción en el panel lateral de detalles de un concepto y seguir deslizando, se propaga el scroll a la interfaz y cuerpo de fondo de la web. Resolver bloqueando la propagación (ej: overscroll-behavior: contain).",
     "tab": "grafo",
     "x": 60,
@@ -37,7 +37,7 @@
   },
   {
     "id": "t_glosario_desplegable",
-    "title": "[IA: Listo para verificar] Hacer desplegable la sección 'Ver más sobre esto' del glosario",
+    "title": "Hacer desplegable la sección 'Ver más sobre esto' del glosario",
     "description": "En la mayoría de los casos no es útil que se muestren de inicio todas las referencias cruzadas de una palabra en el glosario. Convertir esta lista en un menú colapsable (dropdown) para mostrarlo solo bajo interés explícito del usuario.",
     "tab": "grafo",
     "x": 5,
@@ -508,5 +508,32 @@
     "priority": "normal",
     "status": "todo",
     "createdAt": "2026-05-27T23:13:06.264Z"
+  },
+  {
+    "id": "j0cyli2mpuzcipu",
+    "title": "empaempatía de los niños con los animales cuando son pequeños",
+    "description": "",
+    "tab": "general",
+    "priority": "normal",
+    "status": "todo",
+    "createdAt": "2026-06-01T09:02:04.482Z"
+  },
+  {
+    "id": "loc8knwmpuzm219",
+    "title": "las tarjetas deberian ser modo historia",
+    "description": "como un modo cronologico, osea que el usuario vaya deslizando y vaya avanzando cronologicamente en los temas como un libro",
+    "tab": "grafo",
+    "x": 2.933626564683274,
+    "y": 25.721794270819252,
+    "w": 55.555553068689505,
+    "h": 10.015039246728783,
+    "selector": "main > div.w-full:nth-of-type(2) > div.w-full > div.space-y-6 > div.grid:nth-of-type(2) > div.p-6:nth-of-type(1) > div.flex > div.grid:nth-of-type(2) > div.group:nth-of-type(2)",
+    "rx": -115.85389035372997,
+    "ry": -49.177090190915074,
+    "rw": 235.47697129497814,
+    "rh": 159.5786701777485,
+    "priority": "normal",
+    "status": "todo",
+    "createdAt": "2026-06-01T09:09:29.421Z"
   }
 ]

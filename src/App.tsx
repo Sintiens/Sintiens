@@ -9,7 +9,7 @@ import {
   Flame, 
   Network, 
   Sparkles, 
-  Heart,
+
   ChevronRight,
   TrendingDown,
   Info,
@@ -26,39 +26,37 @@ import ExcusesDilemmas from "./components/ExcusesDilemmas";
 import ImpactCalculator from "./components/ImpactCalculator";
 import AiValidator from "./components/AiValidator";
 import SocraticReflection from "./components/SocraticReflection";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "motion/react";
 import { CORE_NODES } from "./types";
 import DevModeOverlay from "./components/DevModeOverlay";
 import DevErrorBoundary from "./components/DevErrorBoundary";
-import todoTasks from "../todo.json";
+import SintiensLogo from "./components/SintiensLogo";
 
-const IA_TASK_EXPLANATIONS: Record<string, { summary: string; changes: string; howToTest: string; isVisual: boolean }> = {
-  t_gancho_reflexivo: {
-    summary: "Banner de Gancho Reflexivo Introductorio",
-    changes: "Se ha diseñado e integrado un bloque interactivo de enganche emocional al inicio de la página en la pestaña 'Grafo'. Este banner utiliza una tipografía moderna, un fondo con degradado premium y una pregunta reflexiva ('¿Comes carne pero te gustan los animales?') que conecta directamente con la misión del proyecto.",
-    howToTest: "La página se ha desplazado automáticamente al banner al inicio. Puedes interactuar con él, ver su diseño adaptado a móviles y experimentar la fluidez del botón de acción principal.",
-    isVisual: true
-  },
-  t_bug_scroll_propagation: {
-    summary: "Corrección: Propagación de Scroll en Tarjeta de Detalles",
-    changes: "Se ha resuelto un problema de comportamiento en la experiencia de usuario. Antes, al deslizar hasta el final en el panel lateral de detalles de un concepto, el scroll 'traspasaba' el panel y movía la página web completa de fondo. Se ha corregido aplicando una propiedad de CSS llamada `overscroll-behavior: contain` en el contenedor del panel lateral.",
-    howToTest: "Al ser un ajuste de comportamiento técnico y no una sección nueva, no añade bloques visuales permanentes. Para probarlo: haz clic en cualquier concepto del grafo para abrir su panel lateral de detalles, desliza hacia abajo hasta el final del contenido de la tarjeta y continúa deslizando. Verás que el cuerpo de fondo de la web se mantiene estático y el scroll ya no se propaga.",
-    isVisual: false
-  },
-  t_glosario_desplegable: {
-    summary: "Glosario: Sección 'Ver más sobre esto' Colapsable",
-    changes: "Se ha rediseñado la sección del glosario de términos. Antes, todas las referencias cruzadas y sugerencias ('Ver más sobre esto') se mostraban expandidas de inicio, saturando la pantalla con demasiado texto. Ahora se ha convertido en un menú colapsable (dropdown) interactivo, limpio y ordenado, que solo revela las referencias cuando el usuario hace clic de forma explícita.",
-    howToTest: "La página se ha desplazado a la sección del glosario. Ve al término que tiene referencias y haz clic en el nuevo botón desplegable interactivo. Verás una transición sumamente fluida y cómo se despliega la lista sin sobrecargar el espacio visual.",
-    isVisual: true
-  }
-};
 
 type TabType = "grafo" | "cronologia" | "dialectica" | "calculadora" | "validador";
+
+const NAV_TABS: { id: TabType; label: string }[] = [
+  { id: "grafo", label: "Conceptos" },
+  { id: "cronologia", label: "Cronología" },
+  { id: "dialectica", label: "Tesis & Dilemas" },
+  { id: "calculadora", label: "El Cuantificador" },
+  { id: "validador", label: "Sintiens IA" }
+];
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>("grafo");
   const [passedArgument, setPassedArgument] = useState<string | null>(null);
   const [redirectNodeId, setRedirectNodeId] = useState<string | null>(null);
+  
+  // Hero Header State
+  const { scrollY } = useScroll();
+  const [showStickyNav, setShowStickyNav] = useState(false);
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    const threshold = typeof window !== "undefined" ? window.innerHeight * 0.6 : 500;
+    setShowStickyNav(latest > threshold);
+  });
+  
   const [theme, setTheme] = useState<"dark" | "light">(() => {
     const saved = localStorage.getItem("theme");
     if (saved === "light" || saved === "dark") return saved;
@@ -66,107 +64,7 @@ export default function App() {
     return "dark";
   });
 
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [showIaExplanation, setShowIaExplanation] = useState(true);
 
-  const [activePreviewId, setActivePreviewId] = useState(() => localStorage.getItem("dev-mode-preview-task-id"));
-
-  useEffect(() => {
-    const handleStorage = () => setActivePreviewId(localStorage.getItem("dev-mode-preview-task-id"));
-    window.addEventListener("storage", handleStorage);
-    window.addEventListener("preview-state-changed", handleStorage);
-    return () => {
-      window.removeEventListener("storage", handleStorage);
-      window.removeEventListener("preview-state-changed", handleStorage);
-    };
-  }, []);
-  const activePreviewTask = activePreviewId ? todoTasks.find((t: any) => t.id === activePreviewId) : null;
-
-  const handleCancelPreview = async (taskId: string) => {
-    setIsTransitioning(true);
-    try {
-      const res = await fetch(`/api/dev/tasks/${taskId}/stop-preview`, { method: "POST" });
-      if (res.ok) {
-        localStorage.removeItem("dev-mode-preview-task-id");
-        window.dispatchEvent(new Event("preview-state-changed"));
-        setIsTransitioning(false);
-      } else {
-        setIsTransitioning(false);
-        const errorData = await res.json();
-        alert(`Error al cancelar previsualización: ${errorData.error || "Algo salió mal"}`);
-      }
-    } catch (e) {
-      setIsTransitioning(false);
-      console.error(e);
-      alert("Error de red al cancelar previsualización.");
-    }
-  };
-
-  const handleApprovePreview = async (taskId: string) => {
-    setIsTransitioning(true);
-    try {
-      const res = await fetch(`/api/dev/tasks/${taskId}/approve`, { method: "POST" });
-      if (res.ok) {
-        localStorage.removeItem("dev-mode-preview-task-id");
-        window.dispatchEvent(new Event("preview-state-changed"));
-        setIsTransitioning(false);
-        alert("¡Previsualización aprobada y fusionada con éxito en tu código principal!");
-      } else {
-        setIsTransitioning(false);
-        const errorData = await res.json();
-        alert(`Error al aprobar previsualización: ${errorData.error || "Algo salió mal"}`);
-      }
-    } catch (e) {
-      setIsTransitioning(false);
-      console.error(e);
-      alert("Error de red al aprobar previsualización.");
-    }
-  };
-
-
-  // Listen to Escape key to abort preview
-  useEffect(() => {
-    if (!activePreviewId) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        handleCancelPreview(activePreviewId);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [activePreviewId]);
-
-  // Auto-scroll & Highlight target element in preview mode
-  useEffect(() => {
-    if (!activePreviewId || !activePreviewTask || !activePreviewTask.selector) return;
-
-    // Switch tab if necessary
-    if (activePreviewTask.tab && activePreviewTask.tab !== "general" && activePreviewTask.tab !== activeTab) {
-      setActiveTab(activePreviewTask.tab as any);
-    }
-
-    const timer = setTimeout(() => {
-      try {
-        const el = document.querySelector(activePreviewTask.selector) as HTMLElement | null;
-        if (el) {
-          el.scrollIntoView({ behavior: "smooth", block: "center" });
-          
-          // Temporary pulse highlighting effect
-          el.classList.add("ring-4", "ring-rose-500/50", "transition-all", "duration-1000");
-          setTimeout(() => {
-            el.classList.remove("ring-4", "ring-rose-500/50");
-          }, 3500);
-        }
-      } catch (e) {
-        console.warn("Failed to scroll to preview selector:", e);
-      }
-    }, 1200);
-
-    return () => clearTimeout(timer);
-  }, [activePreviewId, activePreviewTask]);
 
   useEffect(() => {
     if (theme === "dark") {
@@ -215,165 +113,161 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 font-sans text-zinc-800 dark:text-zinc-200 selection:bg-zinc-200 dark:selection:bg-zinc-800 selection:text-zinc-900 dark:selection:text-white flex flex-col justify-between transition-colors duration-300 pb-24 md:pb-0 dev-sidebar-resizer">
-      {/* Active Preview Control Bar */}
-      {activePreviewTask && (
-        <div className="bg-zinc-950 text-white border-b border-rose-500/20 py-4.5 px-4 sm:px-6 relative z-[100] shadow-xl flex flex-col gap-4 select-none w-full">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <span className="flex h-2.5 w-2.5 shrink-0 relative items-center justify-center">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-rose-500" />
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-rose-500" />
-              </span>
-              <div className="flex flex-col gap-1 text-left">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-[10px] font-mono font-black tracking-widest uppercase bg-rose-500/10 text-rose-400 border border-rose-500/20 px-2 py-0.5 rounded font-bold">
-                    Previsualización IA
-                  </span>
-                  <p className="text-xs font-light text-zinc-350">
-                    Probando cambios para: <span className="font-bold text-white">{activePreviewTask.title.replace("[IA: Listo para verificar]", "").trim()}</span>
-                  </p>
-                  {IA_TASK_EXPLANATIONS[activePreviewTask.id] && (
-                    <button
-                      onClick={() => setShowIaExplanation(!showIaExplanation)}
-                      className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-md border flex items-center gap-1 transition-all cursor-pointer ${
-                        showIaExplanation 
-                          ? "bg-rose-500/20 text-rose-350 border-rose-500/30 hover:bg-rose-500/30" 
-                          : "bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white hover:border-zinc-700"
-                      }`}
-                    >
-                      <span>🔍</span>
-                      <span>{showIaExplanation ? "Ocultar explicación" : "Explicación de cambios"}</span>
-                    </button>
-                  )}
-                </div>
-                <p className="text-[9.5px] text-zinc-400 font-light leading-none mt-0.5 flex items-center gap-1">
-                  <span className="text-[10px] select-none text-rose-400">💡</span>
-                  <span>Tus comentarios en <strong>Ajustar</strong> se guardarán localmente en <code>todo.json</code> para que la IA los procese en su siguiente ejecución.</span>
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-3 shrink-0 self-start md:self-auto">
-              <span className="hidden lg:inline text-[10px] font-mono text-zinc-550 mr-2">(o pulsa ESC para salir)</span>
-              <button
-                onClick={() => handleCancelPreview(activePreviewTask.id)}
-                className="flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold font-mono text-zinc-400 hover:text-white border border-zinc-800 hover:border-zinc-700 bg-zinc-900 hover:bg-zinc-850 cursor-pointer transition-all duration-200"
-              >
-                <X className="w-3.5 h-3.5" />
-                <span>Dejar de ver</span>
-              </button>
-              <button
-                onClick={() => handleApprovePreview(activePreviewTask.id)}
-                className="flex items-center justify-center gap-1 px-3.5 py-1.5 rounded-lg text-xs font-bold font-mono text-white bg-rose-500 hover:bg-rose-600 border border-rose-400/20 shadow-md cursor-pointer transition-all duration-200"
-              >
-                <Check className="w-3.5 h-3.5" />
-                <span>Aprobar Cambios</span>
-              </button>
-            </div>
-          </div>
 
-          {/* AI Task Explanatory Panel */}
-          {showIaExplanation && IA_TASK_EXPLANATIONS[activePreviewTask.id] && (
-            <div className="border-t border-zinc-900 pt-3.5 mt-1 text-xs space-y-3.5 animate-in fade-in slide-in-from-top duration-300">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-zinc-950/40 border border-zinc-900/60 rounded-xl p-3.5 text-left">
-                  <h5 className="font-bold text-rose-400 flex items-center gap-1.5 mb-1.5 text-[10.5px] uppercase tracking-wider font-mono">
-                    🛠️ ¿Qué cambios se han realizado?
-                  </h5>
-                  <p className="text-zinc-350 leading-relaxed font-light text-[11.5px]">
-                    {IA_TASK_EXPLANATIONS[activePreviewTask.id].changes}
-                  </p>
-                </div>
-                <div className="bg-zinc-950/40 border border-zinc-900/60 rounded-xl p-3.5 text-left">
-                  <h5 className="font-bold text-purple-400 flex items-center gap-1.5 mb-1.5 text-[10.5px] uppercase tracking-wider font-mono">
-                    💡 ¿Cómo probarlos en vivo?
-                  </h5>
-                  <p className="text-zinc-350 leading-relaxed font-light text-[11.5px]">
-                    {IA_TASK_EXPLANATIONS[activePreviewTask.id].howToTest}
-                  </p>
-                </div>
-              </div>
-              {!IA_TASK_EXPLANATIONS[activePreviewTask.id].isVisual && (
-                <div className="text-[10px] text-amber-400/90 bg-amber-500/5 border border-amber-500/10 px-3 py-2 rounded-xl flex items-center gap-1.5 text-left">
-                  <span>ℹ️</span>
-                  <span>Este cambio es una <strong>mejora de comportamiento o corrección lógica</strong>, por lo que no añade elementos visuales nuevos en la pantalla pero mejora la experiencia de navegación de forma directa.</span>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Dynamic Upper Ambient Border Glow */}
-      <div className="absolute top-0 left-0 right-0 h-[450px] bg-radial from-purple-950/5 dark:from-purple-950/15 via-transparent to-transparent pointer-events-none z-0" />
+      <div className="absolute top-0 left-0 right-0 h-[450px] bg-radial from-emerald-900/5 dark:from-emerald-950/15 via-transparent to-transparent pointer-events-none z-0" />
 
-      {/* Primary header navbar container */}
-      <header className="border-b border-zinc-200 dark:border-zinc-900 bg-white/80 dark:bg-zinc-950/85 backdrop-blur-md sticky top-0 z-50 transition-all duration-300">
-        <div id="navigation-bar" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          
-          {/* Logo and Identity */}
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-rose-500/10 via-purple-600/10 to-emerald-500/10 border border-zinc-200/80 dark:border-zinc-800/85 flex items-center justify-center relative overflow-hidden group transition-all duration-300 shadow-inner">
-              <div className="absolute inset-0 bg-zinc-900/5 dark:bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-              {/* Custom SVG logo representing sentience (heart + neural connection + leaf) */}
-              <svg className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2C8 2 4.5 5.5 4.5 9.5C4.5 15 12 22 12 22C12 22 19.5 15 19.5 9.5C19.5 5.5 16 2 12 2Z" className="stroke-zinc-700 dark:stroke-zinc-300" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M12 6C10.5 7.5 9.5 9 9.5 10.5C9.5 12 10.5 13.5 12 15C13.5 13.5 14.5 12 14.5 10.5C14.5 9 13.5 7.5 12 6Z" className="fill-rose-500/80 dark:fill-rose-400/90 stroke-rose-500 dark:stroke-rose-400" strokeWidth="0.8" />
-                <circle cx="12" cy="10.5" r="2.5" className="fill-white dark:fill-zinc-950 stroke-purple-500 dark:stroke-purple-400" strokeWidth="1.2" />
-              </svg>
-            </div>
-            <h1 className="text-sm font-black text-zinc-900 dark:text-white tracking-widest font-mono uppercase">Sintiens</h1>
-          </div>
-
-          {/* Quick tab controllers & Theme Toggle */}
-          <div className="flex items-center gap-3">
-            <nav className="hidden md:flex space-x-1 bg-zinc-100 dark:bg-zinc-900/60 p-1 rounded-xl border border-zinc-200 dark:border-zinc-900 transition-colors">
-              {(
-                [
-                  { id: "grafo", label: "Conceptos" },
-                  { id: "cronologia", label: "Cronología" },
-                  { id: "dialectica", label: "Tesis & Dilemas" },
-                  { id: "calculadora", label: "El Cuantificador" },
-                  { id: "validador", label: "Sintiens IA" }
-                ] as { id: TabType; label: string }[]
-              ).map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium tracking-tight transition-all duration-200 cursor-pointer ${
-                    activeTab === tab.id
-                      ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-sm border border-zinc-200/50 dark:border-transparent"
-                      : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200/50 dark:hover:bg-zinc-900/50"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </nav>
-
+      {/* Hero Section (Portada) */}
+      <section className="relative min-h-[95vh] w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col justify-between z-10">
+        
+        {/* Top Bar (Logo + Sintiens) */}
+        <div className="flex justify-between items-start w-full">
+          <SintiensLogo className="w-20 h-28 md:w-32 md:h-44 shrink-0" animated />
+          <div className="flex flex-col items-end gap-6 pt-2">
+            <h1 className="text-xl md:text-2xl font-black text-zinc-900 dark:text-white tracking-[0.4em] font-mono uppercase">
+              Sintiens
+            </h1>
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white border border-zinc-200 dark:border-zinc-800 transition-all cursor-pointer flex items-center justify-center"
+              className="p-2 rounded-xl bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm text-zinc-600 dark:text-zinc-300 hover:bg-white dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white border border-zinc-200/50 dark:border-zinc-800/50 transition-all cursor-pointer flex items-center justify-center"
               title={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
             >
               {theme === "dark" ? (
-                <motion.div initial={{ rotate: -30 }} animate={{ rotate: 0 }} transition={{ duration: 0.25 }}>
-                  <Sun className="w-4 h-4 text-amber-400" />
-                </motion.div>
+                <Sun className="w-5 h-5 text-amber-400" />
               ) : (
-                <motion.div initial={{ rotate: 30 }} animate={{ rotate: 0 }} transition={{ duration: 0.25 }}>
-                  <Moon className="w-4 h-4 text-violet-600" />
-                </motion.div>
+                <Moon className="w-5 h-5 text-violet-600" />
               )}
             </button>
           </div>
-
         </div>
-      </header>
+
+        {/* Center Content (Title + Abstract) */}
+        <div className="flex flex-col items-center justify-center flex-grow py-12 md:py-20 text-center">
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1 }}
+            className="text-5xl md:text-7xl lg:text-8xl font-black text-zinc-900 dark:text-white tracking-tight leading-tight mb-6 font-sans"
+          >
+            ¿Qué vidas importan?
+          </motion.h2>
+          
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="text-lg md:text-2xl text-zinc-600 dark:text-zinc-400 font-medium max-w-3xl mb-16 leading-relaxed"
+          >
+            Un análisis crítico sobre nuestra relación con los animales, el impacto ambiental y los axiomas morales que la definen.
+          </motion.p>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            className="bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md border border-zinc-200/60 dark:border-zinc-800/60 p-6 md:p-10 rounded-2xl max-w-4xl text-left shadow-2xl shadow-zinc-200/20 dark:shadow-black/30"
+          >
+            <p className="text-sm md:text-base lg:text-lg text-zinc-700 dark:text-zinc-300 leading-relaxed font-serif text-justify">
+              <span className="font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest text-xs md:text-sm block mb-3">Abstract</span>
+              Este proyecto explora la intersección entre la neurobiología evolutiva y la ética contemporánea, deconstruyendo los sesgos antropocéntricos para ofrecer un marco de empatía fundamentado en la evidencia científica. A través del análisis dialéctico y herramientas interactivas, invitamos a una reflexión profunda sobre nuestra responsabilidad moral hacia el resto de los seres sintientes.
+            </p>
+          </motion.div>
+        </div>
+
+        {/* Bottom Navigation */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 0.8 }}
+          className="w-full flex flex-col items-center gap-8 pb-8"
+        >
+          <nav className="flex flex-wrap justify-center gap-3 md:gap-4">
+            {NAV_TABS.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  // Auto-scroll slightly past the hero
+                  window.scrollTo({ top: window.innerHeight * 0.75, behavior: "smooth" });
+                }}
+                className={`px-5 py-2.5 rounded-xl text-sm font-semibold tracking-tight transition-all duration-300 cursor-pointer ${
+                  activeTab === tab.id
+                    ? "bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 shadow-lg scale-105"
+                    : "bg-white/60 dark:bg-zinc-900/60 text-zinc-600 dark:text-zinc-400 hover:bg-white dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white border border-zinc-200/50 dark:border-zinc-800/50 backdrop-blur-sm shadow-sm"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </nav>
+          
+          <div className="animate-bounce text-zinc-400 dark:text-zinc-600 mt-4">
+            <ChevronRight className="w-6 h-6 rotate-90" />
+          </div>
+        </motion.div>
+      </section>
+
+      {/* Sticky Navigation (Appears on scroll) */}
+      <AnimatePresence>
+        {showStickyNav && (
+          <motion.header 
+            initial={{ y: "-100%", opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: "-100%", opacity: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="fixed top-0 left-0 right-0 z-50 h-16 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-900 shadow-sm"
+          >
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
+              
+              <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+                <SintiensLogo className="w-8 h-11" animated />
+                <span className="text-sm font-black text-zinc-900 dark:text-white tracking-widest font-mono uppercase hidden sm:block">
+                  Sintiens
+                </span>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <nav className="hidden md:flex space-x-1 bg-zinc-100 dark:bg-zinc-900/60 p-1 rounded-xl border border-zinc-200 dark:border-zinc-900">
+                  {NAV_TABS.map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium tracking-tight transition-all duration-200 cursor-pointer ${
+                        activeTab === tab.id
+                          ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-sm border border-zinc-200/50 dark:border-transparent"
+                          : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200/50 dark:hover:bg-zinc-900/50"
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </nav>
+
+                <button
+                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                  className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white border border-zinc-200 dark:border-zinc-800 transition-all cursor-pointer flex items-center justify-center"
+                  title={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+                >
+                  {theme === "dark" ? (
+                    <motion.div initial={{ rotate: -30 }} animate={{ rotate: 0 }} transition={{ duration: 0.25 }}>
+                      <Sun className="w-4 h-4 text-amber-400" />
+                    </motion.div>
+                  ) : (
+                    <motion.div initial={{ rotate: 30 }} animate={{ rotate: 0 }} transition={{ duration: 0.25 }}>
+                      <Moon className="w-4 h-4 text-violet-600" />
+                    </motion.div>
+                  )}
+                </button>
+              </div>
+
+            </div>
+          </motion.header>
+        )}
+      </AnimatePresence>
 
       {/* Main core layout wrapper */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 relative z-10 space-y-12">
-                {/* Welcome Section */}
         <AnimatePresence mode="wait">
           {activeTab === "grafo" && (
             <motion.div
@@ -384,13 +278,6 @@ export default function App() {
               className="space-y-6 max-w-4xl w-full"
               key="welcome-grafo"
             >
-              {/* Badge removed for cleaner header spacing */}
-              <h2 className="text-3xl sm:text-5xl font-black text-zinc-900 dark:text-white tracking-tight leading-tight">
-                ¿Qué vidas importan?
-              </h2>
-              <p className="text-zinc-650 dark:text-zinc-400 text-sm md:text-base font-light leading-relaxed max-w-3xl">
-                Un análisis crítico sobre nuestra relación con los animales y los axiomas que la definen
-              </p>
               <SocraticReflection />
             </motion.div>
           )}
@@ -530,8 +417,8 @@ export default function App() {
       {/* Simple, descriptive minimal footer */}
       <footer className="border-t border-zinc-200 dark:border-zinc-900/60 py-6 mt-16 bg-white dark:bg-zinc-950 transition-colors">
         <div id="footer-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] font-mono text-zinc-500 dark:text-zinc-600">
-          <div className="flex items-center gap-1.5">
-            <Heart className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-700" />
+          <div className="flex items-center gap-2">
+            <SintiensLogo className="w-4 h-4 opacity-60" />
             <span>Sintiens es un proyecto educativo de libre deconstrucción moral.</span>
           </div>
           <div>
@@ -577,22 +464,7 @@ export default function App() {
         })}
       </div>
 
-      {/* Fullscreen premium transition loader overlay */}
-      {isTransitioning && (
-        <div className="fixed inset-0 z-[999999] bg-zinc-950/90 backdrop-blur-md flex flex-col items-center justify-center font-sans select-none">
-          <div className="flex flex-col items-center max-w-sm px-6 text-center space-y-6 animate-in fade-in duration-300">
-            <div className="w-12 h-12 border-3 border-rose-500/10 rounded-full border-top-rose-500 animate-spin" style={{ borderTopColor: '#f43f5e', borderTopWidth: '3px' }} />
-            <div className="space-y-2">
-              <h3 className="text-lg font-bold text-white font-heading tracking-tight">
-                Procesando cambios...
-              </h3>
-              <p className="text-xs text-zinc-400 leading-relaxed font-light">
-                Comunicándonos con el entorno local de Git para aplicar los cambios de forma segura. La página se actualizará en un instante sin perder tu estado.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
+
     </div>
   );
 }
