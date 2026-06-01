@@ -24,10 +24,12 @@ import {
   Globe,
   Scale,
   Layers,
-  HelpCircle
+  HelpCircle,
+  Binary
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import TextRenderer from "./TextRenderer";
+import { Button } from "./ui/Button";
 
 // Track metadata for coloring and labels in parallel view
 const TRACK_META: Record<string, { label: string; icon: any; color: string; textClass: string; bgClass: string; borderClass: string; glowClass: string }> = {

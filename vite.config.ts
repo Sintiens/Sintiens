@@ -14,9 +14,7 @@ export default defineConfig(() => {
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
       hmr: process.env.DISABLE_HMR !== 'true',
-      watch: process.env.DISABLE_HMR === 'true' ? null : {
-        ignored: ['**/todo.json', '**/todo_backup.json'],
-      },
+      watch: process.env.DISABLE_HMR === 'true' ? null : {},
       proxy: {
         '/api': {
           target: 'http://localhost:3000',

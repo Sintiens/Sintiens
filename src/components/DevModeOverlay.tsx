@@ -41,6 +41,7 @@ export interface DevTask {
   rh?: number; // Relative height inside the anchored DOM element (0-100)
   priority: "low" | "normal" | "medium" | "high";
   status: "todo" | "in-progress" | "done";
+  category?: "visual" | "estetica" | "funcional" | "contenido" | "otros";
   createdAt: string;
   // AI Preview Control Fields (populated by the scheduled AI task and server endpoints)
   aiFeedback?: string;       // User feedback text for AI adjustment requests
@@ -142,7 +143,7 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
     return () => {
       isMountedRef.current = false;
       if (pinningTimeoutRef.current) clearTimeout(pinningTimeoutRef.current);
-      if (throttleTimeoutRef.current) clearTimeout(throttleTimeoutRef.current);
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
     };
   }, []);
 
@@ -168,6 +169,49 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
     }
   });
   const sidebarRef = useRef<HTMLDivElement | null>(null);
+  
+  // Resizable sidebar states
+  const [sidebarWidth, setSidebarWidth] = useState<number>(() => {
+    const saved = localStorage.getItem("dev-sidebar-width");
+    return saved ? parseInt(saved, 10) : 430;
+  });
+  const [isResizing, setIsResizing] = useState<boolean>(false);
+
+  useEffect(() => {
+    localStorage.setItem("dev-sidebar-width", String(sidebarWidth));
+    window.dispatchEvent(new Event("dev-mode-state-changed"));
+  }, [sidebarWidth]);
+
+  useEffect(() => {
+    if (isResizing) {
+      document.documentElement.style.setProperty("--dev-sidebar-transition", "none");
+    } else {
+      document.documentElement.style.setProperty("--dev-sidebar-transition", "padding-right 0.3s cubic-bezier(0.25, 1, 0.5, 1)");
+    }
+  }, [isResizing]);
+
+  useEffect(() => {
+    if (!isResizing) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const newWidth = window.innerWidth - e.clientX;
+      const constrainedWidth = Math.max(300, Math.min(800, newWidth));
+      setSidebarWidth(constrainedWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isResizing]);
+
   // Track tasks that have been attempted to heal in the current lifecycle to prevent loops
   const healedTasksRef = useRef<Set<string>>(new Set());
   const [isPinningMode, setIsPinningMode] = useState<boolean>(false);
@@ -219,6 +263,7 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
   const [formDesc, setFormDesc] = useState<string>("");
   const [formPriority, setFormPriority] = useState<"low" | "normal" | "medium" | "high">("normal");
   const [formTab, setFormTab] = useState<string>("general");
+  const [formCategory, setFormCategory] = useState<"visual" | "estetica" | "funcional" | "contenido" | "otros">("visual");
   const [isCreatingGeneral, setIsCreatingGeneral] = useState<boolean>(false);
   const [isCreatingInline, setIsCreatingInline] = useState<boolean>(false);
   const inlineTitleInputRef = useRef<HTMLInputElement | null>(null);
@@ -227,8 +272,7 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
   const isMountedRef = useRef<boolean>(true);
   const pinningTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isPinningFinishedRef = useRef<boolean>(false);
-  const throttleTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const lastRecalculateRunRef = useRef<number>(0);
+  const rafIdRef = useRef<number | null>(null);
 
   // Detail / Editing Modal states
   const [selectedTask, setSelectedTask] = useState<DevTask | null>(null);
@@ -240,14 +284,16 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
   const [editPriority, setEditPriority] = useState<"low" | "normal" | "medium" | "high">("normal");
   const [editStatus, setEditStatus] = useState<"todo" | "in-progress" | "done">("todo");
   const [editTab, setEditTab] = useState<string>("general");
+  const [editCategory, setEditCategory] = useState<"visual" | "estetica" | "funcional" | "contenido" | "otros">("visual");
 
   // Sidebar Filter states
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterPriority, setFilterPriority] = useState<string>("all");
   const [filterTab, setFilterTab] = useState<string>("all");
+  const [filterCategory, setFilterCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [hoveredFilter, setHoveredFilter] = useState<"estado" | "priority" | "tab" | null>(null);
-  const [hoveredEditFilter, setHoveredEditFilter] = useState<"estado" | "priority" | "tab" | null>(null);
+  const [hoveredFilter, setHoveredFilter] = useState<"estado" | "priority" | "tab" | "category" | null>(null);
+  const [hoveredEditFilter, setHoveredEditFilter] = useState<"estado" | "priority" | "tab" | "category" | null>(null);
   const [hoveredStatusOption, setHoveredStatusOption] = useState<string | null>(null);
   const [hoveredPriorityOption, setHoveredPriorityOption] = useState<string | null>(null);
   const [hoveredTabOption, setHoveredTabOption] = useState<string | null>(null);
@@ -601,31 +647,22 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
       setResolvedCoords(nextCoords);
     };
 
-    // Self-contained trailing-edge throttle
+    // Native requestAnimationFrame throttle for 60fps buttery smooth performance
     const recalculateCoordsThrottled = () => {
-      const now = Date.now();
-      const remaining = 50 - (now - lastRecalculateRunRef.current);
-      if (remaining <= 0) {
-        if (throttleTimeoutRef.current) {
-          clearTimeout(throttleTimeoutRef.current);
-          throttleTimeoutRef.current = null;
-        }
+      if (rafIdRef.current) return;
+      rafIdRef.current = requestAnimationFrame(() => {
         recalculateCoords();
-        lastRecalculateRunRef.current = now;
-      } else if (!throttleTimeoutRef.current) {
-        throttleTimeoutRef.current = setTimeout(() => {
-          recalculateCoords();
-          lastRecalculateRunRef.current = Date.now();
-          throttleTimeoutRef.current = null;
-        }, remaining);
-      }
+        rafIdRef.current = null;
+      });
     };
 
     // Calculate immediately on effect trigger
     recalculateCoords();
 
-    // Listen to window resizing with throttle
+    // Listen to window resizing, scrolling (on any scrollable parent/sub-container), and polling
     window.addEventListener("resize", recalculateCoordsThrottled, { passive: true });
+    window.addEventListener("scroll", recalculateCoordsThrottled, { passive: true, capture: true });
+    const intervalId = setInterval(recalculateCoordsThrottled, 200);
 
     // Set up MutationObserver to monitor DOM mutations (tabs, expanded cards, layout shifts)
     const observer = new MutationObserver((mutations) => {
@@ -646,13 +683,15 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
 
     return () => {
       window.removeEventListener("resize", recalculateCoordsThrottled);
+      window.removeEventListener("scroll", recalculateCoordsThrottled, { capture: true });
+      clearInterval(intervalId);
       observer.disconnect();
-      if (throttleTimeoutRef.current) {
-        clearTimeout(throttleTimeoutRef.current);
-        throttleTimeoutRef.current = null;
+      if (rafIdRef.current) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
       }
     };
-  }, [isActive, tasks, activeTab, newPinCoords, newPinDims, newPinSelector, newPinRelative]);
+  }, [isActive, tasks, activeTab, newPinCoords, newPinDims, newPinSelector, newPinRelative, sidebarWidth]);
 
   // Auto-heal tasks missing or having invalid selectors by geometrically resolving them once the DOM is ready
   useEffect(() => {
@@ -755,14 +794,15 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
   // 1.5 Synchronize dev states with localStorage
   useEffect(() => {
     localStorage.setItem("dev-mode-active", String(isActive));
+    window.dispatchEvent(new Event("dev-mode-state-changed"));
   }, [isActive]);
 
   // Dynamic CSS Variable injection to resize page layout smoothly
   useEffect(() => {
     const updateWidth = () => {
-      if (isActive && layoutMode === "sidebar" && isSidebarOpen) {
+      if (isActive && layoutMode === "sidebar" && isSidebarOpen && !isSidebarMinimized) {
         const isDesktop = window.innerWidth >= 768;
-        const width = isDesktop ? "430px" : "0px";
+        const width = isDesktop ? `${sidebarWidth}px` : "0px";
         document.documentElement.style.setProperty("--dev-sidebar-width", width);
       } else {
         document.documentElement.style.setProperty("--dev-sidebar-width", "0px");
@@ -776,18 +816,21 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
       window.removeEventListener("resize", updateWidth);
       document.documentElement.style.setProperty("--dev-sidebar-width", "0px");
     };
-  }, [isActive, layoutMode, isSidebarOpen]);
+  }, [isActive, layoutMode, isSidebarOpen, isSidebarMinimized, sidebarWidth]);
 
   useEffect(() => {
     localStorage.setItem("dev-mode-sidebar-open", String(isSidebarOpen));
+    window.dispatchEvent(new Event("dev-mode-state-changed"));
   }, [isSidebarOpen]);
 
   useEffect(() => {
     localStorage.setItem("dev-mode-layout-mode", layoutMode);
+    window.dispatchEvent(new Event("dev-mode-state-changed"));
   }, [layoutMode]);
 
   useEffect(() => {
     localStorage.setItem("dev-mode-sidebar-minimized", String(isSidebarMinimized));
+    window.dispatchEvent(new Event("dev-mode-state-changed"));
   }, [isSidebarMinimized]);
 
   useEffect(() => {
@@ -1265,7 +1308,8 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
       description: "",
       tab: "general",
       priority: "normal",
-      status: "todo"
+      status: "todo",
+      category: "otros"
     };
 
     try {
@@ -1282,6 +1326,7 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
         setFormTitle("");
         setFormDesc("");
         setFormPriority("normal");
+        setFormCategory("visual");
         setIsPinningMode(false);
         setIsSidebarOpen(true); // Re-open the main panel
       } else {
@@ -1312,7 +1357,8 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
       rw: isCreatingGeneral ? undefined : newPinRelative?.rw,
       rh: isCreatingGeneral ? undefined : newPinRelative?.rh,
       priority: formPriority,
-      status: "todo"
+      status: "todo",
+      category: formCategory
     };
 
     try {
@@ -1329,6 +1375,7 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
         setFormTitle("");
         setFormDesc("");
         setFormPriority("normal");
+        setFormCategory("visual");
         setIsCreateModalOpen(false);
         setNewPinCoords(null);
         setNewPinDims(null);
@@ -1439,7 +1486,8 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
           description: editDesc.trim(),
           priority: editPriority,
           status: editStatus,
-          tab: editTab
+          tab: editTab,
+          category: editCategory
         })
       });
 
@@ -1461,6 +1509,7 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
     setEditPriority(task.priority);
     setEditStatus(task.status);
     setEditTab(task.tab);
+    setEditCategory(task.category || "otros");
     setIsEditingTask(true);
   };
 
@@ -1507,6 +1556,7 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
         priority: null,
         status: null,
         tab: null,
+        category: null,
         keywords: [] as string[]
       };
     }
@@ -1515,6 +1565,7 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
     let detectedPriority: "low" | "normal" | "medium" | "high" | null = null;
     let detectedStatus: "todo" | "in-progress" | "done" | null = null;
     let detectedTab: string | null = null;
+    let detectedCategory: "visual" | "estetica" | "funcional" | "contenido" | "otros" | null = null;
     const remainingKeywords: string[] = [];
 
     // Diccionarios de sinónimos y léxico
@@ -1543,6 +1594,14 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
       general: "general", generales: "general", notas: "general", tablero: "general", global: "general"
     };
 
+    const categoryDict: Record<string, "visual" | "estetica" | "funcional" | "contenido" | "otros"> = {
+      visual: "visual", maquetacion: "visual", responsive: "visual", alineacion: "visual",
+      estetica: "estetica", estético: "estetica", diseno: "estetica", diseño: "estetica", colores: "estetica", animacion: "estetica", animaciones: "estetica", tipografia: "estetica",
+      funcional: "funcional", funcionalidad: "funcional", logica: "funcional", api: "funcional", clicks: "funcional",
+      contenido: "contenido", redaccion: "contenido", textos: "contenido", copies: "contenido",
+      otros: "otros", general: "otros", miscelaneo: "otros"
+    };
+
     for (let i = 0; i < tokens.length; i++) {
       const token = tokens[i];
       
@@ -1567,6 +1626,8 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
         detectedStatus = statusDict[token];
       } else if (tabDict[token] !== undefined) {
         detectedTab = tabDict[token];
+      } else if (categoryDict[token] !== undefined) {
+        detectedCategory = categoryDict[token];
       } else {
         remainingKeywords.push(token);
       }
@@ -1576,6 +1637,7 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
       priority: detectedPriority,
       status: detectedStatus,
       tab: detectedTab,
+      category: detectedCategory,
       keywords: remainingKeywords
     };
   };
@@ -1586,6 +1648,7 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
   const activePriorityFilter = semantic.priority || (filterPriority !== "all" ? filterPriority : null);
   const activeStatusFilter = semantic.status || (filterStatus !== "all" ? filterStatus : null);
   const activeTabFilter = semantic.tab || (filterTab !== "all" ? filterTab : null);
+  const activeCategoryFilter = semantic.category || (filterCategory !== "all" ? filterCategory : null);
 
   // Filtrado y cálculo de relevancia (scoring) de tareas
   const scoredTasks = tasks.map(task => {
@@ -1602,6 +1665,10 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
     }
     // 3. Filtrar por sección/tab si está activo
     if (activeTabFilter && task.tab !== activeTabFilter) {
+      return { task, matches: false, score: 0 };
+    }
+    // 3.5 Filtrar por categoría si está activa
+    if (activeCategoryFilter && (task.category || "otros") !== activeCategoryFilter) {
       return { task, matches: false, score: 0 };
     }
 
@@ -1707,6 +1774,28 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
       case "general": return "General";
       default: return tabName;
     }
+  }
+
+  // Render category badge helper
+  function getCategoryLabel(categoryName?: string) {
+    if (!categoryName) return "Otros";
+    switch (categoryName) {
+      case "visual": return "Visual";
+      case "estetica": return "Estética";
+      case "funcional": return "Funcionalidad";
+      case "contenido": return "Contenido";
+      case "otros": return "Otros";
+      default: return categoryName;
+    }
+  }
+
+  // Helper for category colors
+  function getCategoryColor(c?: string) {
+    if (c === "visual") return "bg-blue-500/10 text-blue-650 dark:text-blue-400 border-blue-500/25";
+    if (c === "estetica") return "bg-purple-500/10 text-purple-650 dark:text-purple-400 border-purple-500/25";
+    if (c === "funcional") return "bg-emerald-500/10 text-emerald-650 dark:text-emerald-400 border-emerald-500/25";
+    if (c === "contenido") return "bg-amber-500/10 text-amber-650 dark:text-amber-400 border-amber-500/25";
+    return "bg-zinc-500/10 text-zinc-650 dark:text-zinc-400 border-zinc-500/20";
   }
 
   // Format creation date beautifully
@@ -2158,6 +2247,142 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
             </div>
           </div>
 
+          {/* Edit Category (Categoría) Column */}
+          <div 
+            onMouseEnter={() => { if (window.innerWidth >= 768) setHoveredEditFilter("category"); }}
+            onMouseLeave={() => setHoveredEditFilter(null)}
+            className={`transition-all duration-300 ease-out p-1 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950/40 flex flex-col justify-center min-h-[40px] h-auto overflow-hidden cursor-pointer ${
+              hoveredEditFilter === "category" 
+                ? "md:flex-[4.2] bg-zinc-50 dark:bg-zinc-900/50 border-purple-500/30 ring-1 ring-purple-500/10" 
+                : hoveredEditFilter 
+                  ? "md:flex-[0.4] md:opacity-50" 
+                  : "flex-1"
+            }`}
+          >
+            <label className="text-[7.5px] font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block font-extrabold text-center mb-0.5 shrink-0 select-none leading-none">
+              {hoveredEditFilter !== null && hoveredEditFilter !== "category" ? "Cat" : "Categoría"}
+            </label>
+            <div className="flex items-center justify-center w-full min-h-[22px]">
+              {hoveredEditFilter === "category" ? (
+                <div className="flex flex-wrap gap-1 items-center justify-center animate-fadeIn shrink-0 w-full py-0.5 animate-[fadeIn_0.2s_ease-out]">
+                  {/* Visual */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditCategory("visual");
+                    }}
+                    className={`py-0.5 px-1.5 rounded-lg border text-[8px] font-sans font-extrabold flex items-center justify-center gap-1 transition-all cursor-pointer shrink-0 ${
+                      editCategory === "visual"
+                        ? "bg-purple-500/10 dark:bg-purple-950/40 text-purple-750 dark:text-purple-300 border-purple-300 dark:border-purple-800 shadow-sm ring-1 ring-purple-500/20 font-black scale-[1.03]"
+                        : "bg-transparent text-zinc-500 dark:text-zinc-400 border-transparent hover:bg-purple-50 dark:hover:bg-purple-950/20"
+                    }`}
+                  >
+                    <span className="text-[9px]">🎨</span>
+                    <span>Visual</span>
+                  </button>
+
+                  {/* Estética */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditCategory("estetica");
+                    }}
+                    className={`py-0.5 px-1.5 rounded-lg border text-[8px] font-sans font-extrabold flex items-center justify-center gap-1 transition-all cursor-pointer shrink-0 ${
+                      editCategory === "estetica"
+                        ? "bg-purple-500/10 dark:bg-purple-950/40 text-purple-750 dark:text-purple-300 border-purple-300 dark:border-purple-800 shadow-sm ring-1 ring-purple-500/20 font-black scale-[1.03]"
+                        : "bg-transparent text-zinc-550 dark:text-zinc-400 border-transparent hover:bg-purple-50 dark:hover:bg-purple-950/20"
+                    }`}
+                  >
+                    <span className="text-[9px]">✨</span>
+                    <span>Estética</span>
+                  </button>
+
+                  {/* Funcional */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditCategory("funcional");
+                    }}
+                    className={`py-0.5 px-1.5 rounded-lg border text-[8px] font-sans font-extrabold flex items-center justify-center gap-1 transition-all cursor-pointer shrink-0 ${
+                      editCategory === "funcional"
+                        ? "bg-purple-500/10 dark:bg-purple-950/40 text-purple-750 dark:text-purple-300 border-purple-300 dark:border-purple-800 shadow-sm ring-1 ring-purple-500/20 font-black scale-[1.03]"
+                        : "bg-transparent text-zinc-550 dark:text-zinc-400 border-transparent hover:bg-purple-50 dark:hover:bg-purple-950/20"
+                    }`}
+                  >
+                    <span className="text-[9px]">⚙️</span>
+                    <span>Lógica</span>
+                  </button>
+
+                  {/* Contenido */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditCategory("contenido");
+                    }}
+                    className={`py-0.5 px-1.5 rounded-lg border text-[8px] font-sans font-extrabold flex items-center justify-center gap-1 transition-all cursor-pointer shrink-0 ${
+                      editCategory === "contenido"
+                        ? "bg-purple-500/10 dark:bg-purple-950/40 text-purple-750 dark:text-purple-300 border-purple-300 dark:border-purple-800 shadow-sm ring-1 ring-purple-500/20 font-black scale-[1.03]"
+                        : "bg-transparent text-zinc-550 dark:text-zinc-400 border-transparent hover:bg-purple-50 dark:hover:bg-purple-950/20"
+                    }`}
+                  >
+                    <span className="text-[9px]">✍️</span>
+                    <span>Copias</span>
+                  </button>
+
+                  {/* Otros */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditCategory("otros");
+                    }}
+                    className={`py-0.5 px-1.5 rounded-lg border text-[8px] font-sans font-extrabold flex items-center justify-center gap-1 transition-all cursor-pointer shrink-0 ${
+                      editCategory === "otros"
+                        ? "bg-purple-500/10 dark:bg-purple-950/40 text-purple-750 dark:text-purple-300 border-purple-300 dark:border-purple-800 shadow-sm ring-1 ring-purple-500/20 font-black scale-[1.03]"
+                        : "bg-transparent text-zinc-550 dark:text-zinc-400 border-transparent hover:bg-purple-50 dark:hover:bg-purple-950/20"
+                    }`}
+                  >
+                    <span className="text-[9px]">📌</span>
+                    <span>Otros</span>
+                  </button>
+                </div>
+              ) : hoveredEditFilter === null ? (
+                /* Collapsed Show active selection text and emoji */
+                <div className="flex items-center gap-1 text-[9px] font-sans font-bold text-zinc-700 dark:text-zinc-300 shrink-0 animate-fadeIn leading-none">
+                  <span className="truncate max-w-[65px] leading-none">
+                    {editCategory === "visual" && "Visual"}
+                    {editCategory === "estetica" && "Estética"}
+                    {editCategory === "funcional" && "Lógica"}
+                    {editCategory === "contenido" && "Copias"}
+                    {editCategory === "otros" && "Otros"}
+                  </span>
+                  <span className="text-[10px] shrink-0 leading-none">
+                    {editCategory === "visual" && "🎨"}
+                    {editCategory === "estetica" && "✨"}
+                    {editCategory === "funcional" && "⚙️"}
+                    {editCategory === "contenido" && "✍️"}
+                    {editCategory === "otros" && "📌"}
+                  </span>
+                </div>
+              ) : (
+                /* Squeezed Show active category emoji */
+                <div className="flex items-center justify-center shrink-0">
+                  <span className="text-[10px] shrink-0 leading-none">
+                    {editCategory === "visual" && "🎨"}
+                    {editCategory === "estetica" && "✨"}
+                    {editCategory === "funcional" && "⚙️"}
+                    {editCategory === "contenido" && "✍️"}
+                    {editCategory === "otros" && "📌"}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+
         </div>
 
         {/* Edit Description */}
@@ -2324,13 +2549,14 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
               />
               <Sparkles className={`w-3.5 h-3.5 absolute right-2.5 top-2 pointer-events-none transition-colors duration-300 ${(searchQuery || "").trim() !== "" ? "text-purple-500" : "text-zinc-400 dark:text-zinc-600"}`} />
             </div>
-            {(filterStatus !== "all" || filterPriority !== "all" || filterTab !== "all" || (searchQuery || "").trim() !== "") && (
+            {(filterStatus !== "all" || filterPriority !== "all" || filterTab !== "all" || filterCategory !== "all" || (searchQuery || "").trim() !== "") && (
               <button
                 type="button"
                 onClick={() => {
                   setFilterStatus("all");
                   setFilterPriority("all");
                   setFilterTab("all");
+                  setFilterCategory("all");
                   setSearchQuery("");
                 }}
                 className="shrink-0 text-[9px] font-sans font-extrabold text-purple-600 dark:text-purple-400 hover:text-purple-750 dark:hover:text-purple-300 flex items-center gap-1 transition-all cursor-pointer bg-purple-500/10 hover:bg-purple-500/15 px-2.5 py-1.5 rounded-xl border border-purple-500/10 shadow-sm animate-fadeIn leading-none h-[28px]"
@@ -2342,7 +2568,7 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
           <div className="space-y-1.5">
 
             {/* Micro-badges for interpreted semantic filters */}
-            {(searchQuery || "").trim() !== "" && (semantic.priority || semantic.status || semantic.tab) && (
+            {(searchQuery || "").trim() !== "" && (semantic.priority || semantic.status || semantic.tab || semantic.category) && (
               <div className="flex flex-wrap gap-1.5 pt-0.5 animate-fadeIn">
                 {semantic.priority && (
                   <span className="px-2 py-0.5 rounded-lg text-[8px] font-mono font-black flex items-center gap-1 border border-rose-500/20 bg-rose-500/10 text-rose-600 dark:text-rose-400 shadow-sm">
@@ -2360,6 +2586,12 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
                   <span className="px-2 py-0.5 rounded-lg text-[8px] font-mono font-black flex items-center gap-1 border border-purple-500/20 bg-purple-500/10 text-purple-650 dark:text-purple-400 shadow-sm">
                     <Sparkles className="w-2.5 h-2.5 text-purple-500 animate-pulse shrink-0" />
                     SECC: {getTabLabel(semantic.tab).toUpperCase()}
+                  </span>
+                )}
+                {semantic.category && (
+                  <span className="px-2 py-0.5 rounded-lg text-[8px] font-mono font-black flex items-center gap-1 border border-blue-500/20 bg-blue-500/10 text-blue-650 dark:text-blue-400 shadow-sm">
+                    <Sparkles className="w-2.5 h-2.5 text-blue-500 animate-pulse shrink-0" />
+                    CAT: {getCategoryLabel(semantic.category).toUpperCase()}
                   </span>
                 )}
               </div>
@@ -2792,6 +3024,142 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
                 </div>
               </div>
 
+              {/* Category Filter Column (Categoría) */}
+              <div 
+                onMouseEnter={() => { if (window.innerWidth >= 768) setHoveredFilter("category"); }}
+                onMouseLeave={() => setHoveredFilter(null)}
+                className={`transition-all duration-300 ease-out p-1 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950/40 flex flex-col justify-center min-h-[40px] h-auto overflow-hidden cursor-pointer ${
+                  hoveredFilter === "category" 
+                    ? "md:flex-[4.2] bg-zinc-50 dark:bg-zinc-900/50 border-purple-500/30 ring-1 ring-purple-500/10" 
+                    : hoveredFilter 
+                      ? "md:flex-[0.4] md:opacity-50" 
+                      : "flex-1"
+                }`}
+              >
+                <label className="text-[7.5px] font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block font-extrabold text-center mb-0.5 shrink-0 select-none leading-none">
+                  {hoveredFilter !== null && hoveredFilter !== "category" ? "Cat" : "Categoría"}
+                </label>
+                <div className="flex items-center justify-center w-full min-h-[22px]">
+                  {hoveredFilter === "category" ? (
+                    <div className="flex flex-wrap gap-1 items-center justify-center animate-fadeIn shrink-0 w-full py-0.5">
+                      {/* All */}
+                      <button
+                        type="button"
+                        onClick={() => setFilterCategory("all")}
+                        className={`py-0.5 px-1.5 rounded-lg border text-[8px] font-sans font-extrabold flex items-center justify-center gap-1 transition-all cursor-pointer shrink-0 ${
+                          filterCategory === "all"
+                            ? "bg-purple-500/10 dark:bg-purple-950/40 text-purple-750 dark:text-purple-300 border-purple-300 dark:border-purple-800 shadow-sm ring-1 ring-purple-500/20 font-black scale-[1.03]"
+                            : "bg-transparent text-zinc-500 dark:text-zinc-400 border-transparent hover:bg-purple-50 dark:hover:bg-purple-950/20"
+                        }`}
+                      >
+                        <span className="text-[9px]">🗂️</span>
+                        <span>Todas</span>
+                      </button>
+
+                      {/* Visual */}
+                      <button
+                        type="button"
+                        onClick={() => setFilterCategory(filterCategory === "visual" ? "all" : "visual")}
+                        className={`py-0.5 px-1.5 rounded-lg border text-[8px] font-sans font-extrabold flex items-center justify-center gap-1 transition-all cursor-pointer shrink-0 ${
+                          filterCategory === "visual"
+                            ? "bg-purple-500/10 dark:bg-purple-950/40 text-purple-750 dark:text-purple-300 border-purple-300 dark:border-purple-800 shadow-sm ring-1 ring-purple-500/20 font-black scale-[1.03]"
+                            : "bg-transparent text-zinc-500 dark:text-zinc-400 border-transparent hover:bg-purple-50 dark:hover:bg-purple-950/20"
+                        }`}
+                      >
+                        <span className="text-[9px]">🎨</span>
+                        <span>Visual</span>
+                      </button>
+
+                      {/* Estetica */}
+                      <button
+                        type="button"
+                        onClick={() => setFilterCategory(filterCategory === "estetica" ? "all" : "estetica")}
+                        className={`py-0.5 px-1.5 rounded-lg border text-[8px] font-sans font-extrabold flex items-center justify-center gap-1 transition-all cursor-pointer shrink-0 ${
+                          filterCategory === "estetica"
+                            ? "bg-purple-500/10 dark:bg-purple-950/40 text-purple-750 dark:text-purple-300 border-purple-300 dark:border-purple-800 shadow-sm ring-1 ring-purple-500/20 font-black scale-[1.03]"
+                            : "bg-transparent text-zinc-500 dark:text-zinc-400 border-transparent hover:bg-purple-50 dark:hover:bg-purple-950/20"
+                        }`}
+                      >
+                        <span className="text-[9px]">✨</span>
+                        <span>Estética</span>
+                      </button>
+
+                      {/* Funcional */}
+                      <button
+                        type="button"
+                        onClick={() => setFilterCategory(filterCategory === "funcional" ? "all" : "funcional")}
+                        className={`py-0.5 px-1.5 rounded-lg border text-[8px] font-sans font-extrabold flex items-center justify-center gap-1 transition-all cursor-pointer shrink-0 ${
+                          filterCategory === "funcional"
+                            ? "bg-purple-500/10 dark:bg-purple-950/40 text-purple-750 dark:text-purple-300 border-purple-300 dark:border-purple-800 shadow-sm ring-1 ring-purple-500/20 font-black scale-[1.03]"
+                            : "bg-transparent text-zinc-500 dark:text-zinc-400 border-transparent hover:bg-purple-50 dark:hover:bg-purple-950/20"
+                        }`}
+                      >
+                        <span className="text-[9px]">⚙️</span>
+                        <span>Lógica</span>
+                      </button>
+
+                      {/* Contenido */}
+                      <button
+                        type="button"
+                        onClick={() => setFilterCategory(filterCategory === "contenido" ? "all" : "contenido")}
+                        className={`py-0.5 px-1.5 rounded-lg border text-[8px] font-sans font-extrabold flex items-center justify-center gap-1 transition-all cursor-pointer shrink-0 ${
+                          filterCategory === "contenido"
+                            ? "bg-purple-500/10 dark:bg-purple-950/40 text-purple-750 dark:text-purple-300 border-purple-300 dark:border-purple-800 shadow-sm ring-1 ring-purple-500/20 font-black scale-[1.03]"
+                            : "bg-transparent text-zinc-500 dark:text-zinc-400 border-transparent hover:bg-purple-50 dark:hover:bg-purple-950/20"
+                        }`}
+                      >
+                        <span className="text-[9px]">✍️</span>
+                        <span>Copias</span>
+                      </button>
+
+                      {/* Otros */}
+                      <button
+                        type="button"
+                        onClick={() => setFilterCategory(filterCategory === "otros" ? "all" : "otros")}
+                        className={`py-0.5 px-1.5 rounded-lg border text-[8px] font-sans font-extrabold flex items-center justify-center gap-1 transition-all cursor-pointer shrink-0 ${
+                          filterCategory === "otros"
+                            ? "bg-purple-500/10 dark:bg-purple-950/40 text-purple-750 dark:text-purple-300 border-purple-300 dark:border-purple-800 shadow-sm ring-1 ring-purple-500/20 font-black scale-[1.03]"
+                            : "bg-transparent text-zinc-500 dark:text-zinc-400 border-transparent hover:bg-purple-50 dark:hover:bg-purple-950/20"
+                        }`}
+                      >
+                        <span className="text-[9px]">📌</span>
+                        <span>Otros</span>
+                      </button>
+                    </div>
+                  ) : hoveredFilter === null ? (
+                    /* Collapsed Show active selection text and emoticon */
+                    <div className="flex items-center gap-1 text-[9px] font-sans font-bold text-zinc-700 dark:text-zinc-300 shrink-0 animate-fadeIn leading-none">
+                      <span className="truncate max-w-[65px] leading-none">
+                        {filterCategory === "all" && "Todas"}
+                        {filterCategory === "visual" && "Visual"}
+                        {filterCategory === "estetica" && "Estética"}
+                        {filterCategory === "funcional" && "Lógica"}
+                        {filterCategory === "contenido" && "Copias"}
+                        {filterCategory === "otros" && "Otros"}
+                      </span>
+                      <span className="text-[10px] shrink-0 leading-none">
+                        {filterCategory === "all" && "🗂️"}
+                        {filterCategory === "visual" && "🎨"}
+                        {filterCategory === "estetica" && "✨"}
+                        {filterCategory === "funcional" && "⚙️"}
+                        {filterCategory === "contenido" && "✍️"}
+                        {filterCategory === "otros" && "📌"}
+                      </span>
+                    </div>
+                  ) : (
+                    /* Squeezed Show active section emoticon */
+                    <div className="flex items-center justify-center text-[10px] shrink-0">
+                      {filterCategory === "all" && "🗂️"}
+                      {filterCategory === "visual" && "🎨"}
+                      {filterCategory === "estetica" && "✨"}
+                      {filterCategory === "funcional" && "⚙️"}
+                      {filterCategory === "contenido" && "✍️"}
+                      {filterCategory === "otros" && "📌"}
+                    </div>
+                  )}
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
@@ -3115,9 +3483,15 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
                               </>
                             )}
                           </div>
-                          <span className="text-[9px] font-mono text-purple-650 dark:text-purple-400 font-bold capitalize">
-                            {getTabLabel(task.tab)}
-                          </span>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <span className="text-[9px] font-mono text-purple-650 dark:text-purple-400 font-bold capitalize">
+                              {getTabLabel(task.tab)}
+                            </span>
+                            <span className="text-zinc-200 dark:text-zinc-800 text-[8px]">|</span>
+                            <span className={`px-1.5 py-0.5 text-[8px] font-bold font-mono border rounded uppercase tracking-wider ${getCategoryColor(task.category)}`}>
+                              {getCategoryLabel(task.category)}
+                            </span>
+                          </div>
                         </div>
                         
                         {renderTaskDetailContent(task)}
@@ -3157,7 +3531,7 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
                                   <Sparkles className="w-2 h-2 animate-pulse" /> IA
                                 </span>
                               )}
-                              <h4 className={`text-xs font-bold text-zinc-950 dark:text-white truncate max-w-[130px] ${isDone ? "line-through text-zinc-400 dark:text-zinc-600" : ""}`}>
+                              <h4 className={`text-xs font-bold text-zinc-950 dark:text-white break-words ${isDone ? "line-through text-zinc-400 dark:text-zinc-600" : ""}`}>
                                 {task.title.replace(/\[IA: [^\]]+\]\s*/, "")}
                               </h4>
                               <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold border uppercase font-mono ${getPriorityColor(task.priority)}`}>
@@ -3165,6 +3539,9 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
                               </span>
                               <span className="px-1.5 py-0.5 rounded text-[8px] bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 font-bold font-mono">
                                 {getTabLabel(task.tab)}
+                              </span>
+                              <span className={`px-1.5 py-0.5 rounded text-[8px] border font-bold font-mono uppercase ${getCategoryColor(task.category)}`}>
+                                {getCategoryLabel(task.category)}
                               </span>
                             </div>
                             {task.description && (
@@ -3295,9 +3672,9 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
+                        setIsSidebarOpen(true);
                         setSelectedTask(task);
                         startEditing(task);
-                        setShowMapPopover(true);
                       }}
                     >
                       {isDone ? (
@@ -3316,45 +3693,6 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
                         {task.title}
                       </div>
                     </div>
-
-                    {selectedTask?.id === task.id && showMapPopover && (
-                      <div 
-                        className={`absolute z-[100] w-[350px] max-w-[90vw] bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-3xl shadow-2xl p-5 text-zinc-800 dark:text-zinc-200 pointer-events-auto select-none cursor-default ${
-                          task.y !== undefined && task.y > 70 ? "bottom-8" : "top-8"
-                        } ${
-                          task.x !== undefined && task.x > 50 ? "right-[-12px]" : "left-[-12px]"
-                        }`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                        }}
-                      >
-                        <div className="flex items-center justify-between mb-4 border-b border-zinc-200 dark:border-zinc-900 pb-3">
-                          <div className="flex items-center gap-2">
-                            {task.createdAt && (
-                              <span className="font-mono text-[9px] text-zinc-450 dark:text-zinc-500 font-bold uppercase tracking-wider">
-                                {formatDate(task.createdAt)}
-                              </span>
-                            )}
-                            <span className="text-zinc-300 dark:text-zinc-700">|</span>
-                            <span className="text-[10px] font-mono text-purple-650 dark:text-purple-400 font-bold capitalize">
-                              {getTabLabel(task.tab)}
-                            </span>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setSelectedTask(null);
-                            }}
-                            className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white p-1 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all cursor-pointer"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                        {renderTaskDetailContent(task)}
-                      </div>
-                    )}
                   </div>
                 );
               }
@@ -3378,9 +3716,9 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
+                    setIsSidebarOpen(true);
                     setSelectedTask(task);
                     startEditing(task);
-                    setShowMapPopover(true);
                   }}
                 >
                   {/* Glowing pulsing halo */}
@@ -3423,45 +3761,6 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
                   <div className="absolute left-1/2 -translate-x-1/2 bottom-8 hidden group-hover:block z-50 bg-zinc-950/95 backdrop-blur-md px-3 py-1.5 rounded-xl border border-zinc-800 text-[10px] text-zinc-200 whitespace-nowrap shadow-2xl">
                     <span className="font-medium">{task.title}</span>
                   </div>
-
-                  {selectedTask?.id === task.id && showMapPopover && (
-                    <div 
-                      className={`absolute z-[100] w-[350px] max-w-[90vw] bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-3xl shadow-2xl p-5 text-zinc-800 dark:text-zinc-200 pointer-events-auto select-none cursor-default ${
-                        task.y !== undefined && task.y > 70 ? "bottom-8" : "top-8"
-                      } ${
-                        task.x !== undefined && task.x > 50 ? "right-[-12px]" : "left-[-12px]"
-                      }`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                      }}
-                    >
-                      <div className="flex items-center justify-between mb-4 border-b border-zinc-200 dark:border-zinc-900 pb-3">
-                        <div className="flex items-center gap-2">
-                          {task.createdAt && (
-                            <span className="font-mono text-[9px] text-zinc-450 dark:text-zinc-500 font-bold uppercase tracking-wider">
-                              {formatDate(task.createdAt)}
-                            </span>
-                          )}
-                          <span className="text-zinc-300 dark:text-zinc-700">|</span>
-                          <span className="text-[10px] font-mono text-purple-650 dark:text-purple-400 font-bold capitalize">
-                            {getTabLabel(task.tab)}
-                          </span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setSelectedTask(null);
-                          }}
-                          className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white p-1 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all cursor-pointer"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                      {renderTaskDetailContent(task)}
-                    </div>
-                  )}
                 </div>
               );
             })}
@@ -3621,8 +3920,19 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
                 animate={{ x: isSidebarOpen ? 0 : "100%" }}
                 exit={{ x: "100%" }}
                 transition={{ type: "spring", damping: 26, stiffness: 220 }}
-                className="fixed right-0 top-0 bottom-0 z-[98] w-[430px] max-w-[calc(100vw-40px)] h-screen bg-white dark:bg-zinc-950 border-l border-zinc-200/85 dark:border-zinc-900/90 shadow-2xl flex flex-col justify-between text-zinc-900 dark:text-zinc-100 pointer-events-auto select-none dev-mode-ui rounded-l-3xl overflow-visible transition-[background-color,border-color] duration-350"
+                style={{ width: `${sidebarWidth}px` }}
+                className="fixed right-0 top-0 bottom-0 z-[98] max-w-[calc(100vw-40px)] h-screen bg-white dark:bg-zinc-950 border-l border-zinc-200/85 dark:border-zinc-900/90 shadow-2xl flex flex-col justify-between text-zinc-900 dark:text-zinc-100 pointer-events-auto select-none dev-mode-ui rounded-none overflow-visible transition-[background-color,border-color] duration-350"
               >
+                {/* Resizer Handle (Left edge) */}
+                <div
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    setIsResizing(true);
+                  }}
+                  className="absolute left-[-3px] top-0 w-2.5 h-full cursor-col-resize hover:bg-purple-500/35 hover:w-1.5 active:bg-purple-650 transition-colors z-[101]"
+                  title="Arrastra para cambiar el ancho"
+                />
+
                 {/* Ambient upper border glow inside the window */}
                 <div className="absolute top-0 left-0 right-0 h-40 bg-radial from-purple-500/5 dark:from-purple-500/10 via-transparent to-transparent pointer-events-none -z-10" />
 
@@ -3807,6 +4117,27 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
                 {/* Action Buttons */}
                 <div className="flex items-center gap-1.5 shrink-0">
                   <button
+                    onClick={() => {
+                      setIsSidebarMinimized(false);
+                      setIsSidebarOpen(true);
+                      setIsCreatingInline(true);
+                      setIsPinningMode(true);
+                      setFormTitle("");
+                      setFormDesc("");
+                      setFormPriority("normal");
+                      setFormTab(activeTab);
+                      setNewPinCoords(null);
+                      setNewPinDims(null);
+                      setNewPinSelector(undefined);
+                      setNewPinRelative(null);
+                    }}
+                    className="text-zinc-450 hover:text-purple-650 dark:hover:text-purple-400 p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-1 font-mono text-[9px] font-bold"
+                    title="Crear Nueva Nota (Pin)"
+                  >
+                    <Plus className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                    <span className="hidden sm:inline">Nueva Nota</span>
+                  </button>
+                  <button
                     onClick={() => setIsSidebarMinimized(false)}
                     className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-xl transition-colors cursor-pointer"
                     title="Maximizar Tablero"
@@ -3937,6 +4268,24 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
                           <option value="validador">Sintiens IA</option>
                         </select>
                       </div>
+                    </div>
+
+                    {/* Category */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-wider block">
+                        Categoría de Tarea
+                      </label>
+                      <select
+                        value={formCategory}
+                        onChange={(e) => setFormCategory(e.target.value as any)}
+                        className="w-full bg-white dark:bg-zinc-950/60 border border-zinc-300 dark:border-zinc-800 rounded-2xl px-3 py-3 text-xs text-zinc-700 dark:text-zinc-350 focus:outline-none focus:border-purple-500 dark:[&>option]:bg-zinc-950 dark:[&>option]:text-zinc-300"
+                      >
+                        <option value="visual">🎨 Visual (Diseño/Responsive/Alineación)</option>
+                        <option value="estetica">✨ Estética (Colores/Tipografía/Animaciones)</option>
+                        <option value="funcional">⚙️ Funcionalidad (Lógica/Errores/Interacción)</option>
+                        <option value="contenido">✍️ Contenido (Textos/Copias/Redacción)</option>
+                        <option value="otros">📌 Otros</option>
+                      </select>
                     </div>
 
                     {!isCreatingGeneral && newPinCoords && (

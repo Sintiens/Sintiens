@@ -535,5 +535,46 @@
     "priority": "normal",
     "status": "todo",
     "createdAt": "2026-06-01T09:09:29.421Z"
+  },
+  {
+    "id": "mxz7xhkmpvce15f",
+    "title": "revision completa de esta seccionn",
+    "description": "- cambio de las preguntas\n- revisar subapartados",
+    "tab": "grafo",
+    "x": 4.234527687296417,
+    "y": 22.624204794782273,
+    "w": 58.876221498371336,
+    "h": 14.63324125325709,
+    "selector": "main > div.mb-12:nth-of-type(2) > div.w-full > div.relative:nth-of-type(2) > div.flex > div.group:nth-of-type(1)",
+    "rx": -3.267973747570104,
+    "ry": -0.8222215440538194,
+    "rw": 196.8954182910988,
+    "rh": 96.44444444444444,
+    "priority": "normal",
+    "status": "todo",
+    "createdAt": "2026-06-01T15:07:10.035Z"
+  },
+  {
+    "id": "g1mqvjfmpvcej4x",
+    "title": "cambiara a preguntas frecuentes",
+    "description": "- ver si se pone en otro sitio o en otra seccion o ns",
+    "tab": "grafo",
+    "x": 5.211726384364821,
+    "y": 17.327241506958853,
+    "w": 43.48534201954397,
+    "h": 3.2368459915038734,
+    "selector": "main > div.mb-12:nth-of-type(2) > div.w-full > div.flex:nth-of-type(1) > div.space-y-4:nth-of-type(1) > h3.text-4xl",
+    "priority": "normal",
+    "status": "todo",
+    "createdAt": "2026-06-01T15:07:33.346Z"
+  },
+  {
+    "id": "2g6kg5ympvdjdq4",
+    "title": "tema oscuro",
+    "description": "",
+    "tab": "general",
+    "priority": "low",
+    "status": "todo",
+    "createdAt": "2026-06-01T15:39:19.228Z"
   }
 ]

@@ -181,7 +181,7 @@ app.post("/api/dev/tasks", async (req, res) => {
     return res.status(403).json({ error: "No permitido en producción" });
   }
   try {
-    const { title, description, tab, x, y, w, h, selector, rx, ry, rw, rh, priority, status } = req.body;
+    const { title, description, tab, x, y, w, h, selector, rx, ry, rw, rh, priority, status, category } = req.body;
     if (!title || typeof title !== "string" || !title.trim()) {
       return res.status(400).json({ error: "El título de la tarea es obligatorio." });
     }
@@ -204,6 +204,7 @@ app.post("/api/dev/tasks", async (req, res) => {
         rh: typeof rh === "number" ? rh : undefined,
         priority: priority || "medium",
         status: status || "todo",
+        category: category || "otros",
         createdAt: new Date().toISOString(),
       };
 
@@ -261,7 +262,7 @@ app.put("/api/dev/tasks/:id", async (req, res) => {
   }
 
   try {
-    const { title, description, priority, status, selector, rx, ry, rw, rh } = req.body;
+    const { title, description, priority, status, selector, rx, ry, rw, rh, category } = req.body;
 
     const updated = await dbMutex.run(async () => {
       const tasks = await readTasks();
@@ -281,6 +282,7 @@ app.put("/api/dev/tasks/:id", async (req, res) => {
         ry: ry !== undefined ? ry : tasks[taskIndex].ry,
         rw: rw !== undefined ? rw : tasks[taskIndex].rw,
         rh: rh !== undefined ? rh : tasks[taskIndex].rh,
+        category: category !== undefined ? category : tasks[taskIndex].category,
       };
 
       tasks[taskIndex] = updatedTask;
