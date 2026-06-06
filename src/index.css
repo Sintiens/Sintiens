@@ -62,8 +62,8 @@
   --on-surface-variant: oklch(45% 0.02 160);
   --on-background: oklch(15% 0.015 160);
   
-  --primary: oklch(35% 0.06 155); /* Forest Green */
-  --on-primary: oklch(100% 0.002 85);
+  --primary: var(--on-surface); /* Changed to monochrome for premium look */
+  --on-primary: var(--surface);
   
   --secondary: oklch(50% 0.02 160); /* Muted Sage */
   --on-secondary: oklch(100% 0.002 85);
@@ -71,7 +71,7 @@
   --outline: oklch(85% 0.01 160);
   --outline-variant: oklch(92% 0.005 160);
   
-  --accent: oklch(35% 0.06 155);
+  --accent: var(--on-surface);
   --link: oklch(55% 0.12 210);
 
   --ch1: oklch(65% 0.18 25);
@@ -98,8 +98,8 @@
   --on-surface-variant: oklch(70% 0.01 160);
   --on-background: oklch(90% 0.005 160);
   
-  --primary: oklch(75% 0.04 155); /* Lighter Forest Green for dark mode */
-  --on-primary: oklch(10% 0.02 160);
+  --primary: var(--on-surface); /* Changed to monochrome for premium look */
+  --on-primary: var(--surface);
   
   --secondary: oklch(65% 0.02 160);
   --on-secondary: oklch(15% 0.015 160);
@@ -107,7 +107,7 @@
   --outline: oklch(30% 0.02 160);
   --outline-variant: oklch(25% 0.015 160);
   
-  --accent: oklch(75% 0.04 155);
+  --accent: var(--on-surface);
   --link: oklch(70% 0.1 210);
 
   --ch1: oklch(65% 0.18 25);

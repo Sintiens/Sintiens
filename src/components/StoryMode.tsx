@@ -128,15 +128,6 @@ export default function StoryMode({ onNavigate }: StoryModeProps) {
         }}
       >
         <div className="min-h-[90vh] w-full flex flex-col lg:justify-center items-center text-center relative pt-12 lg:pt-20 pb-12 px-6 lg:px-16">
-          <svg className="absolute inset-0 w-full h-full pointer-events-none select-none text-primary/3" xmlns="http://www.w3.org/2000/svg" style={{ zIndex: 0, maskImage: "linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%)", WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%)" }}>
-            <defs>
-              <pattern id="hero-grid" width="40" height="40" patternUnits="userSpaceOnUse" x="50%" y="0">
-                <path d="M 0 20 H 40 M 20 0 V 40" fill="none" stroke="currentColor" strokeWidth="1" shapeRendering="crispEdges" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#hero-grid)" />
-          </svg>
-          
           <div className="absolute top-[25px] left-[20px] w-6 h-6 pointer-events-none select-none flex items-center justify-center">
             <div className="absolute w-4 h-[2px] bg-primary/30" /><div className="absolute w-[2px] h-4 bg-primary/30" />
           </div>
@@ -163,11 +154,30 @@ export default function StoryMode({ onNavigate }: StoryModeProps) {
             </div>
           </div>
   
-          <AmbientGlow colorClass="bg-primary" className="w-[700px] h-[500px] top-0 left-1/2 -translate-x-1/2" opacity={0.10} />
-          <AmbientGlow colorClass="bg-primary" className="w-[600px] h-[600px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" opacity={0.12} />
-  
+          {/* Ambient Glows (Spread out, matching the 'Conceptos' style but uniquely positioned) */}
+          <div className="absolute w-[100vw] left-1/2 -translate-x-1/2 top-[-10%] bottom-[-10%] z-0 pointer-events-none opacity-80" style={{ maskImage: "radial-gradient(ellipse at top, black 0%, transparent 100%)", WebkitMaskImage: "radial-gradient(ellipse at top, black 0%, transparent 100%)" }}>
+            <div className="absolute top-[-5%] left-[-2vw] w-[600px] h-[600px] animate-float-1">
+              <AmbientGlow colorClass="bg-ch4" className="w-full h-full" opacity={0.3} />
+            </div>
+            <div className="absolute top-[30%] right-[-5vw] w-[700px] h-[700px] animate-float-2">
+              <AmbientGlow colorClass="bg-ch1" className="w-full h-full" opacity={0.3} />
+            </div>
+            <div className="absolute top-[10%] left-[20vw] w-[500px] h-[500px] animate-float-3">
+              <AmbientGlow colorClass="bg-ch2" className="w-full h-full" opacity={0.25} />
+            </div>
+            <div className="absolute top-[-10%] right-[15vw] w-[550px] h-[550px] animate-float-4">
+              <AmbientGlow colorClass="bg-ch5" className="w-full h-full" opacity={0.25} />
+            </div>
+            <div className="absolute bottom-[20%] left-[10vw] w-[450px] h-[450px] animate-float-5">
+              <AmbientGlow colorClass="bg-ch3" className="w-full h-full" opacity={0.3} />
+            </div>
+            <div className="absolute bottom-[10%] right-[25vw] w-[480px] h-[480px] animate-float-6">
+              <AmbientGlow colorClass="bg-ch6" className="w-full h-full" opacity={0.3} />
+            </div>
+          </div>
+
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden" style={{ zIndex: 0 }}>
-            <span className="font-serif font-bold leading-none" style={{ fontSize: "clamp(160px, 50vw, 600px)", color: "var(--primary)", opacity: 0.04, transform: "translateY(-20%)" }}>¿</span>
+            <span className="font-serif font-bold leading-none text-zinc-900 dark:text-zinc-100 blur" style={{ fontSize: "clamp(160px, 50vw, 600px)", opacity: 0.08, transform: "translateY(-20%)" }}>¿</span>
           </div>
   
           <div className="flex-1 lg:flex-none flex flex-col justify-center items-center w-full">
@@ -176,7 +186,7 @@ export default function StoryMode({ onNavigate }: StoryModeProps) {
                 <motion.span variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } } }} className="block">
                   ¿Qué vidas merecen
                 </motion.span>
-                <motion.span variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } } }} className="italic font-light text-primary font-serif relative inline-block mt-2">
+                <motion.span variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } } }} className="italic font-light text-secondary font-serif relative inline-block mt-2">
                   consideración moral?
                 </motion.span>
               </motion.h1>
@@ -337,8 +347,11 @@ export default function StoryMode({ onNavigate }: StoryModeProps) {
 
       {/* ACTO I: SINTIENCIA (Color: ch1 - Rojo) */}
       <div id="acto-1" className="max-w-6xl w-full mx-auto px-4 scroll-mt-24 relative overflow-visible">
-        <AmbientGlow colorClass="bg-ch1" className="animate-float-1 w-[600px] h-[600px] top-[-5%] left-[-15%] transition-opacity duration-1000 ${activeChapter === 'acto-1' ? 'opacity-100' : 'opacity-20'}" opacity={0.15} />
-        <AmbientGlow colorClass="bg-ch1" className="animate-float-2 w-[650px] h-[500px] bottom-[5%] right-[-10%] transition-opacity duration-1000 ${activeChapter === 'acto-1' ? 'opacity-100' : 'opacity-20'}" opacity={0.15} />
+        <div className="absolute inset-y-0 right-[-5%] md:right-[5%] flex items-center justify-end pointer-events-none select-none overflow-hidden" style={{ zIndex: 0 }}>
+          <span className="font-serif font-bold leading-none text-ch1" style={{ fontSize: "clamp(250px, 40vw, 600px)", opacity: 0.03, transform: "translateY(-5%)" }}>I</span>
+        </div>
+        <AmbientGlow colorClass="bg-ch1" className={`animate-float-1 w-[600px] h-[600px] top-[-5%] left-[-15%] transition-opacity duration-1000 ${activeChapter === 'acto-1' ? 'opacity-100' : 'opacity-20'}`} opacity={0.15} />
+        <AmbientGlow colorClass="bg-ch1" className={`animate-float-2 w-[650px] h-[500px] bottom-[5%] right-[-10%] transition-opacity duration-1000 ${activeChapter === 'acto-1' ? 'opacity-100' : 'opacity-20'}`} opacity={0.15} />
         <motion.section variants={chapterVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} className="relative z-10 py-6">
           <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 text-left">
             <div className={`flex-1 lg:max-w-[760px] space-y-6 font-serif text-[17px] md:text-[19px] leading-[1.8] font-light transition-colors duration-1000 ${activeChapter === 'acto-1' ? 'text-on-surface-variant' : 'text-on-surface-variant/40'}`}>
@@ -360,8 +373,11 @@ export default function StoryMode({ onNavigate }: StoryModeProps) {
 
       {/* ACTO II: ÉTICA (Color: ch4 - Azul) */}
       <div id="acto-2" className="max-w-6xl w-full mx-auto px-4 scroll-mt-24 relative overflow-visible">
-        <AmbientGlow colorClass="bg-ch4" className="animate-float-3 w-[650px] h-[550px] top-[10%] right-[-20%] transition-opacity duration-1000 ${activeChapter === 'acto-2' ? 'opacity-100' : 'opacity-20'}" opacity={0.15} />
-        <AmbientGlow colorClass="bg-ch4" className="animate-float-4 w-[500px] h-[500px] bottom-[5%] left-[-10%] transition-opacity duration-1000 ${activeChapter === 'acto-2' ? 'opacity-100' : 'opacity-20'}" opacity={0.15} />
+        <div className="absolute inset-y-0 right-[-5%] md:right-[5%] flex items-center justify-end pointer-events-none select-none overflow-hidden" style={{ zIndex: 0 }}>
+          <span className="font-serif font-bold leading-none text-ch4" style={{ fontSize: "clamp(250px, 40vw, 600px)", opacity: 0.03, transform: "translateY(-5%)" }}>II</span>
+        </div>
+        <AmbientGlow colorClass="bg-ch4" className={`animate-float-3 w-[650px] h-[550px] top-[10%] right-[-20%] transition-opacity duration-1000 ${activeChapter === 'acto-2' ? 'opacity-100' : 'opacity-20'}`} opacity={0.15} />
+        <AmbientGlow colorClass="bg-ch4" className={`animate-float-4 w-[500px] h-[500px] bottom-[5%] left-[-10%] transition-opacity duration-1000 ${activeChapter === 'acto-2' ? 'opacity-100' : 'opacity-20'}`} opacity={0.15} />
         <motion.section variants={chapterVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} className="relative z-10 py-6">
           <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 text-left">
             <div className={`flex-1 lg:max-w-[760px] space-y-6 font-serif text-[17px] md:text-[19px] leading-[1.8] font-light transition-colors duration-1000 ${activeChapter === 'acto-2' ? 'text-on-surface-variant' : 'text-on-surface-variant/40'}`}>
@@ -383,8 +399,11 @@ export default function StoryMode({ onNavigate }: StoryModeProps) {
 
       {/* ACTO III: PSICOLOGÍA (Color: ch5 - Morado) */}
       <div id="acto-3" className="max-w-6xl w-full mx-auto px-4 scroll-mt-24 relative overflow-visible">
-        <AmbientGlow colorClass="bg-ch5" className="animate-float-5 w-[600px] h-[500px] top-[5%] left-[-20%] transition-opacity duration-1000 ${activeChapter === 'acto-3' ? 'opacity-100' : 'opacity-20'}" opacity={0.15} />
-        <AmbientGlow colorClass="bg-ch5" className="animate-float-6 w-[600px] h-[600px] bottom-[5%] right-[-5%] transition-opacity duration-1000 ${activeChapter === 'acto-3' ? 'opacity-100' : 'opacity-20'}" opacity={0.15} />
+        <div className="absolute inset-y-0 right-[-5%] md:right-[5%] flex items-center justify-end pointer-events-none select-none overflow-hidden" style={{ zIndex: 0 }}>
+          <span className="font-serif font-bold leading-none text-ch5" style={{ fontSize: "clamp(250px, 40vw, 600px)", opacity: 0.03, transform: "translateY(-5%)" }}>III</span>
+        </div>
+        <AmbientGlow colorClass="bg-ch5" className={`animate-float-5 w-[600px] h-[500px] top-[5%] left-[-20%] transition-opacity duration-1000 ${activeChapter === 'acto-3' ? 'opacity-100' : 'opacity-20'}`} opacity={0.15} />
+        <AmbientGlow colorClass="bg-ch5" className={`animate-float-6 w-[600px] h-[600px] bottom-[5%] right-[-5%] transition-opacity duration-1000 ${activeChapter === 'acto-3' ? 'opacity-100' : 'opacity-20'}`} opacity={0.15} />
         <motion.section variants={chapterVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} className="relative z-10 py-6">
           <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 text-left">
             <div className={`flex-1 lg:max-w-[760px] space-y-6 font-serif text-[17px] md:text-[19px] leading-[1.8] font-light transition-colors duration-1000 ${activeChapter === 'acto-3' ? 'text-on-surface-variant' : 'text-on-surface-variant/40'}`}>
@@ -406,8 +425,11 @@ export default function StoryMode({ onNavigate }: StoryModeProps) {
 
       {/* ACTO IV: SISTEMAS DE USO (Color: ch2 - Amarillo) */}
       <div id="acto-4" className="max-w-6xl w-full mx-auto px-4 scroll-mt-24 relative overflow-visible">
-        <AmbientGlow colorClass="bg-ch2" className="animate-float-1 w-[650px] h-[500px] top-1/2 left-[-10%] transition-opacity duration-1000 ${activeChapter === 'acto-4' ? 'opacity-100' : 'opacity-20'}" opacity={0.15} />
-        <AmbientGlow colorClass="bg-ch2" className="animate-float-2 w-[500px] h-[500px] bottom-[5%] right-[5%] transition-opacity duration-1000 ${activeChapter === 'acto-4' ? 'opacity-100' : 'opacity-20'}" opacity={0.15} />
+        <div className="absolute inset-y-0 right-[-5%] md:right-[5%] flex items-center justify-end pointer-events-none select-none overflow-hidden" style={{ zIndex: 0 }}>
+          <span className="font-serif font-bold leading-none text-ch2" style={{ fontSize: "clamp(250px, 40vw, 600px)", opacity: 0.03, transform: "translateY(-5%)" }}>IV</span>
+        </div>
+        <AmbientGlow colorClass="bg-ch2" className={`animate-float-1 w-[650px] h-[500px] top-1/2 left-[-10%] transition-opacity duration-1000 ${activeChapter === 'acto-4' ? 'opacity-100' : 'opacity-20'}`} opacity={0.15} />
+        <AmbientGlow colorClass="bg-ch2" className={`animate-float-2 w-[500px] h-[500px] bottom-[5%] right-[5%] transition-opacity duration-1000 ${activeChapter === 'acto-4' ? 'opacity-100' : 'opacity-20'}`} opacity={0.15} />
         <motion.section variants={chapterVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} className="relative z-10 py-6">
           <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 text-left">
             <div className={`flex-1 lg:max-w-[760px] space-y-6 font-serif text-[17px] md:text-[19px] leading-[1.8] font-light transition-colors duration-1000 ${activeChapter === 'acto-4' ? 'text-on-surface-variant' : 'text-on-surface-variant/40'}`}>
@@ -429,8 +451,11 @@ export default function StoryMode({ onNavigate }: StoryModeProps) {
 
       {/* ACTO V: ECOLOGÍA (Color: ch3 - Marrón) */}
       <div id="acto-5" className="max-w-6xl w-full mx-auto px-4 scroll-mt-24 relative overflow-visible">
-        <AmbientGlow colorClass="bg-ch3" className="animate-float-3 w-[700px] h-[500px] top-[5%] right-[-15%] transition-opacity duration-1000 ${activeChapter === 'acto-5' ? 'opacity-100' : 'opacity-20'}" opacity={0.15} />
-        <AmbientGlow colorClass="bg-ch3" className="animate-float-4 w-[550px] h-[450px] bottom-[10%] left-1/4 transition-opacity duration-1000 ${activeChapter === 'acto-5' ? 'opacity-100' : 'opacity-20'}" opacity={0.15} />
+        <div className="absolute inset-y-0 right-[-5%] md:right-[5%] flex items-center justify-end pointer-events-none select-none overflow-hidden" style={{ zIndex: 0 }}>
+          <span className="font-serif font-bold leading-none text-ch3" style={{ fontSize: "clamp(250px, 40vw, 600px)", opacity: 0.03, transform: "translateY(-5%)" }}>V</span>
+        </div>
+        <AmbientGlow colorClass="bg-ch3" className={`animate-float-3 w-[700px] h-[500px] top-[5%] right-[-15%] transition-opacity duration-1000 ${activeChapter === 'acto-5' ? 'opacity-100' : 'opacity-20'}`} opacity={0.15} />
+        <AmbientGlow colorClass="bg-ch3" className={`animate-float-4 w-[550px] h-[450px] bottom-[10%] left-1/4 transition-opacity duration-1000 ${activeChapter === 'acto-5' ? 'opacity-100' : 'opacity-20'}`} opacity={0.15} />
         <motion.section variants={chapterVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} className="relative z-10 py-6">
           <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 text-left">
             <div className={`flex-1 lg:max-w-[760px] space-y-6 font-serif text-[17px] md:text-[19px] leading-[1.8] font-light transition-colors duration-1000 ${activeChapter === 'acto-5' ? 'text-on-surface-variant' : 'text-on-surface-variant/40'}`}>
@@ -452,8 +477,11 @@ export default function StoryMode({ onNavigate }: StoryModeProps) {
 
       {/* ACTO VI: MARCO LEGAL (Color: ch6 - Verde) */}
       <div id="acto-6" className="max-w-6xl w-full mx-auto px-4 scroll-mt-24 relative overflow-visible">
-        <AmbientGlow colorClass="bg-ch6" className="animate-float-5 w-[600px] h-[600px] top-[10%] left-[-15%] transition-opacity duration-1000 ${activeChapter === 'acto-6' ? 'opacity-100' : 'opacity-20'}" opacity={0.15} />
-        <AmbientGlow colorClass="bg-ch6" className="animate-float-6 w-[600px] h-[500px] bottom-[10%] right-[0%] transition-opacity duration-1000 ${activeChapter === 'acto-6' ? 'opacity-100' : 'opacity-20'}" opacity={0.15} />
+        <div className="absolute inset-y-0 right-[-5%] md:right-[5%] flex items-center justify-end pointer-events-none select-none overflow-hidden" style={{ zIndex: 0 }}>
+          <span className="font-serif font-bold leading-none text-ch6" style={{ fontSize: "clamp(250px, 40vw, 600px)", opacity: 0.03, transform: "translateY(-5%)" }}>VI</span>
+        </div>
+        <AmbientGlow colorClass="bg-ch6" className={`animate-float-5 w-[600px] h-[600px] top-[10%] left-[-15%] transition-opacity duration-1000 ${activeChapter === 'acto-6' ? 'opacity-100' : 'opacity-20'}`} opacity={0.15} />
+        <AmbientGlow colorClass="bg-ch6" className={`animate-float-6 w-[600px] h-[500px] bottom-[10%] right-[0%] transition-opacity duration-1000 ${activeChapter === 'acto-6' ? 'opacity-100' : 'opacity-20'}`} opacity={0.15} />
         <motion.section variants={chapterVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} className="relative z-10 py-6">
           <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 text-left">
             <div className={`flex-1 lg:max-w-[760px] space-y-6 font-serif text-[17px] md:text-[19px] leading-[1.8] font-light transition-colors duration-1000 ${activeChapter === 'acto-6' ? 'text-on-surface-variant' : 'text-on-surface-variant/40'}`}>
