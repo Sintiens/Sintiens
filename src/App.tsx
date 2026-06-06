@@ -12,11 +12,12 @@ import SintiensLogo from "./components/SintiensLogo";
 import StoryMode from "./components/StoryMode";
 import DevModeOverlay from "./components/DevModeOverlay";
 import DevErrorBoundary from "./components/DevErrorBoundary";
+import DataSection from "./components/DataSection";
 import { motion, AnimatePresence } from "motion/react";
 import { CORE_NODES } from "./types";
 import { Button } from "./components/ui/Button";
 
-type TabType = "historia_narrativa" | "grafo" | "cronologia" | "dialectica" | "calculadora" | "validador";
+type TabType = "historia_narrativa" | "grafo" | "cronologia" | "dialectica" | "calculadora" | "validador" | "datos";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>("historia_narrativa");
@@ -113,6 +114,7 @@ export default function App() {
                   { id: "cronologia", label: "Historia" },
                   { id: "dialectica", label: "Tesis" },
                   { id: "calculadora", label: "Impacto" },
+                  { id: "datos", label: "Evidencia" },
                   { id: "validador", label: "IA" },
                 ] as { id: TabType; label: string }[]).map((tab) => (
                   <button
@@ -196,6 +198,9 @@ export default function App() {
               )}
               {activeTab === "calculadora" && (
                 <ImpactCalculator />
+              )}
+              {activeTab === "datos" && (
+                <DataSection />
               )}
               {activeTab === "validador" && (
                 <AiValidator argumentToAnalyze={passedArgument} clearArgument={handleClearTrigger} />

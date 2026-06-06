@@ -68,7 +68,7 @@ export default function ConceptExplorer({ initialNodeId, onClearInitialNodeId }:
         return <Activity className="w-4 h-4" />;
       case "ecologia":
         return <Globe className="w-4 h-4" />;
-      case "historia":
+      case "sistemas_uso":
         return <Info className="w-4 h-4" />;
       case "etica":
         return <Scale className="w-4 h-4" />;
@@ -81,7 +81,7 @@ export default function ConceptExplorer({ initialNodeId, onClearInitialNodeId }:
     switch (category) {
       case "sintiencia": return "var(--primary)";
       case "ecologia": return "oklch(60% 0.12 150)";
-      case "historia": return "oklch(55% 0.1 240)";
+      case "sistemas_uso": return "oklch(55% 0.1 240)";
       case "etica": return "oklch(50% 0.1 280)";
       default: return "var(--on-surface-variant)";
     }
@@ -135,6 +135,16 @@ export default function ConceptExplorer({ initialNodeId, onClearInitialNodeId }:
               ))}
             </div>
           </div>
+
+          {node.openQuestion && (
+            <div className="pt-8">
+              <div className="p-5 border-l-2 border-primary bg-primary/5 rounded-r-md">
+                <p className="text-body-md text-on-surface-variant italic">
+                  {node.openQuestion}
+                </p>
+              </div>
+            </div>
+          )}
 
           {node.references && node.references.length > 0 && (
             <div className="pt-6">

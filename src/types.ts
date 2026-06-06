@@ -8,7 +8,7 @@ export interface ReferenceDetail {
 
 export interface NodeDetail {
   id: string;
-  category: "sintiencia" | "historia" | "ecologia" | "etica";
+  category: "sintiencia" | "etica" | "psicologia" | "sistemas_uso" | "ecologia" | "legal";
   title: string;
   shortDesc: string;
   longDesc: string;
@@ -16,11 +16,12 @@ export interface NodeDetail {
   connections: string[]; // connects to other node IDs
   citation?: string; // Legacy field for backwards compatibility
   references?: ReferenceDetail[];
+  openQuestion?: string;
 }
 
 export interface DilemmaDetail {
   id: string;
-  category: "sintiencia" | "historia" | "ecologia" | "etica";
+  category: "sintiencia" | "etica" | "psicologia" | "sistemas_uso" | "ecologia" | "legal";
   title: string;
   popularStatement: string;
   consensus: ConsensusType;
@@ -29,489 +30,433 @@ export interface DilemmaDetail {
   coexistenceImpact: string;
   citation?: string; // Legacy field for backwards compatibility
   references?: ReferenceDetail[];
+  openQuestion?: string;
 }
 
 export const CORE_NODES: NodeDetail[] = [
-  // SINTIENCIA Y CONCIENCIA
+  // I. SINTIENCIA Y NEUROBIOLOGÍA
   {
-    id: "dolor-fisico",
+    id: "neuroanatomia-consciencia",
     category: "sintiencia",
-    title: "Sintiencia y SNC",
-    shortDesc: "Las bases cerebrales que permiten a los animales sentir dolor y experimentar la vida de forma consciente.",
-    longDesc: "La sintiencia es la capacidad de sentir de forma consciente y experimentar la vida en primera persona [1]. La ciencia moderna demuestra que el dolor en los animales no es una simple reacción mecánica. Los vertebrados poseen un Sistema Nervioso Central (SNC) y nociceptores (receptores de dolor) muy similares a los humanos. Además, sus cerebros tienen estructuras complejas que procesan estas señales y las convierten en sufrimiento emocional, miedo y estrés [2]. La Declaración de Cambridge sobre la Conciencia (2012) confirmó formalmente que los animales no humanos tienen las bases cerebrales necesarias para albergar conciencia y sentir dolor de verdad [1].",
+    title: "Neuroanatomía de la Consciencia",
+    shortDesc: "Sustratos neurológicos de las emociones y la homología cerebral entre especies.",
+    longDesc: "La ciencia moderna demuestra que el dolor y la consciencia no son exclusivos de los humanos. La Declaración de Cambridge (2012) confirmó que mamíferos, aves y otras especies poseen los sustratos neuroanatómicos, neuroquímicos y neurofisiológicos necesarios para la consciencia y el sufrimiento emocional. La evolución ha convergido en estructuras análogas que procesan estas experiencias [1].",
     scientificFacts: [
-      "El cerebro de los vertebrados posee estructuras homólogas a las humanas, como el tálamo y el neocórtex, encargadas de procesar las señales de dolor y transformarlas en sufrimiento subjetivo [2].",
-      "Los animales muestran conductas avanzadas para evitar el peligro y reducir su malestar, e incluso se automedican con analgésicos cuando sufren lesiones, mostrando respuestas al estrés idénticas a las nuestras [3]."
+      "El cerebro de los vertebrados posee estructuras homólogas a las humanas, como el tálamo y la amígdala, encargadas de procesar el miedo y el sufrimiento subjetivo [1].",
+      "La Declaración de Nueva York (2024) amplió este consenso a pulpos, decápodos e insectos, indicando que existen múltiples arquitecturas neuronales capaces de sostener la sintiencia [2]."
     ],
-    connections: ["zonas-grises", "frontera-vegetal", "disonancia-placer", "el-brambell-report"],
+    connections: ["neurobiologia-dolor", "etologia-cognitiva", "casos-marginales"],
     citation: "Low, P. et al. (2012). The Cambridge Declaration on Consciousness.",
     references: [
       {
         id: "1",
-        citation: "Low, P., Panksepp, J., Reiss, D., Edelman, D., Van Swinderen, B., & Koch, C. (2012). The Cambridge Declaration on Consciousness. Churchill College, University of Cambridge.",
+        citation: "Low, P., Panksepp, J., Reiss, D., Edelman, D., Van Swinderen, B., & Koch, C. (2012). The Cambridge Declaration on Consciousness.",
         url: "https://fcmconference.org/img/CambridgeDeclarationOnConsciousness.pdf"
       },
       {
         id: "2",
-        citation: "Sneddon, L. U. (2019). Clinical signs of pain in vertebrates and invertebrates. Journal of Experimental Biology, 222(14), jeb205773.",
+        citation: "Andrews, K., et al. (2024). The New York Declaration on Animal Consciousness."
+      }
+    ]
+  },
+  {
+    id: "neurobiologia-dolor",
+    category: "sintiencia",
+    title: "La Neurobiología del Dolor",
+    shortDesc: "La diferencia crucial entre la simple nocicepción refleja y la experiencia consciente del dolor y el estrés.",
+    longDesc: "Existe una diferencia fundamental entre la 'nocicepción' (un simple reflejo biológico automático ante un daño) y el dolor consciente. El dolor subjetivo tiene dimensiones afectivas: provoca estrés crónico, miedo y un deseo activo de evitarlo en el futuro. Los animales explotados en la ganadería no solo experimentan daño tisular agudo, sino un profundo sufrimiento emocional derivado del cautiverio y el terror [1].",
+    scientificFacts: [
+      "Los animales muestran conductas avanzadas como el 'trade-off' motivacional: soportan el dolor solo si la recompensa es muy alta, evidenciando que evalúan el sufrimiento conscientemente [1].",
+      "Peces y aves administran analgésicos de forma autónoma cuando sufren lesiones, demostrando respuestas afectivas al dolor [2]."
+    ],
+    connections: ["neuroanatomia-consciencia", "sistemas-alimentacion", "legislacion-bienestar"],
+    citation: "Sneddon, L. U. (2019). Clinical signs of pain in vertebrates.",
+    references: [
+      {
+        id: "1",
+        citation: "Sneddon, L. U. (2019). Clinical signs of pain in vertebrates and invertebrates. Journal of Experimental Biology, 222(14).",
         url: "https://doi.org/10.1242/jeb.205773"
       },
       {
-        id: "3",
-        citation: "Colpaert, F. C., et al. (2001). Opiate self-administration as a measure of chronic nociceptive pain in arthritic rats. Pain, 91(1-2), 33-45.",
-        url: "https://doi.org/10.1016/S0304-3959(00)00418-8"
+        id: "2",
+        citation: "Braithwaite, V. A. (2010). Do Fish Feel Pain? Oxford University Press."
       }
     ]
   },
   {
-    id: "zonas-grises",
+    id: "etologia-cognitiva",
     category: "sintiencia",
-    title: "Zonas Grises de Conciencia",
-    shortDesc: "El debate científico sobre el dolor en seres sin cerebro centralizado, como insectos y bivalvos.",
-    longDesc: "En las fronteras de la sintiencia animal, la ciencia estudia a seres con redes nerviosas más sencillas, como los moluscos bivalvos (mejillones, almejas) y los insectos [1]. Los bivalvos carecen de un cerebro centralizado o de un Sistema Nervioso Central (SNC) complejo; en su lugar, tienen ganglios descentralizados que responden mediante reflejos locales [2]. Por otro lado, los insectos poseen comportamientos muy sofisticados que plantean dilemas éticos profundos, lo que nos invita a aplicar el principio de precaución en nuestras decisiones cotidianas [1].",
+    title: "Etología Cognitiva y Social",
+    shortDesc: "Capacidades de resolución de problemas, memoria episódica y estructuras afectivas en otras especies.",
+    longDesc: "Más allá del sufrimiento, los animales poseen ricas vidas cognitivas y sociales. La etología cognitiva ha demostrado que muchas especies de granja, como cerdos y vacas, poseen excelente memoria episódica, comprenden conceptos espaciales y de tiempo, y establecen profundos vínculos afectivos y familiares. Son capaces de experimentar duelo por la separación de sus crías o compañeros, un sufrimiento psicológico sistemáticamente ignorado por la industria [1].",
     scientificFacts: [
-      "Los insectos muestran conductas coherentes con el dolor, como proteger partes de su cuerpo heridas o liberar hormonas para amortiguar el dolor (antinocicepción) [1].",
-      "Los bivalvos carecen de un cerebro unificado y de nociceptores típicos, y no liberan neurotransmisores de estrés relacionados con el sufrimiento consciente de los vertebrados [2]."
+      "Los cerdos superan a muchas mascotas domésticas en tareas de resolución de problemas y uso de espejos, demostrando niveles de autoconciencia espacial [1].",
+      "Las vacas exhiben respuestas fisiológicas de estrés extremo (aumento de cortisol y vocalizaciones de angustia) cuando son separadas de sus crías al nacer en la industria láctea [2]."
     ],
-    connections: ["dolor-fisico", "frontera-vegetal", "metano-emisiones"],
-    citation: "Gibbons, M. et al. (2022). Can insects feel pain? A review of the evidence.",
+    connections: ["neuroanatomia-consciencia", "categorizacion-sociocultural"],
+    citation: "Marino, L., & Colvin, C. M. (2015). Thinking pigs.",
     references: [
       {
         id: "1",
-        citation: "Gibbons, M., Crump, A., Barrett, M., Sarlak, S., Birch, J., & Chittka, L. (2022). Can insects feel pain? A review of the neural and behavioural evidence. Advances in Insect Physiology, 63, 155-229.",
-        url: "https://doi.org/10.1016/bs.aiip.2022.06.002"
+        citation: "Marino, L., & Colvin, C. M. (2015). Thinking pigs: A comparative review of cognition, emotion, and personality. International Journal of Comparative Psychology, 28."
       },
       {
         id: "2",
-        citation: "Birch, J., et al. (2021). Review of the Evidence of Sentience in Cephalopod Molluscs and Decapod Crustaceans. LSE Consulting, London School of Economics.",
-        url: "https://www.lse.ac.uk/News/News-Assets/PDFs/2021/Sentience-Review.pdf"
-      }
-    ]
-  },
-  {
-    id: "frontera-vegetal",
-    category: "sintiencia",
-    title: "La Frontera Vegetal",
-    shortDesc: "Por qué las reacciones químicas de las plantas no equivalen al sufrimiento de los animales.",
-    longDesc: "A menudo se intenta equiparar las defensas bioquímicas de las plantas con el sufrimiento de los animales [1]. Sin embargo, al carecer de cerebro, de nociceptores y de un Sistema Nervioso Central (SNC), las plantas no sufren ni experimentan dolor consciente. Sus reacciones (como liberar gases al ser cortadas) son reflejos puramente mecánicos y bioquímicos, sin traducción mental ni emocional subjetiva [2].",
-    scientificFacts: [
-      "Las plantas liberan hormonas y cambian su comportamiento celular ante una agresión física, pero no tienen la red neurológica requerida para procesar una experiencia subjetiva o dolorosa [2].",
-      "Evolutivamente, dado que las plantas son sésiles (no pueden huir ni moverse), el dolor consciente carecería de sentido adaptativo. Para los animales, en cambio, es la señal de alarma vital que estimula la huida ante un peligro [1]."
-    ],
-    connections: ["dolor-fisico", "zonas-grises", "recursos-termo"],
-    citation: "Taiz, L. et al. (2019). Plant sentience: The burden of proof.",
-    references: [
-      {
-        id: "1",
-        citation: "Taiz, L., Robinson, D. G., Blatt, M. R., Draguhn, A., & Mallatt, J. (2019). Plants neither possess nor require consciousness. Trends in Plant Science, 24(8), 677-687.",
-        url: "https://doi.org/10.1016/j.tplants.2019.05.010"
-      },
-      {
-        id: "2",
-        citation: "Robinson, D. G., Blatt, M. R., Draguhn, A., Mallatt, J., & Taiz, L. (2023). Plant sentience: The burden of proof. Animal Sentience, 8(36), 1-12.",
-        url: "https://wellbeingintlstudiesrepository.org/animsent/vol8/iss36/1/"
+        citation: "Weary, D. M., & Chua, B. (2000). Effects of early separation on the dairy cow and calf. Applied Animal Behaviour Science, 69(3), 177-188."
       }
     ]
   },
 
-  // HISTORIA Y EXPLOTACIÓN
+  // II. FILOSOFÍA, ÉTICA Y MORAL
   {
-    id: "animal-herramienta",
-    category: "historia",
-    title: "El Animal como Infraestructura",
-    shortDesc: "La domesticación y subordinación del animal como motor y base del nacimiento de la civilización.",
-    longDesc: "Desde el Neolítico, el progreso humano ha estado ligado a la explotación animal [1]. Los animales sirvieron como fuerza de trabajo e infraestructura biológica clave: tracción física para arar la tierra, transporte pesado y abrigo textil [2]. Esta instrumentalización como herramientas sentó las bases de nuestra economía mucho antes de que surgiera la primera preocupación ética formal sobre sus vidas [3].",
-    scientificFacts: [
-      "La revolución agrícola y el sedentarismo dependieron del abono y la fuerza de tracción proporcionada por rumiantes domesticados [1].",
-      "La expansión territorial, militar y comercial de los primeros imperios habría sido inviable sin la logística de caballos, camellos y mulas [2]."
-    ],
-    connections: ["evolucion-dieta", "domesticacion-industrial", "suplementacion-progreso", "el-brambell-report"],
-    citation: "Diamond, J. (1997). Guns, Germs, and Steel: The Fates of Human Societies.",
-    references: [
-      {
-        id: "1",
-        citation: "Diamond, J. (1997). Guns, Germs, and Steel: The Fates of Human Societies. W. W. Norton & Company.",
-        url: "https://www.wwnorton.com/books/Guns-Germs-and-Steel/"
-      },
-      {
-        id: "2",
-        citation: "Clutton-Brock, J. (2012). A Natural History of Domesticated Mammals. Cambridge University Press.",
-        url: "https://doi.org/10.1017/CBO9781139165662"
-      },
-      {
-        id: "3",
-        citation: "Bulliet, R. W. (2005). Hunters, Herders, and Hamburgers: The Past and Future of Human-Animal Relationships. Columbia University Press."
-      }
-    ]
-  },
-  {
-    id: "evolucion-dieta",
-    category: "historia",
-    title: "Evolución y Nutrición",
-    shortDesc: "El papel histórico del consumo animal en la evolución y por qué hoy ya no es indispensable.",
-    longDesc: "Los ancestros del Homo sapiens consumieron carne y grasa animal como una fuente concentrada de energía que facilitó el desarrollo evolutivo de nuestros cerebros en épocas de extrema escasez (hipótesis del tejido costoso) [1]. Sin embargo, esta inercia evolutiva choca con la realidad moderna: hoy disponemos de abundancia agrícola, cultivos planificados y alternativas nutricionales éticas que hacen totalmente innecesario el consumo de animales para vivir sanos [2].",
-    scientificFacts: [
-      "El tracto digestivo humano se encogió en comparación con el de herbívoros estrictos para digerir alimentos cocinados de alta densidad calórica, ahorrando energía celular para el cerebro [1].",
-      "El desarrollo neurológico dependió históricamente de la densidad de la dieta, algo que hoy está plenamente garantizado con cultivos organizados y suplementación biotecnológica directa [2]."
-    ],
-    connections: ["animal-herramienta", "suplementacion-progreso", "disonancia-placer"],
-    citation: "Aiello, L. C., & Wheeler, P. (1995). The expensive-tissue hypothesis.",
-    references: [
-      {
-        id: "1",
-        citation: "Aiello, L. C., & Wheeler, P. (1995). The expensive-tissue hypothesis: the brain and the digestive system in human and primate evolution. Current Anthropology, 36(2), 199-221.",
-        url: "https://doi.org/10.1086/204350"
-      },
-      {
-        id: "2",
-        citation: "Melina, V., Craig, W., & Levin, S. (2016). Position of the Academy of Nutrition and Dietetics: Vegetarian Diets. Journal of the Academy of Nutrition and Dietetics, 116(12), 1970-1980.",
-        url: "https://doi.org/10.1016/j.jand.2016.09.025"
-      }
-    ]
-  },
-  {
-    id: "domesticacion-industrial",
-    category: "historia",
-    title: "Ganadería Industrial Intensiva",
-    shortDesc: "La transformación moderna del animal en una mercancía de ensamblaje en macrogranjas.",
-    longDesc: "A mediados del siglo XX, la ganadería industrial intensiva transformó a los seres sintientes en simples máquinas de conversión calórica [1]. La tecnificación eliminó al animal de su hábitat natural para recluirlo de por vida en macrogranjas optimizadas al milímetro. En este modelo intensivo, la salud física y psicológica de los animales se somete por completo al máximo rendimiento mercantil [2].",
-    scientificFacts: [
-      "La ganadería industrial global mantiene confinados y sacrifica anualmente a más de 80.000 millones de animales terrestres, anulando casi todos sus comportamientos naturales [2].",
-      "El hacinamiento extremo en macrogranjas exige el uso del 70% de los antibióticos mundiales de forma preventiva, lo que acelera gravemente la crisis global de resistencia bacteriana [3]."
-    ],
-    connections: ["animal-herramienta", "metano-emisiones", "deforestacion-ecosist", "el-brambell-report", "industria-global-hechos"],
-    citation: "Harrison, R. (1964). Animal Machines: The New Factory Farming Industry.",
-    references: [
-      {
-        id: "1",
-        citation: "Harrison, R. (1964). Animal Machines: The New Factory Farming Industry. Vincent Stuart Publishers."
-      },
-      {
-        id: "2",
-        citation: "Webster, J. (2008). Animal Welfare: Limiting Pain and Suffering. Wiley-Blackwell.",
-        url: "https://www.wiley.com/en-us/Animal+Welfare%3A+Limiting+Pain+and+Suffering-p-9780470752500"
-      },
-      {
-        id: "3",
-        citation: "Landrigan, P. J., et al. (2018). The Lancet Commission on Pollution and Health. The Lancet, 391(10119), 462-512.",
-        url: "https://doi.org/10.1016/S0140-6736(17)32345-0"
-      }
-    ]
-  },
-  {
-    id: "el-brambell-report",
-    category: "historia",
-    title: "El Informe Brambell (1965)",
-    shortDesc: "El nacimiento del bienestarismo moderno y el acuerdo fundacional de las 'Cinco Libertades'.",
-    longDesc: "Tras la denuncia social de las condiciones de confinamiento en las macrogranjas intensivas [1], el gobierno británico encargó el célebre Informe Brambell. Este documento sentó las bases de la ciencia del bienestar animal al definir que los animales tienen necesidades mentales y biológicas básicas que se resumieron en las 'Cinco Libertades' fundacionales (ausencia de hambre, dolor, miedo, incomodidad física y libertad de actuar con naturalidad) [2].",
-    scientificFacts: [
-      "Fue el primer informe estatal en reconocer que los animales en granjas confinadas sufren de aburrimiento crónico, frustración y estrés severo por la falta de espacio [1].",
-      "Estableció criterios medibles para evaluar el sufrimiento basándose tanto en conductas anómalas (estereotipias) como en la fisiología y hormonas del estrés [2]."
-    ],
-    connections: ["dolor-fisico", "animal-herramienta", "domesticacion-industrial"],
-    citation: "Brambell Committee. (1965). Report of the Technical Committee.",
-    references: [
-      {
-        id: "1",
-        citation: "Brambell Committee. (1965). Report of the Technical Committee to Enquire into the Welfare of Animals Kept under Intensive Livestock Husbandry Systems. HM Stationery Office."
-      },
-      {
-        id: "2",
-        citation: "Mellor, D. J. (2016). Moving beyond the Five Freedoms: Positive welfare states. Animals, 6(3), 21.",
-        url: "https://doi.org/10.3390/ani6030021"
-      }
-    ]
-  },
-
-  // ECOLOGÍA, TERMODINÁMICA Y BIOSFERA
-  {
-    id: "recursos-termo",
-    category: "ecologia",
-    title: "Ineficiencia Termodinámica",
-    shortDesc: "El enorme coste físico de alimentar animales para luego comérnoslos, en lugar de consumir plantas directamente.",
-    longDesc: "Bajo las leyes de la termodinámica, la ganadería industrial es un sumidero ineficiente de recursos [1]. Los animales gastan cerca del 90% de la energía que consumen en calor corporal, movimiento, deyección y mantenimiento metabólico diario [2]. Filtrar las calorías y proteínas vegetales a través del cuerpo de seres sintientes para obtener carne requiere ocupar tierras de cultivo gigantescas en detrimento de los bosques y selvas [3].",
-    scientificFacts: [
-      "Producir 1 kg de carne de ternera exige consumir entre 12 y 16 kg de cereales y legumbres secas, además de miles de litros de agua dulce [1].",
-      "El ganado ocupa el 80% del total de las tierras agrícolas mundiales, pero aporta solo el 18% de las calorías y el 37% de las proteínas consumidas por la humanidad [1]."
-    ],
-    connections: ["frontera-vegetal", "metano-emisiones", "deforestacion-ecosist", "industria-global-hechos"],
-    citation: "Poore, J., & Nemecek, T. (2018). Reducing food’s environmental impacts.",
-    references: [
-      {
-        id: "1",
-        citation: "Poore, J., & Nemecek, T. (2018). Reducing food’s environmental impacts through producers and consumers. Science, 360(6392), 987-992.",
-        url: "https://doi.org/10.1126/science.aaq0216"
-      },
-      {
-        id: "2",
-        citation: "Cassidy, E. S., West, P. C., Gerber, J. S., & Foley, J. A. (2013). Redefining agricultural yields: from tonnes to people fed per hectare. Environmental Research Letters, 8(3), 034015.",
-        url: "https://doi.org/10.1088/1748-9326/8/3/034015"
-      },
-      {
-        id: "3",
-        citation: "Shepon, A., Eshel, G., Noor, E., & Milo, R. (2018). The opportunity cost of animal based diets exceeds all food losses. Proceedings of the National Academy of Sciences, 115(15), 3804-3809.",
-        url: "https://doi.org/10.1073/pnas.1713820115"
-      }
-    ]
-  },
-  {
-    id: "metano-emisiones",
-    category: "ecologia",
-    title: "Límites Planetarios y GEI",
-    shortDesc: "El impacto devastador de la ganadería en la temperatura atmosférica global.",
-    longDesc: "La ganadería es uno de los principales motores de la crisis climática, responsable del 14.5% de las emisiones globales de gases de efecto invernadero (GEI) de origen humano [1]. La fermentación digestiva de los rumiantes libera ingentes cantidades de metano (CH4) a la atmósfera, un gas que calienta el planeta con una intensidad de 28 a 34 veces superior al CO2 a corto plazo, desestabilizando gravemente la biosfera [2, 3].",
-    scientificFacts: [
-      "El metano provoca un calentamiento inmediato y destructivo que acelera el deshielo de los glaciares y de la dehesa común de la criosfera [2].",
-      "La huella de carbono total de la ganadería y los lácteos equivale a las emisiones de todos los trenes, barcos, coches y aviones de transporte del planeta juntos [1]."
-    ],
-    connections: ["recursos-termo", "deforestacion-ecosist", "domesticacion-industrial", "industria-global-hechos"],
-    citation: "IPCC. (2019). Special Report on Climate Change and Land.",
-    references: [
-      {
-        id: "1",
-        citation: "Gerber, P. J., et al. (2013). Tackling climate change through livestock: a global assessment of emissions and mitigation opportunities. Food and Agriculture Organization (FAO).",
-        url: "https://www.fao.org/3/i3437e/i3437e.pdf"
-      },
-      {
-        id: "2",
-        citation: "IPCC. (2019). Special Report on Climate Change and Land. Intergovernmental Panel on Climate Change.",
-        url: "https://www.ipcc.ch/srccl/"
-      },
-      {
-        id: "3",
-        citation: "Shine, K. P., Fuglestvedt, J. S., Hailemariam, K., & Stuber, N. (2007). Alternative metrics for comparing greenhouse gas emissions. Climatic Change, 80(3), 263-285.",
-        url: "https://doi.org/10.1007/s10584-006-9136-1"
-      }
-    ]
-  },
-  {
-    id: "deforestacion-ecosist",
-    category: "ecologia",
-    title: "Monocultivos y Deforestación",
-    shortDesc: "La quema y tala de bosques nativos para el pastoreo y la plantación industrial de soja forrajera.",
-    longDesc: "La altísima demanda de carne barata espolea la destrucción de ecosistemas vitales, principalmente en el Amazonas y otras selvas tropicales [1]. Millones de hectáreas de bosque virgen son deforestadas para transformarlas en pastizales de ganado o en monocultivos industriales de soja forrajera destinada a piensos [2]. Este proceso aniquila los sumideros de carbono forestales del planeta [3].",
-    scientificFacts: [
-      "La ganadería extensiva y la siembra de soja para piensos son responsables de más del 70% de la deforestación de la selva amazónica [1].",
-      "La sustitución de ecosistemas forestales complejos por monocultivos desgasta el suelo, acelera la erosión masiva y envenena los acuíferos con pesticidas [2]."
-    ],
-    connections: ["recursos-termo", "metano-emisiones", "domesticacion-industrial", "industria-global-hechos"],
-    citation: "FAO & UNEP. (2020). The State of the World's Forests.",
-    references: [
-      {
-        id: "1",
-        citation: "FAO & UNEP. (2020). The State of the World's Forests: Forests, biodiversity and people. Food and Agriculture Organization.",
-        url: "https://doi.org/10.4060/ca8642en"
-      },
-      {
-        id: "2",
-        citation: "Gibbs, H. K., et al. (2015). Tropical forest consumption driven by agriculture. Science, 347(6224), 837-838.",
-        url: "https://doi.org/10.1126/science.aaa0082"
-      },
-      {
-        id: "3",
-        citation: "Pendrill, F., et al. (2019). Agricultural land-use change and forest loss. Global Environmental Change, 56, 8-10.",
-        url: "https://doi.org/10.1016/j.gloenvcha.2019.03.002"
-      }
-    ]
-  },
-  {
-    id: "industria-global-hechos",
-    category: "ecologia",
-    title: "Destrucción Silvestre Colateral",
-    shortDesc: "Cómo la masiva ocupación territorial de la ganadería extingue a las especies salvajes nativas.",
-    longDesc: "El impacto ecológico de la ganadería trasciende a los animales que criamos; es el principal vector de extinción de fauna silvestre [1]. Al monopolizar el 80% de las tierras de cultivo del planeta, la agricultura animal arrebata su espacio y recursos biológicos a miles de especies de mamíferos, aves e insectos salvajes, empujando la sexta extinción masiva de la Tierra [2].",
-    scientificFacts: [
-      "La pérdida de hábitat provocada por el avance ganadero sitúa a los ecosistemas silvestres en una situación de colapso y desaparición trófica [2].",
-      "Los animales salvajes representan hoy menos del 4% de la biomasa total de mamíferos de la Tierra. El ser humano y sus animales domésticos (ganado) constituyen el 96% restante [1]."
-    ],
-    connections: ["domesticacion-industrial", "recursos-termo", "metano-emisiones", "deforestacion-ecosist"],
-    citation: "Bar-On, Y. M. et al. (2018). The biomass distribution on Earth.",
-    references: [
-      {
-        id: "1",
-        citation: "Bar-On, Y. M., Phillips, R., & Milo, R. (2018). The biomass distribution on Earth. Proceedings of the National Academy of Sciences, 115(25), 6506-6511.",
-        url: "https://doi.org/10.1073/pnas.1711842115"
-      },
-      {
-        id: "2",
-        citation: "Machovina, B., Feeley, K. J., & Ripple, W. J. (2015). Biodiversity conservation: The key is reducing meat consumption. Science of the Total Environment, 536, 419-431.",
-        url: "https://doi.org/10.1016/j.scitotenv.2015.07.022"
-      }
-    ]
-  },
-
-  // ÉTICA, DERECHOS Y DECONSTRUCCIÓN
-  {
-    id: "disonancia-placer",
+    id: "recorrido-historico-estatus",
     category: "etica",
-    title: "Disonancia y Especismo",
-    shortDesc: "La contradicción moral de amar a ciertas mascotas mientras financiamos el encierro y muerte de otros animales de granja.",
-    longDesc: "La sociedad moderna convive con una profunda disonancia cognitiva moral [1]. Otorgamos protección legal, afecto y derechos a ciertos animales de compañía (perros, gatos), mientras normalizamos y financiamos la ganadería industrial de cerdos, vacas o aves con capacidades sensoriales idénticas para experimentar dolor, aburrimiento y afecto [2]. La inercia cultural y el placer culinario actúan como anestesia mental ante esta contradicción ética [1].",
+    title: "Recorrido Histórico del Estatus",
+    shortDesc: "Del mecanicismo cartesiano al utilitarismo moderno.",
+    longDesc: "La concepción moral del animal ha evolucionado. Durante siglos dominó el mecanicismo (impulsado por Descartes), que consideraba a los animales como meros autómatas biológicos sin alma ni capacidad de sentir [1]. Posteriormente, el utilitarismo clásico de Jeremy Bentham revolucionó la ética al plantear que la verdadera pregunta no es '¿pueden razonar?' ni '¿pueden hablar?', sino '¿pueden sufrir?'. Este cambio de paradigma estableció la capacidad de sufrir como el único criterio moral válido [2].",
     scientificFacts: [
-      "Los cerdos superan a las mascotas domésticas tradicionales en diversas tareas de resolución de problemas complejos, poseyendo autoconciencia demostrada [3].",
-      "La psicología define la 'paradoja de la carne' como el truco mental inconsciente que niega inteligencia y sensibilidad a los animales que vamos a consumir para reducir el sentimiento de culpa [1]."
+      "La ciencia moderna ha refutado por completo el mecanicismo, validando las intuiciones de Bentham sobre la sintiencia universal [2].",
+      "La ética secular establece que si un ser tiene la capacidad de sufrir, ese sufrimiento debe ser considerado en pie de igualdad al nuestro [1]."
     ],
-    connections: ["dolor-fisico", "evolucion-dieta", "axiomas-morales", "utilitarismo-singer", "ecofeminismo-adams"],
-    citation: "Loughnan, S. et al. (2014). The psychology of eating animals.",
+    connections: ["marcos-eticos", "estatus-juridico", "neuroanatomia-consciencia"],
+    citation: "Bentham, J. (1789). An Introduction to the Principles of Morals.",
     references: [
       {
         id: "1",
-        citation: "Loughnan, S., Bastian, B., & Haslam, N. (2014). The psychology of eating animals. Current Directions in Psychological Science, 23(2), 104-108.",
-        url: "https://doi.org/10.1177/0963721414525887"
+        citation: "Descartes, R. (1637). Discurso del método."
       },
       {
         id: "2",
-        citation: "Joy, M. (2010). Why We Love Dogs, Eat Pigs, and Wear Cows: An Introduction to Carnism. Conari Press."
-      },
-      {
-        id: "3",
-        citation: "Marino, L., & Colvin, C. M. (2015). Thinking pigs: A comparative review of cognition, emotion, and personality in Sus scrofa domesticus. International Journal of Comparative Psychology, 28.",
-        url: "https://escholarship.org/uc/item/8sx4s79c"
-      }
-    ]
-  },
-  {
-    id: "suplementacion-progreso",
-    category: "etica",
-    title: "B12 y Veganismo Directo",
-    shortDesc: "Cómo la síntesis biotecnológica de vitamina B12 desvincula la nutrición humana de la explotación animal.",
-    longDesc: "Por primera vez en la historia humana, disponemos de fermentación industrial de bacterias para producir vitamina B12 (cobalamina) de forma directa y limpia, sin mediar la explotación animal [1]. Al romper el lazo biológico fáctico que obligaba a comer carne para no enfermar, el debate sobre el veganismo se traslada por completo del ámbito del instinto al terreno de la ética y el compromiso moral voluntario [2].",
-    scientificFacts: [
-      "La vitamina B12 no proviene de los animales, sino de bacterias del suelo. En la ganadería industrial, al propio ganado confinado se le suplementa con B12 microbiana debido al empobrecimiento bacteriano del suelo [2].",
-      "Las principales academias nutricionales del mundo ratifican que las dietas veganas adecuadamente planificadas son completamente saludables en todas las etapas del ciclo vital [1]."
-    ],
-    connections: ["evolucion-dieta", "animal-herramienta", "axiomas-morales"],
-    citation: "Melina, V. et al. (2016). Position of the Academy of Nutrition and Dietetics: Vegetarian Diets.",
-    references: [
-      {
-        id: "1",
-        citation: "Melina, V., Craig, W., & Levin, S. (2016). Position of the Academy of Nutrition and Dietetics: Vegetarian Diets. Journal of the Academy of Nutrition and Dietetics, 116(12), 1970-1980.",
-        url: "https://doi.org/10.1016/j.jand.2016.09.025"
-      },
-      {
-        id: "2",
-        citation: "Watanabe, F. (2007). Vitamin B12 sources and bioavailability. Experimental Biology and Medicine, 232(10), 1266-1274.",
-        url: "https://doi.org/10.3181/0703-MR-67"
-      }
-    ]
-  },
-  {
-    id: "axiomas-morales",
-    category: "etica",
-    title: "Los Axiomas del Especismo",
-    shortDesc: "La confrontación de valores éticos entre el círculo de compasión universal y la visión supremacista humana.",
-    longDesc: "Nuestras decisiones éticas sobre los animales reposan en axiomas o valores implícitos profundamente arraigados. Por un lado, la compasión y la ética secular defienden que si un ser 'siente un dolor que le importa a sí mismo', dañarlo de forma evitable es moralmente incorrecto [1]. Por otro lado, la herencia del antropocentrismo cartesiano considera a los animales como meras mercancías e instrumentos desechables a nuestro servicio [2, 3].",
-    scientificFacts: [
-      "El rechazo al especismo exige que dolores equivalentes a nivel nervioso reciban una consideración moral equivalente, sin importar la especie biológica del individuo [2].",
-      "La deconstrucción lógica demuestra que justificar el maltrato animal masivo basándose únicamente en el placer culinario efímero contradice nuestras propias normas sociales elementales de compasión [1]."
-    ],
-    connections: ["disonancia-placer", "suplementacion-progreso", "dolor-fisico", "utilitarismo-singer", "deontologia-regan", "enfoque-capacidades-nussbaum"],
-    citation: "Bentham, J. (1789). An Introduction to the Principles of Morals and Legislation.",
-    references: [
-      {
-        id: "1",
         citation: "Bentham, J. (1789). An Introduction to the Principles of Morals and Legislation. T. Payne and Son."
-      },
-      {
-        id: "2",
-        citation: "Ryder, R. D. (2011). Speciesism, Painism and Happiness. Academic Publishing."
-      },
-      {
-        id: "3",
-        citation: "Horta, O. (2010). What is speciesism? Journal of Agricultural and Environmental Ethics, 23(3), 243-266.",
-        url: "https://doi.org/10.1007/s10806-009-9205-2"
       }
     ]
   },
   {
-    id: "utilitarismo-singer",
+    id: "especismo",
     category: "etica",
-    title: "Singer: Liberación Animal",
-    shortDesc: "El principio de igual consideración de intereses basado en la capacidad biológica de sufrir.",
-    longDesc: "En 'Liberación Animal' (1975), Peter Singer defiende que el verdadero límite de la consideración moral es la sintiencia (la capacidad de experimentar placer o dolor), y no la razón o la inteligencia [1]. Define el especismo como un prejuicio arbitrario e injustificado idéntico al racismo o al sexismo, exigiendo que a dolores iguales se les dé un peso idéntico en nuestras decisiones diarias [2].",
+    title: "El Concepto de Especismo",
+    shortDesc: "La discriminación arbitraria basada en la especie biológica y el conflicto de intereses.",
+    longDesc: "El especismo es un sesgo cognitivo y moral sistemático que discrimina a un individuo únicamente por no pertenecer a la especie humana [1]. Desde un punto de vista analítico, se produce un conflicto injusto cuando sometemos los intereses fundamentales de los animales (el interés supremo de vivir y no ser torturados) para satisfacer nuestros intereses periféricos o triviales (placer gustativo, tradición o conveniencia) [2].",
     scientificFacts: [
-      "Singer demuestra científicamente que la ganadería industrial causa un sufrimiento masivo y crónico para satisfacer fines culinarios triviales y no vitales [1].",
-      "El utilitarismo de preferencia rechaza el bienestarismo superficial cuando este solo actúa como máscara para camuflar y perpetuar la explotación comercial de seres conscientes [2]."
+      "Filosóficamente, usar la 'inteligencia' como barrera moral (el problema de los casos marginales) excluiría de derechos básicos a humanos con diversidad funcional cognitiva [2].",
+      "El rechazo al especismo no implica tratar a todos igual (no tiene sentido dar derecho a voto a un perro), sino dar igual consideración a intereses similares, como evitar el dolor [1]."
     ],
-    connections: ["axiomas-morales", "disonancia-placer", "deontologia-regan"],
-    citation: "Singer, P. (1975). Animal Liberation: A New Ethics.",
+    connections: ["recorrido-historico-estatus", "disonancia-placer", "marcos-eticos"],
+    citation: "Singer, P. (1975). Animal Liberation.",
     references: [
       {
         id: "1",
-        citation: "Singer, P. (1975). Animal Liberation: A New Ethics. HarperCollins."
+        citation: "Ryder, R. D. (1970). Speciesism. (First coined in a printed leaflet)."
       },
       {
         id: "2",
-        citation: "Singer, P. (2011). Practical Ethics (3rd ed.). Cambridge University Press."
+        citation: "Singer, P. (1975). Animal Liberation: A New Ethics. HarperCollins."
       }
     ]
   },
   {
-    id: "deontologia-regan",
+    id: "marcos-eticos",
     category: "etica",
-    title: "Regan: Sujetos-de-una-vida",
-    shortDesc: "Los derechos absolutos basados en el valor intrínseco e irremplazable de cada animal.",
-    longDesc: "Tom Regan defiende en 'El caso de los derechos de los animales' (1983) una perspectiva de derechos morales absolutos [1]. Argumenta que los vertebrados complejos son 'sujetos-de-una-vida': poseen memoria, deseos, emociones, autoconciencia y planes de futuro [1]. Esto les confiere un valor intrínseco inalienable que prohíbe éticamente tratarlos como recursos, comida o mercancías desechables [2].",
+    title: "Marcos Éticos Contemporáneos",
+    shortDesc: "La diferencia entre el bienestarismo compasivo y el abolicionismo de derechos.",
+    longDesc: "El debate ético actual se divide en dos corrientes. El 'Bienestarismo' acepta el uso y consumo de animales por parte de los humanos, pero condiciona este uso a la minimización del daño, buscando jaulas más grandes o mataderos aturdidos [1]. El 'Abolicionismo' (o teoría de los Derechos Animales) sostiene que el animal es un fin en sí mismo, un 'sujeto-de-una-vida', y rechaza frontalmente su estatus legal como propiedad humana o mercancía, argumentando que una esclavitud 'humanitaria' sigue siendo esclavitud [2].",
     scientificFacts: [
-      "La deontología exige la abolición del matadero y de toda ganadería, rechazando las meras 'reformas humanitarias' que solo alivian el cautiverio temporalmente [1].",
-      "Establece que cada individuo tiene un valor intrínseco que impide reducir su existencia a una simple tasa de conversión de biomasa alimentaria [2]."
+      "Las reformas bienestaristas a menudo actúan como un placebo psicológico para el consumidor, perpetuando el sistema de uso en lugar de desmantelarlo [1].",
+      "El enfoque de capacidades de Martha Nussbaum defiende que cada animal tiene un derecho moral inalienable a florecer de acuerdo a su naturaleza biológica [2]."
     ],
-    connections: ["axiomas-morales", "utilitarismo-singer", "enfoque-capacidades-nussbaum"],
+    connections: ["especismo", "legislacion-bienestar", "estatus-juridico"],
     citation: "Regan, T. (1983). The Case for Animal Rights.",
     references: [
       {
         id: "1",
-        citation: "Regan, T. (1983). The Case for Animal Rights. University of California Press."
+        citation: "Francione, G. L. (1996). Rain Without Thunder: The Ideology of the Animal Rights Movement. Temple University Press."
       },
       {
         id: "2",
-        citation: "Regan, T. (2001). Defending Animal Rights. University of Illinois Press."
+        citation: "Regan, T. (1983). The Case for Animal Rights. University of California Press."
+      }
+    ]
+  },
+
+  // III. PSICOLOGÍA HUMANA Y CONSISTENCIA SOCIAL
+  {
+    id: "disonancia-placer",
+    category: "psicologia",
+    title: "Disonancia y Paradoja de la Carne",
+    shortDesc: "La tensión psicológica entre nuestro rechazo al maltrato y nuestro consumo pasivo.",
+    longDesc: "La inmensa mayoría de las personas se opone firmemente al maltrato animal. Sin embargo, participan diariamente en el consumo de productos que requieren un nivel de violencia sistemática sin precedentes. A esta fractura mental la psicología la llama 'la paradoja de la carne' [1]. Para soportar esta tensión insostenible (disonancia cognitiva), la mente humana despliega una serie de autoengaños y bloqueos emocionales para evitar conectar el producto final con la víctima original [2].",
+    scientificFacts: [
+      "Estudios demuestran que, antes de consumir carne, las personas rebajan subconscientemente la inteligencia atribuida al animal que van a comer para aliviar su culpa [1].",
+      "La disonancia cognitiva se alimenta por la desconexión espacial: la industria oculta deliberadamente los mataderos lejos de los núcleos urbanos [2]."
+    ],
+    connections: ["categorizacion-sociocultural", "consistencia-moral", "especismo"],
+    citation: "Loughnan, S. et al. (2010). The role of meat consumption in the denial of moral status.",
+    references: [
+      {
+        id: "1",
+        citation: "Loughnan, S., Haslam, N., & Bastian, B. (2010). The role of meat consumption in the denial of moral status and mind to meat animals. Appetite, 55(1), 156-159."
+      },
+      {
+        id: "2",
+        citation: "Joy, M. (2010). Why We Love Dogs, Eat Pigs, and Wear Cows: An Introduction to Carnism. Conari Press."
       }
     ]
   },
   {
-    id: "ecofeminismo-adams",
-    category: "etica",
-    title: "Adams: Referente Ausente",
-    shortDesc: "El vínculo cultural y lingüístico entre la cosificación mercantil y la devaluación del animal vivo.",
-    longDesc: "En 'La política sexual de la carne' (1990), Carol J. Adams analiza el estrecho vínculo existente entre el patriarcado y la opresión animal [1]. Introduce el concepto de 'referente ausente', describiendo cómo nuestro lenguaje de consumo desintegra al animal sintiente al rebautizarlo como 'carne', 'chuleta' o 'salchicha', bloqueando activamente nuestra empatía natural [1, 2].",
+    id: "categorizacion-sociocultural",
+    category: "psicologia",
+    title: "Mecanismos de Categorización",
+    shortDesc: "Cómo el lenguaje y la cultura deciden a quién amamos y a quién devoramos.",
+    longDesc: "Nuestra brújula moral con los animales está distorsionada por la categorización arbitraria que nos impone la cultura desde la infancia. Compartimentamos moralmente a las especies: los perros son 'Mascotas/Familia' (sujetos a derechos), los cerdos son 'Recursos/Alimento' (objetos mercantilizados) y las ratas son 'Plagas' (objetos de exterminio) [1]. El lenguaje actúa como anestésico usando 'referentes ausentes' (decimos 'ternera', no 'becerro decapitado') para invisibilizar el proceso productivo y desensibilizar sistemáticamente al consumidor [2].",
     scientificFacts: [
-      "La deconstrucción cultural muestra que el lenguaje comercial enmascara deliberadamente el matadero y el cautiverio para evitar que salte la disonancia cognitiva del consumidor [2].",
-      "La cultura gastronómica ha asociado históricamente el consumo de carne con ideales de dominación, fuerza y superioridad jerárquica [1]."
+      "El ecofeminismo ha demostrado cómo la maquinaria industrial cosifica simultáneamente a la naturaleza, a los animales y a los grupos humanos marginados mediante mecanismos lingüísticos idénticos [2].",
+      "Estas clasificaciones no tienen ninguna base biológica real: un cerdo es cognitivamente más avanzado que un perro y su capacidad de sufrir es exactamente la misma [1]."
     ],
-    connections: ["disonancia-placer", "axiomas-morales"],
+    connections: ["disonancia-placer", "etologia-cognitiva", "historia-dominacion"],
     citation: "Adams, C. J. (1990). The Sexual Politics of Meat.",
     references: [
       {
         id: "1",
-        citation: "Adams, C. J. (1990). La política sexual de la carne: Una teoría crítica feminista vegetariana. Continuum."
+        citation: "Joy, M. (2010). Why We Love Dogs, Eat Pigs, and Wear Cows: An Introduction to Carnism. Conari Press."
       },
       {
         id: "2",
-        citation: "Adams, C. J. (2010). The Sexual Politics of Meat (20th Anniversary Edition). Bloomsbury."
+        citation: "Adams, C. J. (1990). The Sexual Politics of Meat: A Feminist-Vegetarian Critical Theory. Continuum."
       }
     ]
   },
   {
-    id: "enfoque-capacidades-nussbaum",
-    category: "etica",
-    title: "Nussbaum: Justicia Animal",
-    shortDesc: "El derecho moral y político de cada especie a prosperar y desarrollar sus capacidades esenciales.",
-    longDesc: "Martha Nussbaum extiende su 'enfoque de las capacidades' a la justicia animal [1]. Sostiene que los animales no son meros objetos de nuestra compasión, sino sujetos directos de justicia [1]. Tienen el derecho moral inalienable a florecer de acuerdo a su naturaleza biológica (derecho a la movilidad, al juego, a la integridad física y a la vida en comunidad), imponiendo deberes estrictos a los Estados [2].",
+    id: "consistencia-moral",
+    category: "psicologia",
+    title: "La Consistencia Moral",
+    shortDesc: "El análisis de la brecha entre los valores declarados y el comportamiento práctico.",
+    longDesc: "La consistencia moral es el pilar de un comportamiento ético íntegro. Existe una falla masiva en la arquitectura social: nuestros valores declarados ('amo a los animales', 'odio la injusticia') no están alineados con nuestra práctica diaria en el supermercado [1]. El despertar ético (el veganismo como postura moral) no consiste en adquirir nuevos valores radicales, sino simplemente en empezar a vivir de forma alineada y consistente con los valores de paz y justicia que ya poseemos [2].",
     scientificFacts: [
-      "El encierro extremo en macrogranjas vulnera de forma sistemática y severa las capacidades esenciales de los cerdos y aves, constituyendo una grave injusticia de Estado [1].",
-      "Nussbaum aboga por una ética global que traduzca la sintiencia animal en leyes con protección constitucional directa en los sistemas de justicia nacionales [2]."
+      "La psicología muestra que cuando los humanos logran alinear sus acciones con sus valores compasivos (cerrando la brecha de la disonancia), experimentan mejoras significativas en su bienestar psicológico a largo plazo [1]."
     ],
-    connections: ["axiomas-morales", "deontologia-regan"],
-    citation: "Nussbaum, M. C. (2006). Frontiers of Justice: Species Membership.",
+    connections: ["disonancia-placer", "vias-transicion"],
+    citation: "Francione, G. L. (2000). Introduction to Animal Rights.",
     references: [
       {
         id: "1",
-        citation: "Nussbaum, M. C. (2006). Frontiers of Justice: Species Membership. Harvard University Press."
+        citation: "Francione, G. L. (2000). Introduction to Animal Rights: Your Child or the Dog? Temple University Press."
       },
       {
         id: "2",
-        citation: "Nussbaum, M. C. (2023). Justice for Animals: Our Collective Responsibility. Simon & Schuster."
+        citation: "Bastian, B., & Loughnan, S. (2017). Resolving the Meat-Paradox: A Motivational Account of Moral Disengagement. Personality and Social Psychology Review, 21(3), 278-299."
+      }
+    ]
+  },
+
+  // IV. ANTROPOCENTRISMO Y SISTEMAS DE USO
+  {
+    id: "historia-dominacion",
+    category: "sistemas_uso",
+    title: "Historia de la Dominación",
+    shortDesc: "La transición histórica hacia la domesticación y la modificación genética.",
+    longDesc: "Para comprender el presente antropocéntrico debemos mirar al Neolítico. La domesticación animal marcó el punto donde el humano dejó de convivir con la naturaleza para someterla [1]. Los animales dejaron de ser individuos autónomos para convertirse en herramientas y en la primera forma de 'propiedad' biológica. Durante siglos de selección artificial y modificación genética, hemos retorcido sus cuerpos para forzar extrema docilidad y un rendimiento productivo monstruoso (gallinas que ponen 300 huevos al año frente a los 15 de sus ancestros) que les causa enormes dolores físicos crónicos [2].",
+    scientificFacts: [
+      "El cuerpo de los pollos de engorde modernos ('broilers') crece tan rápido (un 400% más rápido que hace 50 años) que sus patas no pueden sostenerlos y sufren fallos cardíacos [2].",
+      "La domesticación originó el concepto moderno de propiedad privada y sentó las bases para los primeros sistemas estatales de control [1]."
+    ],
+    connections: ["sistemas-alimentacion", "categorizacion-sociocultural"],
+    citation: "Scott, J. C. (2017). Against the Grain.",
+    references: [
+      {
+        id: "1",
+        citation: "Scott, J. C. (2017). Against the Grain: A Deep History of the Earliest States. Yale University Press."
+      },
+      {
+        id: "2",
+        citation: "Webster, J. (2008). Animal Welfare: Limiting Pain and Suffering. Wiley-Blackwell."
+      }
+    ]
+  },
+  {
+    id: "sistemas-alimentacion",
+    category: "sistemas_uso",
+    title: "Sistemas de Alimentación Masiva",
+    shortDesc: "La maquinaria industrial del hacinamiento y el colapso de los océanos.",
+    longDesc: "La cúspide del antropocentrismo son las Granjas Factoría (CAFOs) y la Pesca Industrial. En la ganadería intensiva, el animal queda atrapado en ciclos de engorde acelerados, sometido a confinamiento perpetuo y mutilaciones estandarizadas sin anestesia (corte de picos, rabos y castración) [1]. Simultáneamente, la acuicultura intensiva y las inmensas redes de arrastre están barriendo el fondo del mar, agotando brutalmente los océanos y asfixiando por trillones a peces sintientes [2].",
+    scientificFacts: [
+      "El 99% de los animales terrestres consumidos en el mundo occidental provienen de granjas industriales hiper-intensificadas [1].",
+      "Se estima que la pesca industrial captura entre 1 y 2.7 billones (trillones en escala corta) de peces salvajes al año, sometidos a muerte por asfixia y descompresión prolongada [2]."
+    ],
+    connections: ["historia-dominacion", "eficiencia-termodinamica", "otras-instrumentalizaciones"],
+    citation: "Harrison, R. (1964). Animal Machines.",
+    references: [
+      {
+        id: "1",
+        citation: "Harrison, R. (1964). Animal Machines: The New Factory Farming Industry."
+      },
+      {
+        id: "2",
+        citation: "Mood, A., & Brooke, P. (2010). Estimating the Number of Fish Caught in Global Fishing Each Year. Fishcount."
+      }
+    ]
+  },
+  {
+    id: "otras-instrumentalizaciones",
+    category: "sistemas_uso",
+    title: "Otros Ejes de Instrumentalización",
+    shortDesc: "La vivisección biomédica, vestimenta y la explotación como entretenimiento.",
+    longDesc: "El antropocentrismo se ramifica más allá del plato. Institucionalmente, encerramos y experimentamos en millones de animales al año para investigación biomédica y cosmética (donde el limitado paradigma ético de las '3R' rara vez se cuestiona de fondo) [1]. Arrancamos la piel a visones, ovejas y vacas para confeccionar vestimenta [2]. Y en la cima de lo absurdo, financiamos zoológicos, tauromaquia y espectáculos que reducen la vida de un individuo cognitivamente brillante a un chiste o a una tragedia de entretenimiento temporal [3].",
+    scientificFacts: [
+      "Gran parte de la experimentación en modelos animales fracasa (más del 90%) a la hora de extrapolarse a ensayos clínicos humanos debido a diferencias genéticas insalvables [1].",
+      "La producción de cuero no es un mero 'subproducto' de la carne, sino un co-producto altamente rentable que subvenciona el matadero [2]."
+    ],
+    connections: ["sistemas-alimentacion", "estatus-juridico"],
+    citation: "Knight, A. (2011). The Costs and Benefits of Animal Experiments.",
+    references: [
+      {
+        id: "1",
+        citation: "Knight, A. (2011). The Costs and Benefits of Animal Experiments. Palgrave Macmillan."
+      },
+      {
+        id: "2",
+        citation: "Cudworth, E. (2011). Social Lives and Other Animals: The Sociology of Human-Animal Relations."
+      }
+    ]
+  },
+
+  // V. IMPACTO SISTÉMICO, ECOLÓGICO Y MACROECONÓMICO
+  {
+    id: "eficiencia-termodinamica",
+    category: "ecologia",
+    title: "Eficiencia Termodinámica",
+    shortDesc: "La absurda pérdida matemática de energía en la cadena trófica ganadera.",
+    longDesc: "En términos de física básica y ecología de sistemas, usar animales para producir comida es una imposibilidad matemática en un planeta superpoblado. Cada vez que filtramos proteínas vegetales a través de un rumiante, la termodinámica dicta que el 90% de esas calorías originales se destruyen en forma de calor metabólico, heces y mantenimiento vital de los huesos [1]. Gastamos cantidades obscenas de recursos vegetales para recuperar una fracción minúscula de energía en forma animal [2].",
+    scientificFacts: [
+      "Las aves de corral tienen una tasa de conversión calórica del 11%, los cerdos del 10% y las vacas apenas de un 3% [2].",
+      "Alimentar directamente a los humanos con los cultivos forrajeros que hoy destinamos al ganado permitiría erradicar el hambre global y devolver miles de millones de hectáreas a la naturaleza [1]."
+    ],
+    connections: ["huella-ecologica", "crisis-ambiental", "sistemas-alimentacion"],
+    citation: "Cassidy, E. S. et al. (2013). Redefining agricultural yields.",
+    references: [
+      {
+        id: "1",
+        citation: "Shepon, A., Eshel, G., Noor, E., & Milo, R. (2018). The opportunity cost of animal based diets exceeds all food losses. PNAS, 115(15), 3804-3809."
+      },
+      {
+        id: "2",
+        citation: "Cassidy, E. S., West, P. C., Gerber, J. S., & Foley, J. A. (2013). Redefining agricultural yields: from tonnes to people fed per hectare. Environmental Research Letters, 8(3)."
+      }
+    ]
+  },
+  {
+    id: "huella-ecologica",
+    category: "ecologia",
+    title: "Huella Ecológica y Recursos",
+    shortDesc: "El uso monstruoso de agua y suelo cultivable para alimentar a nuestra comida.",
+    longDesc: "Debido a la ineficiencia térmica, la agricultura animal acapara el espacio y el agua del mundo. Enormes latifundios de monocultivos de soja y maíz (tratados con pesticidas tóxicos) no se siembran para consumo humano directo, sino como pienso animal [1]. Esto absorbe acuíferos enteros: producir un solo kilogramo de carne de vaca requiere miles y miles de litros de agua dulce, dejando una profunda y destructiva huella hídrica y territorial [2].",
+    scientificFacts: [
+      "La ganadería utiliza el 83% del suelo agrícola mundial (para pastoreo y cultivo de forrajes), pero provee apenas el 18% de las calorías que consumimos [1].",
+      "El nitrógeno y el fósforo derivados de los purines (excrementos) de los cerdos en las macrogranjas están colapsando los ecosistemas acuíferos locales (ej. el Mar Menor en España) [2]."
+    ],
+    connections: ["eficiencia-termodinamica", "crisis-ambiental"],
+    citation: "Poore, J., & Nemecek, T. (2018). Reducing food’s environmental impacts.",
+    references: [
+      {
+        id: "1",
+        citation: "Poore, J., & Nemecek, T. (2018). Reducing food’s environmental impacts through producers and consumers. Science, 360(6392), 987-992."
+      },
+      {
+        id: "2",
+        citation: "Mekonnen, M. M., & Hoekstra, A. Y. (2012). A Global Assessment of the Water Footprint of Farm Animal Products. Ecosystems, 15, 401-415."
+      }
+    ]
+  },
+  {
+    id: "crisis-ambiental",
+    category: "ecologia",
+    title: "Crisis Ambiental Global",
+    shortDesc: "Emisiones de gases, deforestación masiva y el gran motor de la sexta extinción.",
+    longDesc: "El sistema agroganadero actual empuja a la biosfera hacia su colapso total. La industria ganadera es el principal motor directo de la deforestación en el Amazonas (despejando selva para pastos y soja). Además, emite entre el 14% y el 18% de todos los Gases de Efecto Invernadero del planeta, especialmente Metano (CH4) proveniente de la digestión de los rumiantes y Óxido Nitroso proveniente de los fertilizantes, aniquilando activamente la biodiversidad silvestre [1, 2].",
+    scientificFacts: [
+      "El ganado vacuno y la ganadería comercial son la causa de más del 70% de la tala en las selvas de Brasil y del desplazamiento de poblaciones indígenas [2].",
+      "La biomasa de los mamíferos salvajes de la Tierra ha quedado aplastada; representan solo el 4%. El 96% restante somos humanos y nuestro ganado en cautiverio [1]."
+    ],
+    connections: ["huella-ecologica", "eficiencia-termodinamica", "vias-transicion"],
+    citation: "IPCC. (2019). Special Report on Climate Change and Land.",
+    references: [
+      {
+        id: "1",
+        citation: "Bar-On, Y. M., Phillips, R., & Milo, R. (2018). The biomass distribution on Earth. PNAS, 115(25), 6506-6511."
+      },
+      {
+        id: "2",
+        citation: "IPCC. (2019). Special Report on Climate Change and Land. Intergovernmental Panel on Climate Change."
+      }
+    ]
+  },
+
+  // VI. MARCO LEGAL, REGULACIÓN Y TRANSICIÓN
+  {
+    id: "estatus-juridico",
+    category: "legal",
+    title: "Estatus Jurídico del Animal",
+    shortDesc: "La evolución de los códigos legales: del animal como 'cosa' a 'ser sintiente'.",
+    longDesc: "Históricamente, los códigos civiles de todo el mundo definían a los animales como simples 'bienes muebles' o 'cosas', exactamente igual que una mesa o un coche. En los últimos años, impulsados por la abrumadora evidencia científica sobre la sintiencia, países a la vanguardia ética han comenzado a reformar sus códigos civiles para dotarlos de una categoría jurídica propia: 'seres vivos dotados de sensibilidad' [1]. Aunque esto no impide su matanza comercial, representa la primera gran grieta formal en la coraza legal del antropocentrismo [2].",
+    scientificFacts: [
+      "Cambiar el estatus jurídico permite que, en casos de embargo o divorcio, los animales no puedan ser tratados como simples propiedades financieras subastables [1].",
+      "Sin embargo, bajo la actual doctrina, los animales de granja siguen estando exentos en la práctica de la protección que el código penal otorga a otros animales domésticos [2]."
+    ],
+    connections: ["recorrido-historico-estatus", "legislacion-bienestar"],
+    citation: "Favre, D. (2018). Respecting Animals: A Balanced Approach to Our Relationship with Pets, Food, and Wildlife.",
+    references: [
+      {
+        id: "1",
+        citation: "Giménez-Candela, T. (2019). La descosificación de los animales en el derecho. Derecho Animal (Forum of Animal Law Studies)."
+      },
+      {
+        id: "2",
+        citation: "Favre, D. (2018). Respecting Animals. Prometheus Books."
+      }
+    ]
+  },
+  {
+    id: "legislacion-bienestar",
+    category: "legal",
+    title: "Legislación de Bienestar",
+    shortDesc: "Las normativas de estabulación y matadero, y las inmensas lagunas legales que permiten la tortura.",
+    longDesc: "Las leyes de bienestar animal (transporte, densidades máximas, métodos de aturdimiento por electrocución o gas) nacieron con la promesa de minimizar el sufrimiento de los animales explotados. Sin embargo, en el fondo operan como manuales de instrucciones sobre 'cómo' maltratar legalmente. Existen enormes limitaciones y omisiones legales deliberadas: las mutilaciones rutinarias (corte de picos a aves y colas a cerdos sin anestesia), que serían constitutivas de delito penal si se hicieran a un perro, están legalmente protegidas bajo el escudo de la 'práctica agrícola estándar' [1].",
+    scientificFacts: [
+      "Las regulaciones permiten densidades de transporte y confinamiento tan extremas que miles de aves mueren literalmente aplastadas o infartadas antes de llegar al matadero, un margen asumido como merma económica [1].",
+      "Los sistemas de 'aturdimiento' en alta velocidad a menudo fallan (ej. tanques de escaldado), resultando en animales desangrados o hervidos vivos en la línea de montaje [2]."
+    ],
+    connections: ["estatus-juridico", "neurobiologia-dolor", "marcos-eticos"],
+    citation: "Wolfson, D. J., & Sullivan, M. (2004). Foxes in the Hen House.",
+    references: [
+      {
+        id: "1",
+        citation: "Wolfson, D. J., & Sullivan, M. (2004). Foxes in the Hen House: Animals, Agribusiness, and the Law. In Animal Rights: Current Debates and New Directions."
+      },
+      {
+        id: "2",
+        citation: "Pachirat, T. (2011). Every Twelve Seconds: Industrialized Slaughter and the Politics of Sight. Yale University Press."
+      }
+    ]
+  },
+  {
+    id: "vias-transicion",
+    category: "legal",
+    title: "Vías de Transición Futura",
+    shortDesc: "El camino hacia la agricultura celular y los litigios de vanguardia por la libertad.",
+    longDesc: "El colapso inminente de nuestro sistema requiere soluciones transformadoras. A nivel tecnológico, la fermentación de precisión, la 'agricultura celular' (carne cultivada a partir de biopsias sin sacrificio) y las carnes vegetales de nueva generación prometen desmantelar la ganadería por pura disrupción económica [1]. A nivel judicial, abogados de vanguardia están utilizando el recurso de 'Habeas Corpus' (diseñado originalmente para evitar encarcelamientos humanos injustos) para lograr que cortes supremas reconozcan legalmente a ciertos animales (como grandes simios y elefantes) como 'personas no humanas' sujetos a derechos fundamentales de libertad [2].",
+    scientificFacts: [
+      "La carne cultivada in vitro reduciría teóricamente la huella territorial en un 99% y las emisiones GEI hasta en un 96% en comparación con la carne bovina [1].",
+      "El Habeas Corpus de la orangutana Sandra en Argentina (2014) sentó jurisprudencia histórica al reconocerla por primera vez como un sujeto de derecho y otorgarle su liberación del cautiverio hacia un santuario [2]."
+    ],
+    connections: ["estatus-juridico", "consistencia-moral", "crisis-ambiental"],
+    citation: "Tuomisto, H. L., & Teixeira de Mattos, M. J. (2011). Environmental Impacts of Cultured Meat Production.",
+    references: [
+      {
+        id: "1",
+        citation: "Tuomisto, H. L., & Teixeira de Mattos, M. J. (2011). Environmental Impacts of Cultured Meat Production. Environmental Science & Technology, 45(14)."
+      },
+      {
+        id: "2",
+        citation: "Wise, S. M. (2000). Rattling the Cage: Toward Legal Rights for Animals. Perseus Books."
       }
     ]
   }
@@ -520,7 +465,7 @@ export const CORE_NODES: NodeDetail[] = [
 export const DILEMMAS_DATA: DilemmaDetail[] = [
   {
     id: "leones-carne",
-    category: "historia",
+    category: "sistemas_uso",
     title: "El Argumento de la Cadena Trófica",
     popularStatement: "Los leones comen carne en la naturaleza, por tanto es natural que los seres humanos hagamos lo mismo.",
     consensus: "FALACIA",
@@ -669,7 +614,7 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
   },
   {
     id: "caninos-dentadura",
-    category: "historia",
+    category: "sistemas_uso",
     title: "La Dentadura y Caninos",
     popularStatement: "Los seres humanos tenemos dientes caninos (colmillos) diseñados para comer carne, lo que demuestra que somos depredadores naturales.",
     consensus: "FALACIA",
@@ -818,6 +763,7 @@ export interface TimelineMilestone {
   scientificFacts: string[];
   references?: ReferenceDetail[];
   relatedNodeId?: string; // Optional reference to a CORE_NODE id (for linking back to concepts/dilemmas!)
+  openQuestion?: string;
 }
 
 export interface TimelineGroup {

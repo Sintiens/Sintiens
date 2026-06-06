@@ -561,6 +561,16 @@ export default function TimelineExplorer({ onRedirectToConcept }: TimelineExplor
               ))}
             </ul>
 
+          {milestone.openQuestion && (
+            <div className="pt-4">
+              <div className="p-4 border-l-2 border-cyan-500/50 dark:border-cyan-400/50 bg-cyan-500/5 dark:bg-cyan-900/10 rounded-r-xl">
+                <p className="text-xs text-zinc-650 dark:text-zinc-400 italic">
+                  {milestone.openQuestion}
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Bibliography references */}
           {milestone.references && milestone.references.length > 0 && (
             <div className="pt-2">
@@ -632,7 +642,7 @@ export default function TimelineExplorer({ onRedirectToConcept }: TimelineExplor
                 <span className={`w-2 h-2 rounded-full ${
                   relatedNode.category === 'sintiencia' ? 'bg-red-500' :
                   relatedNode.category === 'ecologia' ? 'bg-emerald-500' :
-                  relatedNode.category === 'historia' ? 'bg-blue-500' : 'bg-purple-500'
+                  relatedNode.category === 'sistemas_uso' ? 'bg-ch2' : 'bg-ch5'
                 }`} />
                 <span>Explorar concepto: {relatedNode.title}</span>
               </div>

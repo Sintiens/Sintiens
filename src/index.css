@@ -20,6 +20,19 @@
   --color-secondary: var(--secondary);
   --color-on-secondary: var(--on-secondary);
   
+  --color-ch1: var(--ch1);
+  --color-ch1-on: var(--ch1-on);
+  --color-ch2: var(--ch2);
+  --color-ch2-on: var(--ch2-on);
+  --color-ch3: var(--ch3);
+  --color-ch3-on: var(--ch3-on);
+  --color-ch4: var(--ch4);
+  --color-ch4-on: var(--ch4-on);
+  --color-ch5: var(--ch5);
+  --color-ch5-on: var(--ch5-on);
+  --color-ch6: var(--ch6);
+  --color-ch6-on: var(--ch6-on);
+  
   --color-background: var(--background);
   --color-on-background: var(--on-background);
 
@@ -60,6 +73,19 @@
   
   --accent: oklch(35% 0.06 155);
   --link: oklch(55% 0.12 210);
+
+  --ch1: oklch(65% 0.18 25);
+  --ch1-on: oklch(98% 0.02 25);
+  --ch2: oklch(80% 0.16 90);
+  --ch2-on: oklch(20% 0.05 90);
+  --ch3: oklch(60% 0.14 55);
+  --ch3-on: oklch(98% 0.02 55);
+  --ch4: oklch(65% 0.15 250);
+  --ch4-on: oklch(98% 0.02 250);
+  --ch5: oklch(65% 0.15 300);
+  --ch5-on: oklch(98% 0.02 300);
+  --ch6: oklch(75% 0.15 130);
+  --ch6-on: oklch(20% 0.05 130);
 }
 
 .dark {
@@ -83,6 +109,214 @@
   
   --accent: oklch(75% 0.04 155);
   --link: oklch(70% 0.1 210);
+
+  --ch1: oklch(65% 0.18 25);
+  --ch1-on: oklch(10% 0.02 25);
+  --ch2: oklch(80% 0.16 90);
+  --ch2-on: oklch(10% 0.05 90);
+  --ch3: oklch(60% 0.14 55);
+  --ch3-on: oklch(10% 0.02 55);
+  --ch4: oklch(65% 0.15 250);
+  --ch4-on: oklch(10% 0.02 250);
+  --ch5: oklch(65% 0.15 300);
+  --ch5-on: oklch(10% 0.02 300);
+  --ch6: oklch(75% 0.15 130);
+  --ch6-on: oklch(10% 0.05 130);
+}
+
+@utility text-display-lg {
+  font-family: var(--font-heading);
+  font-size: clamp(48px, 8vw, 84px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+@utility text-display-md {
+  font-family: var(--font-heading);
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+@utility text-body-lg {
+  font-family: var(--font-sans);
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+@utility text-body-md {
+  font-family: var(--font-sans);
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.65;
+}
+
+@utility text-technical-sm {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+@utility text-technical-xs {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+}
+
+@layer base {
+  html {
+    overflow-x: hidden;
+  }
+
+  body {
+    overflow-x: hidden;
+    background-color: var(--background);
+    color: var(--on-background);
+    font-family: var(--font-sans);
+    transition: background-color 0.4s ease, color 0.4s ease;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    text-wrap: balance;
+  }
+
+  ::selection {
+    background-color: var(--primary);
+    color: var(--on-primary);
+  }
+}
+
+/* Redesigning standard elements for the Museum look */
+.glass-panel {
+  background-color: color-mix(in oklch, var(--surface) 80%, transparent);
+  backdrop-filter: blur(20px);
+  border: 0.5px solid var(--outline-variant);
+}
+
+.hairline-border {
+  border: 0.5px solid var(--outline-variant);
+}
+
+.staggered-grid {
+  display: grid;
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .staggered-grid > *:nth-child(even) {
+    transform: translateY(2rem);
+  }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--outline);
+  border-radius: 2px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* Clean standard readable system font for the Developer Board and all its sub-elements */
+.dev-mode-ui, 
+.dev-mode-ui *,
+[class*="dev-mode"],
+[class*="dev-mode"] * {
+  font-family: Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif !important;
+  letter-spacing: normal !important;
+}
+
+/* 
+ * Scoped developer color overrides: Replaces all lilac/purple and indigo tones 
+ * with matching shades of Sintiens Forest Green logo color (#1B6B37)
+ * to maintain a coherent branding identity.
+ */
+.dev-mode-ui, 
+.dev-mode-ui *,
+[class*="dev-mode"],
+[class*="dev-mode"] *,
+#ai-validator-view,
+#ai-validator-view * {
+  --color-purple-50: oklch(98% 0.01 155) !important;
+  --color-purple-100: oklch(95% 0.02 155) !important;
+  --color-purple-200: oklch(90% 0.03 155) !important;
+  --color-purple-300: oklch(82% 0.05 155) !important;
+  --color-purple-400: oklch(72% 0.07 155) !important;
+  --color-purple-500: oklch(50% 0.08 155) !important;
+  --color-purple-600: oklch(40% 0.07 155) !important;
+  --color-purple-650: oklch(35% 0.06 155) !important;
+  --color-purple-700: oklch(32% 0.06 155) !important;
+  --color-purple-750: oklch(28% 0.05 155) !important;
+  --color-purple-800: oklch(24% 0.05 155) !important;
+  --color-purple-900: oklch(18% 0.04 155) !important;
+  --color-purple-950: oklch(12% 0.03 155) !important;
+
+  --color-indigo-50: oklch(98% 0.01 155) !important;
+  --color-indigo-100: oklch(95% 0.02 155) !important;
+  --color-indigo-200: oklch(90% 0.03 155) !important;
+  --color-indigo-300: oklch(82% 0.05 155) !important;
+  --color-indigo-400: oklch(72% 0.07 155) !important;
+  --color-indigo-500: oklch(50% 0.08 155) !important;
+  --color-indigo-550: oklch(45% 0.07 155) !important;
+  --color-indigo-600: oklch(40% 0.07 155) !important;
+  --ch4-on: oklch(98% 0.02 250);
+  --ch5: oklch(65% 0.15 300);
+  --ch5-on: oklch(98% 0.02 300);
+  --ch6: oklch(75% 0.15 130);
+  --ch6-on: oklch(20% 0.05 130);
+}
+
+.dark {
+  --background: oklch(15% 0.01 160);
+  --surface: oklch(18% 0.012 160);
+  --surface-dim: oklch(12% 0.01 160);
+  --surface-container: oklch(20% 0.015 160);
+  
+  --on-surface: oklch(90% 0.005 160);
+  --on-surface-variant: oklch(70% 0.01 160);
+  --on-background: oklch(90% 0.005 160);
+  
+  --primary: oklch(75% 0.04 155); /* Lighter Forest Green for dark mode */
+  --on-primary: oklch(10% 0.02 160);
+  
+  --secondary: oklch(65% 0.02 160);
+  --on-secondary: oklch(15% 0.015 160);
+  
+  --outline: oklch(30% 0.02 160);
+  --outline-variant: oklch(25% 0.015 160);
+  
+  --accent: oklch(75% 0.04 155);
+  --link: oklch(70% 0.1 210);
+
+  --ch1: oklch(65% 0.18 25);
+  --ch1-on: oklch(10% 0.02 25);
+  --ch2: oklch(80% 0.16 90);
+  --ch2-on: oklch(10% 0.05 90);
+  --ch3: oklch(60% 0.14 55);
+  --ch3-on: oklch(10% 0.02 55);
+  --ch4: oklch(65% 0.15 250);
+  --ch4-on: oklch(10% 0.02 250);
+  --ch5: oklch(65% 0.15 300);
+  --ch5-on: oklch(10% 0.02 300);
+  --ch6: oklch(75% 0.15 130);
+  --ch6-on: oklch(10% 0.05 130);
 }
 
 @utility text-display-lg {
@@ -239,6 +473,43 @@
   --color-indigo-600: oklch(40% 0.07 155) !important;
   --color-indigo-700: oklch(32% 0.06 155) !important;
   --color-indigo-800: oklch(24% 0.05 155) !important;
-  --color-indigo-900: oklch(18% 0.04 155) !important;
   --color-indigo-950: oklch(12% 0.03 155) !important;
 }
+
+@keyframes float-orb-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(15vw, -80px) scale(1.1); }
+  66% { transform: translate(-5vw, 100px) scale(0.9); }
+}
+@keyframes float-orb-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-20vw, -150px) scale(0.95); }
+  66% { transform: translate(10vw, -50px) scale(1.05); }
+}
+@keyframes float-orb-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(10vw, 150px) scale(1.1); }
+  66% { transform: translate(25vw, -50px) scale(0.95); }
+}
+@keyframes float-orb-4 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-15vw, 100px) scale(0.9); }
+  66% { transform: translate(-25vw, -100px) scale(1.1); }
+}
+@keyframes float-orb-5 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(25vw, -120px) scale(1.05); }
+  66% { transform: translate(-10vw, -50px) scale(0.95); }
+}
+@keyframes float-orb-6 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-20vw, 100px) scale(0.95); }
+  66% { transform: translate(-5vw, -150px) scale(1.1); }
+}
+
+.animate-float-1 { animation: float-orb-1 45s ease-in-out infinite; }
+.animate-float-2 { animation: float-orb-2 50s ease-in-out infinite; }
+.animate-float-3 { animation: float-orb-3 42s ease-in-out infinite; }
+.animate-float-4 { animation: float-orb-4 55s ease-in-out infinite; }
+.animate-float-5 { animation: float-orb-5 48s ease-in-out infinite; }
+.animate-float-6 { animation: float-orb-6 60s ease-in-out infinite; }

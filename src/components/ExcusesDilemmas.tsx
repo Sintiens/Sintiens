@@ -84,7 +84,7 @@ export default function ExcusesDilemmas({ onAnalyzeTrigger }: ExcusesDilemmasPro
         return <Activity className="w-3.5 h-3.5" />;
       case "ecologia":
         return <Globe className="w-3.5 h-3.5" />;
-      case "historia":
+      case "sistemas_uso":
          return <Info className="w-3.5 h-3.5" />;
       case "etica":
         return <Scale className="w-3.5 h-3.5" />;
@@ -294,6 +294,16 @@ function DeconstructionDetail({ dilemma, onAnalyze, isBibliographyOpen, setIsBib
           <TextRenderer text={dilemma.coexistenceImpact} references={dilemma.references} />
         </p>
       </div>
+
+      {dilemma.openQuestion && (
+        <div className="pt-4">
+          <div className="p-5 border-l-2 border-primary bg-primary/5 rounded-r-md">
+            <p className="text-body-md text-on-surface-variant italic">
+              {dilemma.openQuestion}
+            </p>
+          </div>
+        </div>
+      )}
 
       {dilemma.references && dilemma.references.length > 0 && (
         <div className="pt-4">

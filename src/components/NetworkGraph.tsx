@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import { CORE_NODES, NodeDetail } from "../types";
-import { Info, HelpCircle, Activity, Globe, Scale, Maximize2, Minimize2, ExternalLink, BookOpen, ChevronDown, ChevronUp, Binary } from "lucide-react";
+import { Info, HelpCircle, Activity, Globe, Scale, Maximize2, Minimize2, ExternalLink, BookOpen, ChevronDown, ChevronUp, Binary, BrainCircuit, Clock } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import TextRenderer from "./TextRenderer";
 import { Button } from "./ui/Button";
 
 interface GraphNode {
   id: string;
-  category: "sintiencia" | "historia" | "ecologia" | "etica";
+  category: "sintiencia" | "etica" | "psicologia" | "sistemas_uso" | "ecologia" | "legal";
   title: string;
   x: number;
   y: number;
@@ -65,10 +65,12 @@ export default function NetworkGraph() {
       let cx = 300;
       let cy = 200;
       
-      if (node.category === "sintiencia") { cx = 150; cy = 120; }
-      else if (node.category === "historia") { cx = 450; cy = 120; }
-      else if (node.category === "ecologia") { cx = 150; cy = 280; }
-      else if (node.category === "etica") { cx = 450; cy = 280; }
+      if (node.category === "sintiencia") { cx = 150; cy = 100; }
+      else if (node.category === "etica") { cx = 300; cy = 100; }
+      else if (node.category === "psicologia") { cx = 450; cy = 100; }
+      else if (node.category === "sistemas_uso") { cx = 150; cy = 300; }
+      else if (node.category === "ecologia") { cx = 300; cy = 300; }
+      else if (node.category === "legal") { cx = 450; cy = 300; }
 
       const angle = (i * 0.7) % (Math.PI * 2);
       const dist = 40 + Math.random() * 30;
@@ -190,10 +192,12 @@ export default function NetworkGraph() {
           let cx = dimensions.width / 2;
           let cy = dimensions.height / 2;
 
-          if (node.category === "sintiencia") { cx = dimensions.width * multXLeft; cy = dimensions.height * multYTop; }
-          else if (node.category === "historia") { cx = dimensions.width * multXRight; cy = dimensions.height * multYTop; }
-          else if (node.category === "ecologia") { cx = dimensions.width * multXLeft; cy = dimensions.height * multYBottom; }
-          else if (node.category === "etica") { cx = dimensions.width * multXRight; cy = dimensions.height * multYBottom; }
+          if (node.category === "sintiencia") { cx = dimensions.width * 0.2; cy = dimensions.height * 0.3; }
+          else if (node.category === "etica") { cx = dimensions.width * 0.5; cy = dimensions.height * 0.3; }
+          else if (node.category === "psicologia") { cx = dimensions.width * 0.8; cy = dimensions.height * 0.3; }
+          else if (node.category === "sistemas_uso") { cx = dimensions.width * 0.2; cy = dimensions.height * 0.7; }
+          else if (node.category === "ecologia") { cx = dimensions.width * 0.5; cy = dimensions.height * 0.7; }
+          else if (node.category === "legal") { cx = dimensions.width * 0.8; cy = dimensions.height * 0.7; }
 
           const dx = cx - node.x;
           const dy = cy - node.y;
@@ -292,10 +296,13 @@ export default function NetworkGraph() {
         const grad = ctx.createLinearGradient(source.x, source.y, target.x, target.y);
         
         const getCatColor = (cat: string, opacity: number) => {
-          if (cat === "sintiencia") return `rgba(53, 15, 12, ${opacity})`;
-          if (cat === "ecologia") return `rgba(16, 185, 129, ${opacity})`;
-          if (cat === "historia") return `rgba(59, 130, 246, ${opacity})`;
-          return `rgba(168, 85, 247, ${opacity})`; 
+          if (cat === "sintiencia") return `rgba(239, 68, 68, ${opacity})`;
+          if (cat === "etica") return `rgba(59, 130, 246, ${opacity})`;
+          if (cat === "psicologia") return `rgba(168, 85, 247, ${opacity})`;
+          if (cat === "sistemas_uso") return `rgba(234, 179, 8, ${opacity})`;
+          if (cat === "ecologia") return `rgba(217, 119, 6, ${opacity})`;
+          if (cat === "legal") return `rgba(16, 185, 129, ${opacity})`;
+          return `rgba(156, 163, 175, ${opacity})`; 
         };
 
         let opacity = isDark ? 0.2 : 0.1;
@@ -424,10 +431,12 @@ export default function NetworkGraph() {
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case "sintiencia": return <Activity className="w-5 h-5 text-primary" />;
-      case "ecologia": return <Globe className="w-5 h-5 text-secondary" />;
-      case "historia": return <Info className="w-5 h-5 text-link" />;
-      case "etica": return <Scale className="w-5 h-5 text-purple-500" />;
+      case "sintiencia": return <Activity className="w-5 h-5 text-ch1" />;
+      case "etica": return <Scale className="w-5 h-5 text-ch4" />;
+      case "psicologia": return <BrainCircuit className="w-5 h-5 text-ch5" />;
+      case "sistemas_uso": return <Clock className="w-5 h-5 text-ch2" />;
+      case "ecologia": return <Globe className="w-5 h-5 text-ch3" />;
+      case "legal": return <Scale className="w-5 h-5 text-ch6" />;
       default: return <HelpCircle className="w-5 h-5 text-on-surface-variant" />;
     }
   };
@@ -486,10 +495,12 @@ export default function NetworkGraph() {
               let borderColor = "border-outline-variant/30";
               let dotColor = "bg-on-surface-variant/40";
 
-              if (node.category === "sintiencia") { dotColor = "bg-primary"; if (isSelected) borderColor = "border-primary"; }
-              else if (node.category === "ecologia") { dotColor = "bg-emerald-500"; if (isSelected) borderColor = "border-emerald-500"; }
-              else if (node.category === "historia") { dotColor = "bg-blue-500"; if (isSelected) borderColor = "border-blue-500"; }
-              else if (node.category === "etica") { dotColor = "bg-purple-500"; if (isSelected) borderColor = "border-purple-500"; }
+              if (node.category === "sintiencia") { dotColor = "bg-ch1"; if (isSelected) borderColor = "border-ch1"; }
+              else if (node.category === "etica") { dotColor = "bg-ch4"; if (isSelected) borderColor = "border-ch4"; }
+              else if (node.category === "psicologia") { dotColor = "bg-ch5"; if (isSelected) borderColor = "border-ch5"; }
+              else if (node.category === "sistemas_uso") { dotColor = "bg-ch2"; if (isSelected) borderColor = "border-ch2"; }
+              else if (node.category === "ecologia") { dotColor = "bg-ch3"; if (isSelected) borderColor = "border-ch3"; }
+              else if (node.category === "legal") { dotColor = "bg-ch6"; if (isSelected) borderColor = "border-ch6"; }
 
               let opacity = "opacity-100 scale-100 z-10";
               if (isFilteredOut) opacity = "opacity-20 scale-90 z-0";
@@ -519,7 +530,7 @@ export default function NetworkGraph() {
         </div>
 
         <div className="flex flex-wrap gap-2 p-4 bg-background/50 backdrop-blur-md">
-            {["sintiencia", "historia", "ecologia", "etica"].map((cat) => (
+            {["sintiencia", "etica", "psicologia", "sistemas_uso", "ecologia", "legal"].map((cat) => (
               <button
                 key={cat}
                 onClick={() => setActiveCategoryFilter(activeCategoryFilter === cat ? null : cat)}
@@ -530,9 +541,11 @@ export default function NetworkGraph() {
                 }`}
               >
                 <div className={`w-1.5 h-1.5 rounded-full ${
-                  cat === 'sintiencia' ? 'bg-primary' :
-                  cat === 'ecologia' ? 'bg-emerald-500' :
-                  cat === 'historia' ? 'bg-blue-500' : 'bg-purple-500'
+                  cat === 'sintiencia' ? 'bg-ch1' :
+                  cat === 'etica' ? 'bg-ch4' :
+                  cat === 'psicologia' ? 'bg-ch5' :
+                  cat === 'sistemas_uso' ? 'bg-ch2' :
+                  cat === 'ecologia' ? 'bg-ch3' : 'bg-ch6'
                 }`} />
                 {cat}
               </button>
@@ -583,6 +596,16 @@ export default function NetworkGraph() {
                     ))}
                   </div>
                 </div>
+
+                {selectedNode.openQuestion && (
+                  <div className="pt-6">
+                    <div className="p-5 border-l-2 border-primary bg-primary/5 rounded-r-md">
+                      <p className="text-body-md text-on-surface-variant italic">
+                        {selectedNode.openQuestion}
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 {selectedNode.references && selectedNode.references.length > 0 && (
                   <div className="pt-4">
@@ -641,9 +664,11 @@ export default function NetworkGraph() {
                         className="rounded-full"
                       >
                         <span className={`w-1.5 h-1.5 rounded-full mr-2 ${
-                          linked.category === 'sintiencia' ? 'bg-primary' :
-                          linked.category === 'ecologia' ? 'bg-emerald-500' :
-                          linked.category === 'historia' ? 'bg-blue-500' : 'bg-purple-500'
+                          linked.category === 'sintiencia' ? 'bg-ch1' :
+                          linked.category === 'etica' ? 'bg-ch4' :
+                          linked.category === 'psicologia' ? 'bg-ch5' :
+                          linked.category === 'sistemas_uso' ? 'bg-ch2' :
+                          linked.category === 'ecologia' ? 'bg-ch3' : 'bg-ch6'
                         }`} />
                         {linked.title}
                       </Button>

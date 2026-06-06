@@ -80,7 +80,7 @@ export default function GlossaryLink({ item, children }: GlossaryLinkProps) {
         return <Activity className="w-3 h-3 text-red-500" />;
       case "ecologia":
         return <Globe className="w-3 h-3 text-emerald-500" />;
-      case "historia":
+      case "sistemas_uso":
         return <BookOpen className="w-3 h-3 text-blue-500" />;
       case "etica":
         return <Scale className="w-3 h-3 text-purple-500" />;
