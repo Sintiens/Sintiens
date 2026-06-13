@@ -98,7 +98,7 @@ export default function App() {
       {/* Sticky Header — only on deep-dive tabs */}
       {activeTab !== "historia_narrativa" && (
         <header className="bg-background/80 backdrop-blur-xl sticky top-0 z-50 border-b border-outline-variant/20 py-3">
-          <div className="max-w-[1440px] mx-auto px-6 lg:px-16 flex items-center justify-between gap-6">
+          <div className="max-w-[1440px] mx-auto px-3 md:px-8 lg:px-16 flex items-center justify-between gap-6">
             
             {/* Logo (minimal) */}
             <div className="flex items-center gap-3 cursor-pointer shrink-0" onClick={() => setActiveTab("historia_narrativa")}>
@@ -146,7 +146,7 @@ export default function App() {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 max-w-[1440px] w-full mx-auto px-6 lg:px-16 py-12 lg:py-20 relative">
+      <main className="flex-1 max-w-[1440px] w-full mx-auto px-3 md:px-8 lg:px-16 py-12 lg:py-20 relative">
         
         {/* Intro Section - Removed from individual tabs, now handled by StoryMode or minimal headers */}
         
@@ -170,15 +170,14 @@ export default function App() {
           )}
         </AnimatePresence>
 
-        {/* View Space */}
         <div className="min-h-[600px]">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -30 }}
-              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
               className="w-full"
             >
               {activeTab === "historia_narrativa" && (
@@ -218,7 +217,7 @@ export default function App() {
 
       {/* Modern Academic Footer */}
       <footer className="border-t border-outline-variant/30 py-16 bg-surface-dim/20 mt-32">
-        <div className="max-w-[1440px] mx-auto px-6 lg:px-16 flex flex-col md:flex-row items-center justify-between gap-6 text-on-surface-variant">
+        <div className="max-w-[1440px] mx-auto px-3 md:px-8 lg:px-16 flex flex-col md:flex-row items-center justify-between gap-6 text-on-surface-variant">
           <div className="space-y-4">
              <div className="flex items-center gap-3">
                 <SintiensLogo className="w-5 h-7 shrink-0" />

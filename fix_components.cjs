@@ -1,6 +1,6 @@
 const fs = require('fs');
 ['DeepDiveView.tsx', 'GraphWidget.tsx', 'VisualGraphView.tsx'].forEach(f => {
-  let p = 'C:/Users/ger4s/antigravity/Sintiens/src/components/' + f;
+  let p = 'C:/Users/ger4s/Documents/02 Proyectos/Sintiens/src/components/' + f;
   if (!fs.existsSync(p)) return;
   let c = fs.readFileSync(p, 'utf8').trim();
   if (c.startsWith('"')) {

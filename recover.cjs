@@ -1,7 +1,7 @@
 const fs = require('fs');
 
 const transcriptPath = 'C:/Users/ger4s/.gemini/antigravity/brain/1705a455-6904-40d4-93e1-c59b90d80637/.system_generated/logs/transcript.jsonl';
-const outDir = 'C:/Users/ger4s/antigravity/recovered_files';
+const outDir = 'C:/Users/ger4s/Documents/02 Proyectos/Sintiens/recovered_files';
 
 if (!fs.existsSync(outDir)) {
     fs.mkdirSync(outDir);

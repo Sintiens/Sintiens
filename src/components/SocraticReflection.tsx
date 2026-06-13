@@ -258,7 +258,7 @@ export default function SocraticReflection() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
       transition={{ duration: 0.3 }}
-      className="w-full bg-white dark:bg-zinc-950 pb-12 pt-2 relative transition-all duration-300"
+      className="w-full bg-transparent pb-12 pt-2 relative transition-all duration-300"
     >
       {/* Header of the reflection box */}
       <div className="flex flex-row items-center lg:items-end gap-4 lg:gap-8 pb-4 mb-2 relative z-10 px-4">
@@ -284,7 +284,7 @@ export default function SocraticReflection() {
       </div>
 
       {/* Main stable layout with smooth entrance animation on shuffle key change */}
-      <div className="relative z-10 w-full bg-white dark:bg-zinc-950">
+      <div className="relative z-10 w-full bg-transparent">
         <motion.div 
           key={shuffleKey}
           initial={{ opacity: 0, y: 10 }}

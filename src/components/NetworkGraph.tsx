@@ -445,7 +445,7 @@ export default function NetworkGraph() {
     <div 
       className={
         isFullscreen 
-          ? "fixed inset-0 z-50 p-6 md:p-8 bg-background flex flex-col lg:flex-row gap-8 overflow-y-auto w-screen h-screen transition-all duration-300"
+          ? "fixed inset-0 z-50 p-6 md:p-8 bg-background flex flex-col lg:flex-row gap-8 overflow-y-auto w-full h-full transition-all duration-300"
           : "grid grid-cols-1 lg:grid-cols-12 gap-0 items-stretch w-full min-h-[600px] transition-all duration-300"
       }
     >

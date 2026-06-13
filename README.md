@@ -41,7 +41,7 @@ Una herramienta interactiva impulsada por Inteligencia Artificial que recibe cua
 ### Pasos para iniciar el servidor
 1. Abre tu terminal de **PowerShell** en Windows y navega a la carpeta de tu proyecto:
    ```powershell
-   cd C:\Users\ger4s\antigravity\sintiens
+   cd C:\Users\ger4s\Documents\02 Proyectos\Sintiens
    ```
 2. Instala los paquetes y dependencias (si tienes las políticas de script bloqueadas en PowerShell, usa `.cmd`):
    ```powershell

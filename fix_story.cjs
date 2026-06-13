@@ -1,5 +1,5 @@
 const fs = require('fs');
-const path = 'C:/Users/ger4s/antigravity/Sintiens/src/data/storyData.tsx';
+const path = 'C:/Users/ger4s/Documents/02 Proyectos/Sintiens/src/data/storyData.tsx';
 let c = fs.readFileSync(path, 'utf8').trim();
 try {
   if (c.startsWith('"')) {

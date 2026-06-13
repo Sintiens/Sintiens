@@ -9,8 +9,15 @@ export interface BranchNode {
   children?: BranchNode[];
 }
 
+export interface DeepDiveData {
+  id: string;
+  label: string;
+  nodes: BranchNode[];
+}
+
 export interface TopicBlockData {
+  id: string;
   title: string;
   content: React.ReactNode;
-  treeData?: BranchNode[];
+  deepDive?: DeepDiveData;
 }

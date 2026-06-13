@@ -73,8 +73,8 @@ export default function GraphWidget({ act, block, onNodeSelect, activeNodeId, on
       const isCurrentBlock = b.title === block.title;
       const bStartY = currentY;
       
-      if (b.treeData) {
-        b.treeData.forEach(item => {
+      if (b.deepDive?.nodes) {
+        b.deepDive.nodes.forEach(item => {
              const category = item.category || 'Pilares';
              leafNodes.push({ 
                  id: `${bId}_${item.id}`, 
