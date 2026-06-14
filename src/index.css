@@ -319,3 +319,35 @@
 .animate-float-4 { animation: float-orb-4 55s ease-in-out infinite; }
 .animate-float-5 { animation: float-orb-5 48s ease-in-out infinite; }
 .animate-float-6 { animation: float-orb-6 60s ease-in-out infinite; }
+
+@keyframes rotate-slow {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) rotate(180deg) scale(1.05);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg) scale(1);
+  }
+}
+
+.animate-rotate-slow {
+  animation: rotate-slow 35s linear infinite;
+}
+
+@keyframes wobble-slow {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1) skew(0deg, 0deg);
+  }
+  33% {
+    transform: translate(-47%, -53%) scale(1.08, 0.92) skew(3deg, -1.5deg);
+  }
+  66% {
+    transform: translate(-53%, -47%) scale(0.92, 1.08) skew(-3deg, 1.5deg);
+  }
+}
+
+.animate-wobble-slow {
+  animation: wobble-slow 22s ease-in-out infinite;
+}

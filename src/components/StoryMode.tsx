@@ -9,30 +9,54 @@ import { DeepDiveData } from "../types/story";
 const AmbientGlow = ({ 
 colorClass, 
 className = "",
-opacity = 0.05
+opacity = 0.05,
+style = {}
 }: {
 colorClass: string;
 className?: string;
 opacity?: number;
+style?: React.CSSProperties;
 }) => {
-const svgNoise = `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`;
-const smoothGradient = "radial-gradient(closest-side, black 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0.2) 70%, rgba(0,0,0,0.05) 85%, transparent 100%)";
+const textClass = colorClass.startsWith('bg-') 
+  ? colorClass.replace('bg-', 'text-') 
+  : colorClass;
 
 return (
-<div className={`absolute pointer-events-none select-none z-0 ${className}`}>
 <div 
-className={`absolute inset-0 ${colorClass}`}
-style={{
-opacity: opacity,
-maskImage: smoothGradient,
-WebkitMaskImage: smoothGradient,
-}}
+  className={`absolute pointer-events-none select-none z-0 overflow-visible ${className}`}
+  style={style}
 >
-<div 
-className="absolute inset-0 mix-blend-overlay opacity-40" 
-style={{ backgroundImage: svgNoise }} 
-/>
-</div>
+  {/* Centered Elongated Container for organic wobbly drift */}
+  <div 
+    className={`absolute top-1/2 left-1/2 w-[145%] h-[65%] aspect-[2.2/1] filter blur-[35px] sm:blur-[48px] ${textClass} animate-wobble-slow transition-colors duration-[600ms] ease-in-out`}
+    style={{
+      opacity: opacity,
+    }}
+  >
+    <svg 
+      viewBox="0 0 200 200" 
+      xmlns="http://www.w3.org/2000/svg" 
+      className="w-full h-full"
+    >
+      {/* Single Amorphous Path - Extremely smooth gradient transition via blur */}
+      <path 
+        fill="currentColor"
+        d="M30,75 C70,15 130,25 175,55 C195,85 165,135 145,165 C105,195 55,175 35,135 C15,95 10,80 30,75 Z"
+      >
+        <animate 
+          attributeName="d" 
+          dur="28s" 
+          repeatCount="indefinite" 
+          values="
+            M30,75 C70,15 130,25 175,55 C195,85 165,135 145,165 C105,195 55,175 35,135 C15,95 10,80 30,75 Z;
+            M55,35 C115,5 155,45 165,95 C175,155 115,175 75,155 C35,135 15,95 25,65 C35,35 15,35 55,35 Z;
+            M55,25 C115,5 145,55 155,105 C165,165 105,165 65,175 C25,185 35,115 35,75 C35,35 25,40 55,25 Z;
+            M30,75 C70,15 130,25 175,55 C195,85 165,135 145,165 C105,195 55,175 35,135 C15,95 10,80 30,75 Z
+          " 
+        />
+      </path>
+    </svg>
+  </div>
 </div>
 );
 };
@@ -98,76 +122,76 @@ const elements = document.querySelectorAll('[id^="acto-"], #hero, #intro');
 elements.forEach((c) => observer.observe(c));
 
 const handleScroll = () => {
-if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
-setActiveChapter("acto-6");
-}
+  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+    setActiveChapter("acto-6");
+  }
 
-const newActiveBlocks: Record<string, string> = {};
+  const newActiveBlocks: Record<string, string> = {};
 
-const els = document.querySelectorAll(".narrative-text-container");
-els.forEach((el) => {
-const element = el as HTMLElement;
-// Encontrar la sección del acto padre para ubicar su h2
-const parentAct = element.closest('[id^="acto-"]');
-if (!parentAct) return;
+  const els = document.querySelectorAll(".narrative-text-container");
+  els.forEach((el) => {
+    const element = el as HTMLElement;
+    // Encontrar la sección del acto padre para ubicar su h2
+    const parentAct = element.closest('[id^="acto-"]');
+    if (!parentAct) return;
 
-const h2 = parentAct.querySelector("h2");
-if (!h2) return;
+    const h2 = parentAct.querySelector("h2");
+    if (!h2) return;
 
-const headerContainer = parentAct.querySelector(".act-sticky-header");
-const headerRect = headerContainer ? headerContainer.getBoundingClientRect() : h2.getBoundingClientRect();
-const textRect = element.getBoundingClientRect();
+    const headerContainer = parentAct.querySelector(".act-sticky-header");
+    const headerRect = headerContainer ? headerContainer.getBoundingClientRect() : h2.getBoundingClientRect();
+    const textRect = element.getBoundingClientRect();
 
-// relativeBottom es la posición inferior de la cabecera sticky relativa al top de este contenedor
-const relativeBottom = headerRect.bottom - textRect.top;
+    // relativeBottom es la posición inferior de la cabecera sticky relativa al top de este contenedor
+    const relativeBottom = headerRect.bottom - textRect.top;
 
-if (relativeBottom <= 0) {
-element.style.webkitMaskImage = "";
-element.style.maskImage = "";
-} else {
-// Ajuste: -16 compensa el padding del contenedor sticky; 160px de rango para transición muy suave
-const fadeStart = relativeBottom - 16;
-const fadeEnd = relativeBottom + 144;
+    if (relativeBottom <= 0) {
+      element.style.webkitMaskImage = "";
+      element.style.maskImage = "";
+    } else {
+      // Ajuste: -16 compensa el padding del contenedor sticky; 160px de rango para transición muy suave
+      const fadeStart = relativeBottom - 16;
+      const fadeEnd = relativeBottom + 144;
 
-const maskVal = `linear-gradient(to bottom, transparent ${fadeStart}px, black ${fadeEnd}px)`;
-element.style.webkitMaskImage = maskVal;
-element.style.maskImage = maskVal;
-}
+      const maskVal = `linear-gradient(to bottom, transparent ${fadeStart}px, black ${fadeEnd}px)`;
+      element.style.webkitMaskImage = maskVal;
+      element.style.maskImage = maskVal;
+    }
 
-// Detectar bloque activo para este acto
-const blocks = parentAct.querySelectorAll(".narrative-block");
-let activeTitle = "";
-const stickyHeaderBottom = headerRect.bottom;
+    // Detectar bloque activo para este acto
+    const blocks = parentAct.querySelectorAll(".narrative-block");
+    let activeTitle = "";
+    const stickyHeaderBottom = headerRect.bottom;
 
-blocks.forEach((blockEl) => {
-const subtitleEl = blockEl.querySelector("span");
-const subtitleRect = subtitleEl ? subtitleEl.getBoundingClientRect() : blockEl.getBoundingClientRect();
+    blocks.forEach((blockEl) => {
+      const subtitleEl = blockEl.querySelector("span");
+      const subtitleRect = subtitleEl ? subtitleEl.getBoundingClientRect() : blockEl.getBoundingClientRect();
 
-// Si el subtítulo del bloque ha subido y cruzado el límite inferior de la cabecera sticky
-if (subtitleRect.top <= stickyHeaderBottom) {
-activeTitle = blockEl.getAttribute("data-block-title") || "";
-}
-});
+      // Si el subtítulo del bloque ha subido y cruzado el límite inferior de la cabecera sticky
+      if (subtitleRect.top <= stickyHeaderBottom) {
+        activeTitle = blockEl.getAttribute("data-block-title") || "";
+      }
+    });
 
-// Guardar el título activo (o vacío para no duplicar si el primer subtítulo aún está visible)
-newActiveBlocks[parentAct.id] = activeTitle || "";
-});
+    // Guardar el título activo (o vacío para no duplicar si el primer subtítulo aún está visible)
+    newActiveBlocks[parentAct.id] = activeTitle || "";
+  });
 
-if (Object.keys(newActiveBlocks).length > 0) {
-setActiveBlocks((prev) => {
-let hasChanged = false;
-for (const key in newActiveBlocks) {
-if (prev[key] !== newActiveBlocks[key]) {
-hasChanged = true;
-break;
-}
-}
-if (hasChanged) {
-return { ...prev, ...newActiveBlocks };
-}
-return prev;
-});
-}
+  if (Object.keys(newActiveBlocks).length > 0) {
+    setActiveBlocks((prev) => {
+      let hasChanged = false;
+      for (const key in newActiveBlocks) {
+        if (prev[key] !== newActiveBlocks[key]) {
+          hasChanged = true;
+          break;
+        }
+      }
+      if (hasChanged) {
+        return { ...prev, ...newActiveBlocks };
+      }
+      return prev;
+    });
+  }
 };
 
 window.addEventListener("scroll", handleScroll, { passive: true });
@@ -184,10 +208,10 @@ window.removeEventListener("resize", handleScroll);
 }, []);
 
 const handleScrollTo = (id: string) => {
-const el = document.getElementById(id);
-if (el) {
-el.scrollIntoView({ behavior: "smooth" });
-}
+  const el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 };
 
 const chapterVariants = {
@@ -253,7 +277,7 @@ marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
 </div>
 
 {/* Ambient Glows */}
-<div className="absolute w-[100vw] left-1/2 -translate-x-1/2 top-[-10%] bottom-[-10%] z-0 pointer-events-none opacity-80" style={{ maskImage: "radial-gradient(ellipse at top, black 0%, transparent 100%)", WebkitMaskImage: "radial-gradient(ellipse at top, black 0%, transparent 100%)" }}>
+<div className="absolute inset-x-0 top-[-10%] bottom-[-10%] z-0 pointer-events-none opacity-80">
 <div className="absolute top-[-5%] left-[-2vw] w-[600px] h-[600px] animate-float-1">
 <AmbientGlow colorClass="bg-ch4" className="w-full h-full" opacity={0.3} />
 </div>
@@ -279,95 +303,101 @@ marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
 </div>
 
 <div className="flex-1 lg:flex-none flex flex-col justify-center items-center w-full">
-<div className="space-y-4 lg:space-y-6 max-w-3xl w-full relative z-10 translate-y-6 lg:translate-y-8 mt-4 lg:mt-6">
-<motion.h1 initial="hidden" animate="visible" variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.18 } } }} className="text-[clamp(34px,7.2vw,80px)] font-bold tracking-tight font-heading leading-[1.05] text-on-background select-none">
-<motion.span variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } } }} className="block sm:inline-block">
-¿Qué vidas merecen&nbsp;
-</motion.span>
-<motion.span variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } } }} className="italic font-light text-secondary font-serif relative block sm:inline-block mt-2 sm:mt-0">
-consideración moral?
-</motion.span>
-</motion.h1>
-<p className="max-w-2xl mx-auto pt-1 font-serif italic font-light text-on-surface-variant/70 leading-relaxed text-[17px] sm:text-[19px] text-center tracking-normal select-none">
-Una mirada a la relación que mantenemos con los demás animales,<br className="hidden sm:inline" /> 
-y a lo que la evidencia tiene que decir al respecto.
-</p>
-</div>
+  {/* Title and Subtitle Section */}
+  <div className="space-y-3 lg:space-y-6 max-w-3xl w-full text-center relative z-10 translate-y-6 lg:translate-y-8 mt-4 lg:mt-6">
+    <motion.h1 initial="hidden" animate="visible" variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.18 } } }} className="text-[clamp(42px,8.5vw,80px)] font-bold tracking-tight font-heading leading-[1.05] text-on-background select-none">
+      <motion.span variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } } }} className="block sm:inline-block">
+        ¿Qué vidas merecen&nbsp;
+      </motion.span>
+      <motion.span variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } } }} className="italic font-light text-secondary font-serif relative block sm:inline-block mt-2 sm:mt-0">
+        consideración moral?
+      </motion.span>
+    </motion.h1>
+    <p className="max-w-2xl mx-auto pt-1 font-serif italic font-light text-on-surface-variant/70 leading-relaxed text-[14px] sm:text-[16px] md:text-[18px] lg:text-[19px] text-center tracking-normal select-none">
+      Una mirada a la relación que mantenemos con los demás animales,<br className="hidden sm:inline" /> 
+      y a lo que la evidencia tiene que decir al respecto.
+    </p>
+  </div>
 
-{/* Desktop View: Keep the original 3 columns inside a matching glassmorphic card */}
-<div className="hidden lg:block w-full max-w-7xl px-6 lg:px-16 mt-12 relative z-10 font-sans font-light leading-relaxed">
-<div className="border border-outline-variant/60 rounded-3xl bg-surface-dim/30 dark:bg-surface-dim/15 backdrop-blur-md p-10 lg:p-12 shadow-lg shadow-black/[0.02] dark:shadow-none w-full">
-<div className="grid grid-cols-3 gap-12 lg:gap-16 w-full divide-x divide-outline-variant/30">
-<div className="flex relative pt-0 text-left flex-col items-start px-4 first:pl-0">
-<span className="text-[10px] font-mono font-bold text-primary select-none tracking-widest uppercase block leading-none mb-4 opacity-60">[ EL DESAFÍO ]</span>
-<div className="relative text-[13px] text-on-surface-variant/90 leading-relaxed font-sans font-light">
-<p>La información científica, ética y ecológica está hoy más disponible que nunca, pero se presenta dispersa, fragmentada y a menudo polarizada.</p>
-</div>
-</div>
+  {/* Crystalline Glass Card for Focus Columns Section */}
+  <div className="w-full max-w-7xl px-6 lg:px-16 mt-20 lg:mt-24 relative z-10 font-sans font-light leading-relaxed">
+    {/* Desktop View */}
+    <div 
+      className="hidden lg:block border border-outline-variant/35 rounded-3xl p-10 lg:p-12 w-full relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none"
+    >
+      <div className="grid grid-cols-3 gap-12 lg:gap-16 w-full divide-x divide-outline-variant/30">
+        <div className="flex relative pt-0 text-left flex-col items-start px-4 first:pl-0">
+          <span className="text-[10px] font-mono font-bold text-primary select-none tracking-widest uppercase block leading-none mb-4 opacity-60">[ EL DESAFÍO ]</span>
+          <div className="relative text-[13px] text-on-surface-variant/90 leading-relaxed font-sans font-light">
+            <p>La información científica, ética y ecológica está hoy más disponible que nunca, pero se presenta dispersa, fragmentada y a menudo polarizada.</p>
+          </div>
+        </div>
 
-<div className="flex relative pt-0 text-left flex-col items-start px-8">
-<span className="text-[10px] font-mono font-bold text-primary select-none tracking-widest uppercase block leading-none mb-4 opacity-60">[ ÁREAS DE ANÁLISIS ]</span>
-<div className="relative text-[13px] text-on-surface-variant/90 leading-relaxed font-sans font-light w-full">
-<p>Seis bloques interactivos que estructuran la evidencia desde la neurobiología y el impacto ecológico hasta la regulación legal y los dilemas éticos.</p>
-</div>
-</div>
+        <div className="flex relative pt-0 text-left flex-col items-start px-8">
+          <span className="text-[10px] font-mono font-bold text-primary select-none tracking-widest uppercase block leading-none mb-4 opacity-60">[ ÁREAS DE ANÁLISIS ]</span>
+          <div className="relative text-[13px] text-on-surface-variant/90 leading-relaxed font-sans font-light w-full">
+            <p>Seis bloques interactivos que estructuran la evidencia desde la neurobiología y el impacto ecológico hasta la regulación legal y los dilemas éticos.</p>
+          </div>
+        </div>
 
-<div className="flex relative pt-0 text-left flex-col items-start px-8 last:pr-0">
-<span className="text-[10px] font-mono font-bold text-primary select-none tracking-widest uppercase block leading-none mb-4 opacity-60">[ EL PROPÓSITO ]</span>
-<div className="relative text-[13px] text-on-surface-variant/90 leading-relaxed font-sans font-light">
-<p>Estructurar y ordenar esa evidencia de forma sistemática y transparente, facilitando un espacio de deconstrucción moral para que cada persona explore y decida con total autonomía.</p>
-</div>
-</div>
-</div>
-</div>
-</div>
+        <div className="flex relative pt-0 text-left flex-col items-start px-8 last:pr-0">
+          <span className="text-[10px] font-mono font-bold text-primary select-none tracking-widest uppercase block leading-none mb-4 opacity-60">[ EL PROPÓSITO ]</span>
+          <div className="relative text-[13px] text-on-surface-variant/90 leading-relaxed font-sans font-light">
+            <p>Estructurar y ordenar esa evidencia de forma sistemática y transparente, facilitando un espacio de deconstrucción moral para que cada persona explore y decida con total autonomía.</p>
+          </div>
+        </div>
+      </div>
+    </div>
 
-{/* Mobile View: Collapsible Button + Accordion Card */}
-<div className="lg:hidden w-full max-w-lg px-6 mt-16 mb-6 relative z-10 flex flex-col items-center">
-<button
-onClick={() => setShowMobileInfo(!showMobileInfo)}
-className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-outline-variant text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-widest text-on-surface-variant hover:text-primary transition-all bg-surface-dim/50 hover:bg-surface-dim active:scale-[0.98] cursor-pointer shadow-sm shadow-black/5"
->
-<Info className="w-3.5 h-3.5 opacity-85" />
-<span>{showMobileInfo ? "Ocultar Enfoque" : "Ver Enfoque"}</span>
-<ChevronDown className={`w-3.5 h-3.5 opacity-85 transition-transform duration-300 ${showMobileInfo ? 'rotate-180' : ''}`} />
-</button>
+    {/* Mobile View */}
+    <div className="lg:hidden w-full flex flex-col items-center">
+      <button
+        onClick={() => setShowMobileInfo(!showMobileInfo)}
+        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-outline-variant/30 text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-widest text-on-surface-variant hover:text-primary transition-all bg-surface-dim/20 hover:bg-surface-dim/40 active:scale-[0.98] cursor-pointer"
+      >
+        <Info className="w-3.5 h-3.5 opacity-85" />
+        <span>{showMobileInfo ? "Ocultar Enfoque" : "Ver Enfoque"}</span>
+        <ChevronDown className={`w-3.5 h-3.5 opacity-85 transition-transform duration-300 ${showMobileInfo ? 'rotate-180' : ''}`} />
+      </button>
 
-<AnimatePresence>
-{showMobileInfo && (
-<motion.div
-initial={{ height: 0, opacity: 0, marginTop: 0 }}
-animate={{ height: "auto", opacity: 1, marginTop: 24 }}
-exit={{ height: 0, opacity: 0, marginTop: 0 }}
-transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-className="w-full overflow-hidden"
->
-<div className="flex flex-col gap-6 p-6 sm:p-8 border border-outline-variant/60 rounded-2xl bg-surface-dim/30 dark:bg-surface-dim/15 backdrop-blur-md text-left shadow-lg shadow-black/[0.02] dark:shadow-none">
-<div className="space-y-2">
-<span className="text-[10px] font-mono font-bold text-primary select-none tracking-widest uppercase block leading-none opacity-60">[ EL DESAFÍO ]</span>
-<p className="text-[13px] text-on-surface-variant/90 leading-relaxed font-sans font-light">
-La información científica, ética y ecológica está hoy más disponible que nunca, pero se presenta dispersa, fragmentada y a menudo polarizada.
-</p>
-</div>
+      <AnimatePresence>
+        {showMobileInfo && (
+          <motion.div
+            initial={{ height: 0, opacity: 0, marginTop: 0 }}
+            animate={{ height: "auto", opacity: 1, marginTop: 20 }}
+            exit={{ height: 0, opacity: 0, marginTop: 0 }}
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full overflow-hidden"
+          >
+            <div 
+              className="flex flex-col gap-6 p-6 sm:p-8 border border-outline-variant/35 rounded-2xl text-left relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none"
+            >
+              <div className="space-y-2">
+                <span className="text-[10px] font-mono font-bold text-primary select-none tracking-widest uppercase block leading-none opacity-60">[ EL DESAFÍO ]</span>
+                <p className="text-[13px] text-on-surface-variant/90 leading-relaxed">
+                  La información científica, ética y ecológica está hoy más disponible que nunca, pero se presenta dispersa, fragmentada y a menudo polarizada.
+                </p>
+              </div>
 
-<div className="border-t border-outline-variant/30 pt-6 space-y-2">
-<span className="text-[10px] font-mono font-bold text-primary select-none tracking-widest uppercase block leading-none opacity-60">[ ÁREAS DE ANÁLISIS ]</span>
-<p className="text-[13px] text-on-surface-variant/90 leading-relaxed font-sans font-light">
-Seis bloques interactivos que estructuran la evidencia desde la neurobiología y el impacto ecológico hasta la regulación legal y los dilemas éticos.
-</p>
-</div>
+              <div className="border-t border-outline-variant/20 pt-6 space-y-2">
+                <span className="text-[10px] font-mono font-bold text-primary select-none tracking-widest uppercase block leading-none opacity-60">[ ÁREAS DE ANÁLISIS ]</span>
+                <p className="text-[13px] text-on-surface-variant/90 leading-relaxed font-sans font-light">
+                  Seis bloques interactivos que estructuran la evidencia desde la neurobiología y el impacto ecológico hasta la regulación legal y los dilemas éticos.
+                </p>
+              </div>
 
-<div className="border-t border-outline-variant/30 pt-6 space-y-2">
-<span className="text-[10px] font-mono font-bold text-primary select-none tracking-widest uppercase block leading-none opacity-60">[ EL PROPÓSITO ]</span>
-<p className="text-[13px] text-on-surface-variant/90 leading-relaxed font-sans font-light">
-Estructurar y ordenar esa evidencia de forma sistemática y transparente, facilitando un espacio de deconstrucción moral para que cada persona explore y decida con total autonomía.
-</p>
-</div>
-</div>
-</motion.div>
-)}
-</AnimatePresence>
-</div>
+              <div className="border-t border-outline-variant/20 pt-6 space-y-2">
+                <span className="text-[10px] font-mono font-bold text-primary select-none tracking-widest uppercase block leading-none opacity-60">[ EL PROPÓSITO ]</span>
+                <p className="text-[13px] text-on-surface-variant/90 leading-relaxed font-sans font-light">
+                  Estructurar y ordenar esa evidencia de forma sistemática y transparente, facilitando un espacio de deconstrucción moral para que cada persona explore y decida con total autonomía.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  </div>
 </div>
 
 <div className="w-full flex justify-center pt-8 lg:pt-16 select-none relative z-10">
@@ -409,81 +439,86 @@ className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-md text-[10px] sm:text-[11px] upp
 </div>
 </section>
 
-{/* INTRO BLOCK: Modo Lectura & Índice Principal */}
 <div 
   id="intro" 
-  className="w-full scroll-mt-24 relative overflow-visible"
+  className="w-full scroll-mt-0 relative overflow-visible"
   style={{
     width: "calc(100vw - var(--scrollbar-width, 0px))",
     marginLeft: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
     marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
   }}
 >
-  <div className="w-full px-3 md:px-6 xl:pl-20 xl:pr-4 pt-4">
-<div className="relative w-full text-center mb-8 lg:mb-12 py-10 lg:py-12 px-4">
-{/* Spread out Background Shapes */}
-<div className="absolute w-[100vw] left-1/2 -translate-x-1/2 top-[-100px] bottom-[-100px] z-0 pointer-events-none opacity-60" style={{ maskImage: "linear-gradient(to bottom, transparent 0%, black 20%, black 70%, transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 20%, black 70%, transparent 100%)" }}>
-<div className="absolute top-[-50px] left-[-5vw] w-[500px] h-[500px] animate-float-1">
-<AmbientGlow colorClass="bg-ch1" className="w-full h-full" opacity={0.3} />
-</div>
-<div className="absolute bottom-[20px] right-[-5vw] w-[650px] h-[650px] animate-float-2">
-<AmbientGlow colorClass="bg-ch4" className="w-full h-full" opacity={0.2} />
-</div>
-<div className="absolute top-[30%] left-[8vw] w-[450px] h-[450px] animate-float-3">
-<AmbientGlow colorClass="bg-ch5" className="w-full h-full" opacity={0.3} />
-</div>
-<div className="absolute top-[-80px] right-[10vw] w-[550px] h-[550px] animate-float-4">
-<AmbientGlow colorClass="bg-ch2" className="w-full h-full" opacity={0.3} />
-</div>
-<div className="absolute bottom-[50px] left-[20vw] w-[400px] h-[400px] animate-float-5">
-<AmbientGlow colorClass="bg-ch3" className="w-full h-full" opacity={0.3} />
-</div>
-<div className="absolute top-[40%] right-[25vw] w-[480px] h-[480px] animate-float-6">
-<AmbientGlow colorClass="bg-ch6" className="w-full h-full" opacity={0.3} />
-</div>
-</div>
+  {/* Spread out Background Shapes - Unconfined, covers entire intro section */}
+  <div className="absolute inset-x-0 top-[-100px] bottom-[-100px] z-0 pointer-events-none opacity-60">
+    <div className="absolute top-[-50px] left-[-5vw] w-[500px] h-[500px] animate-float-1">
+      <AmbientGlow colorClass="bg-ch1" className="w-full h-full" opacity={0.3} />
+    </div>
+    <div className="absolute bottom-[20px] right-[-5vw] w-[650px] h-[650px] animate-float-2">
+      <AmbientGlow colorClass="bg-ch4" className="w-full h-full" opacity={0.2} />
+    </div>
+    <div className="absolute top-[30%] left-[8vw] w-[450px] h-[450px] animate-float-3">
+      <AmbientGlow colorClass="bg-ch5" className="w-full h-full" opacity={0.3} />
+    </div>
+    <div className="absolute top-[-80px] right-[10vw] w-[550px] h-[550px] animate-float-4">
+      <AmbientGlow colorClass="bg-ch2" className="w-full h-full" opacity={0.3} />
+    </div>
+    <div className="absolute bottom-[50px] left-[20vw] w-[400px] h-[400px] animate-float-5">
+      <AmbientGlow colorClass="bg-ch3" className="w-full h-full" opacity={0.3} />
+    </div>
+    <div className="absolute top-[40%] right-[25vw] w-[480px] h-[480px] animate-float-6">
+      <AmbientGlow colorClass="bg-ch6" className="w-full h-full" opacity={0.3} />
+    </div>
+  </div>
 
-<div className="relative z-10 space-y-8 max-w-4xl mx-auto">
-{/* Restored Hero Details */}
-<span className="text-[10px] font-mono font-bold text-primary uppercase tracking-widest block leading-none mb-4 drop-shadow-md">
-[ MODO LECTURA ]
-</span>
-<h2 className="text-[clamp(40px,5.5vw,72px)] font-serif tracking-tight leading-[1.05] text-on-background mb-8 drop-shadow-2xl">
-Conceptos & Principios Fundamentales
-</h2>
-<div className="text-[18px] md:text-[21px] text-on-surface-variant/80 leading-[1.7] font-serif italic max-w-3xl mx-auto space-y-4">
-<p>Este es un apartado genérico y sintetizado de las principales áreas de estudio. Su propósito es servir como una lectura introductoria; desde aquí, podrás profundizar muchísimo más en cada temática.</p>
-</div>
-</div>
-</div>
+  <div className="w-full max-w-7xl mx-auto px-6 lg:px-16 pt-4 relative z-10">
+    <div className="relative w-full text-center mb-8 lg:mb-12 py-10 lg:py-12 px-4">
+      <div className="relative z-10 space-y-6 lg:space-y-8 max-w-4xl mx-auto">
+        {/* Restored Hero Details */}
+        <span className="text-[10px] font-mono font-bold text-primary uppercase tracking-widest block leading-none mb-4 drop-shadow-md">
+          [ MODO LECTURA • ÍNDICE ]
+        </span>
+        <h2 className="text-[clamp(44px,6vw,72px)] font-serif tracking-tight leading-[1.05] text-on-background mb-8 drop-shadow-2xl">
+          Conceptos & Principios Fundamentales
+        </h2>
+        <div className="text-[15px] md:text-[18px] lg:text-[21px] text-on-surface-variant/80 leading-[1.7] font-serif italic max-w-3xl mx-auto space-y-4">
+          <p>Este es un apartado genérico y sintetizado de las principales áreas de estudio. Su propósito es servir como una lectura introductoria; desde aquí, podrás profundizar muchísimo más en cada temática.</p>
+        </div>
+      </div>
+    </div>
 
-<div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 sm:gap-x-8 md:gap-x-12 gap-y-4 lg:gap-y-6">
-{actsData.map((act) => (
-<div 
-key={`idx-${act.id}`}
-onClick={() => handleScrollTo(act.id)}
-className="group relative py-2 px-2 sm:py-3 sm:px-4 lg:py-4 transition-all duration-500 cursor-pointer flex flex-col items-start text-left"
->
-<AmbientGlow 
-colorClass={act.colorName} 
-className="w-[150%] h-[200px] sm:h-[250px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-700" 
-opacity={0.15} 
-/>
+    {/* Frosted Glass Index Card */}
+    <div 
+      className="border border-outline-variant/35 rounded-3xl p-6 sm:p-8 lg:p-10 w-full relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-container/25 dark:before:bg-surface-container/12 before:backdrop-blur-xl before:z-[-1] before:pointer-events-none"
+    >
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 sm:gap-x-8 md:gap-x-12 gap-y-4 lg:gap-y-6">
+        {actsData.map((act) => (
+          <div 
+            key={`idx-${act.id}`}
+            onClick={() => handleScrollTo(act.id)}
+            className="group relative py-2 px-2 sm:py-3 sm:px-4 lg:py-4 transition-all duration-500 cursor-pointer flex flex-col items-start text-left"
+          >
+            {/* Confined, morphing individual act glow */}
+            <AmbientGlow 
+              colorClass={act.colorName} 
+              className="w-[160%] h-[240px] sm:h-[280px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 pointer-events-none" 
+              opacity={0.20} 
+            />
 
-<div className="relative z-10 w-full">
-<span className={`text-[9px] sm:text-[10px] font-mono font-bold ${act.textColor} uppercase tracking-widest block leading-none mb-2 sm:mb-3 group-hover:scale-105 origin-left transition-transform duration-500`}>
-[ ACTO {act.num} ]
-</span>
-<h3 className={`text-sm sm:text-base md:text-xl font-bold font-heading text-on-background mb-1 sm:mb-2 transition-colors duration-500 ${act.hoverColor}`}>
-{act.label}
-</h3>
-<p className="hidden sm:block text-[13px] font-sans font-light text-on-surface-variant/60 group-hover:text-on-surface-variant/90 transition-colors duration-500 leading-relaxed m-0">
-{act.desc}
-</p>
-</div>
-</div>
-))}
-</div>
+            <div className="relative z-10 w-full">
+              <span className={`text-[9px] sm:text-[10px] font-mono font-bold ${act.textColor} uppercase tracking-widest block leading-none mb-2 sm:mb-3 group-hover:translate-x-1 transition-transform duration-300`}>
+                [ ACTO {act.num} ]
+              </span>
+              <h3 className={`text-sm sm:text-base md:text-xl font-bold font-heading text-on-background mb-1 sm:mb-2 transition-colors duration-300 ${act.hoverColor}`}>
+                {act.label}
+              </h3>
+              <p className="hidden sm:block text-[13px] font-sans font-light text-on-surface-variant/60 group-hover:text-on-surface-variant/90 transition-colors duration-300 leading-relaxed m-0">
+                {act.desc}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
 
 <div className="border-b border-outline-variant/20 mt-12 mb-4" />
 </div>
