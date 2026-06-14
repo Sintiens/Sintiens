@@ -25,4 +25,5 @@ last_write_*.txt
 diff.patch
 fix_*.py
 .tool_log/
+.antigravity/
 
