@@ -138,7 +138,7 @@ const handleScroll = () => {
     const h2 = parentAct.querySelector("h2");
     if (!h2) return;
 
-    const headerContainer = parentAct.querySelector(".act-sticky-header");
+    const headerContainer = parentAct.querySelector(".act-sticky-header") as HTMLElement | null;
     const headerRect = headerContainer ? headerContainer.getBoundingClientRect() : h2.getBoundingClientRect();
     const textRect = element.getBoundingClientRect();
 
@@ -149,9 +149,9 @@ const handleScroll = () => {
       element.style.webkitMaskImage = "";
       element.style.maskImage = "";
     } else {
-      // Ajuste: -16 compensa el padding del contenedor sticky; 160px de rango para transición muy suave
-      const fadeStart = relativeBottom - 16;
-      const fadeEnd = relativeBottom + 144;
+      // Start fading out 35px below the subtitle (fadeEnd) and become fully transparent 15px above its bottom edge (fadeStart).
+      const fadeStart = relativeBottom - 15;
+      const fadeEnd = relativeBottom + 35;
 
       const maskVal = `linear-gradient(to bottom, transparent ${fadeStart}px, black ${fadeEnd}px)`;
       element.style.webkitMaskImage = maskVal;
@@ -164,17 +164,40 @@ const handleScroll = () => {
     const stickyHeaderBottom = headerRect.bottom;
 
     blocks.forEach((blockEl) => {
-      const subtitleEl = blockEl.querySelector("span");
+      const subtitleEl = blockEl.querySelector(":scope > span");
       const subtitleRect = subtitleEl ? subtitleEl.getBoundingClientRect() : blockEl.getBoundingClientRect();
 
-      // Si el subtítulo del bloque ha subido y cruzado el límite inferior de la cabecera sticky
-      if (subtitleRect.top <= stickyHeaderBottom) {
+      // Si el subtítulo del bloque ha cruzado completamente el límite inferior de la cabecera sticky
+      if (subtitleRect.bottom <= stickyHeaderBottom) {
         activeTitle = blockEl.getAttribute("data-block-title") || "";
       }
     });
 
     // Guardar el título activo (o vacío para no duplicar si el primer subtítulo aún está visible)
     newActiveBlocks[parentAct.id] = activeTitle || "";
+
+    // Dinamizar el "unstick" de la cabecera cuando el último bloque está activo
+    if (headerContainer && blocks.length > 0) {
+      const lastBlock = blocks[blocks.length - 1];
+      let lastElement = lastBlock.lastElementChild as HTMLElement | null;
+      if (lastElement && lastElement.tagName.toLowerCase() === "div" && lastElement.lastElementChild) {
+        lastElement = lastElement.lastElementChild as HTMLElement;
+      }
+
+      if (lastElement) {
+        const lastElementRect = lastElement.getBoundingClientRect();
+        const headerHeight = headerContainer.offsetHeight;
+        
+        // Desplazar hacia arriba cuando el último elemento (párrafo o botón) empieza a subir debajo de la cabecera
+        const translateY = Math.max(0, headerHeight - lastElementRect.top);
+        const maxTranslate = headerHeight + 50;
+        const finalTranslate = Math.min(maxTranslate, translateY);
+        
+        headerContainer.style.transform = finalTranslate > 0 ? `translate3d(0, -${finalTranslate}px, 0)` : "";
+      } else {
+        headerContainer.style.transform = "";
+      }
+    }
   });
 
   if (Object.keys(newActiveBlocks).length > 0) {
@@ -549,72 +572,77 @@ content: (
 const isActive = activeChapter === act0.id;
 const isFlashing = flashChapter === act0.id;
 
-return (
-<div key={act0.id} id={act0.id} className="w-full scroll-mt-24 relative overflow-visible" style={{
-width: "calc(100vw - var(--scrollbar-width, 0px))",
-marginLeft: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
-marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
-}}>
-<div className="absolute inset-y-0 right-[-5%] md:right-[5%] flex items-center justify-end pointer-events-none select-none overflow-hidden" style={{ zIndex: 0 }}>
-<span className={`font-serif font-bold leading-none ${act0.textColor}`} style={{ fontSize: "clamp(250px, 40vw, 600px)", opacity: 0.03, transform: "translateY(-5%)" }}>
-{act0.num}
-</span>
-</div>
+  return (
+    <div key={act0.id} id={act0.id} className="w-full scroll-mt-24 relative overflow-visible" style={{
+      width: "calc(100vw - var(--scrollbar-width, 0px))",
+      marginLeft: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
+      marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
+    }}>
+      <div className="absolute inset-y-0 right-[-5%] md:right-[5%] flex items-center justify-end pointer-events-none select-none overflow-hidden" style={{ zIndex: 0 }}>
+        <span className={`font-serif font-bold leading-none ${act0.textColor}`} style={{ fontSize: "clamp(250px, 40vw, 600px)", opacity: 0.03, transform: "translateY(-5%)" }}>
+          {act0.num}
+        </span>
+      </div>
 
-<AmbientGlow colorClass={act0.colorName} className={`animate-float-1 w-[600px] h-[500px] top-[-5%] left-[-15%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.1} />
+      <AmbientGlow colorClass={act0.colorName} className={`animate-float-1 w-[600px] h-[500px] top-[-5%] left-[-15%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.1} />
 
-{/* Sticky header placed outside motion.section to prevent CSS transforms from breaking position: sticky */}
-<div className="sticky top-0 z-20 pt-2 lg:pt-3 pb-2 w-full pointer-events-none act-sticky-header">
-<div className="w-full px-3 md:px-6 xl:pl-20 xl:pr-4 pointer-events-auto">
-<span className={`text-[12px] md:text-[14px] font-mono font-bold ${act0.textColor} uppercase tracking-widest block leading-none mb-3`}>
-[ ACTO {act0.num} ]
-</span>
-<h2 className="text-[clamp(32px,5vw,56px)] font-bold tracking-tight font-heading leading-tight text-on-background">
-{act0.title}
-</h2>
-{/* Subtitle slot — reserved height on xl to prevent layout shift */}
-<div className="xl:min-h-[20px] overflow-hidden transition-all duration-300 ease-out" style={{ height: activeBlocks[act0.id] ? 'auto' : undefined }}>
-{activeBlocks[act0.id] ? (
-  <motion.span
-    key={activeBlocks[act0.id]}
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    transition={{ duration: 0.35, ease: "easeOut" }}
-    className={`text-[11px] md:text-[12px] font-mono font-bold ${act0.textColor} uppercase tracking-[0.15em] block mt-2`}
-  >
-    &lt; {activeBlocks[act0.id].toUpperCase()} &gt;
-  </motion.span>
-) : (
-  <span className="hidden xl:block text-[12px] mt-2 opacity-0 pointer-events-none select-none">&nbsp;</span>
-)}
-</div>
-</div>
-</div>
+      {/* Sticky header and ALL blocks wrapped together */}
+      <div className="relative w-full">
+        {/* Sticky header placed outside motion.section to prevent CSS transforms from breaking position: sticky */}
+        <div className="sticky top-0 z-20 pt-2 lg:pt-3 pb-2 w-full pointer-events-none act-sticky-header">
+          <div className="w-full px-3 md:px-6 xl:pl-20 xl:pr-4 pointer-events-auto">
+            <span className={`text-[12px] md:text-[14px] font-mono font-bold ${act0.textColor} uppercase tracking-widest block leading-none mb-3`}>
+              [ ACTO {act0.num} ]
+            </span>
+            <h2 className="text-[clamp(32px,5vw,56px)] font-bold tracking-tight font-heading leading-tight text-on-background">
+              {act0.title}
+            </h2>
+            {/* Subtitle slot — reserved height on xl to prevent layout shift */}
+            <div className="xl:min-h-[20px] overflow-hidden transition-all duration-300 ease-out" style={{ height: activeBlocks[act0.id] || act0.blocks.length === 1 ? 'auto' : undefined }}>
+              {activeBlocks[act0.id] || act0.blocks.length === 1 ? (
+                <motion.span
+                  key={activeBlocks[act0.id] || act0.blocks[0].title}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.35, ease: "easeOut" }}
+                  className={`text-[11px] md:text-[12px] font-mono font-bold ${act0.textColor} uppercase tracking-[0.15em] block mt-2`}
+                >
+                  {"<\u00a0"}{(activeBlocks[act0.id] || act0.blocks[0].title).toUpperCase()}{"\u00a0>"}
+                </motion.span>
+              ) : (
+                <span className="hidden xl:block text-[12px] mt-2 opacity-0 pointer-events-none select-none">&nbsp;</span>
+              )}
+            </div>
+          </div>
+        </div>
 
-<motion.section variants={chapterVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} className="relative z-10 pt-2 pb-3 lg:pb-4 w-full px-3 md:px-6 xl:pl-20 xl:pr-4">
-<div 
-className={`narrative-text-container relative w-full font-serif text-[18px] md:text-[20px] leading-[1.8] font-normal transition-colors duration-1000 ${isActive ? 'text-on-surface' : 'text-on-surface/35'} [&_p]:mb-5 [&_p:last-child]:mb-0`}
-style={{ 
-willChange: "mask-image, -webkit-mask-image",
-transform: "translate3d(0, 0, 0)",
-WebkitTransform: "translate3d(0, 0, 0)"
-}}
->
-{act0.blocks.map((block, blockIndex) => (
-<div key={block.id} className="mb-10 last:mb-0 narrative-block" data-block-title={block.title}>
-<span className={`text-[12px] md:text-[14px] font-mono font-bold ${act0.textColor} uppercase tracking-[0.2em] block leading-normal ${blockIndex === 0 ? 'mt-2' : 'mt-12'} mb-4`}>
-&lt; {block.title.toUpperCase()} &gt;
-</span>
+        <motion.section variants={chapterVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} className="relative z-10 pt-2 pb-3 lg:pb-4 w-full px-3 md:px-6 xl:pl-20 xl:pr-4">
+          <div 
+            className={`narrative-text-container relative w-full font-serif text-[18px] md:text-[20px] leading-[1.8] font-normal transition-colors duration-1000 ${isActive ? 'text-on-surface' : 'text-on-surface/35'} [&_p]:mb-5 [&_p:last-child]:mb-0`}
+            style={{ 
+              willChange: "mask-image, -webkit-mask-image",
+              transform: "translate3d(0, 0, 0)",
+              WebkitTransform: "translate3d(0, 0, 0)"
+            }}
+          >
+            {act0.blocks.map((block, blockIndex) => (
+              <div key={block.id} className="mb-10 last:mb-0 narrative-block" data-block-title={block.title}>
+                {!(act0.blocks.length === 1 && blockIndex === 0) && (
+                  <span className={`text-[12px] md:text-[14px] font-mono font-bold ${act0.textColor} uppercase tracking-[0.15em] block leading-normal ${blockIndex === 0 ? 'mt-2' : 'mt-12'} mb-4`}>
+                    {"<\u00a0"}{block.title.toUpperCase()}{"\u00a0>"}
+                  </span>
+                )}
 
-<div className="mb-2">
-{block.content}
-</div>
-</div>
-))}
-</div>
-</motion.section>
-</div>
-);
+                <div className="mb-2">
+                  {block.content}
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.section>
+      </div>
+    </div>
+  );
 })()}
 
 {/* Render each Act dynamically */}
@@ -637,66 +665,70 @@ return (
 <AmbientGlow colorClass={act.colorName} className={`animate-float-${(index % 6) + 1} w-[600px] h-[500px] top-[-5%] left-[-15%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.15} />
 <AmbientGlow colorClass={act.colorName} className={`animate-float-${((index + 1) % 6) + 1} w-[650px] h-[500px] bottom-[5%] right-[-10%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.15} />
 
-{/* Sticky header placed outside motion.section to prevent CSS transforms from breaking position: sticky */}
-<div className="sticky top-0 z-20 w-full pointer-events-none pt-2 lg:pt-3 pb-2 act-sticky-header">
-<div className="w-full px-3 md:px-6 xl:pl-20 xl:pr-4 pointer-events-auto">
-<span className={`text-[12px] md:text-[14px] font-mono font-bold ${act.textColor} uppercase tracking-widest block leading-none mb-4 transition-transform duration-700 origin-left ${isFlashing ? 'scale-110' : 'scale-100'}`}>
-[ ACTO {act.num} ]
-</span>
-<h2 className="text-[clamp(32px,5vw,56px)] font-bold tracking-tight font-heading leading-tight text-on-background">
-{act.title}
-</h2>
-{/* Subtitle slot — reserved height on xl to prevent layout shift */}
-<div className="xl:min-h-[20px] overflow-hidden transition-all duration-300 ease-out" style={{ height: activeBlocks[act.id] ? 'auto' : undefined }}>
-{activeBlocks[act.id] ? (
-  <motion.span
-    key={activeBlocks[act.id]}
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    transition={{ duration: 0.35, ease: "easeOut" }}
-    className={`text-[11px] md:text-[12px] font-mono font-bold ${act.textColor} uppercase tracking-[0.15em] block mt-2`}
-  >
-    &lt; {activeBlocks[act.id].toUpperCase()} &gt;
-  </motion.span>
-) : (
-  <span className="hidden xl:block text-[12px] mt-2 opacity-0 pointer-events-none select-none">&nbsp;</span>
-)}
-</div>
-</div>
-</div>
+{/* Sticky header and ALL blocks wrapped together */}
+<div className="relative w-full">
+  {/* Sticky header placed outside motion.section to prevent CSS transforms from breaking position: sticky */}
+  <div className="sticky top-0 z-20 w-full pointer-events-none pt-2 lg:pt-3 pb-2 act-sticky-header">
+    <div className="w-full px-3 md:px-6 xl:pl-20 xl:pr-4 pointer-events-auto">
+      <span className={`text-[12px] md:text-[14px] font-mono font-bold ${act.textColor} uppercase tracking-widest block leading-none mb-4 transition-transform duration-700 origin-left ${isFlashing ? 'scale-110' : 'scale-100'}`}>
+        [ ACTO {act.num} ]
+      </span>
+      <h2 className="text-[clamp(32px,5vw,56px)] font-bold tracking-tight font-heading leading-tight text-on-background">
+        {act.title}
+      </h2>
+      {/* Subtitle slot — reserved height on xl to prevent layout shift */}
+      <div className="xl:min-h-[20px] overflow-hidden transition-all duration-300 ease-out" style={{ height: activeBlocks[act.id] || act.blocks.length === 1 ? 'auto' : undefined }}>
+        {activeBlocks[act.id] || act.blocks.length === 1 ? (
+          <motion.span
+            key={activeBlocks[act.id] || act.blocks[0].title}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.35, ease: "easeOut" }}
+            className={`text-[11px] md:text-[12px] font-mono font-bold ${act.textColor} uppercase tracking-[0.15em] block mt-2`}
+          >
+            {"<\u00a0"}{(activeBlocks[act.id] || act.blocks[0].title).toUpperCase()}{"\u00a0>"}
+          </motion.span>
+        ) : (
+          <span className="hidden xl:block text-[12px] mt-2 opacity-0 pointer-events-none select-none">&nbsp;</span>
+        )}
+      </div>
+    </div>
+  </div>
 
-<motion.section variants={chapterVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} className="relative z-10 pt-2 pb-3 lg:pb-4 w-full px-3 md:px-6 xl:pl-20 xl:pr-4">
-<div 
-className={`narrative-text-container relative w-full font-serif text-[18px] md:text-[20px] leading-[1.8] font-normal transition-colors duration-1000 ${isActive ? 'text-on-surface' : 'text-on-surface/35'} [&_p]:mb-5 [&_p:last-child]:mb-0`}
-style={{ 
-willChange: "mask-image, -webkit-mask-image",
-transform: "translate3d(0, 0, 0)",
-WebkitTransform: "translate3d(0, 0, 0)"
-}}
->
-{/* Render blocks inside the act */}
-{act.blocks.map((block, blockIndex) => (
-<div key={block.id} className="mb-10 last:mb-0 narrative-block" data-block-title={block.title}>
-<span className={`text-[12px] md:text-[14px] font-mono font-bold ${act.textColor} uppercase tracking-[0.2em] block leading-normal ${blockIndex === 0 ? 'mt-2' : 'mt-12'} mb-4`}>
-&lt; {block.title.toUpperCase()} &gt;
-</span>
+  <motion.section variants={chapterVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} className="relative z-10 pt-2 pb-3 lg:pb-4 w-full px-3 md:px-6 xl:pl-20 xl:pr-4">
+    <div 
+      className={`narrative-text-container relative w-full font-serif text-[18px] md:text-[20px] leading-[1.8] font-normal transition-colors duration-1000 ${isActive ? 'text-on-surface' : 'text-on-surface/35'} [&_p]:mb-5 [&_p:last-child]:mb-0`}
+      style={{ 
+        willChange: "mask-image, -webkit-mask-image",
+        transform: "translate3d(0, 0, 0)",
+        WebkitTransform: "translate3d(0, 0, 0)"
+      }}
+    >
+      {act.blocks.map((block, blockIndex) => (
+        <div key={block.id} className="mb-10 last:mb-0 narrative-block" data-block-title={block.title}>
+          {!(act.blocks.length === 1 && blockIndex === 0) && (
+            <span className={`text-[12px] md:text-[14px] font-mono font-bold ${act.textColor} uppercase tracking-[0.15em] block leading-normal ${blockIndex === 0 ? 'mt-2' : 'mt-12'} mb-4`}>
+              {"<\u00a0"}{block.title.toUpperCase()}{"\u00a0>"}
+            </span>
+          )}
 
-<div className="mb-2">
-{block.content}
-</div>
+          <div className="mb-2">
+            {block.content}
+          </div>
 
-{block.deepDive && (
-<button 
-onClick={() => setDeepDiveData({ actId: act.id, actNum: act.num, actColor: act.textColor, data: block.deepDive! })} 
-className="text-sm md:text-[15px] italic text-on-surface-variant/60 hover:text-on-background transition-colors mt-4 block text-left"
->
-+ Profundizar en {block.deepDive.label}
-</button>
-)}
+          {block.deepDive && (
+            <button 
+              onClick={() => setDeepDiveData({ actId: act.id, actNum: act.num, actColor: act.textColor, data: block.deepDive! })} 
+              className="text-sm md:text-[15px] font-medium italic text-on-surface-variant/60 hover:text-on-background transition-colors mt-4 block text-left"
+            >
+              + Profundizar en {block.deepDive.label}
+            </button>
+          )}
+        </div>
+      ))}
+    </div>
+  </motion.section>
 </div>
-))}
-</div>
-</motion.section>
 </div>
 );
 })}

@@ -351,3 +351,9 @@
 .animate-wobble-slow {
   animation: wobble-slow 22s ease-in-out infinite;
 }
+
+/* Enforce controlled reading width for narrative text (600px - 700px) to enhance readability */
+.narrative-text-container {
+  max-width: 680px;
+}
+
