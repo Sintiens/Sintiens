@@ -14,7 +14,8 @@ import {
   Calculator,
   ArrowRight
 } from "lucide-react";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
+import AnimatedNumber from "./ui/AnimatedNumber";
 
 export default function ImpactCalculator() {
   const [weeklyMeals, setWeeklyMeals] = useState(7); // default 7 animal-based meals a week
@@ -86,12 +87,12 @@ export default function ImpactCalculator() {
             <div>
               <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 tracking-wider uppercase block">Gasto de Agua Anual</span>
               <span className="text-3xl font-extrabold text-cyan-600 dark:text-cyan-400 tracking-tight block">
-                {yearlyWater.toLocaleString()} <span className="text-sm text-zinc-500 font-normal">L</span>
+                <AnimatedNumber value={yearlyWater} /> <span className="text-sm text-zinc-500 font-normal">L</span>
               </span>
             </div>
           </div>
           <p className="text-[11px] text-zinc-600 dark:text-zinc-400 leading-relaxed font-light mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-900 transition-colors">
-            Equivale a llenar unas <strong className="text-zinc-800 dark:text-zinc-300 font-semibold">{olympicPools} piscinas olímpicas</strong> completas de agua potable o {Math.round(yearlyWater / 150).toLocaleString()} duchas de 10 minutos.
+            Equivale a llenar unas <strong className="text-zinc-800 dark:text-zinc-300 font-semibold"><AnimatedNumber value={olympicPools} /> piscinas olímpicas</strong> completas de agua potable o <AnimatedNumber value={Math.round(yearlyWater / 150)} /> duchas de 10 minutos.
           </p>
         </div>
 
@@ -104,12 +105,12 @@ export default function ImpactCalculator() {
             <div>
               <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 tracking-wider uppercase block">Emisiones CO2 Equivalente</span>
               <span className="text-3xl font-extrabold text-red-600 dark:text-red-400 tracking-tight block">
-                {yearlyCo2.toLocaleString()} <span className="text-xs text-zinc-500 font-normal">kg eq</span>
+                <AnimatedNumber value={yearlyCo2} /> <span className="text-xs text-zinc-500 font-normal">kg eq</span>
               </span>
             </div>
           </div>
           <p className="text-[11px] text-zinc-600 dark:text-zinc-400 leading-relaxed font-light mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-900 transition-colors">
-            Equivale a conducir un turismo estándar de combustión directa por <strong className="text-zinc-800 dark:text-zinc-300 font-semibold">{carKm.toLocaleString()} km</strong> o recargar {Math.round(yearlyCo2 * 120).toLocaleString()} smartphones.
+            Equivale a conducir un turismo estándar de combustión directa por <strong className="text-zinc-800 dark:text-zinc-300 font-semibold"><AnimatedNumber value={carKm} /> km</strong> o recargar <AnimatedNumber value={Math.round(yearlyCo2 * 120)} /> smartphones.
           </p>
         </div>
 
@@ -122,12 +123,12 @@ export default function ImpactCalculator() {
             <div>
               <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 tracking-wider uppercase block">Suelo / Deforestación Aludida</span>
               <span className="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 tracking-tight block">
-                {yearlyForest.toLocaleString()} <span className="text-xs text-zinc-500 font-normal">m²</span>
+                <AnimatedNumber value={yearlyForest} /> <span className="text-xs text-zinc-500 font-normal">m²</span>
               </span>
             </div>
           </div>
           <p className="text-[11px] text-zinc-600 dark:text-zinc-400 leading-relaxed font-light mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-900 transition-colors">
-            Representa unos <strong className="text-zinc-800 dark:text-zinc-300 font-semibold">{soccerFields} campos de fútbol</strong> de selva deforestada para dar cabida a pastizales o cultivo exclusivo de soja forrajera.
+            Representa unos <strong className="text-zinc-800 dark:text-zinc-300 font-semibold"><AnimatedNumber value={soccerFields} /> campos de fútbol</strong> de selva deforestada para dar cabida a pastizales o cultivo exclusivo de soja forrajera.
           </p>
         </div>
 
@@ -140,12 +141,12 @@ export default function ImpactCalculator() {
             <div>
               <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 tracking-wider uppercase block">Cereal Desperdiciado (Piensos)</span>
               <span className="text-3xl font-extrabold text-amber-600 dark:text-amber-500 tracking-tight block">
-                {yearlyGrain.toLocaleString()} <span className="text-xs text-zinc-500 font-normal">kg</span>
+                <AnimatedNumber value={yearlyGrain} /> <span className="text-xs text-zinc-500 font-normal">kg</span>
               </span>
             </div>
           </div>
           <p className="text-[11px] text-zinc-600 dark:text-zinc-400 leading-relaxed font-light mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-900 transition-colors">
-            Kilos de cereal de alta calidad filtrados e ineficientemente perdidos para alimentar ganado, suficientes para nutrir directamente a más de <strong className="text-zinc-800 dark:text-zinc-300 font-semibold">{Math.round(yearlyGrain / 150)} personas</strong> durante un mes completo.
+            Kilos de cereal de alta calidad filtrados e ineficientemente perdidos para alimentar ganado, suficientes para nutrir directamente a más de <strong className="text-zinc-800 dark:text-zinc-300 font-semibold"><AnimatedNumber value={Math.round(yearlyGrain / 150)} /> personas</strong> durante un mes completo.
           </p>
         </div>
 
