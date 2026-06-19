@@ -268,7 +268,7 @@ export default function SocraticReflection() {
           </h3>
         </div>
         
-        <div className="shrink-0 pb-1 pr-6 md:pr-16 lg:pr-36">
+        <div className="shrink-0 mr-5 xl:mr-20">
           <button
             onClick={handleShuffle}
             className="flex items-center gap-1 text-[10px] font-bold font-mono text-zinc-400 hover:text-primary transition-colors cursor-pointer uppercase tracking-widest select-none"

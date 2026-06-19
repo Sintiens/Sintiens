@@ -31,6 +31,19 @@ export const actsData: ActData[] = [
         content: (
           <p>A menudo confundimos estar vivos con ser sintientes, pero la biología marca una línea clara. Una planta está viva, crece y busca la luz; un termostato de pared reacciona al frío encendiendo la calefacción. Sin embargo, ninguno de los dos es "sintiente". La <strong>sintiencia</strong> es la capacidad de tener experiencias subjetivas. Significa que el animal no es un simple mecanismo biológico, sino que tiene una perspectiva propia del mundo. Un ser sintiente es capaz de experimentar sensaciones positivas (como el placer, el apego o la comodidad) y negativas (como el dolor, el miedo o la frustración).</p>
         ),
+        keyIdea: "Estar vivo no es lo mismo que ser sintiente: la sintiencia es tener una experiencia subjetiva, sentir placer, dolor, miedo o apego.",
+        analogy: { text: "Un termostato reacciona al frío, una planta busca la luz, pero ninguno 'siente' nada. La sintiencia empieza donde aparece un 'alguien' que experimenta, no solo un mecanismo que responde." },
+        pullQuote: "Un ser sintiente tiene una perspectiva propia del mundo.",
+        didYouKnow: "El término 'sintiencia' distingue deliberadamente la capacidad de sentir de la mera vida biológica: una bacteria está viva, pero no por ello es alguien.",
+        reflectionQuestion: {
+          question: "Si la frontera moral fuera la vida y no la sintiencia, ¿deberíamos proteger igual a una bacteria que a un perro?",
+          prompt: "Piensa en qué es lo que de verdad te hace dudar antes de dañar a alguien."
+        },
+        microQuiz: {
+          question: "Un termostato enciende la calefacción cuando hace frío. ¿Es un ser sintiente?",
+          options: ["Sí, porque reacciona al frío", "No: reacciona, pero no experimenta nada", "Solo si aprende de la experiencia"],
+          revealFact: "La clave está en la experiencia subjetiva. Reaccionar a un estímulo —como hace un termostato, una bacteria o una planta— no implica sentir nada. La sintiencia empieza solo donde hay 'alguien' que experimenta lo que ocurre, no un mecanismo que responde."
+        },
         deepDive: {
           id: "dd-la-diferencia-entre-",
           label: "la neurobiología de la sintiencia",
@@ -90,14 +103,30 @@ export const actsData: ActData[] = [
             </ul>
             <p>Durante mucho tiempo, algunos científicos creían que los animales solo tenían nocicepción (actuaban por puro instinto, sin sufrir). Hoy, la neurobiología ha demostrado de forma irrefutable que los animales sufren el dolor al igual que nosotros. La evolución ha creado diferentes modelos de cerebros: el de un perro, el de un cuervo o el de un pulpo son físicamente distintos al nuestro, pero todos han desarrollado el mismo "software" neurológico necesario para sufrir, sentir terror o experimentar alegría.</p>
           </div>
-        )
+        ),
+        keyIdea: "Nocicepción es un reflejo automático; el dolor es una experiencia consciente. Los animales no humanos tienen ambas, igual que nosotros.",
+        analogy: { text: "Cuando apartas la mano del fuego antes de doler, eso es nocicepción. El grito que viene después, cuando el cerebro lo procesa, eso es el dolor." },
+        pullQuote: "Diferentes cerebros, el mismo 'software' para sufrir y alegrarse.",
+        didYouKnow: "Los peces reciben analgésicos en experimentos de laboratorio: su comportamiento cambia de forma medible, lo que indica que no están reaccionando solo, sino sufriendo.",
+        reflectionQuestion: {
+          question: "Si el reflejo y el dolor son cosas distintas, ¿qué implica para cómo tratamos a quien sí siente la segunda?",
+          prompt: "Pregúntate si justificamos el daño solo porque el otro no puede contárnoslo."
+        }
       },
       {
         id: "una-vida-interior-as",
         title: "Una vida interior asombrosamente compleja",
         content: (
           <p>La ciencia moderna (la etología) ha ido mucho más allá del dolor físico y ha descubierto que los animales tienen una vida cognitiva y emocional deslumbrante. No viven atrapados en un "presente perpetuo". Los estudios demuestran que muchas especies recuerdan eventos pasados para planificar su futuro, usan herramientas para resolver problemas y forman vínculos familiares de por vida. Hemos documentado cómo los elefantes y los grandes simios velan a sus muertos, mostrando comportamientos inconfundibles de luto, angustia y empatía profunda.</p>
-        )
+        ),
+        keyIdea: "Los animales no viven en un presente perpetuo: recuerdan, planifican, usan herramientas y muestran luto y empatía.",
+        analogy: { text: "Imagina a un elefante regresando años después a los huesos de un familiar: es la diferencia entre sobrevivir y tener una biografía." },
+        pullQuote: "No viven atrapados en un 'presente perpetuo'.",
+        didYouKnow: "Los cuervos de Nueva Caledonia fabrican herramientas a medida y recuerdan a personas concretas durante años, por la cara.",
+        reflectionQuestion: {
+          question: "Si un ser recuerda, planifica y llora a sus muertos, ¿qué palabra usarías para describir lo que tiene?",
+          prompt: "Más allá de 'instinto', intenta nombrarlo con honestidad."
+        }
       }
     ]
   },
@@ -120,6 +149,19 @@ export const actsData: ActData[] = [
             <p>Bajo esta lógica, la inteligencia de un ser no determina si merece respeto. Un bebé humano de seis meses no sabe hablar ni resolver ecuaciones, pero lo protegemos porque sabemos que puede sufrir. La filosofía ética nos dice que la capacidad de sufrir y disfrutar de la vida es lo único que debería importar para decidir si alguien merece consideración moral.</p>
           </div>
         ),
+        keyIdea: "El criterio moral no es la inteligencia ni el lenguaje, sino la capacidad de sufrir: si alguien puede sufrir, merece consideración.",
+        analogy: { text: "No protegemos a un bebé de seis meses por resolver ecuaciones, sino porque puede sufrir. La pregunta para el resto de animales es exactamente la misma." },
+        pullQuote: "La cuestión no es si pueden razonar o hablar, sino: ¿pueden sufrir?",
+        didYouKnow: "Esta pregunta, atribuida a Jeremy Bentham en 1789, anticipó por dos siglos lo que la neurobiología confirmaría en el siglo XXI.",
+        reflectionQuestion: {
+          question: "Si defendemos a un bebé porque sufre y no por su inteligencia, ¿qué nos impide aplicar el mismo rasero a otros seres que también sufren?",
+          prompt: "Busca la razón real, no la costumbre."
+        },
+        microQuiz: {
+          question: "¿Qué criterio debería decidir si alguien merece protección moral?",
+          options: ["La inteligencia o el lenguaje", "La capacidad de sufrir", "La utilidad para los humanos"],
+          revealFact: "Para Bentham y la ética moderna lo que cuenta es la capacidad de sufrir, no la inteligencia. Por eso protegemos a un bebé aunque no hable ni resuelva ecuaciones: no por su razonamiento, sino porque puede sufrir. Aplicar el mismo rasero a otros animales no es sentimentalismo, es coherencia."
+        },
         deepDive: {
           id: "dd-el-sufrimiento-como-",
           label: "este concepto",
@@ -145,6 +187,14 @@ export const actsData: ActData[] = [
             <p>La filosofía nos invita a pensar en el conflicto de intereses: ¿Es ético sacrificar un interés fundamental de un animal (su deseo de vivir, no ser mutilado y no sentir dolor) solo para satisfacer un interés periférico de un ser humano (el deseo de comer un plato que le gusta durante 15 minutos, cuando tiene otras alternativas)?</p>
           </div>
         ),
+        keyIdea: "Especismo: discriminar a alguien solo por su especie. Tratar distinto a un perro y a un cerdo siendo tan parecidos es moralmente arbitrario.",
+        analogy: { text: "Si cambiaras 'perro' por 'cerdo' en cualquier argumento y te sonara monstruoso, probablemente estés viendo el especismo en acción." },
+        pullQuote: "¿Es ético sacrificar un interés fundamental de un animal para saciar un interés periférico de 15 minutos?",
+        didYouKnow: "El término 'especismo' fue acuñado en 1970 por el psicólogo Richard Ryder y popularizado por Peter Singer en 'Liberación Animal' (1975).",
+        reflectionQuestion: {
+          question: "¿Puedes señalar una diferencia entre un perro y un cerdo que no sea la especie, y que justifique tratar a uno como familia y al otro como alimento?",
+          prompt: "Si la inteligencia no basta y el cariño tampoco, ¿qué queda?"
+        },
         deepDive: {
           id: "dd-el-problema-del-",
           label: "este concepto",
@@ -178,7 +228,15 @@ export const actsData: ActData[] = [
               </li>
             </ul>
           </div>
-        )
+        ),
+        keyIdea: "Bienestarismo: usarlos pero con menos sufrimiento. Abolicionismo: dejar de usarlos. La pregunta de fondo es si 'menos cruel' es suficiente.",
+        analogy: { text: "Es la diferencia entre hacer más suave una jaula y preguntar si la jaula debería existir." },
+        pullQuote: "El objetivo no debe ser tratar amablemente a los animales que usamos, sino dejar de usarlos.",
+        didYouKnow: "Históricamente, reformas 'amables' de sistemas injustos convivieron durante décadas con su abolición total: el debate bienestarismo/abolicionismo en animales replica esa tensión.",
+        reflectionQuestion: {
+          question: "Si estuvieras del lado del explotado, ¿qué pedirías: que tu jaula fuera más grande, o no estar en una jaula?",
+          prompt: "Ponte en el lugar del otro, no en el del sistema."
+        }
       }
     ]
   },
@@ -201,6 +259,14 @@ export const actsData: ActData[] = [
             <p>Este choque produce en nuestro cerebro un malestar muy profundo llamado disonancia cognitiva. Como cambiar de hábitos alimenticios y sociales es difícil, nuestro cerebro (para protegernos de la culpa) despliega una serie de "trucos" mentales automáticos para que podamos seguir actuando igual sin sentirnos mal.</p>
           </div>
         ),
+        keyIdea: "La 'paradoja de la carne' nace del choque entre amar a los animales y comérselos. El cerebro resuelve la tensión con autoengaños automáticos.",
+        analogy: { text: "Es como un detector de humos que, en lugar de avisarte del fuego, apaga la alarma para que puedas seguir durmiendo: te calma, pero no apaga el incendio." },
+        pullQuote: "Nuestro cerebro despliega trucos para que podamos seguir actuando igual sin sentirnos mal.",
+        didYouKnow: "El término 'disonancia cognitiva' fue formalizado por Leon Festinger en 1957 y explica desde por qué seguimos fumando hasta por qué justificamos elecciones costosas.",
+        reflectionQuestion: {
+          question: "¿Recuerdas la última vez que sentiste este choque? ¿Qué 'truco' usó tu mente para apagarlo?",
+          prompt: "No es culpabilidad, es observación: nombra el truco, no el sentimiento."
+        },
         deepDive: {
           id: "dd-la-",
           label: "este concepto",
@@ -224,7 +290,7 @@ export const actsData: ActData[] = [
             <p>Nuestro cerebro utiliza varias estrategias fascinantes para apagar nuestra empatía:</p>
             <ul className="list-disc pl-6 space-y-2">
               <li>
-                <strong>La Compartimentalización (Las "cajas" mentales):</strong> Subdividimos a los animales en categorías cerradas. La caja de "mascotas" (donde ponemos toda nuestra empatía), la caja de "comida" (donde apagamos la empatía) y la caja de "plagas". Al etiquetar a una vaca simplemente como "comida", le quitamos todo su valor psicológico.
+                <strong>La Compartimentalización (Las "cajas" mentales):</strong> Subdividimos a los animales en categorías cerradas. La caja de "mascotas" (donde ponemos toda nuestra empatía), la caja de "comida" (donde apagamos la empatía) y la caja de "plagas". Al etiquetar a una vaca simplemente como "comida", operamos bajo un sesgo cultural profundo.
               </li>
               <li>
                 <strong>Minimizar la inteligencia del animal:</strong> Los estudios demuestran que, cuando las personas están a punto de comer carne, tienden a convencerse a sí mismas de que los animales de granja son tontos o que no sienten el dolor de la misma manera que nosotros. Es un mecanismo de defensa para justificar el acto.
@@ -234,7 +300,15 @@ export const actsData: ActData[] = [
               </li>
             </ul>
           </div>
-        )
+        ),
+        keyIdea: "Compartimentar, minimizar su inteligencia y esconder el proceso con el lenguaje: tres trucos para apagar la empatía sin darse cuenta.",
+        analogy: { text: "Es como poner un filtro de Instagram al matadero: 'ternera', 'bacon', 'filete'. La palabra dibuja otra cosa, y la mente se relaja." },
+        pullQuote: "Los mataderos se construyen lejos de las ciudades y sin ventanas.",
+        didYouKnow: "Estudios de Melanie Joy bautizaron este sistema invisible de creencias como 'carnismo': por qué comemos a unos animales y no a otros sin ningún motivo biológico.",
+        reflectionQuestion: {
+          question: "¿Qué palabra usas tú para no ver al animal? ¿Qué pasaría si la sustituyeras por su nombre durante una semana?",
+          prompt: "El lenguaje no es neutral: prueba a nombrar y observa qué cambia por dentro."
+        }
       }
     ]
   },
@@ -252,8 +326,16 @@ export const actsData: ActData[] = [
         id: "la-domesticaci-n-ext",
         title: "La domesticación extrema y la ingeniería genética",
         content: (
-          <p>A lo largo de los siglos, no solo hemos domesticado animales, sino que los hemos convertido en máquinas de producción mediante una cría selectiva implacable. El caso más claro es el del pollo de engorde. En la década de 1950, un pollo tardaba meses en crecer. Hoy, gracias a la manipulación genética, alcanzan el tamaño de mercado en apenas 40 días. Sus músculos (la pechuga) crecen a una velocidad biológicamente antinatural, lo que provoca que sus propios huesos se rompan y sus corazones colapsen por no poder soportar su propio peso.</p>
-        )
+          <p>A lo largo de los siglos, no solo hemos domesticado animales, sino que los hemos convertido en máquinas de producción mediante una cría selectiva implacable. El caso más claro es el del pollo de engorde. En la década de 1950, un pollo tardaba meses en crecer. Hoy, gracias a la manipulación genética, alcanzan el tamaño de mercado en apenas 40 días. Sus músculos (la pechuga) crecen a una velocidad biológicamente antinatural, lo que provoca que sus propios huesos se rompen y sus corazones colapsan por no poder soportar su propio peso.</p>
+        ),
+        keyIdea: "La cría selectiva ha transformado a los animales en máquinas de producción: crecen tan rápido que sus propios cuerpos colapsan.",
+        analogy: { text: "Es como obligar a un niño a pesar 100 kilos a los seis años: la economía de la granja gana, el cuerpo pierde." },
+        pullQuote: "Alcanzan el tamaño de mercado en 40 días; sus huesos se rompen y sus corazones colapsan.",
+        didYouKnow: "Un pollo de engorde moderno crece unas cuatro veces más rápido que en 1950, pero su esperanza de vida sana apenas cambia: si no se sacrificara, moriría joven de forma natural.",
+        reflectionQuestion: {
+          question: "Si el cuerpo de un animal se rompe por el ritmo que le impusimos, ¿podemos seguir llamando 'natural' a este sistema?",
+          prompt: "Lo 'natural' sería lo que el cuerpo del animal permite, no lo que el mercado exige."
+        }
       },
       {
         id: "la-ganader-a-industr",
@@ -261,6 +343,14 @@ export const actsData: ActData[] = [
         content: (
           <p>Para alimentar a miles de millones de personas de forma barata, el mundo pasó de las granjas tradicionales a las macrogranjas industriales. Estos sistemas se basan en el confinamiento extremo. Las gallinas ponedoras viven en jaulas de alambre tan estrechas que jamás pueden extender sus alas. Las cerdas reproductoras pasan la mayor parte de sus vidas en jaulas de metal del tamaño exacto de su cuerpo, donde no pueden ni siquiera darse la vuelta. Este nivel de encierro les causa un estrés psicológico y físico tan insoportable que, por pura desesperación, los animales empiezan a morderse y atacarse entre sí. ¿La solución de la industria? En lugar de darles más espacio, realizan mutilaciones rutinarias: les cortan los picos a las aves, y las colas y dientes a los cerditos, generalmente sin ningún tipo de anestesia.</p>
         ),
+        keyIdea: "El confinamiento extremo genera tanto estrés que los animales se atacan. La industria resuelve el síntoma mutilándolos, no dándoles espacio.",
+        analogy: { text: "Si metieras a mil personas en un vagón de metro sin moverse, se morderían entre ellas. La respuesta de la industria equivalente sería cortarles los dientes, no abrir la puerta." },
+        pullQuote: "La solución de la industria no fue darles más espacio: fue cortarles picos, colas y dientes sin anestesia.",
+        didYouKnow: "Las jaulas de gestación para cerdas son tan pequeñas que el animal no puede girarse: el espacio se calcula para que no 'desperdicie' ni un centímetro de pienso.",
+        reflectionQuestion: {
+          question: "Si la solución al estrés del encierro es mutilar al animal, ¿estamos tratando el problema o silenciando su síntoma?",
+          prompt: "El síntoma se ve; el problema, no. Esa es justamente la pregunta."
+        },
         deepDive: {
           id: "dd-la-ganader-a-industr",
           label: "este concepto",
@@ -282,7 +372,7 @@ export const actsData: ActData[] = [
         content: (
           <ul className="list-disc pl-6 space-y-2">
             <li>
-              <strong>Acuicultura:</strong> No solo los animales terrestres sufren esto. Las granjas de peces (acuicultura) mantienen a miles de animales hacinados en piscinas o redes acuáticas, sufriendo estrés severo, falta de oxígeno y propagación de parásitos.
+              <strong>Acuicultura:</strong> No solo los animales terrestres sufren esto. Las granjas de peces (acuicultura) mantienen a miles de animales hacinados en piscimas o redes acuáticas, sufriendo estrés severo, falta de oxígeno y propagación de parásitos.
             </li>
             <li>
               <strong>Experimentación Científica:</strong> Aunque existe un código ético llamado "Las 3R" (Reemplazar, Reducir y Refinar el uso de animales), la realidad es que millones de ratones, perros, conejos y primates siguen siendo sometidos a pruebas de toxicidad, biotecnología y cosmética en laboratorios de todo el mundo.
@@ -291,7 +381,15 @@ export const actsData: ActData[] = [
               <strong>Ropa y Entretenimiento:</strong> Los animales continúan siendo criados y desollados por la industria peletera (pieles, cueros, lanas), y utilizados para el ocio humano en zoológicos, parques marinos y circos, donde se les priva sistemáticamente de todos sus comportamientos instintivos naturales.
             </li>
           </ul>
-        )
+        ),
+        keyIdea: "El uso instrumental no se limita al plato: peces hacinados, experimentación, piel y ocio. Mismos principios, distintos escaparates.",
+        analogy: { text: "Es el mismo músculo ético que mueve la granja industrial: el animal como insumo, esté en tu plato, en un tanque, en un laboratorio o en una jaula de circo." },
+        pullQuote: "Se les priva sistemáticamente de todos sus comportamientos instintivos naturales.",
+        didYouKnow: "Las '3R' de Russell y Burch (1959) nacieron para limitar la experimentación, pero el número absoluto de animales usados en laboratorios sigue creciendo cada década.",
+        reflectionQuestion: {
+          question: "Si te incomoda una sola de estas industrias, ¿qué tienen todas en común que las hace aceptables o inaceptables a la vez?",
+          prompt: "Busca el principio que une, no el ejemplo que separa."
+        }
       }
     ]
   },
@@ -311,6 +409,14 @@ export const actsData: ActData[] = [
         content: (
           <p>Para entender el problema ambiental, hay que mirar las leyes de la física. En la naturaleza, la energía se pierde cada vez que subimos un escalón en la cadena alimentaria. Si cultivamos vegetales y nos los comemos directamente, aprovechamos casi toda esa energía. Pero si cultivamos soja, se la damos de comer a una vaca durante años, y luego nos comemos a la vaca, el sistema colapsa. ¿Por qué? Porque la vaca gasta casi toda esa energía vegetal en mantenerse viva (respirar, moverse, generar calor corporal, desarrollar huesos). Se estima que por cada 100 calorías de cultivos que le damos a una vaca, solo nos devuelve unas 2 calorías en forma de carne. Usar a un animal como "intermediario" o "fábrica" para producir nuestra comida es el sistema energético más ineficiente jamás inventado.</p>
         ),
+        keyIdea: "Cada salto en la cadena alimentaria pierde ~90% de la energía. Usar animales como 'fábricas' es el sistema más ineficiente posible.",
+        analogy: { text: "Es como calentar tu casa quemando diez leños para sentir el calor de uno solo: el resto se va por la chimenea." },
+        pullQuote: "Por cada 100 calorías de cultivos que damos a una vaca, nos devuelve apenas 2.",
+        didYouKnow: "La Ley del 10% de Lindeman describe esta pérdida: en cada escalón trófico, ~90% de la energía se disipa como calor y metabolismo.",
+        reflectionQuestion: {
+          question: "Si el sistema pierde un 90% de energía en cada escalón, ¿por qué seguimos diseñando nuestra comida dando un rodeo por un animal?",
+          prompt: "Piensa en términos de eficiencia, no de hábito."
+        },
         deepDive: {
           id: "dd-la-ineficiencia-term",
           label: "este concepto",
@@ -331,14 +437,30 @@ export const actsData: ActData[] = [
         title: "La pérdida de espacio y la Deforestación",
         content: (
           <p>A causa de esta ineficiencia brutal, necesitamos cantidades titánicas de comida para los animales. Actualmente, usamos cerca del 80% de todas las tierras agrícolas del mundo única y exclusivamente para pastos y para cultivar el pienso que comen los animales de granja. Como no hay suficiente espacio, la industria tala bosques milenarios. La ganadería es la causa número uno de deforestación en la Amazonía. Al destruir estos bosques, arrasamos con los hábitats de miles de animales salvajes, siendo la principal causa de la extinción masiva de especies que vivimos hoy.</p>
-        )
+        ),
+        keyIdea: "~80% de la tierra agrícola mundial se usa para criar animales, que aportan una porción minoritaria de las calorías humanas. La ineficiencia devora territorio.",
+        analogy: { text: "Si una ciudad reservara el 80% de sus calles para moversa coches vacíos, sería un escándalo urbanístico. Esto es lo mismo, pero con selvas." },
+        pullQuote: "La ganadería es la causa número uno de deforestación en la Amazonía.",
+        didYouKnow: "La ganadería y el pienso para ganado son el principal motor de deforestación amazónica, por delante de la madera o la minería en superficie afectada.",
+        reflectionQuestion: {
+          question: "Si el 80% de la tierra agrícola alimenta a animales y no a personas, ¿de quién es hambre el que dicen resolver?",
+          prompt: "Sigue las calorías, no las leyendas: ¿quién recibe el 80%?"
+        }
       },
       {
         id: "la-huella-h-drica-y-",
         title: "La huella hídrica y el Cambio Climático",
         content: (
           <p>El coste de recursos es astronómico. Se necesitan miles y miles de litros de agua dulce para producir un solo filete de carne (sumando el agua que bebe el animal, la limpieza y, sobre todo, el riego de sus cultivos). Por si fuera poco, el sistema digestivo de los rumiantes (vacas, ovejas) y el manejo de montañas de sus excrementos liberan inmensas cantidades de metano. El metano es un gas de efecto invernadero que atrapa el calor en la atmósfera con una potencia decenas de veces mayor que el CO2 a corto plazo, acelerando drásticamente el cambio climático.</p>
-        )
+        ),
+        keyIdea: "Un filete cuesta miles de litros de agua y libera metano, un gas que calienta decenas de veces más que el CO2 a corto plazo.",
+        analogy: { text: "Es como si cada burger viniera con una factura invisible: miles de litros de agua y un sobre de metano que pagamos entre todos, aunque no aparezca en la etiqueta." },
+        pullQuote: "El metano atrapa el calor con una potencia decenas de veces mayor que el CO2 a corto plazo.",
+        didYouKnow: "El metano dura menos en la atmósfera que el CO2, pero calienta ~80 veces más a 20 años: reducir ganadería es una de las palancas climáticas más rápidas.",
+        reflectionQuestion: {
+          question: "Si el precio real del filete incluye agua, selva y metano, ¿por qué la etiqueta solo muestra euros?",
+          prompt: "Las externalidades existen aunque no las imprima el supermercado."
+        }
       }
     ]
   },
@@ -358,6 +480,14 @@ export const actsData: ActData[] = [
         content: (
           <p>Durante siglos, los códigos civiles de casi todos los países consideraban a los animales literalmente como "bienes muebles" o propiedades, exactamente al mismo nivel legal que un coche o una silla. Afortunadamente, esta visión anticuada está cambiando. Muchos países, incluidos varios europeos y latinoamericanos, han modificado sus leyes para reconocer oficialmente a los animales como "seres vivos dotados de sintiencia". Aunque las leyes actuales de "bienestar animal" siguen siendo muy hipócritas (protegen a un perro de ser golpeado, pero permiten por ley mutilar a millones de cerdos en granjas), el simple hecho de que la ley reconozca oficialmente que "sienten" es la primera piedra. Abre la puerta a que, en el futuro, los jueces les otorguen protecciones reales y fundamentales contra el sufrimiento y el encierro.</p>
         ),
+        keyIdea: "El derecho pasa de tratar al animal como 'cosa' a reconocerlo como 'ser sintiente'. Es la primera grieta para futuras protecciones reales.",
+        analogy: { text: "Es como cuando la ley dejó de considerar 'propiedad' a ciertos humanos: el cambio de etiqueta legal no acabó la injusticia, pero la hizo por fin enunciabilidad jurídica." },
+        pullQuote: "El simple hecho de que la ley reconozca que 'sienten' es la primera piedra.",
+        didYouKnow: "Varios países ya reformaron sus códigos civiles para desclasificar a los animales del capítulo de 'bienes muebles', un cambio de redacción con consecuencias legales reales.",
+        reflectionQuestion: {
+          question: "Si la ley admite que el animal siente pero sigue permitiendo su mutilación masiva, ¿es coherente o es un parche para dormir la conciencia?",
+          prompt: "Una ley puede reconocer y permitir a la vez: ahí está la pregunta."
+        },
         deepDive: {
           id: "dd-el-despertar-legal-d",
           label: "este concepto",
@@ -379,6 +509,14 @@ export const actsData: ActData[] = [
         content: (
           <p>Más allá de las leyes de bienestar, algunos abogados pioneros están usando herramientas legales revolucionarias. Están presentando recursos de Habeas corpus —una figura jurídica inventada hace siglos para liberar a seres humanos encarcelados injustamente— para defender a los animales. Su objetivo es sacar a animales cognitivamente complejos (como chimpancés, orangutanes u elefantes) de zoológicos, argumentando ante los jueces que estos animales no son "cosas", sino "personas no humanas" que merecen el derecho básico a la libertad corporal en un santuario.</p>
         ),
+        keyIdea: "El Habeas Corpus, creado para liberar humanos encarcelados injustamente, se está usando ya para sacar a grandes simios y elefantes de jaulas.",
+        analogy: { text: "Es pedirle al juez la misma herramienta que liberó a un preso injusto, pero para un chimpancé encerrado sin delito." },
+        pullQuote: "No son 'cosas', sino 'personas no humanas' con derecho a la libertad corporal.",
+        didYouKnow: "El Nonhuman Rights Project ha presentado Habeas Corpus para chimpancés y osos en EE.UU., y tribunales de varios países ya han acogido el argumento al menos parcialmente.",
+        reflectionQuestion: {
+          question: "Si aceptamos que un chimpancé tiene interés en no estar en una jaula, ¿qué diferencia relevante justifica que sí esté en una?",
+          prompt: "Si la respuesta es 'su especie', vuelve al concepto de especismo."
+        },
         deepDive: {
           id: "dd-nuevas-fronteras-en-",
           label: "este concepto",
@@ -419,7 +557,15 @@ export const actsData: ActData[] = [
               <strong>Alternativas vegetales (Plant-based):</strong> Productos que ya están en los supermercados, que mediante combinaciones avanzadas de proteínas de guisantes, soja y grasas vegetales, logran replicar perfectamente el sabor, la textura e incluso el sangrado de la carne tradicional.
             </li>
           </ul>
-        )
+        ),
+        keyIdea: "Tres caminos técnicos ya reales —carne cultivada, fermentación de precisión y plant-based— que reproducen el producto sin necesidad de criar, encerrar ni matar.",
+        analogy: { text: "Es como si para tener cerveza tuvieras que criar y sacrificar cervezas vivas; ya no: fermentamos. La próxima revolución es fermentar o cultivar proteína animal sin el animal." },
+        pullQuote: "Carne 100% real, sin criar, encerrar ni matar, usando 90% menos de tierra y agua.",
+        didYouKnow: "Singapur y EE.UU. (FDA) ya aprobaron venta comercial de carne cultivada: no es futuro lejano, es catálogo regulatorio actual.",
+        reflectionQuestion: {
+          question: "Si mañana tuvieras el mismo producto sin animal de por medio, ¿qué excusa ética te quedaría para seguir prefiriendo el que sí lo tiene?",
+          prompt: "Cuando la tecnología disuelve la necesidad, lo que queda es preferencia. Pregunta honesta."
+        }
       }
     ]
   }

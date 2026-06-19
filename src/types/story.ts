@@ -15,9 +15,22 @@ export interface DeepDiveData {
   nodes: BranchNode[];
 }
 
+export interface MicroQuizData {
+  question: string;
+  options: string[];
+  revealFact: string;
+}
+
 export interface TopicBlockData {
   id: string;
   title: string;
   content: React.ReactNode;
   deepDive?: DeepDiveData;
+  keyIdea?: string;
+  analogy?: { text: string };
+  didYouKnow?: string;
+  pullQuote?: string;
+  reflectionQuestion?: { question: string; prompt?: string };
+  microQuiz?: MicroQuizData;
+  readingTimeMin?: number;
 }

@@ -1,9 +1,5 @@
 import { useState, useEffect } from "react";
-import { 
-  Sun,
-  Moon,
-} from "lucide-react";
-import ConceptExplorer from "./components/ConceptExplorer";
+import GlossaryExplorer from "./components/GlossaryExplorer";
 import TimelineExplorer from "./components/TimelineExplorer";
 import ExcusesDilemmas from "./components/ExcusesDilemmas";
 import ImpactCalculator from "./components/ImpactCalculator";
@@ -15,14 +11,14 @@ import DevErrorBoundary from "./components/DevErrorBoundary";
 import DataSection from "./components/DataSection";
 import { motion, AnimatePresence } from "motion/react";
 import { CORE_NODES } from "./types";
-import { Button } from "./components/ui/Button";
-
-type TabType = "historia_narrativa" | "grafo" | "cronologia" | "dialectica" | "calculadora" | "validador" | "datos";
+import { GLOSSARY_BY_ID, GLOSSARY_UNIFIED } from "./data/glossaryUnified";
+import type { TabType } from "./components/TabNav";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>("historia_narrativa");
   const [passedArgument, setPassedArgument] = useState<string | null>(null);
   const [redirectNodeId, setRedirectNodeId] = useState<string | null>(null);
+  const [redirectEntryId, setRedirectEntryId] = useState<string | null>(null);
   const [theme, setTheme] = useState<"dark" | "light">(() => {
     const saved = localStorage.getItem("theme");
     if (saved === "light" || saved === "dark") return saved;
@@ -48,7 +44,9 @@ export default function App() {
     return () => window.removeEventListener("resize", updateScrollbarWidth);
   }, []);
 
-
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [activeTab]);
 
   useEffect(() => {
     const handleNavigate = (e: Event) => {
@@ -58,6 +56,12 @@ export default function App() {
 
       const isNode = CORE_NODES.some((n) => n.id === targetId);
       if (isNode) {
+        const relatedGlossaryEntry = GLOSSARY_UNIFIED.find((entry) =>
+          (entry.relatedNodes || []).includes(targetId)
+        );
+        if (relatedGlossaryEntry) {
+          setRedirectEntryId(relatedGlossaryEntry.id);
+        }
         setRedirectNodeId(targetId);
         setActiveTab("grafo");
       } else {
@@ -70,6 +74,21 @@ export default function App() {
 
     window.addEventListener("navigate-to-item", handleNavigate);
     return () => window.removeEventListener("navigate-to-item", handleNavigate);
+  }, []);
+
+  useEffect(() => {
+    const handleNavigateGlossary = (e: Event) => {
+      const customEvent = e as CustomEvent<string>;
+      const targetId = customEvent.detail;
+      if (!targetId) return;
+      if (GLOSSARY_BY_ID[targetId]) {
+        setRedirectEntryId(targetId);
+        setActiveTab("grafo");
+      }
+    };
+
+    window.addEventListener("navigate-to-glossary", handleNavigateGlossary);
+    return () => window.removeEventListener("navigate-to-glossary", handleNavigateGlossary);
   }, []);
 
   const handleDeconstructTrigger = (excuse: string) => {
@@ -86,6 +105,21 @@ export default function App() {
     setActiveTab("grafo");
   };
 
+  const handleNavigate = (tab: TabType) => {
+    setActiveTab(tab);
+  };
+
+  const handleToggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
+
+  const sharedProps = {
+    activeTab,
+    onNavigate: handleNavigate,
+    theme,
+    onToggleTheme: handleToggleTheme,
+  };
+
   return (
     <div 
       style={{ 
@@ -95,80 +129,8 @@ export default function App() {
       className="min-h-screen bg-background text-on-background font-sans selection:bg-primary selection:text-on-primary flex flex-col transition-colors duration-500 pb-0"
     >
       
-      {/* Sticky Header — only on deep-dive tabs */}
-      {activeTab !== "historia_narrativa" && (
-        <header className="bg-background/80 backdrop-blur-xl sticky top-0 z-50 border-b border-outline-variant/20 py-3">
-          <div className="max-w-[1440px] mx-auto px-3 md:px-8 lg:px-16 flex items-center justify-between gap-6">
-            
-            {/* Logo (minimal) */}
-            <div className="flex items-center gap-3 cursor-pointer shrink-0" onClick={() => setActiveTab("historia_narrativa")}>
-              <SintiensLogo className="w-7 h-10 shrink-0" animated />
-              <span className="text-[11px] font-mono font-bold tracking-[0.2em] uppercase">Sintiens</span>
-            </div>
-
-            {/* Nav links — same style as homepage panel */}
-            <nav className="flex items-center gap-1">
-                {([
-                  { id: "historia_narrativa", label: "El Relato" },
-                  { id: "grafo", label: "Ontología" },
-                  { id: "cronologia", label: "Historia" },
-                  { id: "dialectica", label: "Tesis" },
-                  { id: "calculadora", label: "Impacto" },
-                  { id: "datos", label: "Evidencia" },
-                  { id: "validador", label: "IA" },
-                ] as { id: TabType; label: string }[]).map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`px-4 py-2 rounded-md text-[11px] uppercase font-mono tracking-widest transition-all duration-300 ${
-                      activeTab === tab.id
-                        ? "text-primary font-bold"
-                        : "text-on-surface-variant hover:text-primary"
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </nav>
-
-            {/* Theme toggle */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="w-9 h-9 p-0 rounded-full hover:bg-surface-dim shrink-0"
-            >
-              {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            </Button>
-
-          </div>
-        </header>
-      )}
-
-      {/* Main Content */}
+      {/* Main Content — navigation is handled inside each tab via TabNav */}
       <main className="flex-1 max-w-[1440px] w-full mx-auto px-3 md:px-8 lg:px-16 py-12 lg:py-20 relative">
-        
-        {/* Intro Section - Removed from individual tabs, now handled by StoryMode or minimal headers */}
-        
-        {/* Back to Story Button for deep dives */}
-        <AnimatePresence>
-          {activeTab !== "historia_narrativa" && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="mb-8"
-            >
-              <Button 
-                onClick={() => setActiveTab("historia_narrativa")}
-                variant="ghost" 
-                className="text-on-surface-variant hover:text-on-surface pl-0 gap-2"
-              >
-                ← Volver al Relato
-              </Button>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         <div className="min-h-[600px]">
           <AnimatePresence mode="wait">
@@ -181,28 +143,39 @@ export default function App() {
               className="w-full"
             >
               {activeTab === "historia_narrativa" && (
-                <StoryMode onNavigate={(tab) => setActiveTab(tab)} />
+                <StoryMode {...sharedProps} />
               )}
               {activeTab === "grafo" && (
-                <ConceptExplorer 
-                  initialNodeId={redirectNodeId} 
-                  onClearInitialNodeId={() => setRedirectNodeId(null)} 
+                <GlossaryExplorer
+                  initialEntryId={redirectEntryId}
+                  onClearInitialEntryId={() => setRedirectEntryId(null)}
+                  {...sharedProps}
                 />
               )}
               {activeTab === "cronologia" && (
-                <TimelineExplorer onRedirectToConcept={handleRedirectToConcept} />
+                <TimelineExplorer
+                  onRedirectToConcept={handleRedirectToConcept}
+                  {...sharedProps}
+                />
               )}
               {activeTab === "dialectica" && (
-                <ExcusesDilemmas onAnalyzeTrigger={handleDeconstructTrigger} />
+                <ExcusesDilemmas
+                  onAnalyzeTrigger={handleDeconstructTrigger}
+                  {...sharedProps}
+                />
               )}
               {activeTab === "calculadora" && (
-                <ImpactCalculator />
+                <ImpactCalculator {...sharedProps} />
               )}
               {activeTab === "datos" && (
-                <DataSection />
+                <DataSection {...sharedProps} />
               )}
               {activeTab === "validador" && (
-                <AiValidator argumentToAnalyze={passedArgument} clearArgument={handleClearTrigger} />
+                <AiValidator
+                  argumentToAnalyze={passedArgument}
+                  clearArgument={handleClearTrigger}
+                  {...sharedProps}
+                />
               )}
             </motion.div>
           </AnimatePresence>
@@ -229,7 +202,6 @@ export default function App() {
           </div>
         </div>
       </footer>
-
 
     </div>
   );

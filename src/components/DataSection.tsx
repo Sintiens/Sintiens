@@ -3,47 +3,74 @@ import { Database, Info } from "lucide-react";
 import AnimalsSlaughteredChart from "./charts/AnimalsSlaughteredChart";
 import MeatConsumptionChart from "./charts/MeatConsumptionChart";
 import DeforestationChart from "./charts/DeforestationChart";
+import { PageGlows } from "./ui/AmbientGlow";
+import TabNav, { TabType } from "./TabNav";
 
-export default function DataSection() {
+interface DataSectionProps {
+  activeTab: TabType;
+  onNavigate: (tab: TabType) => void;
+  theme: "dark" | "light";
+  onToggleTheme: () => void;
+}
+
+export default function DataSection({ activeTab, onNavigate, theme, onToggleTheme }: DataSectionProps) {
   return (
-    <div id="data-section-view" className="space-y-12 w-full max-w-6xl mx-auto py-8">
-      
-      {/* Introduction Header */}
-      <div className="bg-white dark:bg-zinc-950/40 p-8 border border-zinc-200 dark:border-zinc-800/80 rounded-3xl grid grid-cols-1 md:grid-cols-12 gap-8 items-center transition-all duration-300">
+    <div id="data-section-view" className="space-y-10 w-full relative">
+
+      {/* Background glows */}
+      <PageGlows />
+
+      {/* Header */}
+      <div className="relative z-10 space-y-3 border-b border-outline-variant/20 pb-8">
+        <span className="text-[10px] font-mono font-bold text-primary select-none tracking-[0.25em] uppercase block opacity-60">
+          [ EVIDENCIA ]
+        </span>
+        <h3 className="text-display-md text-on-surface">
+          Evidencia Empírica<span className="text-secondary/60 font-light"> · Datos Globales</span>
+        </h3>
+        <p className="text-body-md text-on-surface-variant max-w-2xl">
+          La magnitud del impacto del modelo de consumo actual requiere una perspectiva cuantitativa.
+          Datos procedentes de bases públicas para entender la escala del sacrificio animal, el crecimiento del consumo y la destrucción ecológica.
+        </p>
+      </div>
+
+      {/* Source Card */}
+      <div className="glass-enhance border border-outline-variant/30 rounded-2xl p-8 grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
         <div className="md:col-span-8 space-y-4">
-          <h3 className="text-sm font-semibold tracking-wider font-mono text-zinc-800 dark:text-zinc-300 uppercase flex items-center gap-2">
-            <Database className="w-5 h-5 text-primary" />
-            Evidencia Empírica y Datos Globales
-          </h3>
-          <p className="text-zinc-600 dark:text-zinc-400 text-sm font-light leading-relaxed max-w-2xl">
-            La magnitud del impacto del modelo de consumo actual requiere una perspectiva cuantitativa. 
-            Esta sección visualiza datos crudos en tiempo real procedentes de bases de datos públicas para entender 
+          <h4 className="text-technical-sm text-primary flex items-center gap-2">
+            <Database className="w-4 h-4" />
+            EV. EMPÍRICA Y DATOS GLOBALES
+          </h4>
+          <p className="text-body-md text-on-surface-variant leading-relaxed">
+            Esta sección visualiza datos crudos procedentes de bases de datos públicas para entender 
             la escala del sacrificio animal, el crecimiento insostenible del consumo y la destrucción ecológica asociada.
           </p>
         </div>
-        <div className="md:col-span-4 flex flex-col justify-center bg-zinc-100/70 dark:bg-zinc-900/60 p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800/80">
-          <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-widest block mb-2 flex items-center gap-1.5">
+        <div className="md:col-span-4 flex flex-col justify-center bg-surface-dim/40 p-5 rounded-xl border border-outline-variant/20">
+          <span className="text-[10px] font-mono text-on-surface-variant/60 uppercase tracking-widest block mb-2 flex items-center gap-1.5">
             <Info className="w-3 h-3" /> Fuente de Datos
           </span>
-          <a 
-            href="https://ourworldindata.org/" 
-            target="_blank" 
+          <a
+            href="https://ourworldindata.org/"
+            target="_blank"
             rel="noopener noreferrer"
-            className="text-primary hover:text-primary/80 font-medium text-sm transition-colors"
+            className="text-link hover:text-link/80 font-medium text-sm transition-colors"
           >
             Our World in Data (Universidad de Oxford)
           </a>
-          <p className="text-xs text-zinc-500 mt-2 font-light leading-relaxed">
-            Gráficos basados en los informes globales sobre bienestar animal, agricultura y emisiones de gases de efecto invernadero.
+          <p className="text-xs text-on-surface-variant/60 mt-2 font-light leading-relaxed">
+            Gráficos basados en informes globales sobre bienestar animal, agricultura y emisiones de gases de efecto invernadero.
           </p>
         </div>
       </div>
 
+      <div className="w-full py-4">
+        <TabNav activeTab={activeTab} onNavigate={onNavigate} theme={theme} onToggleTheme={onToggleTheme} />
+      </div>
+
       {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
-        {/* Chart 1 */}
-        <motion.div 
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative z-10">
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -52,9 +79,7 @@ export default function DataSection() {
         >
           <AnimalsSlaughteredChart />
         </motion.div>
-
-        {/* Chart 2 */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -62,9 +87,7 @@ export default function DataSection() {
         >
           <MeatConsumptionChart />
         </motion.div>
-
-        {/* Chart 3 */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -72,7 +95,6 @@ export default function DataSection() {
         >
           <DeforestationChart />
         </motion.div>
-
       </div>
     </div>
   );

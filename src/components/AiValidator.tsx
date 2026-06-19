@@ -16,6 +16,8 @@ import {
   Sparkles 
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { PageGlows } from "./ui/AmbientGlow";
+import TabNav, { TabType } from "./TabNav";
 
 interface AIAnalysisResult {
   argumentSummary: string;
@@ -35,6 +37,10 @@ interface AIAnalysisResult {
 interface AiValidatorProps {
   argumentToAnalyze: string | null;
   clearArgument: () => void;
+  activeTab: TabType;
+  onNavigate: (tab: TabType) => void;
+  theme: "dark" | "light";
+  onToggleTheme: () => void;
 }
 
 const PRESET_EXCUSAS = [
@@ -44,7 +50,7 @@ const PRESET_EXCUSAS = [
   "Si dejamos de comer animales, se reproducirían sin control y extinguirían los pastos."
 ];
 
-export default function AiValidator({ argumentToAnalyze, clearArgument }: AiValidatorProps) {
+export default function AiValidator({ argumentToAnalyze, clearArgument, activeTab, onNavigate, theme, onToggleTheme }: AiValidatorProps) {
   const [userInput, setUserInput] = useState("");
   const [analysis, setAnalysis] = useState<AIAnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -91,27 +97,29 @@ export default function AiValidator({ argumentToAnalyze, clearArgument }: AiVali
   };
 
   return (
-    <div id="ai-validator-view" className="space-y-8 w-full max-w-6xl mx-auto">
-      {/* Intro section */}
-      <div className="bg-surface-container p-6 lg:p-8 border border-surface-variant rounded-3xl grid grid-cols-1 md:grid-cols-12 gap-6 items-center transition-all duration-300">
-        <div className="md:col-span-8 space-y-3">
-          <h3 className="text-sm font-semibold tracking-wider font-mono text-on-surface uppercase flex items-center gap-1.5">
-            <Brain className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-            Descompresor de Axiomas No Examinados
-          </h3>
-          <p className="text-on-surface-variant text-sm font-light leading-relaxed">
-            Escribe cualquier argumento, justificación, dogma o excusa que utilices (o escuches) para continuar consumiendo animales. La Inteligencia Artificial Sintiens, equipada con datos empíricos de neurobiología, termodinámica y bioética laica, deconstruirá críticamente su validez lógica y expondrá sus sesgos de forma socrática.
-          </p>
-        </div>
-        <div className="md:col-span-4 flex flex-wrap gap-2 justify-end">
-          <span className="text-[10px] font-mono text-on-surface-variant bg-surface-container border border-surface-variant px-3 py-1.5 rounded-xl">
-             Modo: Dialéctica Clínica
-          </span>
-        </div>
+    <div id="ai-validator-view" className="space-y-10 w-full relative">
+
+      <PageGlows />
+
+      {/* Header */}
+      <div className="relative z-10 space-y-3 border-b border-outline-variant/20 pb-8">
+        <span className="text-[10px] font-mono font-bold text-primary select-none tracking-[0.25em] uppercase block opacity-60">
+          [ IA ]
+        </span>
+        <h3 className="text-display-md text-on-surface">
+          Descompresor<span className="text-secondary/60 font-light"> · Axiomas No Examinados</span>
+        </h3>
+        <p className="text-body-md text-on-surface-variant max-w-2xl">
+          Escribe cualquier argumento o excusa que utilices para justificar el consumo animal. La IA de Sintiens deconstruirá su validez lógica y expondrá sus sesgos.
+        </p>
       </div>
 
-      {/* Input Form Panel */}
-      <div className="bg-surface-container backdrop-blur-md border border-surface-variant p-5 lg:p-6 rounded-3xl space-y-4 transition-all duration-300 shadow-sm dark:shadow-none">
+      <div className="w-full py-4">
+        <TabNav activeTab={activeTab} onNavigate={onNavigate} theme={theme} onToggleTheme={onToggleTheme} />
+      </div>
+
+      {/* Input Form */}
+      <div className="glass-enhance border border-outline-variant/25 rounded-2xl p-5 lg:p-6 space-y-4 relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
         <div className="flex flex-col sm:flex-row gap-3">
           <input
             type="text"
@@ -119,22 +127,21 @@ export default function AiValidator({ argumentToAnalyze, clearArgument }: AiVali
             onChange={(e) => setUserInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter") handleOnSubmit(""); }}
             placeholder="Introduce una excusa: ej. 'Los leones consumen carne y es natural que hagamos lo mismo'..."
-            className="flex-1 bg-surface-container border border-outline-variant focus:border-zinc-500 dark:focus:border-zinc-700 rounded-2xl px-5 py-4 text-xs font-sans placeholder-zinc-400 dark:placeholder-zinc-600 text-on-surface outline-none focus:ring-1 focus:ring-zinc-300 dark:focus:ring-zinc-700/50 transition-all shadow-sm dark:shadow-none w-full"
+            className="flex-1 bg-surface-dim/30 border border-outline-variant/30 focus:border-primary rounded-xl px-5 py-4 text-body-sm text-on-surface outline-none transition-all placeholder:text-on-surface-variant/40 w-full"
             disabled={loading}
           />
           <button
             onClick={() => handleOnSubmit("")}
             disabled={loading || !userInput.trim()}
-            className="px-6 py-4 rounded-2xl bg-zinc-900 hover:bg-zinc-800 dark:bg-surface-container dark:hover:bg-zinc-200 text-white dark:text-zinc-950 font-semibold text-xs flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-md dark:shadow-none w-full sm:w-auto shrink-0"
+            className="px-6 py-4 rounded-xl bg-primary hover:bg-primary/90 text-on-primary font-semibold text-[11px] font-mono uppercase tracking-wider flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer w-full sm:w-auto shrink-0"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             {loading ? "Analizando" : "Someter"}
           </button>
         </div>
 
-        {/* Suggestion presets */}
         <div className="space-y-1.5">
-          <span className="text-[10px] font-mono text-on-surface-variant dark:text-on-surface-variant uppercase tracking-widest block font-bold">
+          <span className="text-[10px] font-mono text-on-surface-variant/60 uppercase tracking-widest block">
             Ejemplos clásicos para testear:
           </span>
           <div className="flex flex-wrap gap-2 w-full">
@@ -147,9 +154,9 @@ export default function AiValidator({ argumentToAnalyze, clearArgument }: AiVali
                   handleOnSubmit(preset);
                 }}
                 disabled={loading}
-                className="text-xs px-3.5 py-2.5 rounded-xl bg-surface-container hover:bg-surface hover:text-on-surface dark:hover:bg-zinc-900 dark:hover:text-white text-on-surface-variant border border-surface-variant transition-all flex items-start gap-2 hover:border-zinc-500 dark:hover:border-zinc-700 text-left cursor-pointer shadow-sm dark:shadow-none w-full sm:w-auto whitespace-normal break-words"
+                className="text-xs px-3.5 py-2.5 rounded-xl bg-surface-dim/30 hover:bg-surface-dim/50 text-on-surface-variant border border-outline-variant/20 hover:border-outline-variant/60 transition-all flex items-start gap-2 text-left cursor-pointer w-full sm:w-auto whitespace-normal break-words"
               >
-                <PlusCircle className="w-3.5 h-3.5 text-on-surface-variant dark:text-on-surface-variant shrink-0 mt-0.5" />
+                <PlusCircle className="w-3.5 h-3.5 text-on-surface-variant/50 shrink-0 mt-0.5" />
                 <span className="leading-relaxed">{preset}</span>
               </button>
             ))}
@@ -157,20 +164,16 @@ export default function AiValidator({ argumentToAnalyze, clearArgument }: AiVali
         </div>
       </div>
 
-      {/* Loading Block */}
       {loading && (
-        <div className="bg-surface-container p-12 border border-surface-variant rounded-3xl flex flex-col items-center justify-center text-center space-y-4 shadow-sm dark:shadow-none">
-          <Loader2 className="w-10 h-10 animate-spin text-on-surface-variant dark:text-on-surface-variant" />
-          <div className="space-y-1">
-            <h4 className="text-sm font-semibold text-on-surface tracking-tight">Diseccionando premisas lógicas...</h4>
-            <p className="text-xs text-on-surface-variant font-light max-w-sm">Evaluando nocicepción, termodinámica y buscando sesgos lógicos con la IA de Sintiens.</p>
-          </div>
+        <div className="glass-enhance border border-outline-variant/25 rounded-2xl p-12 flex flex-col items-center justify-center text-center space-y-4 relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
+          <Loader2 className="w-10 h-10 animate-spin text-primary" />
+          <h4 className="text-body-md text-on-surface">Diseccionando premisas lógicas...</h4>
+          <p className="text-body-sm text-on-surface-variant max-w-sm">Evaluando nocicepción, termodinámica y buscando sesgos con la IA de Sintiens.</p>
         </div>
       )}
 
-      {/* Error state */}
       {error && (
-        <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-2xl p-4 flex gap-3 text-xs text-red-600 dark:text-red-400 shadow-sm dark:shadow-none">
+        <div className="bg-ch1/10 border border-ch1/20 rounded-xl p-4 flex gap-3 text-body-sm text-ch1 relative z-10">
           <AlertCircle className="w-5 h-5 shrink-0" />
           <div className="space-y-1">
             <span className="font-semibold block">Error de deconstrucción</span>
@@ -179,7 +182,7 @@ export default function AiValidator({ argumentToAnalyze, clearArgument }: AiVali
         </div>
       )}
 
-      {/* Structured report representation */}
+      {/* Analysis Results */}
       <AnimatePresence>
         {analysis && !loading && (
           <motion.div
@@ -187,133 +190,107 @@ export default function AiValidator({ argumentToAnalyze, clearArgument }: AiVali
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.98 }}
             transition={{ duration: 0.35 }}
-            className="space-y-6 w-full"
+            className="space-y-6 w-full relative z-10"
           >
-            <div className="border border-surface-variant rounded-3xl overflow-hidden bg-surface-container shadow-sm dark:shadow-none transition-all duration-300">
-              
-              {/* Header Box */}
-              <div className="bg-surface border-b border-surface-variant p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-colors">
+            <div className="glass-enhance border border-outline-variant/25 rounded-2xl overflow-hidden before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative">
+
+              <div className="bg-surface-dim/20 border-b border-outline-variant/20 p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="space-y-1">
-                  <span className="text-[10px] font-mono tracking-widest text-on-surface-variant uppercase flex items-center gap-1 font-bold">
-                    <Workflow className="w-3.5 h-3.5 text-on-surface-variant dark:text-on-surface-variant" /> DIAGNÓSTICO DIALÉCTICO SINTIENS
+                  <span className="text-[10px] font-mono tracking-widest text-on-surface-variant/70 uppercase flex items-center gap-1">
+                    <Workflow className="w-3.5 h-3.5" /> DIAGNÓSTICO DIALÉCTICO
                   </span>
-                  <h3 className="text-lg font-bold text-on-surface tracking-tight leading-normal font-serif">
+                  <h3 className="text-lg font-bold text-on-surface leading-normal font-heading">
                     &ldquo;{analysis.argumentSummary}&rdquo;
                   </h3>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-mono px-2.5 py-1 rounded bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-500/20 font-semibold">
-                    Sintaxis: Deconstruida
-                  </span>
-                </div>
+                <span className="text-[10px] font-mono px-2.5 py-1 rounded bg-primary/10 text-primary border border-primary/20">
+                  Sintaxis: Deconstruida
+                </span>
               </div>
 
-              {/* Body Modules */}
               <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 text-xs font-light">
-                
-                {/* Section A: Axioms */}
                 <div className="lg:col-span-5 space-y-4">
-                  
-                  {/* Axiomas list */}
-                  <div className="space-y-2 bg-surface p-4 rounded-xl border border-surface-variant transition-all">
-                    <h4 className="text-xs font-semibold tracking-wider font-mono text-on-surface uppercase flex items-center gap-1.5 border-b border-surface-variant pb-1.5 mb-2 transition-colors">
-                      <ShieldAlert className="w-3.5 h-3.5 text-orange-600 dark:text-orange-400" />
-                      Axiomas Implícitos No Examinados
+                  <div className="space-y-2 bg-surface-dim/20 p-4 rounded-xl border border-outline-variant/15">
+                    <h4 className="text-technical-xs text-on-surface flex items-center gap-1.5 border-b border-outline-variant/15 pb-1.5 mb-2">
+                      <ShieldAlert className="w-3.5 h-3.5 text-ch2" />
+                      Axiomas Implícitos
                     </h4>
-                    <p className="text-[11px] text-on-surface-variant dark:text-on-surface-variant leading-relaxed mb-3 transition-colors">
-                      Estas son las verdades absolutas que tu mente da por válidas automáticamente para sostener tu justificación sin que te des cuenta:
+                    <p className="text-[11px] text-on-surface-variant/70 leading-relaxed mb-3">
+                      Verdades que tu mente da por válidas automáticamente para sostener tu justificación:
                     </p>
                     <ul className="space-y-1.5">
                       {analysis.axioms.map((ax, i) => (
-                        <li key={i} className="flex items-center gap-2 text-on-surface-variant bg-surface-container px-3 py-1.5 rounded-lg border border-surface-variant transition-colors shadow-sm dark:shadow-none">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-on-surface-variant dark:text-on-surface-variant shrink-0" />
+                        <li key={i} className="flex items-center gap-2 text-on-surface-variant bg-surface-dim/30 px-3 py-1.5 rounded-lg border border-outline-variant/10">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-on-surface-variant/50 shrink-0" />
                           <span>{ax}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
-
-                  {/* Accuracy ratings */}
-                  <div className="space-y-2 bg-surface p-4 rounded-xl border border-surface-variant transition-all">
-                    <h4 className="text-xs font-semibold tracking-wider font-mono text-on-surface uppercase flex items-center gap-1.5 border-b border-surface-variant pb-1.5 mb-2 transition-colors">
-                      <FileText className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                      Precisión Científica Real
+                  <div className="space-y-2 bg-surface-dim/20 p-4 rounded-xl border border-outline-variant/15">
+                    <h4 className="text-technical-xs text-on-surface flex items-center gap-1.5 border-b border-outline-variant/15 pb-1.5 mb-2">
+                      <FileText className="w-3.5 h-3.5 text-ch4" />
+                      Precisión Científica
                     </h4>
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-[10px] font-mono px-2.5 py-0.5 rounded uppercase font-bold bg-zinc-200 border border-outline-variant text-on-surface-variant transition-colors">
-                        Calificación: {analysis.scientificAccuracy.rating}
+                      <span className="text-[10px] font-mono px-2.5 py-0.5 rounded uppercase bg-surface-dim/40 border border-outline-variant/20 text-on-surface-variant">
+                        {analysis.scientificAccuracy.rating}
                       </span>
                     </div>
-                    <p className="text-[11px] text-on-surface-variant /90 leading-relaxed font-light transition-colors">
+                    <p className="text-[11px] text-on-surface-variant/70 leading-relaxed">
                       {analysis.scientificAccuracy.analysis}
                     </p>
                   </div>
-
                 </div>
 
-                {/* Section B: Logical errors and environmental metrics */}
                 <div className="lg:col-span-7 space-y-6 flex flex-col justify-between">
-                  
-                  {/* Logical fallacies */}
-                  <div className="space-y-2 bg-surface p-4 rounded-xl border border-surface-variant transition-all">
-                    <h4 className="text-xs font-semibold tracking-wider font-mono text-on-surface uppercase flex items-center gap-1.5 border-b border-surface-variant pb-1.5 mb-2 transition-colors">
-                      <Compass className="w-3.5 h-3.5 text-pink-600 dark:text-pink-400" />
-                      Deconstrucción Dialéctica y Sesgos
+                  <div className="space-y-2 bg-surface-dim/20 p-4 rounded-xl border border-outline-variant/15">
+                    <h4 className="text-technical-xs text-on-surface flex items-center gap-1.5 border-b border-outline-variant/15 pb-1.5 mb-2">
+                      <Compass className="w-3.5 h-3.5 text-ch5" />
+                      Deconstrucción y Sesgos
                     </h4>
-                    <div className="space-y-3 font-light text-on-surface-variant transition-colors">
+                    <div className="space-y-3 text-on-surface-variant/80">
                       {analysis.logicalFailures.map((fail, i) => (
-                        <p key={i} className="leading-relaxed text-xs">
-                          {fail}
-                        </p>
+                        <p key={i} className="leading-relaxed text-xs">{fail}</p>
                       ))}
                     </div>
                   </div>
 
-                  {/* Impact split details */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    
-                    {/* Animal suffering */}
-                    <div className="bg-surface p-4 rounded-xl border border-surface-variant space-y-2 transition-colors">
-                      <div className="flex items-center gap-1.5 text-red-600 dark:text-red-400 font-semibold font-mono text-[10px] tracking-wider uppercase transition-colors">
-                        <Activity className="w-3.5 h-3.5 text-red-600 dark:text-red-500 animate-pulse" />
-                        Variables de Sintiencia Aludidas
+                    <div className="bg-surface-dim/20 p-4 rounded-xl border border-outline-variant/15 space-y-2">
+                      <div className="flex items-center gap-1.5 text-ch1 font-semibold font-mono text-[10px] tracking-wider uppercase">
+                        <Activity className="w-3.5 h-3.5" />
+                        Sintiencia Aludida
                       </div>
-                      <p className="text-[10.5px] text-on-surface-variant leading-relaxed font-light transition-colors">
+                      <p className="text-[10.5px] text-on-surface-variant/70 leading-relaxed">
                         {analysis.impactAnalysis.sintiente}
                       </p>
                     </div>
-
-                    {/* Green impact */}
-                    <div className="bg-surface p-4 rounded-xl border border-surface-variant space-y-2 transition-colors">
-                      <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold font-mono text-[10px] tracking-wider uppercase transition-colors">
-                        <Flame className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-500" />
-                        Desgaste Térmico Colateral
+                    <div className="bg-surface-dim/20 p-4 rounded-xl border border-outline-variant/15 space-y-2">
+                      <div className="flex items-center gap-1.5 text-ch6 font-semibold font-mono text-[10px] tracking-wider uppercase">
+                        <Flame className="w-3.5 h-3.5" />
+                        Desgaste Térmico
                       </div>
-                      <p className="text-[10.5px] text-on-surface-variant leading-relaxed font-light transition-colors">
+                      <p className="text-[10.5px] text-on-surface-variant/70 leading-relaxed">
                         {analysis.impactAnalysis.ecosistemic}
                       </p>
                     </div>
-
                   </div>
-
                 </div>
-
               </div>
 
-              {/* Socratic concluding reflection */}
-              <div className="bg-surface p-6 border-t border-surface-variant text-center space-y-3 relative overflow-hidden transition-colors">
-                <div className="absolute left-6 top-1/2 -translate-y-1/2 opacity-[0.02] dark:opacity-[0.02] text-on-surface pointer-events-none">
+              <div className="bg-surface-dim/20 p-6 border-t border-outline-variant/15 text-center space-y-3 relative overflow-hidden">
+                <div className="absolute left-6 top-1/2 -translate-y-1/2 opacity-[0.02] text-on-surface pointer-events-none">
                   <Brain className="w-24 h-24" />
                 </div>
-                <div className="flex items-center justify-center gap-1.5 text-on-surface-variant text-[10px] font-mono tracking-widest uppercase">
-                  <Sparkles className="w-3 h-3 text-amber-600 dark:text-amber-500" />
-                  PREGUNTA SOCRÁTICA FINAL SINTIENS:
+                <div className="flex items-center justify-center gap-1.5 text-on-surface-variant/60 text-[10px] font-mono tracking-widest uppercase">
+                  <Sparkles className="w-3 h-3" />
+                  PREGUNTA SOCRÁTICA FINAL
                 </div>
-                <p className="text-sm md:text-base font-serif italic text-on-surface dark:text-zinc-100 max-w-2xl mx-auto leading-relaxed transition-colors">
+                <p className="text-body-md font-heading italic text-on-surface max-w-2xl mx-auto leading-relaxed">
                   &ldquo;{analysis.alternativeReflection}&rdquo;
                 </p>
               </div>
-
             </div>
           </motion.div>
         )}

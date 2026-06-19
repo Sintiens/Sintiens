@@ -240,7 +240,7 @@ export default function GraphWidget({ act, block, onNodeSelect, activeNodeId, on
                   <button
                        onClick={onGoBack}
                        className={`absolute flex items-center justify-center bg-background/90 backdrop-blur-md hover:bg-surface/80 border border-${extractedColor}/30 hover:border-${extractedColor}/60 rounded-xl px-4 py-3 z-20 cursor-pointer transition-all duration-300 ${act.textColor}`}
-                       style={{ left: graphData.actNode.x, top: graphData.actNode.y - 25, width: '180px', height: '50px', boxShadow: '0 0 15px currentColor' }}
+                       style={{ left: graphData.actNode.x, top: graphData.actNode.y - 25, width: '180px', height: '50px', boxShadow: '0 0 40px currentColor, 0 0 80px currentColor' }}
                        title="Volver al relato">
                      <span className={`font-serif text-[15px] font-semibold leading-tight text-on-surface`}>{graphData.actNode.label}</span>
                   </button>
@@ -254,7 +254,7 @@ export default function GraphWidget({ act, block, onNodeSelect, activeNodeId, on
                               ? `bg-background/90 backdrop-blur-md border border-${extractedColor}/40 text-on-surface font-semibold z-20 scale-[1.02] ${act.textColor}` 
                               : `bg-background/40 backdrop-blur-sm hover:bg-surface/50 border border-outline-variant/10 hover:border-outline-variant/30 text-on-surface-variant/80 hover:text-on-surface z-15`
                          }`}
-                         style={{ left: b.x, top: b.y - 25, width: '220px', height: '50px', boxShadow: b.isCurrentBlock ? '0 0 15px currentColor' : 'none' }}
+                         style={{ left: b.x, top: b.y - 25, width: '220px', height: '50px', boxShadow: b.isCurrentBlock ? '0 0 30px currentColor, 0 0 60px currentColor' : 'none' }}
                          title={b.originalTitle}>
                        <span className={`font-serif text-[14px] leading-tight text-on-surface`}>
                            {b.label}
@@ -282,7 +282,7 @@ export default function GraphWidget({ act, block, onNodeSelect, activeNodeId, on
                                   ? `border-${extractedColor}/40 bg-background/90 backdrop-blur-md cursor-pointer z-30 font-medium scale-[1.02] ${act.textColor}` 
                                   : 'border-outline-variant/10 hover:border-outline-variant/30 bg-background/50 backdrop-blur-sm hover:bg-surface/50 cursor-pointer z-20'
                         }`}
-                        style={{ left: leaf.x, top: leaf.y - 18, transform: isSelected ? 'scale(1.02)' : 'scale(1)', boxShadow: isSelected ? '0 0 10px currentColor' : 'none' }}
+                        style={{ left: leaf.x, top: leaf.y - 18, transform: isSelected ? 'scale(1.02)' : 'scale(1)', boxShadow: isSelected ? '0 0 25px currentColor, 0 0 50px currentColor' : 'none' }}
                       >
                         {!isPilar && (
                             <div className="shrink-0 mr-3 transition-colors duration-300">

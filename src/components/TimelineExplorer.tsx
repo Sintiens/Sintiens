@@ -28,8 +28,10 @@ import {
   Binary
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { PageGlows } from "./ui/AmbientGlow";
 import TextRenderer from "./TextRenderer";
 import { Button } from "./ui/Button";
+import TabNav, { TabType } from "./TabNav";
 
 // Track metadata for coloring and labels in parallel view
 const TRACK_META: Record<string, { label: string; icon: any; color: string; textClass: string; bgClass: string; borderClass: string; glowClass: string }> = {
@@ -123,9 +125,13 @@ const ERAS: Era[] = [
 
 interface TimelineExplorerProps {
   onRedirectToConcept?: (nodeId: string) => void;
+  activeTab: TabType;
+  onNavigate: (tab: TabType) => void;
+  theme: "dark" | "light";
+  onToggleTheme: () => void;
 }
 
-export default function TimelineExplorer({ onRedirectToConcept }: TimelineExplorerProps) {
+export default function TimelineExplorer({ onRedirectToConcept, activeTab, onNavigate, theme, onToggleTheme }: TimelineExplorerProps) {
   // Layout state toggle: swimlanes (visually stunning grid) vs detallado (original split view with comparison)
   const [layoutView, setLayoutView] = useState<"swimlanes" | "detallado">("swimlanes");
   
@@ -670,13 +676,28 @@ export default function TimelineExplorer({ onRedirectToConcept }: TimelineExplor
   };
 
   return (
-    <div className="space-y-6 w-full select-none">
-      
+    <div className="space-y-10 w-full relative select-none">
+
+      <PageGlows />
+
+      {/* Header */}
+      <div className="relative z-10 space-y-3 border-b border-outline-variant/20 pb-8">
+        <span className="text-[10px] font-mono font-bold text-primary select-none tracking-[0.25em] uppercase block opacity-60">
+          [ HISTORIA ]
+        </span>
+        <h3 className="text-display-md text-on-surface">
+          Cronología<span className="text-secondary/60 font-light"> · Línea Temporal</span>
+        </h3>
+        <p className="text-body-md text-on-surface-variant max-w-2xl">
+          Recorrido histórico por los hitos que han moldeado nuestra relación con los demás animales, desde la filosofía clásica hasta la neurociencia contemporánea.
+        </p>
+      </div>
+
       {/* 🌟 LAYOUT VIEWS SELECTOR TOGGLE AND COMPARISON MODE (Unified Bar) 🌟 */}
-      <div className="flex flex-col lg:flex-row gap-4 items-center justify-between w-full border-b border-zinc-200 dark:border-zinc-900 pb-4">
+      <div className="glass-enhance border border-outline-variant/30 rounded-2xl p-4 flex flex-col lg:flex-row gap-4 items-center justify-between relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
         
         {/* Layout View Toggler */}
-        <div className="flex bg-zinc-100 dark:bg-zinc-900/60 p-1 rounded-2xl border border-zinc-200 dark:border-zinc-900 transition-colors shadow-inner">
+        <div className="flex bg-surface-dim/40 p-1 rounded-xl border border-outline-variant/20">
           <button
             onClick={() => {
               setLayoutView("swimlanes");
@@ -684,8 +705,8 @@ export default function TimelineExplorer({ onRedirectToConcept }: TimelineExplor
             }}
             className={`px-4 py-2 rounded-xl text-xs font-bold tracking-tight transition-all duration-300 cursor-pointer ${
               layoutView === "swimlanes"
-                ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-sm border border-zinc-200/50 dark:border-transparent scale-[1.01]"
-                : "text-zinc-505 dark:text-zinc-450 hover:text-zinc-900 dark:hover:text-white"
+                ? "bg-surface border border-outline-variant/30 text-on-surface shadow-sm scale-[1.01]"
+                : "text-on-surface-variant hover:text-on-surface"
             }`}
           >
             Línea Temporal Vertical
@@ -694,8 +715,8 @@ export default function TimelineExplorer({ onRedirectToConcept }: TimelineExplor
             onClick={() => setLayoutView("detallado")}
             className={`px-4 py-2 rounded-xl text-xs font-bold tracking-tight transition-all duration-300 cursor-pointer ${
               layoutView === "detallado"
-                ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-sm border border-zinc-200/50 dark:border-transparent scale-[1.01]"
-                : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+                ? "bg-surface border border-outline-variant/30 text-on-surface shadow-sm scale-[1.01]"
+                : "text-on-surface-variant hover:text-on-surface"
             }`}
           >
             Explorador Detallado
@@ -736,6 +757,10 @@ export default function TimelineExplorer({ onRedirectToConcept }: TimelineExplor
           </div>
         </div>
 
+      </div>
+
+      <div className="w-full py-4">
+        <TabNav activeTab={activeTab} onNavigate={onNavigate} theme={theme} onToggleTheme={onToggleTheme} />
       </div>
 
       {layoutView === "swimlanes" && (() => {

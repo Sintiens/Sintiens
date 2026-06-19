@@ -15,195 +15,230 @@ import {
   ArrowRight
 } from "lucide-react";
 import { motion } from "motion/react";
+import { PageGlows } from "./ui/AmbientGlow";
+import TabNav, { TabType } from "./TabNav";
 
-export default function ImpactCalculator() {
-  const [weeklyMeals, setWeeklyMeals] = useState(7); // default 7 animal-based meals a week
+interface ImpactCalculatorProps {
+  activeTab: TabType;
+  onNavigate: (tab: TabType) => void;
+  theme: "dark" | "light";
+  onToggleTheme: () => void;
+}
 
-  // Coefficients (Per animal meal equivalent - simplified averages based on global studies like Poore & Nemecek 2018)
-  // Assumes average meal consists of 150g of mixed animal products (beef, pork, chicken, dairy, eggs)
-  const WATER_PER_MEAL = 900; // liters (average weighted across beef/pork/poultry/eggs per 150g)
-  const CO2_PER_MEAL = 4.2; // kg of CO2 equivalent
-  const FOREST_PER_MEAL = 3.5; // m2 of land occupied/deforested (per 150g equivalent)
-  const GRAIN_PER_MEAL = 1.2; // kg of feed grain needed to filter through the animal
+export default function ImpactCalculator({ activeTab, onNavigate, theme, onToggleTheme }: ImpactCalculatorProps) {
+  const [weeklyMeals, setWeeklyMeals] = useState(7);
 
-  // Yearly estimates
+  const WATER_PER_MEAL = 900;
+  const CO2_PER_MEAL = 4.2;
+  const FOREST_PER_MEAL = 3.5;
+  const GRAIN_PER_MEAL = 1.2;
+
   const yearlyWater = Math.round(weeklyMeals * WATER_PER_MEAL * 52);
   const yearlyCo2 = Math.round(weeklyMeals * CO2_PER_MEAL * 52 * 10) / 10;
   const yearlyForest = Math.round(weeklyMeals * FOREST_PER_MEAL * 52);
   const yearlyGrain = Math.round(weeklyMeals * GRAIN_PER_MEAL * 52 * 10) / 10;
 
-  // Equivalencies
-  const olympicPools = Math.round((yearlyWater / 2500000) * 100) / 100; // 2.5 million liters in Olympic pool
-  const carKm = Math.round(yearlyCo2 / 0.12); // Average car emits 120g/km (0.12 kg/km)
-  const soccerFields = Math.round((yearlyForest / 7140) * 100) / 100; // Soccer field is ~7140 m2
+  const olympicPools = Math.round((yearlyWater / 2500000) * 100) / 100;
+  const carKm = Math.round(yearlyCo2 / 0.12);
+  const soccerFields = Math.round((yearlyForest / 7140) * 100) / 100;
 
   return (
-    <div id="impact-calculator-view" className="space-y-8 w-full max-w-6xl mx-auto">
-      
-      {/* Introduction layout */}
-      <div className="bg-white dark:bg-zinc-950/40 p-6 lg:p-8 border border-zinc-200 dark:border-zinc-800/80 rounded-3xl grid grid-cols-1 md:grid-cols-12 gap-6 items-center transition-all duration-300">
+    <div id="impact-calculator-view" className="space-y-10 w-full relative">
+
+      <PageGlows />
+
+      {/* Header */}
+      <div className="relative z-10 space-y-3 border-b border-outline-variant/20 pb-8">
+        <span className="text-[10px] font-mono font-bold text-primary select-none tracking-[0.25em] uppercase block opacity-60">
+          [ IMPACTO ]
+        </span>
+        <h3 className="text-display-md text-on-surface">
+          Cuantificador<span className="text-secondary/60 font-light"> · Demanda Planetaria</span>
+        </h3>
+        <p className="text-body-md text-on-surface-variant max-w-2xl">
+          Las decisiones dietéticas individuales se agregan mecánicamente en la demanda industrial. Ajusta el cuantificador para visualizar el impacto.
+        </p>
+      </div>
+
+      <div className="w-full py-4">
+        <TabNav activeTab={activeTab} onNavigate={onNavigate} theme={theme} onToggleTheme={onToggleTheme} />
+      </div>
+
+      {/* Controls Card */}
+      <div className="glass-enhance border border-outline-variant/30 rounded-2xl p-6 lg:p-8 grid grid-cols-1 md:grid-cols-12 gap-6 items-center relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
         <div className="md:col-span-8 space-y-3">
-          <h3 className="text-sm font-semibold tracking-wider font-mono text-zinc-800 dark:text-zinc-300 uppercase flex items-center gap-1.5">
-            <Calculator className="w-4 h-4 text-emerald-600 dark:text-emerald-500" />
-            Cuantificador Planetario de la Demanda de Carne
-          </h3>
-          <p className="text-zinc-600 dark:text-zinc-400 text-xs font-light leading-relaxed">
-            Las decisiones dietéticas individuales se agregan mecánicamente en la demanda agregada industrial. Utiliza este cuantificador interactivo para ver los m3 de agua limpia consumidos, los kg de CO2 térmico inyectados, la superficie forestal destruida y el cereal desperdiciado para nutrir tus hábitos semanales.
+          <h4 className="text-technical-sm text-primary flex items-center gap-1.5">
+            <Calculator className="w-4 h-4" />
+            CUANTIFICADOR PLANETARIO
+          </h4>
+          <p className="text-body-md text-on-surface-variant leading-relaxed">
+            Ajusta tu consumo semanal para ver los m³ de agua, kg de CO₂, superficie forestal y cereal desperdiciado asociados a tus hábitos.
           </p>
         </div>
-        <div className="md:col-span-4 flex flex-col justify-center items-center md:items-end bg-zinc-100/70 dark:bg-zinc-900/60 p-4 rounded-2xl border border-zinc-200 dark:border-zinc-800/80">
-          <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-widest block mb-1 text-center md:text-right">Tu Hábito Semanal de Consumo:</span>
+        <div className="md:col-span-4 flex flex-col justify-center items-center md:items-end bg-surface-dim/40 p-4 rounded-xl border border-outline-variant/20">
+          <span className="text-[10px] font-mono text-on-surface-variant/60 uppercase tracking-widest block mb-1">Tu Hábito Semanal</span>
           <div className="flex items-center gap-4">
             <button
               onClick={() => setWeeklyMeals((v) => Math.max(0, v - 1))}
-              className="p-2 bg-white dark:bg-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-400 dark:border-zinc-800 rounded-xl rounded-l-full text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white transition-all cursor-pointer shadow-sm dark:shadow-none"
+              className="p-2 bg-surface border border-outline-variant/40 hover:bg-surface-dim rounded-xl rounded-l-full text-on-surface-variant hover:text-on-surface transition-all cursor-pointer"
             >
               <Minus className="w-4 h-4" />
             </button>
-            <span className="text-2xl font-black text-zinc-900 dark:text-white px-2 tracking-tight">
-              {weeklyMeals} <span className="text-xs text-zinc-500 dark:text-zinc-400 font-normal">comidas</span>
+            <span className="text-2xl font-black text-on-surface px-2 tracking-tight">
+              {weeklyMeals} <span className="text-xs text-on-surface-variant/60 font-normal">comidas</span>
             </span>
             <button
               onClick={() => setWeeklyMeals((v) => Math.min(21, v + 1))}
-              className="p-2 bg-white dark:bg-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-400 dark:border-zinc-800 rounded-xl rounded-r-full text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white transition-all cursor-pointer shadow-sm dark:shadow-none"
+              className="p-2 bg-surface border border-outline-variant/40 hover:bg-surface-dim rounded-xl rounded-r-full text-on-surface-variant hover:text-on-surface transition-all cursor-pointer"
             >
               <Plus className="w-4 h-4" />
             </button>
           </div>
-          <span className="text-[9px] font-mono text-zinc-500 dark:text-zinc-500 mt-1 uppercase text-center md:text-right">Equivalente a {Math.round(weeklyMeals / 3 * 10) / 10} días completos</span>
+          <span className="text-[9px] font-mono text-on-surface-variant/40 mt-1 uppercase">{Math.round(weeklyMeals / 3 * 10) / 10} días completos</span>
         </div>
       </div>
 
-      {/* Grid displays of outcomes */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        
-        {/* Metric A: Water */}
-        <div className="bg-white dark:bg-zinc-950/40 border border-zinc-200 dark:border-zinc-800/80 rounded-3xl p-6 flex flex-col justify-between hover:border-zinc-400 dark:hover:border-zinc-700 transition-all group shadow-sm dark:shadow-none">
+      {/* Metrics Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.1 }}
+          className="glass-enhance border border-outline-variant/25 rounded-2xl p-6 flex flex-col justify-between hover:border-outline-variant/60 transition-all before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/10 dark:before:bg-surface-dim/10 before:backdrop-blur-sm before:z-[-1] before:pointer-events-none relative"
+        >
           <div className="space-y-4">
-            <div className="w-10 h-10 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-              <Droplet className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
+            <div className="w-10 h-10 rounded-2xl bg-ch1/10 border border-ch1/20 flex items-center justify-center">
+              <Droplet className="w-5 h-5 text-ch1" />
             </div>
             <div>
-              <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 tracking-wider uppercase block">Gasto de Agua Anual</span>
-              <span className="text-3xl font-extrabold text-cyan-600 dark:text-cyan-400 tracking-tight block">
-                {yearlyWater.toLocaleString()} <span className="text-sm text-zinc-500 font-normal">L</span>
+              <span className="text-[10px] font-mono text-on-surface-variant/60 tracking-wider uppercase block">Gasto de Agua Anual</span>
+              <span className="text-3xl font-extrabold text-ch1 tracking-tight block">
+                {yearlyWater.toLocaleString()} <span className="text-sm text-on-surface-variant/50 font-normal">L</span>
               </span>
             </div>
           </div>
-          <p className="text-[11px] text-zinc-600 dark:text-zinc-400 leading-relaxed font-light mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-900 transition-colors">
-            Equivale a llenar unas <strong className="text-zinc-800 dark:text-zinc-300 font-semibold">{olympicPools} piscinas olímpicas</strong> completas de agua potable o {Math.round(yearlyWater / 150).toLocaleString()} duchas de 10 minutos.
+          <p className="text-[11px] text-on-surface-variant/70 leading-relaxed font-light mt-4 pt-4 border-t border-outline-variant/15">
+            Equivale a <strong className="text-on-surface font-semibold">{olympicPools} piscinas olímpicas</strong> de agua potable.
           </p>
-        </div>
+        </motion.div>
 
-        {/* Metric B: CO2 */}
-        <div className="bg-white dark:bg-zinc-950/40 border border-zinc-200 dark:border-zinc-800/80 rounded-3xl p-6 flex flex-col justify-between hover:border-zinc-400 dark:hover:border-zinc-700 transition-all group shadow-sm dark:shadow-none">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.15 }}
+          className="glass-enhance border border-outline-variant/25 rounded-2xl p-6 flex flex-col justify-between hover:border-outline-variant/60 transition-all before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/10 dark:before:bg-surface-dim/10 before:backdrop-blur-sm before:z-[-1] before:pointer-events-none relative"
+        >
           <div className="space-y-4">
-            <div className="w-10 h-10 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center animate-pulse">
-              <Flame className="w-5 h-5 text-red-600 dark:text-red-400" />
+            <div className="w-10 h-10 rounded-2xl bg-ch2/10 border border-ch2/20 flex items-center justify-center">
+              <Flame className="w-5 h-5 text-ch2" />
             </div>
             <div>
-              <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 tracking-wider uppercase block">Emisiones CO2 Equivalente</span>
-              <span className="text-3xl font-extrabold text-red-600 dark:text-red-400 tracking-tight block">
-                {yearlyCo2.toLocaleString()} <span className="text-xs text-zinc-500 font-normal">kg eq</span>
+              <span className="text-[10px] font-mono text-on-surface-variant/60 tracking-wider uppercase block">Emisiones CO₂ Eq.</span>
+              <span className="text-3xl font-extrabold text-ch2 tracking-tight block">
+                {yearlyCo2.toLocaleString()} <span className="text-xs text-on-surface-variant/50 font-normal">kg</span>
               </span>
             </div>
           </div>
-          <p className="text-[11px] text-zinc-600 dark:text-zinc-400 leading-relaxed font-light mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-900 transition-colors">
-            Equivale a conducir un turismo estándar de combustión directa por <strong className="text-zinc-800 dark:text-zinc-300 font-semibold">{carKm.toLocaleString()} km</strong> o recargar {Math.round(yearlyCo2 * 120).toLocaleString()} smartphones.
+          <p className="text-[11px] text-on-surface-variant/70 leading-relaxed font-light mt-4 pt-4 border-t border-outline-variant/15">
+            Equivale a conducir <strong className="text-on-surface font-semibold">{carKm.toLocaleString()} km</strong> en coche estándar.
           </p>
-        </div>
+        </motion.div>
 
-        {/* Metric C: Forest Deforestation */}
-        <div className="bg-white dark:bg-zinc-950/40 border border-zinc-200 dark:border-zinc-800/80 rounded-3xl p-6 flex flex-col justify-between hover:border-zinc-400 dark:hover:border-zinc-700 transition-all group shadow-sm dark:shadow-none">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2 }}
+          className="glass-enhance border border-outline-variant/25 rounded-2xl p-6 flex flex-col justify-between hover:border-outline-variant/60 transition-all before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/10 dark:before:bg-surface-dim/10 before:backdrop-blur-sm before:z-[-1] before:pointer-events-none relative"
+        >
           <div className="space-y-4">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-              <Trees className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            <div className="w-10 h-10 rounded-2xl bg-ch4/10 border border-ch4/20 flex items-center justify-center">
+              <Trees className="w-5 h-5 text-ch4" />
             </div>
             <div>
-              <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 tracking-wider uppercase block">Suelo / Deforestación Aludida</span>
-              <span className="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 tracking-tight block">
-                {yearlyForest.toLocaleString()} <span className="text-xs text-zinc-500 font-normal">m²</span>
+              <span className="text-[10px] font-mono text-on-surface-variant/60 tracking-wider uppercase block">Deforestación</span>
+              <span className="text-3xl font-extrabold text-ch4 tracking-tight block">
+                {yearlyForest.toLocaleString()} <span className="text-xs text-on-surface-variant/50 font-normal">m²</span>
               </span>
             </div>
           </div>
-          <p className="text-[11px] text-zinc-600 dark:text-zinc-400 leading-relaxed font-light mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-900 transition-colors">
-            Representa unos <strong className="text-zinc-800 dark:text-zinc-300 font-semibold">{soccerFields} campos de fútbol</strong> de selva deforestada para dar cabida a pastizales o cultivo exclusivo de soja forrajera.
+          <p className="text-[11px] text-on-surface-variant/70 leading-relaxed font-light mt-4 pt-4 border-t border-outline-variant/15">
+            <strong className="text-on-surface font-semibold">{soccerFields} campos de fútbol</strong> de selva deforestada.
           </p>
-        </div>
+        </motion.div>
 
-        {/* Metric D: Grain */}
-        <div className="bg-white dark:bg-zinc-950/40 border border-zinc-200 dark:border-zinc-800/80 rounded-3xl p-6 flex flex-col justify-between hover:border-zinc-400 dark:hover:border-zinc-700 transition-all group shadow-sm dark:shadow-none">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.25 }}
+          className="glass-enhance border border-outline-variant/25 rounded-2xl p-6 flex flex-col justify-between hover:border-outline-variant/60 transition-all before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/10 dark:before:bg-surface-dim/10 before:backdrop-blur-sm before:z-[-1] before:pointer-events-none relative"
+        >
           <div className="space-y-4">
-            <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-              <Grid className="w-5 h-5 text-amber-600 dark:text-amber-500" />
+            <div className="w-10 h-10 rounded-2xl bg-ch6/10 border border-ch6/20 flex items-center justify-center">
+              <Grid className="w-5 h-5 text-ch6" />
             </div>
             <div>
-              <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 tracking-wider uppercase block">Cereal Desperdiciado (Piensos)</span>
-              <span className="text-3xl font-extrabold text-amber-600 dark:text-amber-500 tracking-tight block">
-                {yearlyGrain.toLocaleString()} <span className="text-xs text-zinc-500 font-normal">kg</span>
+              <span className="text-[10px] font-mono text-on-surface-variant/60 tracking-wider uppercase block">Cereal Piensos</span>
+              <span className="text-3xl font-extrabold text-ch6 tracking-tight block">
+                {yearlyGrain.toLocaleString()} <span className="text-xs text-on-surface-variant/50 font-normal">kg</span>
               </span>
             </div>
           </div>
-          <p className="text-[11px] text-zinc-600 dark:text-zinc-400 leading-relaxed font-light mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-900 transition-colors">
-            Kilos de cereal de alta calidad filtrados e ineficientemente perdidos para alimentar ganado, suficientes para nutrir directamente a más de <strong className="text-zinc-800 dark:text-zinc-300 font-semibold">{Math.round(yearlyGrain / 150)} personas</strong> durante un mes completo.
+          <p className="text-[11px] text-on-surface-variant/70 leading-relaxed font-light mt-4 pt-4 border-t border-outline-variant/15">
+            Kilos de cereal perdidos, suficientes para <strong className="text-on-surface font-semibold">{Math.round(yearlyGrain / 150)} personas</strong> / mes.
           </p>
-        </div>
-
+        </motion.div>
       </div>
 
-      {/* Projections block */}
-      <div className="bg-white dark:bg-zinc-900/10 border border-zinc-200 dark:border-zinc-800/80 p-6 lg:p-8 rounded-3xl grid grid-cols-1 md:grid-cols-2 gap-8 items-center transition-all duration-300 shadow-sm dark:shadow-none">
-        
+      {/* Projections */}
+      <div className="glass-enhance border border-outline-variant/25 rounded-2xl p-6 lg:p-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-center relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
         <div className="space-y-4">
-          <h4 className="text-xs font-semibold tracking-wider font-mono text-zinc-800 dark:text-zinc-300 uppercase flex items-center gap-1.5">
-            <TrendingDown className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-            La Escala Global del Pequeño Cambio
+          <h4 className="text-technical-sm text-primary flex items-center gap-1.5">
+            <TrendingDown className="w-4 h-4" />
+            LA ESCALA GLOBAL DEL PEQUEÑO CAMBIO
           </h4>
-          <p className="text-zinc-600 dark:text-zinc-400 text-xs font-light leading-relaxed">
-            Si solo la mitad de los habitantes de un país mediano como España o Colombia redujeran su ingesta por apenas 3 comidas semanales alternativas en base a plantas, se ahorrarían anualmente billones de m3 de agua limpia e inyectarían sumideros de reforestación masiva en la selva amazónica. No se trata de purismo absoluto, sino de la dirección del flujo de consumo.
+          <p className="text-body-md text-on-surface-variant leading-relaxed">
+            Si la mitad de los habitantes de un país mediano redujeran su ingesta en 3 comidas semanales, se ahorrarían billones de m³ de agua y se recuperarían millones de hectáreas de selva.
           </p>
           <div className="flex gap-4 pt-2">
-            <div className="space-y-0.5 bg-zinc-100/60 dark:bg-zinc-950/40 border border-zinc-200 dark:border-zinc-900 px-4 py-3 rounded-2xl">
-              <span className="text-[10px] font-mono text-zinc-500 block uppercase">Eficiencia Nutricional Directa</span>
-              <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">Hasta x10 Eficiente</span>
+            <div className="space-y-0.5 bg-surface-dim/40 border border-outline-variant/20 px-4 py-3 rounded-xl">
+              <span className="text-[10px] font-mono text-on-surface-variant/50 block uppercase">Eficiencia Nutricional</span>
+              <span className="text-sm font-bold text-ch4">Hasta x10 Eficiente</span>
             </div>
-            <div className="space-y-0.5 bg-zinc-100/60 dark:bg-zinc-950/40 border border-zinc-200 dark:border-zinc-900 px-4 py-3 rounded-2xl">
-              <span className="text-[10px] font-mono text-zinc-500 block uppercase">Liberación de Tierras Agrícolas</span>
-              <span className="text-sm font-bold text-zinc-900 dark:text-white">75% Reducción Mundial</span>
+            <div className="space-y-0.5 bg-surface-dim/40 border border-outline-variant/20 px-4 py-3 rounded-xl">
+              <span className="text-[10px] font-mono text-on-surface-variant/50 block uppercase">Liberación Tierras</span>
+              <span className="text-sm font-bold text-on-surface">75% Reducción</span>
             </div>
           </div>
         </div>
-
-        {/* Transition Comparison Panel */}
-        <div className="bg-zinc-50/50 dark:bg-zinc-950/50 p-5 rounded-2xl border border-zinc-300 dark:border-zinc-800 space-y-4 text-xs font-light shadow-sm dark:shadow-none">
-          <h4 className="font-mono text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-widest flex items-center gap-1.5 border-b border-zinc-200 dark:border-zinc-900 pb-2">
-            <LineChart className="w-3.5 h-3.5 text-zinc-800 dark:text-zinc-200" />
+        <div className="bg-surface-dim/30 p-5 rounded-xl border border-outline-variant/20 space-y-4 text-xs font-light">
+          <h5 className="font-mono text-technical-xs text-on-surface-variant/60 uppercase tracking-widest flex items-center gap-1.5 pb-2 border-b border-outline-variant/15">
+            <LineChart className="w-3.5 h-3.5" />
             Simulador de Transición Dietética
-          </h4>
-          
+          </h5>
           <div className="space-y-3">
-            <div className="flex justify-between items-center bg-zinc-100/70 dark:bg-zinc-900/40 px-3 py-2 rounded-xl border border-zinc-200 dark:border-transparent">
-              <span className="text-zinc-600 dark:text-zinc-400 text-[11px]">Consumo Actual (Dieta Estándar)</span>
-              <span className="text-red-600 dark:text-red-400 font-bold font-mono">100% Gasto Fáctico</span>
+            <div className="flex justify-between items-center bg-surface-dim/30 px-3 py-2 rounded-xl border border-outline-variant/15">
+              <span className="text-on-surface-variant/70 text-[11px]">Dieta Estándar Actual</span>
+              <span className="text-ch1 font-bold font-mono">100% Gasto</span>
             </div>
             <div className="flex items-center justify-center py-0.5">
-              <ArrowRight className="w-4 h-4 text-zinc-400 dark:text-zinc-700 animate-pulse rotate-90 md:rotate-0" />
+              <ArrowRight className="w-4 h-4 text-on-surface-variant/30 animate-pulse rotate-90 md:rotate-0" />
             </div>
-            <div className="flex justify-between items-center bg-emerald-50 dark:bg-emerald-950/20 px-3 py-2.5 rounded-xl border border-emerald-200 dark:border-emerald-900/30">
+            <div className="flex justify-between items-center bg-ch4/5 px-3 py-2.5 rounded-xl border border-ch4/20">
               <div className="space-y-0.5">
-                <span className="text-zinc-900 dark:text-white text-[11px] font-semibold block">Transición Vegana Directa (0 comidas animales)</span>
-                <span className="text-[10px] text-zinc-500">Cero consumo de cobalamina parasitaria ganadera</span>
+                <span className="text-on-surface text-[11px] font-semibold block">Transición Vegana (0 comidas)</span>
+                <span className="text-[10px] text-on-surface-variant/50">Cero consumo ganadero</span>
               </div>
-              <span className="text-emerald-700 dark:text-emerald-400 font-bold font-mono text-xs bg-emerald-100 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-900/40 px-2 py-0.5 rounded">
+              <span className="text-ch4 font-bold font-mono text-xs bg-ch4/10 border border-ch4/20 px-2 py-0.5 rounded">
                 -92% Huella
               </span>
             </div>
           </div>
-          
         </div>
-
       </div>
-
     </div>
   );
 }

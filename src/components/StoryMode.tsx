@@ -1,10 +1,17 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useLayoutEffect, useMemo, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
-import { ChevronDown, Info } from "lucide-react";
+import { ChevronDown, Info, X } from "lucide-react";
 import SocraticReflection from "./SocraticReflection";
 import { actsData } from "../data/storyData";
 import DeepDiveView from "./DeepDiveView";
 import { DeepDiveData } from "../types/story";
+import StoryTextRenderer from "./StoryTextRenderer";
+import SideNoteCard from "./SideNoteCard";
+import ReadingUtilities from "./ReadingUtilities";
+import ReadingEnrichments from "./ReadingEnrichments";
+import MicroQuiz from "./MicroQuiz";
+import TabNav, { TabType } from "./TabNav";
 
 const AmbientGlow = ({ 
 colorClass, 
@@ -61,11 +68,7 @@ return (
 );
 };
 
-interface StoryModeProps {
-onNavigate: (tab: "grafo" | "cronologia" | "calculadora" | "dialectica" | "validador") => void;
-}
-
-export default function StoryMode({ onNavigate }: StoryModeProps) {
+export default function StoryMode({ activeTab, onNavigate, theme, onToggleTheme }: { activeTab: TabType; onNavigate: (tab: TabType) => void; theme: "dark" | "light"; onToggleTheme: () => void }) {
 const [activeChapter, setActiveChapter] = useState<string | null>(null);
 const [flashChapter, setFlashChapter] = useState<string | null>(null);
 
@@ -78,6 +81,229 @@ data: DeepDiveData;
 } | null>(null);
 const [showMobileInfo, setShowMobileInfo] = useState(false);
 const [activeBlocks, setActiveBlocks] = useState<Record<string, string>>({});
+const [visitedChapters, setVisitedChapters] = useState<Set<string>>(new Set());
+const [actProgress, setActProgress] = useState<Record<string, number>>({});
+const [activeBlockId, setActiveBlockId] = useState<Record<string, string>>({});
+const ttsTargetRef = useRef<HTMLDivElement | null>(null);
+
+// States for floating notes and footnotes
+interface ActiveNoteState {
+  id: string;
+  type: "glossary" | "citation";
+  item: any;
+  x: number;
+  y: number;
+  wordElement: HTMLElement | null;
+}
+const [activeNotesByAct, setActiveNotesByAct] = useState<Record<string, ActiveNoteState>>({});
+const [mobileNote, setMobileNote] = useState<{
+  id: string;
+  type: "glossary" | "citation";
+  item: any;
+  actColor: string;
+} | null>(null);
+
+// Refs to compute dynamic SVG line positions
+const gridContainerRefsByAct = useRef<Record<string, HTMLDivElement | null>>({});
+const centerColumnRefsByAct = useRef<Record<string, HTMLDivElement | null>>({});
+const sideNoteCardRefsByAct = useRef<Record<string, HTMLDivElement | null>>({});
+
+// State with line coordinates per act (rendered declaratively in React)
+interface LineCoords { x1: number; y1: number; x2: number; y2: number; d: string; }
+const [lineCoordsByAct, setLineCoordsByAct] = useState<Record<string, LineCoords | null>>({});
+
+// Recompute line coords from refs (used by ResizeObserver + scroll)
+const recomputeAllLines = useCallback(() => {
+  setLineCoordsByAct(prev => {
+    const next: Record<string, LineCoords | null> = {};
+    for (const actId of Object.keys(activeNotesByAct)) {
+      const note = activeNotesByAct[actId];
+      const gridEl = gridContainerRefsByAct.current[actId];
+      const cardEl = sideNoteCardRefsByAct.current[actId];
+      if (!gridEl || !cardEl || !note.wordElement) {
+        next[actId] = null;
+        continue;
+      }
+      const gridRect = gridEl.getBoundingClientRect();
+      const wordRect = note.wordElement.getBoundingClientRect();
+      const cardRect = cardEl.getBoundingClientRect();
+
+      // y: vertical position of the clicked word (the line is at this height)
+      const y1 = wordRect.top - gridRect.top + wordRect.height / 2;
+
+      // x1: right edge of the TEXT COLUMN (not the word, so the line never crosses text)
+      // Fallback to the word's right edge if the text column ref is missing.
+      const textEl = centerColumnRefsByAct.current[actId];
+      const textRect = textEl?.getBoundingClientRect();
+      const x1 = textRect ? (textRect.right - gridRect.left) : (wordRect.right - gridRect.left);
+
+      // x2: left edge of the card (where the line and end dot connect)
+      const x2 = cardRect.left - gridRect.left;
+
+      // The visible line stops well before the card so it never overlaps the card.
+      const lineEndX = x2 - 32;
+
+      // Path: a single horizontal line at the word's height, from the right edge
+      // of the text column to 32px before the card. The card sits on top of the SVG
+      // (z-20 vs z-0), so the line stays behind the card and never overlaps it.
+      const d = `M ${x1} ${y1} L ${lineEndX} ${y1}`;
+
+      next[actId] = { x1, y1, x2, y2: y1, d };
+    }
+
+    // Detect changes: any key removed, added, or with a different d
+    const prevKeys = Object.keys(prev);
+    const nextKeys = Object.keys(next);
+    let changed = prevKeys.length !== nextKeys.length;
+    if (!changed) {
+      for (const k of nextKeys) {
+        const a = next[k];
+        const b = prev[k];
+        if (!a || !b) { if (a !== b) { changed = true; break; } continue; }
+        if (a.d !== b.d) { changed = true; break; }
+      }
+    }
+    if (!changed) {
+      for (const k of prevKeys) {
+        if (!(k in next)) { changed = true; break; }
+      }
+    }
+    return changed ? next : prev;
+  });
+}, [activeNotesByAct]);
+
+// Update on layout changes (resize + scroll)
+useEffect(() => {
+  recomputeAllLines();
+  window.addEventListener("scroll", recomputeAllLines, true);
+  window.addEventListener("resize", recomputeAllLines);
+  const ro = new ResizeObserver(recomputeAllLines);
+  const els: Element[] = [];
+  (Object.values(gridContainerRefsByAct.current) as Array<HTMLElement | null>).forEach(el => { if (el) { ro.observe(el); els.push(el); } });
+  (Object.values(centerColumnRefsByAct.current) as Array<HTMLElement | null>).forEach(el => { if (el) { ro.observe(el); els.push(el); } });
+  (Object.values(sideNoteCardRefsByAct.current) as Array<HTMLElement | null>).forEach(el => { if (el) { ro.observe(el); els.push(el); } });
+  return () => {
+    window.removeEventListener("scroll", recomputeAllLines, true);
+    window.removeEventListener("resize", recomputeAllLines);
+    ro.disconnect();
+  };
+}, [recomputeAllLines]);
+
+// Footnotes/Glossary Handlers
+const handleHoverNote = (e: React.MouseEvent, noteId: string, item: any, type: "glossary" | "citation", actId: string) => {
+  // Hover triggers disabled as per user request (click-only now)
+};
+
+const handleLeaveNote = () => {
+  // Do nothing
+};
+
+const handleClickNote = (e: React.MouseEvent, noteId: string, item: any, type: "glossary" | "citation", actId: string, actColor: string, instanceId?: string) => {
+  e.preventDefault();
+  e.stopPropagation();
+  if (window.innerWidth < 1024) {
+    setMobileNote({ id: noteId, type, item, actColor });
+  } else {
+    // Desktop: toggle active note on click
+    const wordEl = e.currentTarget as HTMLElement;
+    const gridContainer = wordEl.closest(".grid-container-relative");
+    if (wordEl && gridContainer) {
+      const wordRect = wordEl.getBoundingClientRect();
+      const gridRect = gridContainer.getBoundingClientRect();
+
+      const relativeX = wordRect.right - gridRect.left;
+      const relativeY = wordRect.top - gridRect.top + (wordRect.height / 2);
+
+      console.log('[StoryMode] handleClickNote', { actId, noteId, relativeX, relativeY });
+
+      setActiveNotesByAct(prev => {
+        const current = prev[actId];
+        if (current && current.id === noteId && current.instanceId === instanceId) {
+          // If clicked the active note, close it
+          const copy = { ...prev };
+          delete copy[actId];
+          return copy;
+        } else {
+          // Otherwise, open it
+          return {
+            ...prev,
+            [actId]: {
+              id: noteId,
+              type,
+              item,
+              x: relativeX,
+              y: relativeY,
+              wordElement: wordEl,
+              instanceId
+            }
+          };
+        }
+      });
+    }
+  }
+};
+
+const handleHoverSidebarItem = (noteId: string, type: "glossary" | "citation", item: any, actId: string) => {
+  // Just trigger a visual highlight of the word in the text (non-intrusive)
+  const wordEl = document.querySelector(`[data-note-id="${noteId}"]`) as HTMLElement;
+  if (wordEl) {
+    wordEl.classList.add("pulse-highlight");
+  }
+};
+
+const handleLeaveSidebarItem = (noteId: string) => {
+  const wordEl = document.querySelector(`[data-note-id="${noteId}"]`) as HTMLElement;
+  if (wordEl) {
+    wordEl.classList.remove("pulse-highlight");
+  }
+};
+
+const handleConceptClick = (noteId: string, type: "glossary" | "citation", item: any, actId: string) => {
+  const wordEl = document.querySelector(`[data-note-id="${noteId}"]`) as HTMLElement;
+  const gridContainer = wordEl?.closest(".grid-container-relative");
+  if (wordEl && gridContainer) {
+    const wordRect = wordEl.getBoundingClientRect();
+    const gridRect = gridContainer.getBoundingClientRect();
+
+    const relativeX = wordRect.right - gridRect.left;
+    const relativeY = wordRect.top - gridRect.top + (wordRect.height / 2);
+
+    // Scroll the word into view
+    wordEl.scrollIntoView({ behavior: "smooth", block: "center" });
+    wordEl.classList.add("pulse-highlight");
+    setTimeout(() => {
+      wordEl.classList.remove("pulse-highlight");
+    }, 2000);
+
+    // Set active note
+    setActiveNotesByAct(prev => ({
+      ...prev,
+      [actId]: {
+        id: noteId,
+        type,
+        item,
+        x: relativeX,
+        y: relativeY,
+        wordElement: wordEl
+      }
+    }));
+  }
+};
+
+// Close active note when clicking outside the card and outside highlighted words
+useEffect(() => {
+  if (Object.keys(activeNotesByAct).length === 0) return;
+
+  const handleClickOutside = (e: MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('[data-side-note-card]')) return;
+    if (target.closest('[data-note-id]')) return;
+    setActiveNotesByAct({});
+  };
+
+  document.addEventListener('click', handleClickOutside);
+  return () => document.removeEventListener('click', handleClickOutside);
+}, [activeNotesByAct]);
 
 const chaptersList = [
 { id: "acto-0", num: "0", label: "Introducción", activeClass: "text-primary", dotClass: "bg-primary" },
@@ -103,118 +329,161 @@ setFlashChapter(null);
 }, [activeChapter]);
 
 useEffect(() => {
-const observer = new IntersectionObserver(
-(entries) => {
-entries.forEach((entry) => {
-if (entry.isIntersecting) {
-if (entry.target.id === "hero" || entry.target.id === "intro") {
-setActiveChapter(null);
-} else {
-setActiveChapter(entry.target.id);
-}
-}
+if (!activeChapter) return;
+setVisitedChapters((prev) => {
+if (prev.has(activeChapter)) return prev;
+const next = new Set(prev);
+next.add(activeChapter);
+return next;
 });
-},
-{ rootMargin: "-20% 0px -40% 0px", threshold: 0.1 }
-);
+}, [activeChapter]);
 
-const elements = document.querySelectorAll('[id^="acto-"], #hero, #intro');
-elements.forEach((c) => observer.observe(c));
-
+useEffect(() => {
+let ticking = false;
 const handleScroll = () => {
-  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
-    setActiveChapter("acto-6");
-  }
-
-  const newActiveBlocks: Record<string, string> = {};
-
-  const els = document.querySelectorAll(".narrative-text-container");
-  els.forEach((el) => {
-    const element = el as HTMLElement;
-    // Encontrar la sección del acto padre para ubicar su h2
-    const parentAct = element.closest('[id^="acto-"]');
-    if (!parentAct) return;
-
-    const h2 = parentAct.querySelector("h2");
-    if (!h2) return;
-
-    const headerContainer = parentAct.querySelector(".act-sticky-header") as HTMLElement | null;
-    const headerRect = headerContainer ? headerContainer.getBoundingClientRect() : h2.getBoundingClientRect();
-    const textRect = element.getBoundingClientRect();
-
-    // relativeBottom es la posición inferior de la cabecera sticky relativa al top de este contenedor
-    const relativeBottom = headerRect.bottom - textRect.top;
-
-    if (relativeBottom <= 0) {
-      element.style.webkitMaskImage = "";
-      element.style.maskImage = "";
-    } else {
-      // Start fading out 35px below the subtitle (fadeEnd) and become fully transparent 15px above its bottom edge (fadeStart).
-      const fadeStart = relativeBottom - 15;
-      const fadeEnd = relativeBottom + 35;
-
-      const maskVal = `linear-gradient(to bottom, transparent ${fadeStart}px, black ${fadeEnd}px)`;
-      element.style.webkitMaskImage = maskVal;
-      element.style.maskImage = maskVal;
-    }
-
-    // Detectar bloque activo para este acto
-    const blocks = parentAct.querySelectorAll(".narrative-block");
-    let activeTitle = "";
-    const stickyHeaderBottom = headerRect.bottom;
-
-    blocks.forEach((blockEl) => {
-      const subtitleEl = blockEl.querySelector(":scope > span");
-      const subtitleRect = subtitleEl ? subtitleEl.getBoundingClientRect() : blockEl.getBoundingClientRect();
-
-      // Si el subtítulo del bloque ha cruzado completamente el límite inferior de la cabecera sticky
-      if (subtitleRect.bottom <= stickyHeaderBottom) {
-        activeTitle = blockEl.getAttribute("data-block-title") || "";
+  if (ticking) return;
+  ticking = true;
+  requestAnimationFrame(() => {
+    try {
+      const sections = document.querySelectorAll('[id^="acto-"], #hero, #intro');
+      const triggerLine = window.innerHeight * 0.2;
+      let newActive: string | null = null;
+      sections.forEach((sec) => {
+        const rect = (sec as HTMLElement).getBoundingClientRect();
+        if (rect.top <= triggerLine) {
+          newActive = sec.id;
+        }
+      });
+      if (newActive === "hero" || newActive === "intro") {
+        newActive = null;
       }
-    });
+      setActiveChapter((prev) => (prev === newActive ? prev : newActive));
 
-    // Guardar el título activo (o vacío para no duplicar si el primer subtítulo aún está visible)
-    newActiveBlocks[parentAct.id] = activeTitle || "";
+      const newActiveBlocks: Record<string, string> = {};
+      const newActProgress: Record<string, number> = {};
+      const newActiveBlockId: Record<string, string> = {};
 
-    // Dinamizar el "unstick" de la cabecera cuando el último bloque está activo
-    if (headerContainer && blocks.length > 0) {
-      const lastBlock = blocks[blocks.length - 1];
-      let lastElement = lastBlock.lastElementChild as HTMLElement | null;
-      if (lastElement && lastElement.tagName.toLowerCase() === "div" && lastElement.lastElementChild) {
-        lastElement = lastElement.lastElementChild as HTMLElement;
+      const els = document.querySelectorAll(".narrative-text-container");
+      els.forEach((el) => {
+        const element = el as HTMLElement;
+        const parentAct = element.closest('[id^="acto-"]');
+        if (!parentAct) return;
+
+        const h2 = parentAct.querySelector("h2");
+        if (!h2) return;
+
+        const headerContainer = parentAct.querySelector(".act-sticky-header") as HTMLElement | null;
+        const headerRect = headerContainer ? headerContainer.getBoundingClientRect() : h2.getBoundingClientRect();
+        const textRect = element.getBoundingClientRect();
+
+        const relativeBottom = headerRect.bottom - textRect.top;
+
+        if (relativeBottom <= 0) {
+          element.style.webkitMaskImage = "";
+          element.style.maskImage = "";
+        } else {
+          const fadeStart = relativeBottom - 15;
+          const fadeEnd = relativeBottom + 35;
+
+          const maskVal = `linear-gradient(to bottom, transparent ${fadeStart}px, black ${fadeEnd}px)`;
+          element.style.webkitMaskImage = maskVal;
+          element.style.maskImage = maskVal;
+        }
+
+        const blocks = parentAct.querySelectorAll(".narrative-block");
+        let activeTitle = "";
+        let activeBlockIdStr = "";
+        const stickyHeaderBottom = headerRect.bottom;
+
+        blocks.forEach((blockEl) => {
+          const subtitleEl = blockEl.querySelector(":scope > span");
+          const subtitleRect = subtitleEl ? subtitleEl.getBoundingClientRect() : blockEl.getBoundingClientRect();
+
+          if (subtitleRect.bottom <= stickyHeaderBottom) {
+            activeTitle = blockEl.getAttribute("data-block-title") || "";
+            activeBlockIdStr = blockEl.getAttribute("data-block-id") || "";
+          }
+        });
+
+        newActiveBlocks[parentAct.id] = activeTitle || "";
+
+        const actRect = parentAct.getBoundingClientRect();
+        const actHeight = (parentAct as HTMLElement).offsetHeight;
+        const chipHeight = headerContainer ? headerContainer.offsetHeight : 36;
+        const scrollable = Math.max(1, actHeight - chipHeight);
+        const progress = Math.max(0, Math.min(1, -actRect.top / scrollable));
+        const fillEl = parentAct.querySelector(".act-progress-fill") as HTMLElement | null;
+        if (fillEl) {
+          fillEl.style.transform = `scaleX(${progress.toFixed(4)})`;
+        }
+
+        newActProgress[parentAct.id] = progress;
+        if (activeBlockIdStr) {
+          newActiveBlockId[parentAct.id] = activeBlockIdStr;
+        }
+
+        const titleEl = parentAct.querySelector(".act-arrival-title") as HTMLElement | null;
+        const chipInner = parentAct.querySelector(".act-chip-inner") as HTMLElement | null;
+        const lastBlockEl = blocks.length > 0 ? (blocks[blocks.length - 1] as HTMLElement) : null;
+        if (chipInner) {
+          const fadeBand = 40;
+          const headerHeight = headerContainer ? headerContainer.offsetHeight : chipHeight;
+          const titleBottom = titleEl ? titleEl.getBoundingClientRect().bottom : actRect.top;
+          const fadeIn = Math.max(0, Math.min(1, (fadeBand - titleBottom) / fadeBand));
+          let fadeOut = 1;
+          if (lastBlockEl) {
+            const lastBottom = lastBlockEl.getBoundingClientRect().bottom;
+            fadeOut = Math.max(0, Math.min(1, (lastBottom - headerHeight) / fadeBand));
+          }
+          chipInner.style.opacity = (fadeIn * fadeOut).toFixed(3);
+        }
+      });
+
+      if (Object.keys(newActiveBlocks).length > 0) {
+        setActiveBlocks((prev) => {
+          let hasChanged = false;
+          for (const key in newActiveBlocks) {
+            if (prev[key] !== newActiveBlocks[key]) {
+              hasChanged = true;
+              break;
+            }
+          }
+          if (hasChanged) {
+            return { ...prev, ...newActiveBlocks };
+          }
+          return prev;
+        });
       }
 
-      if (lastElement) {
-        const lastElementRect = lastElement.getBoundingClientRect();
-        const headerHeight = headerContainer.offsetHeight;
-        
-        // Desplazar hacia arriba cuando el último elemento (párrafo o botón) empieza a subir debajo de la cabecera
-        const translateY = Math.max(0, headerHeight - lastElementRect.top);
-        const maxTranslate = headerHeight + 50;
-        const finalTranslate = Math.min(maxTranslate, translateY);
-        
-        headerContainer.style.transform = finalTranslate > 0 ? `translate3d(0, -${finalTranslate}px, 0)` : "";
-      } else {
-        headerContainer.style.transform = "";
+      if (Object.keys(newActProgress).length > 0) {
+        setActProgress((prev) => {
+          let hasChanged = false;
+          for (const key in newActProgress) {
+            if (Math.abs((prev[key] || 0) - newActProgress[key]) > 0.01) {
+              hasChanged = true;
+              break;
+            }
+          }
+          return hasChanged ? { ...prev, ...newActProgress } : prev;
+        });
       }
+
+      if (Object.keys(newActiveBlockId).length > 0) {
+        setActiveBlockId((prev) => {
+          let hasChanged = false;
+          for (const key in newActiveBlockId) {
+            if (prev[key] !== newActiveBlockId[key]) {
+              hasChanged = true;
+              break;
+            }
+          }
+          return hasChanged ? { ...prev, ...newActiveBlockId } : prev;
+        });
+      }
+    } finally {
+      ticking = false;
     }
   });
-
-  if (Object.keys(newActiveBlocks).length > 0) {
-    setActiveBlocks((prev) => {
-      let hasChanged = false;
-      for (const key in newActiveBlocks) {
-        if (prev[key] !== newActiveBlocks[key]) {
-          hasChanged = true;
-          break;
-        }
-      }
-      if (hasChanged) {
-        return { ...prev, ...newActiveBlocks };
-      }
-      return prev;
-    });
-  }
 };
 
 window.addEventListener("scroll", handleScroll, { passive: true });
@@ -224,9 +493,8 @@ window.addEventListener("resize", handleScroll);
 handleScroll();
 
 return () => {
-observer.disconnect();
-window.removeEventListener("scroll", handleScroll);
-window.removeEventListener("resize", handleScroll);
+  window.removeEventListener("scroll", handleScroll);
+  window.removeEventListener("resize", handleScroll);
 };
 }, []);
 
@@ -273,7 +541,7 @@ marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
 }}
 >
 {/* ... Hero Content ... */}
-<div className="min-h-[90vh] w-full flex flex-col lg:justify-center items-center text-center relative pt-12 lg:pt-20 pb-20 lg:pb-24 px-6 lg:px-16">
+<div className="w-full flex flex-col lg:justify-center items-center text-center relative pt-6 lg:pt-12 pb-6 lg:pb-8 px-6 lg:px-16">
 <div className="absolute top-[25px] left-[20px] w-6 h-6 pointer-events-none select-none flex items-center justify-center">
 <div className="absolute w-4 h-[2px] bg-primary/30" /><div className="absolute w-[2px] h-4 bg-primary/30" />
 </div>
@@ -299,27 +567,27 @@ marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
 </div>
 </div>
 
-{/* Ambient Glows */}
-<div className="absolute inset-x-0 top-[-10%] bottom-[-10%] z-0 pointer-events-none opacity-80">
-<div className="absolute top-[-5%] left-[-2vw] w-[600px] h-[600px] animate-float-1">
-<AmbientGlow colorClass="bg-ch4" className="w-full h-full" opacity={0.3} />
-</div>
-<div className="absolute top-[30%] right-[-5vw] w-[700px] h-[700px] animate-float-2">
-<AmbientGlow colorClass="bg-ch1" className="w-full h-full" opacity={0.3} />
-</div>
-<div className="absolute top-[10%] left-[20vw] w-[500px] h-[500px] animate-float-3">
-<AmbientGlow colorClass="bg-ch2" className="w-full h-full" opacity={0.25} />
-</div>
-<div className="absolute top-[-10%] right-[15vw] w-[550px] h-[550px] animate-float-4">
-<AmbientGlow colorClass="bg-ch5" className="w-full h-full" opacity={0.25} />
-</div>
-<div className="absolute bottom-[20%] left-[10vw] w-[450px] h-[450px] animate-float-5">
-<AmbientGlow colorClass="bg-ch3" className="w-full h-full" opacity={0.3} />
-</div>
-<div className="absolute bottom-[10%] right-[25vw] w-[480px] h-[480px] animate-float-6">
-<AmbientGlow colorClass="bg-ch6" className="w-full h-full" opacity={0.3} />
-</div>
-</div>
+        {/* Ambient Glows */}
+        <div className="absolute inset-x-0 top-[-10%] bottom-[-10%] z-0 pointer-events-none opacity-80">
+          <div className="absolute top-[-5%] left-[-2vw] w-[600px] h-[600px] animate-float-1">
+            <AmbientGlow colorClass="bg-ch4" className="w-full h-full" opacity={0.3} />
+          </div>
+          <div className="absolute top-[30%] right-[-5vw] w-[700px] h-[700px] animate-float-2">
+            <AmbientGlow colorClass="bg-ch1" className="w-full h-full" opacity={0.3} />
+          </div>
+          <div className="absolute top-[10%] left-[20vw] w-[500px] h-[500px] animate-float-3">
+            <AmbientGlow colorClass="bg-ch2" className="w-full h-full" opacity={0.25} />
+          </div>
+          <div className="absolute top-[-10%] right-[15vw] w-[550px] h-[550px] animate-float-4">
+            <AmbientGlow colorClass="bg-ch5" className="w-full h-full" opacity={0.25} />
+          </div>
+          <div className="absolute bottom-[20%] left-[10vw] w-[450px] h-[450px] animate-float-5">
+            <AmbientGlow colorClass="bg-ch3" className="w-full h-full" opacity={0.3} />
+          </div>
+          <div className="absolute bottom-[10%] right-[25vw] w-[480px] h-[480px] animate-float-6">
+            <AmbientGlow colorClass="bg-ch6" className="w-full h-full" opacity={0.3} />
+          </div>
+        </div>
 
 <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden" style={{ zIndex: 0 }}>
 <span className="font-serif font-bold leading-none text-zinc-900 dark:text-zinc-100 blur" style={{ fontSize: "clamp(160px, 50vw, 600px)", opacity: 0.08, transform: "translateY(-20%)" }}>¿</span>
@@ -327,7 +595,7 @@ marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
 
 <div className="flex-1 lg:flex-none flex flex-col justify-center items-center w-full">
   {/* Title and Subtitle Section */}
-  <div className="space-y-3 lg:space-y-6 max-w-3xl w-full text-center relative z-10 translate-y-6 lg:translate-y-8 mt-4 lg:mt-6">
+  <div className="space-y-2 lg:space-y-4 max-w-3xl w-full text-center relative z-10 mt-2 lg:mt-4">
     <motion.h1 initial="hidden" animate="visible" variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.18 } } }} className="text-[clamp(42px,8.5vw,80px)] font-bold tracking-tight font-heading leading-[1.05] text-on-background select-none">
       <motion.span variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } } }} className="block sm:inline-block">
         ¿Qué vidas merecen&nbsp;
@@ -343,10 +611,10 @@ marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
   </div>
 
   {/* Crystalline Glass Card for Focus Columns Section */}
-  <div className="w-full max-w-7xl px-6 lg:px-16 mt-20 lg:mt-24 relative z-10 font-sans font-light leading-relaxed">
+  <div className="w-full max-w-7xl px-6 lg:px-16 mt-8 lg:mt-12 relative z-10 font-sans font-light leading-relaxed">
     {/* Desktop View */}
     <div 
-      className="hidden lg:block border border-outline-variant/35 rounded-3xl p-10 lg:p-12 w-full relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none"
+      className="hidden lg:block glass-enhance border border-outline-variant/35 rounded-3xl p-10 lg:p-12 w-full relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none"
     >
       <div className="grid grid-cols-3 gap-12 lg:gap-16 w-full divide-x divide-outline-variant/30">
         <div className="flex relative pt-0 text-left flex-col items-start px-4 first:pl-0">
@@ -393,7 +661,7 @@ marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
             className="w-full overflow-hidden"
           >
             <div 
-              className="flex flex-col gap-6 p-6 sm:p-8 border border-outline-variant/35 rounded-2xl text-left relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none"
+              className="flex flex-col gap-6 p-6 sm:p-8 glass-enhance border border-outline-variant/35 rounded-2xl text-left relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none"
             >
               <div className="space-y-2">
                 <span className="text-[10px] font-mono font-bold text-primary select-none tracking-widest uppercase block leading-none opacity-60">[ EL DESAFÍO ]</span>
@@ -423,41 +691,25 @@ marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
   </div>
 </div>
 
-<div className="w-full flex justify-center pt-8 lg:pt-16 select-none relative z-10">
+<div className="w-full flex justify-center pt-4 lg:pt-6 select-none relative z-10">
 <motion.div className="text-primary/50 cursor-pointer" animate={{ y: [0, 4, 0] }} transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}>
 <ChevronDown className="w-5 h-5" />
 </motion.div>
 </div>
 
-<div className="mt-4 lg:mt-6 w-full relative z-10 px-6 lg:px-16">
-<div className="py-2 flex flex-wrap items-center justify-center gap-1.5">
-{([
-{ tab: "grafo", label: "Ontología" },
-{ tab: "cronologia", label: "Historia" },
-{ tab: "dialectica", label: "Tesis" },
-{ tab: "calculadora", label: "Impacto" },
-{ tab: "validador", label: "IA" },
-] as { tab: "grafo" | "cronologia" | "dialectica" | "calculadora" | "validador"; label: string }[]).map((item) => (
-<button
-key={item.tab}
-onClick={() => onNavigate(item.tab)}
-className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-md text-[10px] sm:text-[11px] uppercase font-mono tracking-widest transition-all duration-300 text-on-surface-variant hover:text-primary cursor-pointer active:scale-95"
->
-{item.label}
-</button>
-))}
-</div>
+<div className="w-full relative z-10 px-6 lg:px-16 max-w-7xl mx-auto pt-2 lg:pt-4">
+  <TabNav activeTab={activeTab} onNavigate={onNavigate} theme={theme} onToggleTheme={onToggleTheme} />
 </div>
 
-<div className="absolute bottom-[40px] left-[20px] w-6 h-6 pointer-events-none select-none flex items-center justify-center">
+<div className="absolute bottom-[20px] left-[20px] w-6 h-6 pointer-events-none select-none flex items-center justify-center">
 <div className="absolute w-4 h-[2px] bg-primary/30" /><div className="absolute w-[2px] h-4 bg-primary/30" />
 </div>
-<div className="absolute bottom-[40px] right-[20px] w-6 h-6 pointer-events-none select-none flex items-center justify-center">
+<div className="absolute bottom-[20px] right-[20px] w-6 h-6 pointer-events-none select-none flex items-center justify-center">
 <div className="absolute w-4 h-[2px] bg-primary/30" /><div className="absolute w-[2px] h-4 bg-primary/30" />
 </div>
 </div>
 
-<div className="mt-2 w-full text-left relative z-10 pt-2 px-2 pb-2 lg:pb-4">
+<div className="mt-2 w-full text-left relative z-10 pt-2 px-2 pb-2">
 <SocraticReflection />
 </div>
 </section>
@@ -493,8 +745,8 @@ className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-md text-[10px] sm:text-[11px] upp
     </div>
   </div>
 
-  <div className="w-full max-w-7xl mx-auto px-6 lg:px-16 pt-4 relative z-10">
-    <div className="relative w-full text-center mb-8 lg:mb-12 py-10 lg:py-12 px-4">
+  <div className="w-full max-w-7xl mx-auto px-6 lg:px-16 pt-0 relative z-10">
+    <div className="relative w-full text-center mb-8 lg:mb-12 pb-10 lg:pb-12 pt-6 lg:pt-8 px-4">
       <div className="relative z-10 space-y-6 lg:space-y-8 max-w-4xl mx-auto">
         {/* Restored Hero Details */}
         <span className="text-[10px] font-mono font-bold text-primary uppercase tracking-widest block leading-none mb-4 drop-shadow-md">
@@ -511,7 +763,7 @@ className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-md text-[10px] sm:text-[11px] upp
 
     {/* Frosted Glass Index Card */}
     <div 
-      className="border border-outline-variant/35 rounded-3xl p-6 sm:p-8 lg:p-10 w-full relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-container/25 dark:before:bg-surface-container/12 before:backdrop-blur-xl before:z-[-1] before:pointer-events-none"
+      className="glass-enhance border border-outline-variant/35 rounded-3xl p-6 sm:p-8 lg:p-10 w-full relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-container/25 dark:before:bg-surface-container/12 before:backdrop-blur-xl before:z-[-1] before:pointer-events-none"
     >
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 sm:gap-x-8 md:gap-x-12 gap-y-4 lg:gap-y-6">
         {actsData.map((act) => (
@@ -547,6 +799,8 @@ className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-md text-[10px] sm:text-[11px] upp
 </div>
 </div>
 
+
+
 {/* Acto 0: Introducción */}
 {(() => {
 const act0 = {
@@ -556,24 +810,31 @@ title: "Comprender a los Animales",
 textColor: "text-primary",
 colorName: "bg-primary",
 blocks: [
-{
-id: "intro-trip",
-title: "Un Viaje a través de la Ciencia, la Ética, la Mente y el Planeta",
-content: (
-<div className="space-y-6">
-<p>Nuestra relación con el resto de los animales es uno de los temas más fascinantes, contradictorios y profundos de nuestro tiempo. Durante siglos, la humanidad ha convivido con ellos, los ha amado, los ha temido y los ha utilizado, a menudo sin detenerse a pensar en quiénes son realmente.</p>
-<p>Para entender este complejo escenario de verdad, no podemos mirar desde una sola ventana. Necesitamos conectar varias piezas fundamentales: qué ha descubierto la biología sobre lo que sienten, qué nos dice la filosofía sobre lo que es justo, cómo engaña la psicología a nuestra propia mente, cómo están diseñados nuestros sistemas de producción, qué impacto tiene esto en la supervivencia del planeta y hacia dónde nos lleva el futuro legal y tecnológico.</p>
-<p>Este es un viaje paso a paso para desentrañar este gran rompecabezas.</p>
-</div>
-)
-}
+      {
+        id: "intro-trip",
+        title: "Un Viaje a través de la Ciencia, la Ética, la Mente y el Planeta",
+        content: (
+          <div className="space-y-6">
+            <p>Nuestra relación con el resto de los animales es uno de los temas más fascinantes, contradictorios y profundos de nuestro tiempo. Durante siglos, la humanidad ha convivido con ellos, los ha amado, los ha temido y los ha utilizado, a menudo sin detenerse a pensar en quiénes son realmente.</p>
+            <p>Para entender este complejo escenario de verdad, no podemos mirar desde una sola ventana. Necesitamos conectar varias piezas fundamentales: qué ha descubierto la biología sobre lo que sienten, qué nos dice la filosofía sobre lo que es justo, cómo engaña la psicología a nuestra propia mente, cómo están diseñados nuestros sistemas de producción, qué impacto tiene esto en la supervivencia del planeta y hacia dónde nos lleva el futuro legal y tecnológico.</p>
+            <p>Este es un viaje paso a paso para desentrañar este gran rompecabezas.</p>
+          </div>
+        ),
+        keyIdea: "Nuestra relación con los animales solo se entiende cruzando seis ventanas a la vez: biología, ética, psicología, sistemas, ecología y futuro legal.",
+        analogy: { text: "Es como armar un rompecabezas del que hasta ahora solo habíamos mirado unas pocas piezas: la imagen completa exige girar la mesa y verlas todas." },
+        pullQuote: "No podemos mirar desde una sola ventana.",
+        reflectionQuestion: {
+          question: "¿Qué ventana has mirado menos hasta ahora, y qué crees que te impide abrirla?",
+          prompt: "Anota mentalmente la primera respuesta; la reutilizaremos al final del recorrido."
+        }
+      }
 ]
 };
 const isActive = activeChapter === act0.id;
 const isFlashing = flashChapter === act0.id;
 
   return (
-    <div key={act0.id} id={act0.id} className="w-full scroll-mt-24 relative overflow-visible" style={{
+    <div key={act0.id} id={act0.id} className="w-full scroll-mt-0 relative overflow-visible" style={{
       width: "calc(100vw - var(--scrollbar-width, 0px))",
       marginLeft: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
       marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
@@ -584,39 +845,67 @@ const isFlashing = flashChapter === act0.id;
         </span>
       </div>
 
-      <AmbientGlow colorClass={act0.colorName} className={`animate-float-1 w-[600px] h-[500px] top-[-5%] left-[-15%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.1} />
+      <AmbientGlow colorClass={act0.colorName} className={`animate-float-1 w-[900px] h-[700px] top-[-10%] left-[-20%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.2} />
+      <AmbientGlow colorClass={act0.colorName} className={`animate-float-3 w-[700px] h-[600px] bottom-[5%] right-[-15%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.15} />
+      <AmbientGlow colorClass={act0.colorName} className={`animate-float-5 w-[500px] h-[500px] top-[30%] left-[30%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.12} />
 
-      {/* Sticky header and ALL blocks wrapped together */}
+      {/* Title (normal flow) + slim sticky chip + blocks */}
       <div className="relative w-full">
-        {/* Sticky header placed outside motion.section to prevent CSS transforms from breaking position: sticky */}
-        <div className="sticky top-0 z-20 pt-2 lg:pt-3 pb-2 w-full pointer-events-none act-sticky-header">
-          <div className="w-full px-3 md:px-6 xl:pl-20 xl:pr-4 pointer-events-auto">
-            <span className={`text-[12px] md:text-[14px] font-mono font-bold ${act0.textColor} uppercase tracking-widest block leading-none mb-3`}>
-              [ ACTO {act0.num} ]
-            </span>
-            <h2 className="text-[clamp(32px,5vw,56px)] font-bold tracking-tight font-heading leading-tight text-on-background">
-              {act0.title}
-            </h2>
-            {/* Subtitle slot — reserved height on xl to prevent layout shift */}
-            <div className="xl:min-h-[20px] overflow-hidden transition-all duration-300 ease-out" style={{ height: activeBlocks[act0.id] || act0.blocks.length === 1 ? 'auto' : undefined }}>
-              {activeBlocks[act0.id] || act0.blocks.length === 1 ? (
-                <motion.span
-                  key={activeBlocks[act0.id] || act0.blocks[0].title}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.35, ease: "easeOut" }}
-                  className={`text-[11px] md:text-[12px] font-mono font-bold ${act0.textColor} uppercase tracking-[0.15em] block mt-2`}
-                >
-                  {"<\u00a0"}{(activeBlocks[act0.id] || act0.blocks[0].title).toUpperCase()}{"\u00a0>"}
-                </motion.span>
-              ) : (
-                <span className="hidden xl:block text-[12px] mt-2 opacity-0 pointer-events-none select-none">&nbsp;</span>
-              )}
+        {/* Arrival title — normal flow so it scrolls away, freeing vertical space while reading */}
+        <div className="act-arrival-title w-full px-3 md:px-6 xl:pl-20 xl:pr-4 pt-2 lg:pt-3 pb-0">
+          <span className={`text-[12px] md:text-[14px] font-mono font-bold ${act0.textColor} uppercase tracking-widest block leading-none mb-1`}>
+            [ ACTO {act0.num} ]
+          </span>
+          <h2 className="text-[clamp(32px,5vw,56px)] font-bold tracking-tight font-heading leading-tight text-on-background pr-24 xl:pr-40">
+            {act0.title}
+          </h2>
+        </div>
+        {/* Sticky TTS button — joins the sticky block at top-0 */}
+        <div className="sticky top-0 z-30 w-full pointer-events-none -mt-[52px] mb-[52px]">
+          <div className="flex justify-end items-center pointer-events-none pr-3 md:pr-6 xl:pl-20 xl:pr-4">
+            <div className="pointer-events-auto mr-5 xl:mr-20">
+              <ReadingUtilities
+                actId={act0.id}
+                actColor={act0.textColor}
+                blocks={act0.blocks}
+                activeBlockId={activeBlockId[act0.id] || act0.blocks[0]?.id || ""}
+              />
+            </div>
+          </div>
+        </div>
+        {/* Slim sticky orientation chip — pinned while reading: act + current block + progress.
+            Invisible while the arrival title is in view; fades in once the title scrolls off. */}
+        <div className="sticky top-0 z-20 w-full pointer-events-none act-sticky-header">
+          <div className="act-chip-inner opacity-0">
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-outline-variant/10 pointer-events-none">
+              <div className="act-progress-fill h-full origin-left transition-transform duration-200 ease-out will-change-transform" style={{ backgroundColor: "var(--primary)" }} />
+            </div>
+            <div className="w-full px-3 md:px-6 xl:pl-20 xl:pr-4 pt-0 pb-0 pointer-events-auto">
+              <div className="flex items-center gap-3 min-h-[20px]">
+                <span className={`text-[11px] md:text-[12px] font-mono font-bold ${act0.textColor} uppercase tracking-widest leading-none whitespace-nowrap`}>
+                  [ ACTO {act0.num} ]
+                </span>
+                <span className="text-on-surface-variant/30 select-none hidden sm:inline">·</span>
+                <AnimatePresence mode="wait">
+                  {(activeBlocks[act0.id] || act0.blocks.length === 1) && (
+                    <motion.span
+                      key={activeBlocks[act0.id] || act0.blocks[0].title}
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 4 }}
+                      transition={{ duration: 0.25, ease: "easeOut" }}
+                      className={`text-[11px] md:text-[12px] font-mono font-bold ${act0.textColor} uppercase tracking-[0.15em] leading-none truncate`}
+                    >
+                      {"<\u00a0"}{(activeBlocks[act0.id] || act0.blocks[0].title).toUpperCase()}{"\u00a0>"}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
           </div>
         </div>
 
-        <motion.section variants={chapterVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} className="relative z-10 pt-2 pb-3 lg:pb-4 w-full px-3 md:px-6 xl:pl-20 xl:pr-4">
+        <motion.section variants={chapterVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} className="relative z-10 pt-0 pb-3 lg:pb-4 w-full px-3 md:px-6 xl:pl-20 xl:pr-4">
           <div 
             className={`narrative-text-container relative w-full font-serif text-[18px] md:text-[20px] leading-[1.8] font-normal transition-colors duration-1000 ${isActive ? 'text-on-surface' : 'text-on-surface/35'} [&_p]:mb-5 [&_p:last-child]:mb-0`}
             style={{ 
@@ -626,7 +915,7 @@ const isFlashing = flashChapter === act0.id;
             }}
           >
             {act0.blocks.map((block, blockIndex) => (
-              <div key={block.id} className="mb-10 last:mb-0 narrative-block" data-block-title={block.title}>
+              <div key={block.id} className="mb-10 last:mb-0 narrative-block" data-block-title={block.title} data-block-id={block.id}>
                 {!(act0.blocks.length === 1 && blockIndex === 0) && (
                   <span className={`text-[12px] md:text-[14px] font-mono font-bold ${act0.textColor} uppercase tracking-[0.15em] block leading-normal ${blockIndex === 0 ? 'mt-2' : 'mt-12'} mb-4`}>
                     {"<\u00a0"}{block.title.toUpperCase()}{"\u00a0>"}
@@ -634,7 +923,15 @@ const isFlashing = flashChapter === act0.id;
                 )}
 
                 <div className="mb-2">
-                  {block.content}
+                  <StoryTextRenderer
+                    content={block.content}
+                    activeNoteId={activeNotesByAct[act0.id]?.id || null}
+                    activeInstanceId={activeNotesByAct[act0.id]?.instanceId || null}
+                    onHoverNote={(e, id, item, type) => handleHoverNote(e, id, item, type, act0.id)}
+                    onLeaveNote={handleLeaveNote}
+                    onClickNote={(e, id, item, type, instId) => handleClickNote(e, id, item, type, act0.id, act0.textColor, instId)}
+                    accentColor="primary"
+                  />
                 </div>
               </div>
             ))}
@@ -649,9 +946,11 @@ const isFlashing = flashChapter === act0.id;
 {actsData.map((act, index) => {
 const isActive = activeChapter === act.id;
 const isFlashing = flashChapter === act.id;
+const actAccent = act.textColor ? act.textColor.replace("text-", "") : "primary";
+const actAccentVar = actAccent === "primary" ? "var(--primary)" : `var(--${actAccent})`;
 
 return (
-<div key={act.id} id={act.id} className="w-full scroll-mt-24 relative overflow-visible" style={{
+<div key={act.id} id={act.id} className="w-full scroll-mt-0 relative overflow-visible" style={{
   width: "calc(100vw - var(--scrollbar-width, 0px))",
   marginLeft: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
   marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
@@ -662,70 +961,227 @@ return (
 </span>
 </div>
 
-<AmbientGlow colorClass={act.colorName} className={`animate-float-${(index % 6) + 1} w-[600px] h-[500px] top-[-5%] left-[-15%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.15} />
-<AmbientGlow colorClass={act.colorName} className={`animate-float-${((index + 1) % 6) + 1} w-[650px] h-[500px] bottom-[5%] right-[-10%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.15} />
+<AmbientGlow colorClass={act.colorName} className={`animate-float-${(index % 6) + 1} w-[900px] h-[700px] top-[-10%] left-[-20%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.25} />
+<AmbientGlow colorClass={act.colorName} className={`animate-float-${((index + 1) % 6) + 1} w-[950px] h-[700px] bottom-[5%] right-[-15%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.25} />
+<AmbientGlow colorClass={act.colorName} className={`animate-float-${((index + 2) % 6) + 1} w-[650px] h-[550px] top-[20%] left-[25%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.18} />
+<AmbientGlow colorClass={act.colorName} className={`animate-float-${((index + 3) % 6) + 1} w-[700px] h-[600px] top-[40%] right-[-8%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.18} />
 
-{/* Sticky header and ALL blocks wrapped together */}
+{/* Title (normal flow) + slim sticky chip + blocks */}
 <div className="relative w-full">
-  {/* Sticky header placed outside motion.section to prevent CSS transforms from breaking position: sticky */}
-  <div className="sticky top-0 z-20 w-full pointer-events-none pt-2 lg:pt-3 pb-2 act-sticky-header">
-    <div className="w-full px-3 md:px-6 xl:pl-20 xl:pr-4 pointer-events-auto">
-      <span className={`text-[12px] md:text-[14px] font-mono font-bold ${act.textColor} uppercase tracking-widest block leading-none mb-4 transition-transform duration-700 origin-left ${isFlashing ? 'scale-110' : 'scale-100'}`}>
-        [ ACTO {act.num} ]
-      </span>
-      <h2 className="text-[clamp(32px,5vw,56px)] font-bold tracking-tight font-heading leading-tight text-on-background">
-        {act.title}
-      </h2>
-      {/* Subtitle slot — reserved height on xl to prevent layout shift */}
-      <div className="xl:min-h-[20px] overflow-hidden transition-all duration-300 ease-out" style={{ height: activeBlocks[act.id] || act.blocks.length === 1 ? 'auto' : undefined }}>
-        {activeBlocks[act.id] || act.blocks.length === 1 ? (
-          <motion.span
-            key={activeBlocks[act.id] || act.blocks[0].title}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.35, ease: "easeOut" }}
-            className={`text-[11px] md:text-[12px] font-mono font-bold ${act.textColor} uppercase tracking-[0.15em] block mt-2`}
-          >
-            {"<\u00a0"}{(activeBlocks[act.id] || act.blocks[0].title).toUpperCase()}{"\u00a0>"}
-          </motion.span>
-        ) : (
-          <span className="hidden xl:block text-[12px] mt-2 opacity-0 pointer-events-none select-none">&nbsp;</span>
-        )}
+  {/* Arrival title — normal flow, scrolls away to free vertical space while reading */}
+  <div className="act-arrival-title w-full px-3 md:px-6 xl:pl-20 xl:pr-4 pt-2 lg:pt-3 pb-0">
+    <span className={`text-[12px] md:text-[14px] font-mono font-bold ${act.textColor} uppercase tracking-widest block leading-none mb-2 transition-transform duration-700 origin-left ${isFlashing ? 'scale-110' : 'scale-100'}`}>
+      [ ACTO {act.num} ]
+    </span>
+    <h2 className="text-[clamp(32px,5vw,56px)] font-bold tracking-tight font-heading leading-tight text-on-background pr-24 xl:pr-40">
+      {act.title}
+    </h2>
+  </div>
+  {/* Sticky TTS button — joins the sticky block at top-0 */}
+  <div className="sticky top-0 z-30 w-full pointer-events-none -mt-[52px] mb-[52px]">
+    <div className="flex justify-end items-center pointer-events-none pr-3 md:pr-6 xl:pl-20 xl:pr-4">
+      <div className="pointer-events-auto mr-5 xl:mr-20">
+        <ReadingUtilities
+          actId={act.id}
+          actColor={act.textColor}
+          blocks={act.blocks}
+          activeBlockId={activeBlockId[act.id] || act.blocks[0]?.id || ""}
+        />
+      </div>
+    </div>
+  </div>
+  {/* Slim sticky orientation chip — pinned while reading.
+      Invisible while the arrival title is in view; fades in once the title scrolls off. */}
+  <div className="sticky top-0 z-20 w-full pointer-events-none act-sticky-header">
+    <div className="act-chip-inner opacity-0">
+      <div className="absolute top-0 left-0 right-0 h-[2px] bg-outline-variant/10 pointer-events-none">
+        <div className="act-progress-fill h-full origin-left transition-transform duration-200 ease-out will-change-transform" style={{ backgroundColor: actAccentVar }} />
+      </div>
+      <div className="w-full px-3 md:px-6 xl:pl-20 xl:pr-4 pt-0 pb-0 pointer-events-auto">
+        <div className="flex items-center gap-3 min-h-[20px]">
+          <span className={`text-[11px] md:text-[12px] font-mono font-bold ${act.textColor} uppercase tracking-widest leading-none whitespace-nowrap transition-transform duration-700 origin-left ${isFlashing ? 'scale-110' : 'scale-100'}`}>
+            [ ACTO {act.num} ]
+          </span>
+          <span className="text-on-surface-variant/30 select-none hidden sm:inline">·</span>
+          <AnimatePresence mode="wait">
+            {(activeBlocks[act.id] || act.blocks.length === 1) && (
+              <motion.span
+                key={activeBlocks[act.id] || act.blocks[0].title}
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 4 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                className={`text-[11px] md:text-[12px] font-mono font-bold ${act.textColor} uppercase tracking-[0.15em] leading-none truncate`}
+              >
+                {"<\u00a0"}{(activeBlocks[act.id] || act.blocks[0].title).toUpperCase()}{"\u00a0>"}
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   </div>
 
-  <motion.section variants={chapterVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} className="relative z-10 pt-2 pb-3 lg:pb-4 w-full px-3 md:px-6 xl:pl-20 xl:pr-4">
-    <div 
-      className={`narrative-text-container relative w-full font-serif text-[18px] md:text-[20px] leading-[1.8] font-normal transition-colors duration-1000 ${isActive ? 'text-on-surface' : 'text-on-surface/35'} [&_p]:mb-5 [&_p:last-child]:mb-0`}
-      style={{ 
-        willChange: "mask-image, -webkit-mask-image",
-        transform: "translate3d(0, 0, 0)",
-        WebkitTransform: "translate3d(0, 0, 0)"
-      }}
+  <motion.section variants={chapterVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} className="relative z-10 pt-0 pb-3 lg:pb-4 w-full px-3 md:px-6 xl:pl-20 xl:pr-4">
+    <div
+      ref={(el) => { gridContainerRefsByAct.current[act.id] = el; }}
+      className="grid grid-cols-1 lg:grid-cols-[1fr_240px] xl:grid-cols-[minmax(0,1fr)_300px] gap-8 lg:gap-10 xl:gap-14 items-stretch relative grid-container-relative"
     >
-      {act.blocks.map((block, blockIndex) => (
-        <div key={block.id} className="mb-10 last:mb-0 narrative-block" data-block-title={block.title}>
-          {!(act.blocks.length === 1 && blockIndex === 0) && (
-            <span className={`text-[12px] md:text-[14px] font-mono font-bold ${act.textColor} uppercase tracking-[0.15em] block leading-normal ${blockIndex === 0 ? 'mt-2' : 'mt-12'} mb-4`}>
-              {"<\u00a0"}{block.title.toUpperCase()}{"\u00a0>"}
-            </span>
-          )}
 
-          <div className="mb-2">
-            {block.content}
+      {/* Center Column: Text (clean) */}
+      <div
+        ref={(el) => {
+          ttsTargetRef.current = el;
+          centerColumnRefsByAct.current[act.id] = el;
+        }}
+        className={`narrative-text-container relative w-full font-serif text-[18px] md:text-[20px] leading-[1.8] font-normal transition-colors duration-1000 ${isActive ? 'text-on-surface' : 'text-on-surface/35'} [&_p]:mb-5 [&_p:last-child]:mb-0 order-1`}
+        style={{
+          willChange: "mask-image, -webkit-mask-image",
+          transform: "translate3d(0, 0, 0)",
+          WebkitTransform: "translate3d(0, 0, 0)"
+        }}
+      >
+        {act.blocks.map((block, blockIndex) => (
+          <div key={block.id} className="mb-10 last:mb-0 narrative-block" data-block-title={block.title} data-block-id={block.id}>
+            {!(act.blocks.length === 1 && blockIndex === 0) && (
+              <span className={`text-[12px] md:text-[14px] font-mono font-bold ${act.textColor} uppercase tracking-[0.15em] block leading-normal ${blockIndex === 0 ? 'mt-2' : 'mt-12'} mb-4`}>
+                {"<\u00a0"}{block.title.toUpperCase()}{"\u00a0>"}
+              </span>
+            )}
+
+            <div className="mb-2">
+              <StoryTextRenderer
+                content={block.content}
+                activeNoteId={activeNotesByAct[act.id]?.id || null}
+                activeInstanceId={activeNotesByAct[act.id]?.instanceId || null}
+                onHoverNote={(e, id, item, type) => handleHoverNote(e, id, item, type, act.id)}
+                onLeaveNote={handleLeaveNote}
+                onClickNote={(e, id, item, type, instId) => handleClickNote(e, id, item, type, act.id, act.textColor, instId)}
+                accentColor={act.textColor.replace("text-", "")}
+              />
+            </div>
+
+            {block.microQuiz && (
+              <MicroQuiz quiz={block.microQuiz} accent={act.textColor.replace("text-", "")} />
+            )}
+
+            {block.deepDive && (
+              <button
+                onClick={() => setDeepDiveData({ actId: act.id, actNum: act.num, actColor: act.textColor, data: block.deepDive! })}
+                className="text-sm md:text-[15px] font-medium italic text-on-surface-variant/60 hover:text-on-background transition-colors mt-4 block text-left cursor-pointer"
+              >
+                + Profundizar en {block.deepDive.label}
+              </button>
+            )}
           </div>
+        ))}
+      </div>
 
-          {block.deepDive && (
-            <button 
-              onClick={() => setDeepDiveData({ actId: act.id, actNum: act.num, actColor: act.textColor, data: block.deepDive! })} 
-              className="text-sm md:text-[15px] font-medium italic text-on-surface-variant/60 hover:text-on-background transition-colors mt-4 block text-left"
+      {/* SVG bezier line connecting clicked word to SideNoteCard (spans full grid) */}
+      <AnimatePresence>
+        {lineCoordsByAct[act.id] && (
+          <motion.svg
+            key={`svg-${act.id}`}
+            className="absolute inset-0 w-full h-full pointer-events-none overflow-visible"
+            style={{ zIndex: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+          >
+            {/* Glow halo behind the line */}
+            <motion.path
+              d={lineCoordsByAct[act.id]!.d}
+              stroke="currentColor"
+              className={`${act.textColor}`}
+              strokeWidth="6"
+              fill="none"
+              strokeLinecap="round"
+              style={{ filter: "blur(4px)", opacity: 0.25 }}
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              exit={{ pathLength: 0 }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            />
+            {/* Main line */}
+            <motion.path
+              d={lineCoordsByAct[act.id]!.d}
+              stroke="currentColor"
+              className={`${act.textColor}`}
+              strokeWidth="1.5"
+              fill="none"
+              strokeLinecap="round"
+              style={{ opacity: 0.85 }}
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              exit={{ pathLength: 0 }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            />
+            {/* Origin dot at the text edge with pulse */}
+            <motion.circle
+              cx={lineCoordsByAct[act.id]!.x1}
+              cy={lineCoordsByAct[act.id]!.y1}
+              r="4"
+              className={`fill-current ${act.textColor}`}
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0, opacity: 0 }}
+              transition={{ duration: 0.3, delay: 0.45, ease: "easeOut" }}
+            />
+            {/* Outer pulsing ring around origin dot */}
+            <motion.circle
+              cx={lineCoordsByAct[act.id]!.x1}
+              cy={lineCoordsByAct[act.id]!.y1}
+              r="4"
+              className={`fill-current ${act.textColor}`}
+              style={{ opacity: 0.4 }}
+              initial={{ scale: 1 }}
+              animate={{ scale: [1, 2.5, 1] }}
+              transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+            />
+          </motion.svg>
+        )}
+      </AnimatePresence>
+
+      {/* Right Rail (xl): Flowing enrichments + SideNoteCard at word's vertical position */}
+      <div className="hidden xl:block relative w-full z-20 order-3">
+        <ReadingEnrichments
+          actColor={act.textColor}
+          blocks={act.blocks}
+        />
+
+        {/* SideNoteCard positioned at the clicked word's vertical position */}
+        <AnimatePresence>
+          {activeNotesByAct[act.id] && (
+            <motion.div
+              key={`card-${act.id}-${activeNotesByAct[act.id].id}-${activeNotesByAct[act.id].instanceId || ""}`}
+              ref={(el) => { sideNoteCardRefsByAct.current[act.id] = el; }}
+              className="absolute left-0 right-16 z-20"
+              style={{
+                top: `${Math.max(20, activeNotesByAct[act.id].y - 80)}px`,
+              }}
+              initial={{ opacity: 0, x: 24, scale: 0.96 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 12, scale: 0.97 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
             >
-              + Profundizar en {block.deepDive.label}
-            </button>
+              <SideNoteCard
+                item={activeNotesByAct[act.id].item}
+                type={activeNotesByAct[act.id].type}
+                actColor={act.textColor}
+                onClose={() => {
+                  setActiveNotesByAct(prev => {
+                    const copy = { ...prev };
+                    delete copy[act.id];
+                    return copy;
+                  });
+                }}
+              />
+            </motion.div>
           )}
-        </div>
-      ))}
+        </AnimatePresence>
+      </div>
+
     </div>
   </motion.section>
 </div>
@@ -746,37 +1202,102 @@ onClose={() => setDeepDiveData(null)}
 )}
 </AnimatePresence>
 
+<AnimatePresence>
+{mobileNote && (
+  createPortal(
+    <div className="fixed inset-0 z-[100] flex items-end justify-center pointer-events-auto select-none">
+      {/* Dark glass backdrop */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={() => setMobileNote(null)}
+        className="absolute inset-0 bg-black/50 dark:bg-black/75 backdrop-blur-xs cursor-pointer"
+      />
+      {/* Bottom Sheet Card */}
+      <motion.div
+        initial={{ y: "100%" }}
+        animate={{ y: 0 }}
+        exit={{ y: "100%" }}
+        transition={{ type: "spring", damping: 26, stiffness: 240 }}
+        className="relative w-full max-h-[75vh] overflow-y-auto bg-surface-container dark:bg-zinc-900 border-t border-surface-variant dark:border-zinc-800 p-6 rounded-t-3xl flex flex-col z-10 shadow-2xl text-left pointer-events-auto"
+      >
+        {/* Drag indicator */}
+        <div className="w-12 h-1 rounded-full bg-zinc-350 dark:bg-zinc-800 mx-auto mb-4 shrink-0" />
+
+        <div className="overflow-y-auto pb-4 select-text">
+          <SideNoteCard 
+             item={mobileNote.item} 
+             type={mobileNote.type} 
+             actColor={mobileNote.actColor}
+             onClose={() => setMobileNote(null)}
+          />
+        </div>
+      </motion.div>
+    </div>,
+    document.body
+  )
+)}
+</AnimatePresence>
+
 {/* Scroll Spy Sidebar - Desktop Only */}
-<div className={`fixed left-6 top-1/2 -translate-y-1/2 z-50 hidden xl:flex flex-col gap-5 transition-all duration-700 ${activeChapter ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8 pointer-events-none'}`}>
+{(() => {
+const accentOf = (dotClass: string) => {
+const name = dotClass.replace("bg-", "");
+return name === "primary" ? "var(--primary)" : `var(--${name})`;
+};
+
+return (
+<div className={`fixed left-6 top-1/2 -translate-y-1/2 z-50 hidden xl:flex flex-col gap-2 transition-all duration-700 ${activeChapter ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8 pointer-events-none'}`}>
 {chaptersList.map((ch) => {
 const isActive = activeChapter === ch.id;
+const isVisited = visitedChapters.has(ch.id);
+const accent = accentOf(ch.dotClass);
+
 return (
 <button
 key={ch.id}
 onClick={() => handleScrollTo(ch.id)}
-className={`group flex items-center gap-3 transition-all duration-300 cursor-pointer text-left relative ${
-isActive 
-? `${ch.activeClass} font-bold opacity-100` 
-: 'text-zinc-400 dark:text-zinc-500 hover:text-zinc-300 opacity-50 hover:opacity-100'
+className={`group relative flex items-center gap-3 py-1.5 pr-3 transition-all duration-300 cursor-pointer text-left ${
+isActive
+? `${ch.activeClass} font-bold opacity-100`
+: 'text-zinc-500 dark:text-zinc-500 hover:text-zinc-300 opacity-70 hover:opacity-100'
 }`}
 >
-{/* Animated Dot indicator */}
-<span className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-isActive 
-? `${ch.dotClass} scale-[2] shadow-[0_0_8px_rgba(var(--color-primary-rgb),0.5)]` 
-: 'bg-zinc-500 dark:bg-zinc-600 group-hover:bg-zinc-300 opacity-40 group-hover:opacity-100'
-}`} />
-
-{/* Roman / Arabic Numeral */}
-<span className={`font-mono text-[10px] tracking-widest uppercase w-4 text-left ${
-isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-} transition-opacity duration-300`}>
+{/* Subtle selection capsule behind active */}
+{isActive && (
+<span className="absolute -inset-x-1 -inset-y-1 rounded-full bg-surface-container/50 dark:bg-surface-container/25 pointer-events-none" />
+)}
+{/* Dot indicator: only the active act is colored; visited/unread stay neutral zinc (visited = brighter) */}
+<span className="relative flex items-center justify-center w-1.5 h-1.5 shrink-0">
+{isActive && (
+<span className={`absolute inset-0 rounded-full opacity-40 animate-ping ${ch.dotClass}`} />
+)}
+<span
+className={`relative w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+isActive
+? `${ch.dotClass} scale-[2]`
+: isVisited
+? 'bg-zinc-400 dark:bg-zinc-500 scale-110'
+: 'bg-zinc-400 dark:bg-zinc-600 group-hover:bg-zinc-300 dark:group-hover:bg-zinc-400'
+}`}
+style={isActive ? { boxShadow: `0 0 8px 0 color-mix(in oklch, ${accent} 55%, transparent)` } : undefined}
+/>
+</span>
+{/* Roman / Arabic Numeral — only shown for the active act */}
+<span className={`relative font-mono text-[10px] tracking-widest uppercase w-4 text-left transition-opacity duration-300 ${
+isActive ? 'opacity-100' : 'opacity-0'
+}`}>
 {ch.num}
 </span>
 </button>
 );
 })}
 </div>
+);
+})()}
+
+
 </>
 );
 }
