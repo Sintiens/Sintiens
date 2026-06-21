@@ -1,60 +1,56 @@
 /**
- * SintiensLogo — Logo component using CSS mask-image for pixel-perfect fidelity.
+ * SintiensLogo — "S" serif (Georgia) + green leaf accent.
  *
- * Uses the original PNG as a mask shape, with the fill color controlled by
- * CSS background-color — enabling theme-reactive coloring (green in light,
- * white in dark) without any loss of detail from SVG tracing.
+ * Mirrors the approved data-URL preview: flex container with a <span>
+ * for the S and an inline <svg> for the leaf, sized in em so the
+ * logo scales with the parent's font-size.
  *
- * The logo depicts a leaf containing a human face profile (left),
- * a fox face (right), and leaf veins (center) — symbolizing the
- * interconnection between humans, animals, and nature.
+ * Colors adapt to light/dark theme via Tailwind utilities.
  */
 
 interface SintiensLogoProps {
-  /** Additional CSS classes */
+  /** Tailwind sizing classes (e.g. "w-5 h-7") */
   className?: string;
-  /** Enable hover animation (scale + subtle rotation) */
-  animated?: boolean;
-  /** Override color (ignores theme) */
-  color?: string;
   /** Accessible label for screen readers */
   ariaLabel?: string;
 }
 
 export default function SintiensLogo({
   className = "",
-  animated = false,
-  color,
-  ariaLabel = "Logo de Sintiens",
+  ariaLabel = "Sintiens",
 }: SintiensLogoProps) {
-  const bgColor = color
-    ? color
-    : undefined; // Will be handled via Tailwind classes
-
-  const colorClass = color
-    ? ""
-    : "bg-[#1B6B37] dark:bg-surface-container";
-
-  const animationClass = animated
-    ? "transition-all duration-300 ease-out hover:scale-[1.08] hover:rotate-[3deg]"
-    : "transition-[background-color] duration-300";
-
   return (
     <div
       role="img"
       aria-label={ariaLabel}
-      className={`${colorClass} ${animationClass} ${className}`.trim()}
-      style={{
-        maskImage: "url(/logo-green-transparent.png)",
-        WebkitMaskImage: "url(/logo-green-transparent.png)",
-        maskSize: "contain",
-        WebkitMaskSize: "contain",
-        maskRepeat: "no-repeat",
-        WebkitMaskRepeat: "no-repeat",
-        maskPosition: "center",
-        WebkitMaskPosition: "center",
-        ...(bgColor ? { backgroundColor: bgColor } : {}),
-      }}
-    />
+      style={{ display: "flex", alignItems: "flex-end", justifyContent: "center" }}
+      className={`text-zinc-900 dark:text-zinc-50 ${className}`}
+    >
+      <span
+        style={{
+          fontFamily: 'Georgia, "Times New Roman", serif',
+          fontSize: "1.6em",
+          fontWeight: 500,
+          lineHeight: 0.85,
+          color: "currentColor",
+        }}
+      >
+        S
+      </span>
+      <svg
+        style={{
+          width: "0.57em",
+          height: "0.57em",
+          marginLeft: "-0.21em",
+          marginBottom: "0.25em",
+        }}
+        viewBox="0 0 22 22"
+        fill="currentColor"
+        className="text-[#1B6B37] dark:text-[#4ade80]"
+        aria-hidden="true"
+      >
+        <path d="M18 18Q8 14 4 4Q16 4 18 18Z" />
+      </svg>
+    </div>
   );
 }

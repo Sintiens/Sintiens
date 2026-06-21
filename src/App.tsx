@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import GlossaryExplorer from "./components/GlossaryExplorer";
 import TimelineExplorer from "./components/TimelineExplorer";
 import ExcusesDilemmas from "./components/ExcusesDilemmas";
@@ -14,8 +14,31 @@ import { CORE_NODES } from "./types";
 import { GLOSSARY_BY_ID, GLOSSARY_UNIFIED } from "./data/glossaryUnified";
 import type { TabType } from "./components/TabNav";
 
+// Mapeo bidireccional entre IDs de pestaña y paths de URL.
+// Se usa la History API del navegador para que los botones atrás/adelante
+// naveguen entre pestañas y las URLs sean compartibles.
+const TAB_PATHS: Record<TabType, string> = {
+  historia_narrativa: "/",
+  grafo: "/grafo",
+  cronologia: "/cronologia",
+  dialectica: "/dialectica",
+  calculadora: "/calculadora",
+  validador: "/validador",
+  datos: "/datos",
+};
+const PATH_TO_TAB: Record<string, TabType> = Object.fromEntries(
+  Object.entries(TAB_PATHS).map(([k, v]) => [v, k as TabType])
+);
+const DEFAULT_TAB: TabType = "historia_narrativa";
+
+function getTabFromPath(pathname: string): TabType {
+  return PATH_TO_TAB[pathname] ?? DEFAULT_TAB;
+}
+
 export default function App() {
-  const [activeTab, setActiveTab] = useState<TabType>("historia_narrativa");
+  const [activeTab, setActiveTab] = useState<TabType>(() =>
+    getTabFromPath(window.location.pathname)
+  );
   const [passedArgument, setPassedArgument] = useState<string | null>(null);
   const [redirectNodeId, setRedirectNodeId] = useState<string | null>(null);
   const [redirectEntryId, setRedirectEntryId] = useState<string | null>(null);
@@ -34,6 +57,22 @@ export default function App() {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
+  // Navegación entre pestañas basada en la History API del navegador.
+  // Cada cambio de pestaña crea una entrada en history, de modo que los
+  // botones atrás/adelante del navegador y los atajos Alt+← / Alt+→
+  // navegan entre pestañas en vez de salir de la app.
+  const navigateToTab = (tab: TabType) => {
+    if (tab === activeTab) return;
+    window.history.pushState({ tab }, "", TAB_PATHS[tab]);
+    setActiveTab(tab);
+  };
+
+  // Ref para que los listeners globales (montados con useEffect de deps [])
+  // siempre llamen a la versión más reciente de navigateToTab, que captura
+  // el activeTab vigente.
+  const navFnRef = useRef(navigateToTab);
+  navFnRef.current = navigateToTab;
+
   useEffect(() => {
     const updateScrollbarWidth = () => {
       const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
@@ -44,8 +83,61 @@ export default function App() {
     return () => window.removeEventListener("resize", updateScrollbarWidth);
   }, []);
 
+  // Sembrar history.state en el mount sin crear una entrada extra en el
+  // historial del navegador. Garantiza que el primer popstate reciba {tab}.
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.history.replaceState(
+      { tab: activeTab },
+      "",
+      TAB_PATHS[activeTab]
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Escuchar los botones atrás/adelante del navegador.
+  useEffect(() => {
+    const onPopState = (e: PopStateEvent) => {
+      const tab =
+        (e.state?.tab as TabType | undefined) ??
+        getTabFromPath(window.location.pathname);
+      setActiveTab(tab);
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
+  // Remove the static loading screen once React has mounted.
+  useEffect(() => {
+    const loader = document.querySelector(".instant-loader-container");
+    if (loader) loader.remove();
+  }, []);
+
+  // Atajos de teclado para navegar entre pestañas: Alt+← atrás, Alt+→ adelante.
+  // Usa la History API del navegador, igual que los botones del browser.
+  // No se dispara si el foco está en un campo de texto editable.
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target) {
+        const tag = target.tagName;
+        if (tag === "INPUT" || tag === "TEXTAREA" || target.isContentEditable) {
+          return;
+        }
+      }
+      if (e.altKey && e.key === "ArrowLeft") {
+        e.preventDefault();
+        window.history.back();
+      } else if (e.altKey && e.key === "ArrowRight") {
+        e.preventDefault();
+        window.history.forward();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "auto" });
   }, [activeTab]);
 
   useEffect(() => {
@@ -63,9 +155,9 @@ export default function App() {
           setRedirectEntryId(relatedGlossaryEntry.id);
         }
         setRedirectNodeId(targetId);
-        setActiveTab("grafo");
+        navFnRef.current("grafo");
       } else {
-        setActiveTab("dialectica");
+        navFnRef.current("dialectica");
         setTimeout(() => {
           window.dispatchEvent(new CustomEvent("expand-dilemma", { detail: targetId }));
         }, 80);
@@ -83,7 +175,7 @@ export default function App() {
       if (!targetId) return;
       if (GLOSSARY_BY_ID[targetId]) {
         setRedirectEntryId(targetId);
-        setActiveTab("grafo");
+        navFnRef.current("grafo");
       }
     };
 
@@ -93,7 +185,7 @@ export default function App() {
 
   const handleDeconstructTrigger = (excuse: string) => {
     setPassedArgument(excuse);
-    setActiveTab("validador");
+    navigateToTab("validador");
   };
 
   const handleClearTrigger = () => {
@@ -102,11 +194,11 @@ export default function App() {
 
   const handleRedirectToConcept = (nodeId: string) => {
     setRedirectNodeId(nodeId);
-    setActiveTab("grafo");
+    navigateToTab("grafo");
   };
 
   const handleNavigate = (tab: TabType) => {
-    setActiveTab(tab);
+    navigateToTab(tab);
   };
 
   const handleToggleTheme = () => {
@@ -133,13 +225,13 @@ export default function App() {
       <main className="flex-1 max-w-[1440px] w-full mx-auto px-3 md:px-8 lg:px-16 py-12 lg:py-20 relative">
 
         <div className="min-h-[600px]">
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="popLayout" initial={false}>
             <motion.div
               key={activeTab}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.4 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
               className="w-full"
             >
               {activeTab === "historia_narrativa" && (
@@ -183,7 +275,7 @@ export default function App() {
 
         {import.meta.env.DEV && (
           <DevErrorBoundary>
-            <DevModeOverlay activeTab={activeTab} setActiveTab={setActiveTab} />
+            <DevModeOverlay activeTab={activeTab} setActiveTab={navigateToTab} />
           </DevErrorBoundary>
         )}
       </main>

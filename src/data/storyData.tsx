@@ -29,7 +29,7 @@ export const actsData: ActData[] = [
         id: "la-diferencia-entre-",
         title: "La diferencia entre vivir y sentir: El concepto de Sintiencia",
         content: (
-          <p>A menudo confundimos estar vivos con ser sintientes, pero la biología marca una línea clara. Una planta está viva, crece y busca la luz; un termostato de pared reacciona al frío encendiendo la calefacción. Sin embargo, ninguno de los dos es "sintiente". La <strong>sintiencia</strong> es la capacidad de tener experiencias subjetivas. Significa que el animal no es un simple mecanismo biológico, sino que tiene una perspectiva propia del mundo. Un ser sintiente es capaz de experimentar sensaciones positivas (como el placer, el apego o la comodidad) y negativas (como el dolor, el miedo o la frustración).</p>
+          <p>La sintiencia —recordemos— es la capacidad de tener experiencias subjetivas. Lo que la neurobiología ha hecho en las últimas décadas es mapear dónde existe esa capacidad. La <strong>Declaración de Cambridge</strong> (2012) estableció que mamíferos, aves y muchas otras criaturas comparten los sustratos neuronales de la consciencia. La <strong>Declaración de Nueva York</strong> (2024) amplió ese consenso a cefalópodos, decápodos e insectos, basándose en respuestas observables al dolor, aprendizaje complejo y comportamientos intencionales.</p>
         ),
         keyIdea: "Estar vivo no es lo mismo que ser sintiente: la sintiencia es tener una experiencia subjetiva, sentir placer, dolor, miedo o apego.",
         analogy: { text: "Un termostato reacciona al frío, una planta busca la luz, pero ninguno 'siente' nada. La sintiencia empieza donde aparece un 'alguien' que experimenta, no solo un mecanismo que responde." },
@@ -92,16 +92,10 @@ export const actsData: ActData[] = [
         title: "El dolor consciente frente al acto reflejo",
         content: (
           <div className="space-y-4">
-            <p>Para entender el sufrimiento animal, la ciencia hace una distinción vital entre dos procesos corporales:</p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li>
-                <strong>La Nocicepción (El reflejo biológico):</strong> Es el sistema de alarma automático del cuerpo. Imagina que tocas una estufa ardiendo; tu mano se retira sola una fracción de segundo antes de que te des cuenta de lo que ha pasado. Ese reflejo es físico, ocurre en los nervios y la médula espinal, y no requiere conciencia.
-              </li>
-              <li>
-                <strong>El Dolor (El sufrimiento consciente):</strong> Es la experiencia emocional, profundamente desagradable, que ocurre en el cerebro después del reflejo. Es el sufrimiento real.
-              </li>
-            </ul>
-            <p>Durante mucho tiempo, algunos científicos creían que los animales solo tenían nocicepción (actuaban por puro instinto, sin sufrir). Hoy, la neurobiología ha demostrado de forma irrefutable que los animales sufren el dolor al igual que nosotros. La evolución ha creado diferentes modelos de cerebros: el de un perro, el de un cuervo o el de un pulpo son físicamente distintos al nuestro, pero todos han desarrollado el mismo "software" neurológico necesario para sufrir, sentir terror o experimentar alegría.</p>
+            <p>La distinción entre <strong>nocicepción</strong> (reflejo automático) y <strong>dolor</strong> (experiencia consciente) es clave, y los últimos quince años de investigación la han confirmado en especies inesperadas.</p>
+            <p>Braithwaite (2010) demostró que los peces teleósteos modulan su comportamiento al recibir analgésicos, no solo al recibir estímulos mecánicos. Elwood y Adams (2015) mostraron que cangrejos de playa expuestos a descargas eléctricas presentan respuestas fisiológicas coherentes con dolor —no mero reflejo— y renuncian a refugios valiosos para evitar futuros choques. En invertebrados con sistemas nerviosos radicalmente distintos al nuestro, la evidencia de dolor se acumula.</p>
+            <p>El neurocientífico Jaak Panksepp identificó siete sistemas emocionales básicos compartidos por todos los mamíferos —búsqueda, ira, miedo, lujuria, cuidado, pánico y juego— que se originan en regiones profundas del cerebro (subcorticales), no en el neocórtex. Por eso la ausencia de neocórtex humano no excluye la experiencia: la maquinaria emocional es anterior en la evolución.</p>
+            <p>La <strong>Declaración de Cambridge sobre la Conciencia</strong> (2012) formalizó este consenso entre neurocientíficos. Más recientemente, la <strong>Declaración de Nueva York sobre la Conciencia Animal</strong> (2024) amplió ese reconocimiento a invertebrados como cefalópodos (pulpos, calamares), decápodos (cangrejos, langostas) e insectos, basándose en evidencia acumulada de comportamientos complejos y respuestas al dolor.</p>
           </div>
         ),
         keyIdea: "Nocicepción es un reflejo automático; el dolor es una experiencia consciente. Los animales no humanos tienen ambas, igual que nosotros.",
@@ -182,8 +176,8 @@ export const actsData: ActData[] = [
         title: "El problema del \"Especismo\"",
         content: (
           <div className="space-y-4">
-            <p>De aquí nace uno de los conceptos más importantes y debatidos de la actualidad: el Especismo. Se define como la discriminación de un individuo basándose única y exclusivamente en la especie a la que pertenece (de forma análoga al racismo o el sexismo).</p>
-            <p>Para entenderlo, piensa en cómo nuestra cultura trata a un perro frente a un cerdo. Al perro lo consideramos parte de la familia; lo protegemos con leyes, le damos un nombre y lloramos si enferma. Al cerdo, a pesar de que la ciencia ha demostrado que es igual o más inteligente y sociable que el perro, lo encerramos en una granja industrial para convertirlo en comida. El especismo nos dice que esta diferencia de trato es totalmente arbitraria y carece de lógica moral.</p>
+            <p>El especismo, como vimos en los conceptos clave, es el sesgo que usa la especie como criterio moral. El debate filosófico no es si existe —el consenso es que sí— sino cómo responder.</p>
+            <p>El filósofo Carl Cohen contraargumentó que los derechos son inherentemente humanos porque requieren agencia moral: solo los agentes morales pueden ser titulares de derechos. Pero esta postura tiene un problema: si la agencia moral es el criterio, también quedarían excluidos los bebés humanos y las personas con discapacidad cognitiva profunda, lo que se conoce como el <strong>problema de los casos marginales</strong>. Tom Regan respondió que un animal con creencias, deseos, memoria y sentido del futuro es un "sujeto-de-una-vida" con valor inherente, independientemente de su especie. El debate sigue vivo.</p>
             <p>La filosofía nos invita a pensar en el conflicto de intereses: ¿Es ético sacrificar un interés fundamental de un animal (su deseo de vivir, no ser mutilado y no sentir dolor) solo para satisfacer un interés periférico de un ser humano (el deseo de comer un plato que le gusta durante 15 minutos, cuando tiene otras alternativas)?</p>
           </div>
         ),
@@ -221,12 +215,13 @@ export const actsData: ActData[] = [
             <p>Frente a este dilema ético, existen dos posturas principales sobre cómo actuar:</p>
             <ul className="list-disc pl-6 space-y-2">
               <li>
-                <strong>El Bienestarismo:</strong> Es la postura más común. Acepta que los humanos sigamos usando a los animales para comida o investigación, pero exige que minimicemos su sufrimiento. Pide jaulas más grandes, transporte menos cruel y aturdimiento antes de la muerte.
+                <strong>El Bienestarismo (utilitarista, heredero de Singer):</strong> Es la postura más común. Acepta que los humanos sigamos usando a los animales para comida o investigación, pero exige que minimicemos su sufrimiento. Pide jaulas más grandes, transporte menos cruel y aturdimiento antes de la muerte. Busca reducir el daño sin cuestionar la estructura que lo permite.
               </li>
               <li>
-                <strong>El Abolicionismo (Derechos Animales):</strong> Esta postura argumenta que los seres sintientes no deben ser propiedad de nadie. Para ellos, hacer las jaulas un poco más grandes no soluciona el problema de fondo. Sostienen que, al igual que ocurrió con la esclavitud humana, el objetivo no debe ser tratar "amablemente" a los animales que usamos, sino dejar de usarlos como recursos.
+                <strong>El Abolicionismo (derechos animales, heredero de Regan y Francione):</strong> Esta postura argumenta que los seres sintientes no deben ser propiedad de nadie. El filósofo Tom Regan defendió que los animales son "sujetos-de-una-vida" con valor inherente, no recursos. El jurista Gary Francione sostiene que las reformas bienestaristas son un maquillaje que adormece la conciencia del consumidor sin cambiar la raíz del problema: el estatus de propiedad. Para el abolicionismo, al igual que ocurrió con la esclavitud humana, el objetivo no debe ser tratar "amablemente" a los animales que usamos, sino dejar de usarlos como recursos.
               </li>
             </ul>
+            <p>Existen otros marcos que enriquecen el debate: Martha Nussbaum propuso el <strong>enfoque de las capacidades</strong> (cada animal tiene derecho a desarrollar sus capacidades naturales), y Sue Donaldson y Will Kymlicka, en <strong>Zoopolis</strong>, trasladaron la discusión al terreno político, defendiendo derechos de ciudadanía para animales domésticos, residencia para los liminales y soberanía para los salvajes.</p>
           </div>
         ),
         keyIdea: "Bienestarismo: usarlos pero con menos sufrimiento. Abolicionismo: dejar de usarlos. La pregunta de fondo es si 'menos cruel' es suficiente.",
@@ -287,7 +282,7 @@ export const actsData: ActData[] = [
         title: "Las herramientas del autoengaño mental",
         content: (
           <div className="space-y-4">
-            <p>Nuestro cerebro utiliza varias estrategias fascinantes para apagar nuestra empatía:</p>
+            <p>Como vimos en el concepto de <strong>axioma implícito</strong>, estas tres herramientas del autoengaño son premisas que damos por ciertas sin haberlas examinado. Nuestro cerebro utiliza varias estrategias fascinantes para apagar nuestra empatía:</p>
             <ul className="list-disc pl-6 space-y-2">
               <li>
                 <strong>La Compartimentalización (Las "cajas" mentales):</strong> Subdividimos a los animales en categorías cerradas. La caja de "mascotas" (donde ponemos toda nuestra empatía), la caja de "comida" (donde apagamos la empatía) y la caja de "plagas". Al etiquetar a una vaca simplemente como "comida", operamos bajo un sesgo cultural profundo.
@@ -304,7 +299,7 @@ export const actsData: ActData[] = [
         keyIdea: "Compartimentar, minimizar su inteligencia y esconder el proceso con el lenguaje: tres trucos para apagar la empatía sin darse cuenta.",
         analogy: { text: "Es como poner un filtro de Instagram al matadero: 'ternera', 'bacon', 'filete'. La palabra dibuja otra cosa, y la mente se relaja." },
         pullQuote: "Los mataderos se construyen lejos de las ciudades y sin ventanas.",
-        didYouKnow: "Estudios de Melanie Joy bautizaron este sistema invisible de creencias como 'carnismo': por qué comemos a unos animales y no a otros sin ningún motivo biológico.",
+          didYouKnow: "Estudios de Melanie Joy bautizaron este sistema invisible de creencias como 'carnismo': por qué comemos a unos animales y no a otros sin ningún motivo biológico. Investigaciones como las de Loughnan, Bastian y Haslam (2010) demostraron que quienes comen carne tienden a negar la capacidad mental de los animales de granja —atribuyéndoles menos dolor y conciencia— como mecanismo para reducir la culpa.",
         reflectionQuestion: {
           question: "¿Qué palabra usas tú para no ver al animal? ¿Qué pasaría si la sustituyeras por su nombre durante una semana?",
           prompt: "El lenguaje no es neutral: prueba a nombrar y observa qué cambia por dentro."
@@ -372,13 +367,16 @@ export const actsData: ActData[] = [
         content: (
           <ul className="list-disc pl-6 space-y-2">
             <li>
-              <strong>Acuicultura:</strong> No solo los animales terrestres sufren esto. Las granjas de peces (acuicultura) mantienen a miles de animales hacinados en piscimas o redes acuáticas, sufriendo estrés severo, falta de oxígeno y propagación de parásitos.
+              <strong>Acuicultura:</strong> No solo los animales terrestres sufren esto. Las granjas de peces (acuicultura) mantienen a miles de animales hacinados en piscinas o redes acuáticas, sufriendo estrés severo, falta de oxígeno y propagación de parásitos.
             </li>
             <li>
               <strong>Experimentación Científica:</strong> Aunque existe un código ético llamado "Las 3R" (Reemplazar, Reducir y Refinar el uso de animales), la realidad es que millones de ratones, perros, conejos y primates siguen siendo sometidos a pruebas de toxicidad, biotecnología y cosmética en laboratorios de todo el mundo.
             </li>
             <li>
               <strong>Ropa y Entretenimiento:</strong> Los animales continúan siendo criados y desollados por la industria peletera (pieles, cueros, lanas), y utilizados para el ocio humano en zoológicos, parques marinos y circos, donde se les priva sistemáticamente de todos sus comportamientos instintivos naturales.
+            </li>
+            <li>
+              <strong>Pandemias y salud pública:</strong> Las granjas industriales, con miles de animales genéticamente uniformes y sistemas inmunitarios debilitados, son caldos de cultivo para enfermedades que pueden saltar a humanos. Aproximadamente el 70% de las enfermedades infecciosas emergentes son de origen animal (IPBES, 2020), y la gripe aviar, el SARS y el COVID-19 han mostrado la conexión directa entre la ganadería intensiva, la destrucción de hábitats y el riesgo pandémico global.
             </li>
           </ul>
         ),
@@ -412,7 +410,7 @@ export const actsData: ActData[] = [
         keyIdea: "Cada salto en la cadena alimentaria pierde ~90% de la energía. Usar animales como 'fábricas' es el sistema más ineficiente posible.",
         analogy: { text: "Es como calentar tu casa quemando diez leños para sentir el calor de uno solo: el resto se va por la chimenea." },
         pullQuote: "Por cada 100 calorías de cultivos que damos a una vaca, nos devuelve apenas 2.",
-        didYouKnow: "La Ley del 10% de Lindeman describe esta pérdida: en cada escalón trófico, ~90% de la energía se disipa como calor y metabolismo.",
+          didYouKnow: "La Ley del 10% de Lindeman describe esta pérdida: en cada escalón trófico, ~90% de la energía se disipa como calor y metabolismo. Un estudio en Science (Poore & Nemecek, 2018) analizó 38.700 granjas en 119 países y encontró que los productos animales usan el 83% de la tierra agrícola global pero aportan solo el 18% de las calorías. Además, el 96% de la biomasa de mamíferos terrestres del planeta es ganado y humanos (Bar-On et al., 2018).",
         reflectionQuestion: {
           question: "Si el sistema pierde un 90% de energía en cada escalón, ¿por qué seguimos diseñando nuestra comida dando un rodeo por un animal?",
           prompt: "Piensa en términos de eficiencia, no de hábito."
@@ -441,7 +439,7 @@ export const actsData: ActData[] = [
         keyIdea: "~80% de la tierra agrícola mundial se usa para criar animales, que aportan una porción minoritaria de las calorías humanas. La ineficiencia devora territorio.",
         analogy: { text: "Si una ciudad reservara el 80% de sus calles para moversa coches vacíos, sería un escándalo urbanístico. Esto es lo mismo, pero con selvas." },
         pullQuote: "La ganadería es la causa número uno de deforestación en la Amazonía.",
-        didYouKnow: "La ganadería y el pienso para ganado son el principal motor de deforestación amazónica, por delante de la madera o la minería en superficie afectada.",
+          didYouKnow: "La ganadería y el pienso para ganado son el principal motor de deforestación amazónica, por delante de la madera o la minería en superficie afectada. Un dato que sorprende: entre el 75% y el 80% de la soja cultivada en el mundo se destina a piensos para animales, no al consumo humano directo. El tofu y la leche de soja no son los responsables de la deforestación: lo es el filete.",
         reflectionQuestion: {
           question: "Si el 80% de la tierra agrícola alimenta a animales y no a personas, ¿de quién es hambre el que dicen resolver?",
           prompt: "Sigue las calorías, no las leyendas: ¿quién recibe el 80%?"
@@ -451,12 +449,12 @@ export const actsData: ActData[] = [
         id: "la-huella-h-drica-y-",
         title: "La huella hídrica y el Cambio Climático",
         content: (
-          <p>El coste de recursos es astronómico. Se necesitan miles y miles de litros de agua dulce para producir un solo filete de carne (sumando el agua que bebe el animal, la limpieza y, sobre todo, el riego de sus cultivos). Por si fuera poco, el sistema digestivo de los rumiantes (vacas, ovejas) y el manejo de montañas de sus excrementos liberan inmensas cantidades de metano. El metano es un gas de efecto invernadero que atrapa el calor en la atmósfera con una potencia decenas de veces mayor que el CO2 a corto plazo, acelerando drásticamente el cambio climático.</p>
+          <p>El coste de recursos es astronómico. Producir un solo kilogramo de carne de res requiere aproximadamente 15.400 litros de agua dulce, frente a los 4.000 litros de un kilogramo de legumbres o los 300 litros de la mayoría de vegetales (Mekonnen & Hoekstra, 2012). Por si fuera poco, el sistema digestivo de los rumiantes (vacas, ovejas) y la descomposición de sus excrementos liberan inmensas cantidades de metano, un gas de efecto invernadero que atrapa el calor en la atmósfera con una potencia unas 80 veces mayor que el CO₂ en un horizonte de 20 años. La ganadería es responsable de aproximadamente el 57% de las emisiones del sistema alimentario global (Poore & Nemecek, 2018), y la comunidad científica —incluida la comisión EAT-Lancet— coincide en que una transición hacia dietas con menos productos animales y más vegetales es una de las palancas más rápidas y efectivas para mitigar el cambio climático.</p>
         ),
-        keyIdea: "Un filete cuesta miles de litros de agua y libera metano, un gas que calienta decenas de veces más que el CO2 a corto plazo.",
-        analogy: { text: "Es como si cada burger viniera con una factura invisible: miles de litros de agua y un sobre de metano que pagamos entre todos, aunque no aparezca en la etiqueta." },
-        pullQuote: "El metano atrapa el calor con una potencia decenas de veces mayor que el CO2 a corto plazo.",
-        didYouKnow: "El metano dura menos en la atmósfera que el CO2, pero calienta ~80 veces más a 20 años: reducir ganadería es una de las palancas climáticas más rápidas.",
+        keyIdea: "Un kilo de carne de res cuesta ~15.400 litros de agua y emite metano 80 veces más potente que el CO₂. El 57% de las emisiones alimentarias vienen de productos animales.",
+        analogy: { text: "Es como si cada burger viniera con una factura invisible: 15.400 litros de agua y un sobre de metano que pagamos entre todos, aunque no aparezca en la etiqueta." },
+        pullQuote: "15.400 litros de agua por un kilo de carne. 4.000 por un kilo de legumbres.",
+        didYouKnow: "El metano dura menos en la atmósfera que el CO₂, pero calienta ~80 veces más a 20 años. La comisión EAT-Lancet (2019) propuso una 'Dieta Planetaria' que limita la carne roja a 14 gramos al día —el equivalente a una albóndiga pequeña— para hacer el sistema alimentario sostenible.",
         reflectionQuestion: {
           question: "Si el precio real del filete incluye agua, selva y metano, ¿por qué la etiqueta solo muestra euros?",
           prompt: "Las externalidades existen aunque no las imprima el supermercado."
@@ -483,7 +481,7 @@ export const actsData: ActData[] = [
         keyIdea: "El derecho pasa de tratar al animal como 'cosa' a reconocerlo como 'ser sintiente'. Es la primera grieta para futuras protecciones reales.",
         analogy: { text: "Es como cuando la ley dejó de considerar 'propiedad' a ciertos humanos: el cambio de etiqueta legal no acabó la injusticia, pero la hizo por fin enunciabilidad jurídica." },
         pullQuote: "El simple hecho de que la ley reconozca que 'sienten' es la primera piedra.",
-        didYouKnow: "Varios países ya reformaron sus códigos civiles para desclasificar a los animales del capítulo de 'bienes muebles', un cambio de redacción con consecuencias legales reales.",
+          didYouKnow: "Varios países ya reformaron sus códigos civiles para desclasificar a los animales del capítulo de 'bienes muebles', un cambio de redacción con consecuencias legales reales. Francia, Austria, Alemania, Suiza y Colombia, entre otros, ya reconocen a los animales como seres sintientes en sus códigos civiles. La Declaración de Toulon (2019), firmada por juristas europeos, es la contraparte jurídica de la Declaración de Cambridge: pide formalmente que los animales dejen de ser considerados 'cosas' ante la ley.",
         reflectionQuestion: {
           question: "Si la ley admite que el animal siente pero sigue permitiendo su mutilación masiva, ¿es coherente o es un parche para dormir la conciencia?",
           prompt: "Una ley puede reconocer y permitir a la vez: ahí está la pregunta."
@@ -512,7 +510,7 @@ export const actsData: ActData[] = [
         keyIdea: "El Habeas Corpus, creado para liberar humanos encarcelados injustamente, se está usando ya para sacar a grandes simios y elefantes de jaulas.",
         analogy: { text: "Es pedirle al juez la misma herramienta que liberó a un preso injusto, pero para un chimpancé encerrado sin delito." },
         pullQuote: "No son 'cosas', sino 'personas no humanas' con derecho a la libertad corporal.",
-        didYouKnow: "El Nonhuman Rights Project ha presentado Habeas Corpus para chimpancés y osos en EE.UU., y tribunales de varios países ya han acogido el argumento al menos parcialmente.",
+          didYouKnow: "El Nonhuman Rights Project, fundado por el abogado Steven Wise (autor de 'Rattling the Cage', 2000), ha presentado recursos de Habeas Corpus para chimpancés y osos en EE.UU. En Argentina, la jueza Elena Liberatori falló a favor del Habeas Corpus de la orangutana Sandra (2015), reconociéndola como 'persona no humana', y la jueza María Alejandra Mauricio hizo lo mismo con la chimpancé Cecilia en Mendoza (2016), ordenando su traslado al santuario de Sorocaba, Brasil.",
         reflectionQuestion: {
           question: "Si aceptamos que un chimpancé tiene interés en no estar en una jaula, ¿qué diferencia relevante justifica que sí esté en una?",
           prompt: "Si la respuesta es 'su especie', vuelve al concepto de especismo."

@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { ChevronDown, Info, X } from "lucide-react";
 import SocraticReflection from "./SocraticReflection";
+import ConceptCard from "./ConceptCard";
 import { actsData } from "../data/storyData";
 import DeepDiveView from "./DeepDiveView";
 import { DeepDiveData } from "../types/story";
@@ -12,55 +13,66 @@ import ReadingUtilities from "./ReadingUtilities";
 import ReadingEnrichments from "./ReadingEnrichments";
 import MicroQuiz from "./MicroQuiz";
 import TabNav, { TabType } from "./TabNav";
+import { GlossaryEntry } from "../data/glossaryUnified";
 
-const AmbientGlow = ({ 
-colorClass, 
+const AmbientGlow = ({
+colorClass,
 className = "",
 opacity = 0.05,
+paused = false,
 style = {}
 }: {
 colorClass: string;
 className?: string;
 opacity?: number;
+paused?: boolean;
 style?: React.CSSProperties;
 }) => {
-const textClass = colorClass.startsWith('bg-') 
-  ? colorClass.replace('bg-', 'text-') 
+const textClass = colorClass.startsWith('bg-')
+  ? colorClass.replace('bg-', 'text-')
   : colorClass;
 
+// When paused, freeze all animations and drop the SMIL <animate> on the path.
+// Blur is also reduced (24/32 vs 35/48) to cut paint cost roughly in half,
+// while still looking organic thanks to the SVG shape.
+const animationStyle = paused ? { animationPlayState: "paused" as const } : {};
+
 return (
-<div 
+<div
   className={`absolute pointer-events-none select-none z-0 overflow-visible ${className}`}
-  style={style}
+  style={{ ...style, ...animationStyle }}
 >
   {/* Centered Elongated Container for organic wobbly drift */}
-  <div 
-    className={`absolute top-1/2 left-1/2 w-[145%] h-[65%] aspect-[2.2/1] filter blur-[35px] sm:blur-[48px] ${textClass} animate-wobble-slow transition-colors duration-[600ms] ease-in-out`}
+  <div
+    className={`absolute top-1/2 left-1/2 w-[145%] h-[65%] aspect-[2.2/1] filter blur-[24px] sm:blur-[32px] ${textClass} animate-wobble-slow transition-colors duration-[600ms] ease-in-out`}
     style={{
       opacity: opacity,
+      ...animationStyle,
     }}
   >
-    <svg 
-      viewBox="0 0 200 200" 
-      xmlns="http://www.w3.org/2000/svg" 
+    <svg
+      viewBox="0 0 200 200"
+      xmlns="http://www.w3.org/2000/svg"
       className="w-full h-full"
     >
       {/* Single Amorphous Path - Extremely smooth gradient transition via blur */}
-      <path 
+      <path
         fill="currentColor"
         d="M30,75 C70,15 130,25 175,55 C195,85 165,135 145,165 C105,195 55,175 35,135 C15,95 10,80 30,75 Z"
       >
-        <animate 
-          attributeName="d" 
-          dur="28s" 
-          repeatCount="indefinite" 
-          values="
-            M30,75 C70,15 130,25 175,55 C195,85 165,135 145,165 C105,195 55,175 35,135 C15,95 10,80 30,75 Z;
-            M55,35 C115,5 155,45 165,95 C175,155 115,175 75,155 C35,135 15,95 25,65 C35,35 15,35 55,35 Z;
-            M55,25 C115,5 145,55 155,105 C165,165 105,165 65,175 C25,185 35,115 35,75 C35,35 25,40 55,25 Z;
-            M30,75 C70,15 130,25 175,55 C195,85 165,135 145,165 C105,195 55,175 35,135 C15,95 10,80 30,75 Z
-          " 
-        />
+        {!paused && (
+          <animate
+            attributeName="d"
+            dur="28s"
+            repeatCount="indefinite"
+            values="
+              M30,75 C70,15 130,25 175,55 C195,85 165,135 145,165 C105,195 55,175 35,135 C15,95 10,80 30,75 Z;
+              M55,35 C115,5 155,45 165,95 C175,155 115,175 75,155 C35,135 15,95 25,65 C35,35 15,35 55,35 Z;
+              M55,25 C115,5 145,55 155,105 C165,165 105,165 65,175 C25,185 35,115 35,75 C35,35 25,40 55,25 Z;
+              M30,75 C70,15 130,25 175,55 C195,85 165,135 145,165 C105,195 55,175 35,135 C15,95 10,80 30,75 Z
+            "
+          />
+        )}
       </path>
     </svg>
   </div>
@@ -82,24 +94,39 @@ data: DeepDiveData;
 const [showMobileInfo, setShowMobileInfo] = useState(false);
 const [activeBlocks, setActiveBlocks] = useState<Record<string, string>>({});
 const [visitedChapters, setVisitedChapters] = useState<Set<string>>(new Set());
-const [actProgress, setActProgress] = useState<Record<string, number>>({});
 const [activeBlockId, setActiveBlockId] = useState<Record<string, string>>({});
 const ttsTargetRef = useRef<HTMLDivElement | null>(null);
+
+// Cached DOM nodes per act, populated on mount to avoid querySelector on every scroll frame.
+interface ActDomCache {
+  actEl: HTMLElement;
+  container: HTMLElement;
+  stickyHeader: HTMLElement | null;
+  chipInner: HTMLElement | null;
+  fixedBar: HTMLElement | null;
+  fillEl: HTMLElement | null;
+  titleEl: HTMLElement | null;
+  blocks: HTMLElement[];
+}
+const actDomCache = useRef<Map<string, ActDomCache>>(new Map());
+// Last block id per act, used to skip React setState calls when the active block hasn't changed.
+const lastBlockIdByAct = useRef<Record<string, string>>({});
 
 // States for floating notes and footnotes
 interface ActiveNoteState {
   id: string;
   type: "glossary" | "citation";
-  item: any;
+  item: GlossaryEntry;
   x: number;
   y: number;
   wordElement: HTMLElement | null;
+  instanceId?: string;
 }
 const [activeNotesByAct, setActiveNotesByAct] = useState<Record<string, ActiveNoteState>>({});
 const [mobileNote, setMobileNote] = useState<{
   id: string;
   type: "glossary" | "citation";
-  item: any;
+  item: GlossaryEntry;
   actColor: string;
 } | null>(null);
 
@@ -190,7 +217,7 @@ useEffect(() => {
 }, [recomputeAllLines]);
 
 // Footnotes/Glossary Handlers
-const handleHoverNote = (e: React.MouseEvent, noteId: string, item: any, type: "glossary" | "citation", actId: string) => {
+const handleHoverNote = (e: React.MouseEvent, noteId: string, item: GlossaryEntry, type: "glossary" | "citation", actId: string) => {
   // Hover triggers disabled as per user request (click-only now)
 };
 
@@ -198,7 +225,7 @@ const handleLeaveNote = () => {
   // Do nothing
 };
 
-const handleClickNote = (e: React.MouseEvent, noteId: string, item: any, type: "glossary" | "citation", actId: string, actColor: string, instanceId?: string) => {
+const handleClickNote = (e: React.MouseEvent, noteId: string, item: GlossaryEntry, type: "glossary" | "citation", actId: string, actColor: string, instanceId?: string) => {
   e.preventDefault();
   e.stopPropagation();
   if (window.innerWidth < 1024) {
@@ -243,7 +270,7 @@ const handleClickNote = (e: React.MouseEvent, noteId: string, item: any, type: "
   }
 };
 
-const handleHoverSidebarItem = (noteId: string, type: "glossary" | "citation", item: any, actId: string) => {
+const handleHoverSidebarItem = (noteId: string, type: "glossary" | "citation", item: GlossaryEntry, actId: string) => {
   // Just trigger a visual highlight of the word in the text (non-intrusive)
   const wordEl = document.querySelector(`[data-note-id="${noteId}"]`) as HTMLElement;
   if (wordEl) {
@@ -258,7 +285,7 @@ const handleLeaveSidebarItem = (noteId: string) => {
   }
 };
 
-const handleConceptClick = (noteId: string, type: "glossary" | "citation", item: any, actId: string) => {
+const handleConceptClick = (noteId: string, type: "glossary" | "citation", item: GlossaryEntry, actId: string) => {
   const wordEl = document.querySelector(`[data-note-id="${noteId}"]`) as HTMLElement;
   const gridContainer = wordEl?.closest(".grid-container-relative");
   if (wordEl && gridContainer) {
@@ -339,146 +366,180 @@ return next;
 }, [activeChapter]);
 
 useEffect(() => {
+// Build DOM cache for all acts once. This avoids querySelector / querySelectorAll
+// on every scroll frame (the previous implementation did ~10 queries per act per frame).
+const cache = actDomCache.current;
+const allSections = document.querySelectorAll('[id^="acto-"], #hero, #intro');
+const actSections = document.querySelectorAll('[id^="acto-"]');
+actSections.forEach((section) => {
+  const actEl = section as HTMLElement;
+  const actId = actEl.id;
+  if (cache.has(actId)) return;
+  const container = actEl.querySelector(".narrative-text-container") as HTMLElement | null;
+  if (!container) return;
+  cache.set(actId, {
+    actEl,
+    container,
+    stickyHeader: actEl.querySelector(".act-sticky-header") as HTMLElement | null,
+    chipInner: actEl.querySelector(".act-chip-inner") as HTMLElement | null,
+    fixedBar: actEl.querySelector("[data-act-progress-bar]") as HTMLElement | null,
+    fillEl: actEl.querySelector(".act-progress-fill") as HTMLElement | null,
+    titleEl: actEl.querySelector(".act-arrival-title") as HTMLElement | null,
+    blocks: Array.from(actEl.querySelectorAll(".narrative-block")) as HTMLElement[],
+  });
+});
+
 let ticking = false;
 const handleScroll = () => {
   if (ticking) return;
   ticking = true;
   requestAnimationFrame(() => {
     try {
-      const sections = document.querySelectorAll('[id^="acto-"], #hero, #intro');
       const triggerLine = window.innerHeight * 0.2;
       let newActive: string | null = null;
-      sections.forEach((sec) => {
-        const rect = (sec as HTMLElement).getBoundingClientRect();
-        if (rect.top <= triggerLine) {
-          newActive = sec.id;
+
+      // PHASE 1: Read all rects first to avoid layout thrashing
+      // (reads interleaved with writes force a synchronous layout).
+      const cache = actDomCache.current;
+      const actData: Array<{
+        actId: string;
+        entry: ActDomCache;
+        actRect: DOMRect;
+        textRect: DOMRect;
+        headerRect: DOMRect | null;
+        titleRect: DOMRect | null;
+        lastBlockRect: DOMRect | null;
+        blockRects: DOMRect[];
+      }> = [];
+
+      cache.forEach((entry, actId) => {
+        const actRect = entry.actEl.getBoundingClientRect();
+        const textRect = entry.container.getBoundingClientRect();
+        const headerRect = entry.stickyHeader ? entry.stickyHeader.getBoundingClientRect() : null;
+        const titleRect = entry.titleEl ? entry.titleEl.getBoundingClientRect() : null;
+        const blockRects: DOMRect[] = new Array(entry.blocks.length);
+        for (let i = 0; i < entry.blocks.length; i++) {
+          const blockEl = entry.blocks[i];
+          const subtitleEl = blockEl.querySelector(":scope > span") as HTMLElement | null;
+          blockRects[i] = subtitleEl
+            ? subtitleEl.getBoundingClientRect()
+            : blockEl.getBoundingClientRect();
+        }
+        const lastBlockRect = blockRects.length > 0 ? blockRects[blockRects.length - 1] : null;
+
+        actData.push({
+          actId,
+          entry,
+          actRect,
+          textRect,
+          headerRect,
+          titleRect,
+          lastBlockRect,
+          blockRects,
+        });
+
+        if (actRect.top <= triggerLine) {
+          newActive = actId;
         }
       });
+
       if (newActive === "hero" || newActive === "intro") {
         newActive = null;
       }
       setActiveChapter((prev) => (prev === newActive ? prev : newActive));
 
+      // PHASE 2: Process and write (no more layout reads).
       const newActiveBlocks: Record<string, string> = {};
-      const newActProgress: Record<string, number> = {};
       const newActiveBlockId: Record<string, string> = {};
+      let hasBlockChange = false;
 
-      const els = document.querySelectorAll(".narrative-text-container");
-      els.forEach((el) => {
-        const element = el as HTMLElement;
-        const parentAct = element.closest('[id^="acto-"]');
-        if (!parentAct) return;
+      for (const data of actData) {
+        const { actId, entry, actRect, textRect, headerRect, titleRect, lastBlockRect, blockRects } = data;
+        const { container, stickyHeader, chipInner, fixedBar, fillEl, blocks } = entry;
 
-        const h2 = parentAct.querySelector("h2");
-        if (!h2) return;
-
-        const headerContainer = parentAct.querySelector(".act-sticky-header") as HTMLElement | null;
-        const headerRect = headerContainer ? headerContainer.getBoundingClientRect() : h2.getBoundingClientRect();
-        const textRect = element.getBoundingClientRect();
-
-        const relativeBottom = headerRect.bottom - textRect.top;
-
-        if (relativeBottom <= 0) {
-          element.style.webkitMaskImage = "";
-          element.style.maskImage = "";
-        } else {
-          const fadeStart = relativeBottom - 15;
-          const fadeEnd = relativeBottom + 35;
-
-          const maskVal = `linear-gradient(to bottom, transparent ${fadeStart}px, black ${fadeEnd}px)`;
-          element.style.webkitMaskImage = maskVal;
-          element.style.maskImage = maskVal;
+        // Update mask
+        if (headerRect) {
+          const relativeBottom = headerRect.bottom - textRect.top;
+          if (relativeBottom <= 0) {
+            container.style.webkitMaskImage = "";
+            container.style.maskImage = "";
+          } else {
+            const fadeStart = relativeBottom - 15;
+            const fadeEnd = relativeBottom + 35;
+            const maskVal = `linear-gradient(to bottom, transparent ${fadeStart}px, black ${fadeEnd}px)`;
+            container.style.webkitMaskImage = maskVal;
+            container.style.maskImage = maskVal;
+          }
         }
 
-        const blocks = parentAct.querySelectorAll(".narrative-block");
+        // Find active block (the last one whose subtitle has scrolled past the sticky header).
+        const stickyHeaderBottom = headerRect ? headerRect.bottom : 0;
         let activeTitle = "";
         let activeBlockIdStr = "";
-        const stickyHeaderBottom = headerRect.bottom;
-
-        blocks.forEach((blockEl) => {
-          const subtitleEl = blockEl.querySelector(":scope > span");
-          const subtitleRect = subtitleEl ? subtitleEl.getBoundingClientRect() : blockEl.getBoundingClientRect();
-
-          if (subtitleRect.bottom <= stickyHeaderBottom) {
-            activeTitle = blockEl.getAttribute("data-block-title") || "";
-            activeBlockIdStr = blockEl.getAttribute("data-block-id") || "";
+        for (let i = 0; i < blockRects.length; i++) {
+          if (blockRects[i].bottom <= stickyHeaderBottom) {
+            activeTitle = blocks[i].getAttribute("data-block-title") || "";
+            activeBlockIdStr = blocks[i].getAttribute("data-block-id") || "";
           }
-        });
+        }
 
-        newActiveBlocks[parentAct.id] = activeTitle || "";
+        // Only setState when the active block actually changes.
+        if (lastBlockIdByAct.current[actId] !== activeBlockIdStr) {
+          lastBlockIdByAct.current[actId] = activeBlockIdStr;
+          if (activeBlockIdStr) {
+            newActiveBlocks[actId] = activeTitle || "";
+            newActiveBlockId[actId] = activeBlockIdStr;
+            hasBlockChange = true;
+          }
+        }
 
-        const actRect = parentAct.getBoundingClientRect();
-        const actHeight = (parentAct as HTMLElement).offsetHeight;
-        const chipHeight = headerContainer ? headerContainer.offsetHeight : 36;
+        // Update progress bar (writes the transform directly; no state needed).
+        const actHeight = entry.actEl.offsetHeight;
+        const chipHeight = stickyHeader ? stickyHeader.offsetHeight : 36;
         const scrollable = Math.max(1, actHeight - chipHeight);
         const progress = Math.max(0, Math.min(1, -actRect.top / scrollable));
-        const fillEl = parentAct.querySelector(".act-progress-fill") as HTMLElement | null;
         if (fillEl) {
           fillEl.style.transform = `scaleX(${progress.toFixed(4)})`;
         }
 
-        newActProgress[parentAct.id] = progress;
-        if (activeBlockIdStr) {
-          newActiveBlockId[parentAct.id] = activeBlockIdStr;
-        }
-
-        const titleEl = parentAct.querySelector(".act-arrival-title") as HTMLElement | null;
-        const chipInner = parentAct.querySelector(".act-chip-inner") as HTMLElement | null;
-        const lastBlockEl = blocks.length > 0 ? (blocks[blocks.length - 1] as HTMLElement) : null;
+        // Update chip opacity (write to DOM directly).
         if (chipInner) {
           const fadeBand = 40;
-          const headerHeight = headerContainer ? headerContainer.offsetHeight : chipHeight;
-          const titleBottom = titleEl ? titleEl.getBoundingClientRect().bottom : actRect.top;
-          const fadeIn = Math.max(0, Math.min(1, (fadeBand - titleBottom) / fadeBand));
+          const headerHeight = chipHeight;
+          const fadeIn = titleRect
+            ? Math.max(0, Math.min(1, (fadeBand - titleRect.bottom) / fadeBand))
+            : 1;
           let fadeOut = 1;
-          if (lastBlockEl) {
-            const lastBottom = lastBlockEl.getBoundingClientRect().bottom;
-            fadeOut = Math.max(0, Math.min(1, (lastBottom - headerHeight) / fadeBand));
+          if (lastBlockRect) {
+            fadeOut = Math.max(0, Math.min(1, (lastBlockRect.bottom - headerHeight) / fadeBand));
           }
           chipInner.style.opacity = (fadeIn * fadeOut).toFixed(3);
         }
-      });
 
-      if (Object.keys(newActiveBlocks).length > 0) {
-        setActiveBlocks((prev) => {
-          let hasChanged = false;
-          for (const key in newActiveBlocks) {
-            if (prev[key] !== newActiveBlocks[key]) {
-              hasChanged = true;
-              break;
+        // Update fixed bar opacity (write to DOM directly).
+        if (fixedBar) {
+          let opacity = 0;
+          if (actId === newActive) {
+            const fadeBand = 40;
+            const headerHeight = chipHeight;
+            let fadeOut = 1;
+            if (lastBlockRect) {
+              fadeOut = Math.max(0, Math.min(1, (lastBlockRect.bottom - headerHeight) / fadeBand));
             }
+            opacity = fadeOut;
           }
-          if (hasChanged) {
-            return { ...prev, ...newActiveBlocks };
-          }
-          return prev;
-        });
+          fixedBar.style.opacity = opacity.toFixed(3);
+        }
       }
 
-      if (Object.keys(newActProgress).length > 0) {
-        setActProgress((prev) => {
-          let hasChanged = false;
-          for (const key in newActProgress) {
-            if (Math.abs((prev[key] || 0) - newActProgress[key]) > 0.01) {
-              hasChanged = true;
-              break;
-            }
-          }
-          return hasChanged ? { ...prev, ...newActProgress } : prev;
-        });
-      }
-
-      if (Object.keys(newActiveBlockId).length > 0) {
-        setActiveBlockId((prev) => {
-          let hasChanged = false;
-          for (const key in newActiveBlockId) {
-            if (prev[key] !== newActiveBlockId[key]) {
-              hasChanged = true;
-              break;
-            }
-          }
-          return hasChanged ? { ...prev, ...newActiveBlockId } : prev;
-        });
+      // Only call setState when something actually changed.
+      if (hasBlockChange) {
+        if (Object.keys(newActiveBlocks).length > 0) {
+          setActiveBlocks((prev) => ({ ...prev, ...newActiveBlocks }));
+        }
+        if (Object.keys(newActiveBlockId).length > 0) {
+          setActiveBlockId((prev) => ({ ...prev, ...newActiveBlockId }));
+        }
       }
     } finally {
       ticking = false;
@@ -541,7 +602,7 @@ marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
 }}
 >
 {/* ... Hero Content ... */}
-<div className="w-full flex flex-col lg:justify-center items-center text-center relative pt-6 lg:pt-12 pb-6 lg:pb-8 px-6 lg:px-16">
+<div className="w-full flex flex-col lg:justify-center items-center text-center relative min-h-[calc(100vh-160px)] pt-16 lg:pt-28 pb-16 lg:pb-24 px-6 lg:px-16">
 <div className="absolute top-[25px] left-[20px] w-6 h-6 pointer-events-none select-none flex items-center justify-center">
 <div className="absolute w-4 h-[2px] bg-primary/30" /><div className="absolute w-[2px] h-4 bg-primary/30" />
 </div>
@@ -595,7 +656,7 @@ marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
 
 <div className="flex-1 lg:flex-none flex flex-col justify-center items-center w-full">
   {/* Title and Subtitle Section */}
-  <div className="space-y-2 lg:space-y-4 max-w-3xl w-full text-center relative z-10 mt-2 lg:mt-4">
+  <div className="space-y-2 lg:space-y-4 max-w-3xl w-full text-center relative z-10 mt-12 lg:mt-20">
     <motion.h1 initial="hidden" animate="visible" variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.18 } } }} className="text-[clamp(42px,8.5vw,80px)] font-bold tracking-tight font-heading leading-[1.05] text-on-background select-none">
       <motion.span variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } } }} className="block sm:inline-block">
         ¿Qué vidas merecen&nbsp;
@@ -611,93 +672,16 @@ marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
   </div>
 
   {/* Crystalline Glass Card for Focus Columns Section */}
-  <div className="w-full max-w-7xl px-6 lg:px-16 mt-8 lg:mt-12 relative z-10 font-sans font-light leading-relaxed">
-    {/* Desktop View */}
-    <div 
-      className="hidden lg:block glass-enhance border border-outline-variant/35 rounded-3xl p-10 lg:p-12 w-full relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none"
-    >
-      <div className="grid grid-cols-3 gap-12 lg:gap-16 w-full divide-x divide-outline-variant/30">
-        <div className="flex relative pt-0 text-left flex-col items-start px-4 first:pl-0">
-          <span className="text-[10px] font-mono font-bold text-primary select-none tracking-widest uppercase block leading-none mb-4 opacity-60">[ EL DESAFÍO ]</span>
-          <div className="relative text-[13px] text-on-surface-variant/90 leading-relaxed font-sans font-light">
-            <p>La información científica, ética y ecológica está hoy más disponible que nunca, pero se presenta dispersa, fragmentada y a menudo polarizada.</p>
-          </div>
-        </div>
-
-        <div className="flex relative pt-0 text-left flex-col items-start px-8">
-          <span className="text-[10px] font-mono font-bold text-primary select-none tracking-widest uppercase block leading-none mb-4 opacity-60">[ ÁREAS DE ANÁLISIS ]</span>
-          <div className="relative text-[13px] text-on-surface-variant/90 leading-relaxed font-sans font-light w-full">
-            <p>Seis bloques interactivos que estructuran la evidencia desde la neurobiología y el impacto ecológico hasta la regulación legal y los dilemas éticos.</p>
-          </div>
-        </div>
-
-        <div className="flex relative pt-0 text-left flex-col items-start px-8 last:pr-0">
-          <span className="text-[10px] font-mono font-bold text-primary select-none tracking-widest uppercase block leading-none mb-4 opacity-60">[ EL PROPÓSITO ]</span>
-          <div className="relative text-[13px] text-on-surface-variant/90 leading-relaxed font-sans font-light">
-            <p>Estructurar y ordenar esa evidencia de forma sistemática y transparente, facilitando un espacio de deconstrucción moral para que cada persona explore y decida con total autonomía.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* Mobile View */}
-    <div className="lg:hidden w-full flex flex-col items-center">
-      <button
-        onClick={() => setShowMobileInfo(!showMobileInfo)}
-        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-outline-variant/30 text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-widest text-on-surface-variant hover:text-primary transition-all bg-surface-dim/20 hover:bg-surface-dim/40 active:scale-[0.98] cursor-pointer"
-      >
-        <Info className="w-3.5 h-3.5 opacity-85" />
-        <span>{showMobileInfo ? "Ocultar Enfoque" : "Ver Enfoque"}</span>
-        <ChevronDown className={`w-3.5 h-3.5 opacity-85 transition-transform duration-300 ${showMobileInfo ? 'rotate-180' : ''}`} />
-      </button>
-
-      <AnimatePresence>
-        {showMobileInfo && (
-          <motion.div
-            initial={{ height: 0, opacity: 0, marginTop: 0 }}
-            animate={{ height: "auto", opacity: 1, marginTop: 20 }}
-            exit={{ height: 0, opacity: 0, marginTop: 0 }}
-            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full overflow-hidden"
-          >
-            <div 
-              className="flex flex-col gap-6 p-6 sm:p-8 glass-enhance border border-outline-variant/35 rounded-2xl text-left relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none"
-            >
-              <div className="space-y-2">
-                <span className="text-[10px] font-mono font-bold text-primary select-none tracking-widest uppercase block leading-none opacity-60">[ EL DESAFÍO ]</span>
-                <p className="text-[13px] text-on-surface-variant/90 leading-relaxed">
-                  La información científica, ética y ecológica está hoy más disponible que nunca, pero se presenta dispersa, fragmentada y a menudo polarizada.
-                </p>
-              </div>
-
-              <div className="border-t border-outline-variant/20 pt-6 space-y-2">
-                <span className="text-[10px] font-mono font-bold text-primary select-none tracking-widest uppercase block leading-none opacity-60">[ ÁREAS DE ANÁLISIS ]</span>
-                <p className="text-[13px] text-on-surface-variant/90 leading-relaxed font-sans font-light">
-                  Seis bloques interactivos que estructuran la evidencia desde la neurobiología y el impacto ecológico hasta la regulación legal y los dilemas éticos.
-                </p>
-              </div>
-
-              <div className="border-t border-outline-variant/20 pt-6 space-y-2">
-                <span className="text-[10px] font-mono font-bold text-primary select-none tracking-widest uppercase block leading-none opacity-60">[ EL PROPÓSITO ]</span>
-                <p className="text-[13px] text-on-surface-variant/90 leading-relaxed font-sans font-light">
-                  Estructurar y ordenar esa evidencia de forma sistemática y transparente, facilitando un espacio de deconstrucción moral para que cada persona explore y decida con total autonomía.
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  </div>
+  <div className="w-full max-w-7xl px-6 lg:px-16 mt-12 lg:mt-20 relative z-10 font-sans font-light leading-relaxed" />
 </div>
 
-<div className="w-full flex justify-center pt-4 lg:pt-6 select-none relative z-10">
+<div className="w-full flex justify-center pt-10 lg:pt-16 select-none relative z-10">
 <motion.div className="text-primary/50 cursor-pointer" animate={{ y: [0, 4, 0] }} transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}>
 <ChevronDown className="w-5 h-5" />
 </motion.div>
 </div>
 
-<div className="w-full relative z-10 px-6 lg:px-16 max-w-7xl mx-auto pt-2 lg:pt-4">
+<div className="w-full relative z-10 px-6 lg:px-16 max-w-7xl mx-auto pt-8 lg:pt-12">
   <TabNav activeTab={activeTab} onNavigate={onNavigate} theme={theme} onToggleTheme={onToggleTheme} />
 </div>
 
@@ -709,7 +693,7 @@ marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
 </div>
 </div>
 
-<div className="mt-2 w-full text-left relative z-10 pt-2 px-2 pb-2">
+<div className="mt-16 lg:mt-24 w-full text-left relative z-10 pt-4 px-2 pb-2">
 <SocraticReflection />
 </div>
 </section>
@@ -746,22 +730,48 @@ marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
   </div>
 
   <div className="w-full max-w-7xl mx-auto px-6 lg:px-16 pt-0 relative z-10">
-    <div className="relative w-full text-center mb-8 lg:mb-12 pb-10 lg:pb-12 pt-6 lg:pt-8 px-4">
+    <div className="relative w-full text-center mb-8 lg:mb-12 pb-10 lg:pb-12 pt-20 lg:pt-32 px-4">
       <div className="relative z-10 space-y-6 lg:space-y-8 max-w-4xl mx-auto">
         {/* Restored Hero Details */}
         <span className="text-[10px] font-mono font-bold text-primary uppercase tracking-widest block leading-none mb-4 drop-shadow-md">
-          [ MODO LECTURA • ÍNDICE ]
+          [ MODO LECTURA ]
         </span>
         <h2 className="text-[clamp(44px,6vw,72px)] font-serif tracking-tight leading-[1.05] text-on-background mb-8 drop-shadow-2xl">
           Conceptos & Principios Fundamentales
         </h2>
-        <div className="text-[15px] md:text-[18px] lg:text-[21px] text-on-surface-variant/80 leading-[1.7] font-serif italic max-w-3xl mx-auto space-y-4">
-          <p>Este es un apartado genérico y sintetizado de las principales áreas de estudio. Su propósito es servir como una lectura introductoria; desde aquí, podrás profundizar muchísimo más en cada temática.</p>
+        <div className="text-[15px] md:text-[17px] lg:text-[19px] text-on-surface-variant/90 leading-[1.75] font-serif max-w-3xl mx-auto space-y-5 text-center">
+          <p>La información sobre nuestra relación con los animales —científica, ética, ecológica— está más disponible que nunca, pero dispersa, fragmentada y a menudo polarizada. Hay una pregunta que la atraviesa toda: <span className="italic font-semibold text-on-surface">¿qué hace que alguien importe?</span> No qué lo hace útil o rentable, sino qué hace que su experiencia cuente moralmente. Esta página no te va a dar una respuesta, pero sí preguntas y herramientas para revisar tus propias certezas.</p>
+          <p>Sintiens recorre seis actos que van de la neurobiología del sufrimiento a la termodinámica de la ganadería, del derecho animal emergente a la psicología del autoengaño.</p>
         </div>
       </div>
     </div>
 
+    {/* 5 Tarjetas de conceptos fundamentales */}
+    <div className="relative z-10 mb-16 lg:mb-24 -mx-6 lg:-mx-20">
+      <div className="text-center mb-6 lg:mb-8">
+        <span className="text-[10px] font-mono font-bold text-primary uppercase tracking-widest block leading-none mb-3 drop-shadow-md">
+          [ LOS 5 CONCEPTOS CLAVE ]
+        </span>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+        {[
+          'sintiencia',
+          'dolor-vs-nocicepcion',
+          'especismo',
+          'causalidad-sistemica',
+          'axioma-implicito',
+        ].map((id, i) => (
+          <ConceptCard key={id} number={i + 1} glossaryId={id} />
+        ))}
+      </div>
+    </div>
+
     {/* Frosted Glass Index Card */}
+    <div className="text-center mb-6 lg:mb-8">
+      <span className="text-[10px] font-mono font-bold text-primary uppercase tracking-widest block leading-none mb-3 drop-shadow-md">
+        [ ÍNDICE ]
+      </span>
+    </div>
     <div 
       className="glass-enhance border border-outline-variant/35 rounded-3xl p-6 sm:p-8 lg:p-10 w-full relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-container/25 dark:before:bg-surface-container/12 before:backdrop-blur-xl before:z-[-1] before:pointer-events-none"
     >
@@ -845,9 +855,9 @@ const isFlashing = flashChapter === act0.id;
         </span>
       </div>
 
-      <AmbientGlow colorClass={act0.colorName} className={`animate-float-1 w-[900px] h-[700px] top-[-10%] left-[-20%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.2} />
-      <AmbientGlow colorClass={act0.colorName} className={`animate-float-3 w-[700px] h-[600px] bottom-[5%] right-[-15%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.15} />
-      <AmbientGlow colorClass={act0.colorName} className={`animate-float-5 w-[500px] h-[500px] top-[30%] left-[30%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.12} />
+      <AmbientGlow colorClass={act0.colorName} className={`animate-float-1 w-[900px] h-[700px] top-[-10%] left-[-20%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.2} paused={!isActive} />
+      <AmbientGlow colorClass={act0.colorName} className={`animate-float-3 w-[700px] h-[600px] bottom-[5%] right-[-15%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.15} paused={!isActive} />
+      <AmbientGlow colorClass={act0.colorName} className={`animate-float-5 w-[500px] h-[500px] top-[30%] left-[30%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.12} paused={!isActive} />
 
       {/* Title (normal flow) + slim sticky chip + blocks */}
       <div className="relative w-full">
@@ -877,9 +887,6 @@ const isFlashing = flashChapter === act0.id;
             Invisible while the arrival title is in view; fades in once the title scrolls off. */}
         <div className="sticky top-0 z-20 w-full pointer-events-none act-sticky-header">
           <div className="act-chip-inner opacity-0">
-            <div className="absolute top-0 left-0 right-0 h-[2px] bg-outline-variant/10 pointer-events-none">
-              <div className="act-progress-fill h-full origin-left transition-transform duration-200 ease-out will-change-transform" style={{ backgroundColor: "var(--primary)" }} />
-            </div>
             <div className="w-full px-3 md:px-6 xl:pl-20 xl:pr-4 pt-0 pb-0 pointer-events-auto">
               <div className="flex items-center gap-3 min-h-[20px]">
                 <span className={`text-[11px] md:text-[12px] font-mono font-bold ${act0.textColor} uppercase tracking-widest leading-none whitespace-nowrap`}>
@@ -904,15 +911,14 @@ const isFlashing = flashChapter === act0.id;
             </div>
           </div>
         </div>
+        {/* Fixed progress bar — always at the top of the screen when the act is active */}
+        <div className="fixed top-0 left-0 right-0 z-50 h-[2px] bg-outline-variant/10 pointer-events-none transition-opacity duration-200" data-act-id={act0.id} data-act-progress-bar style={{ opacity: 0 }}>
+          <div className="act-progress-fill h-full origin-left transition-transform duration-200 ease-out will-change-transform" style={{ backgroundColor: "var(--primary)" }} />
+        </div>
 
         <motion.section variants={chapterVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} className="relative z-10 pt-0 pb-3 lg:pb-4 w-full px-3 md:px-6 xl:pl-20 xl:pr-4">
-          <div 
-            className={`narrative-text-container relative w-full font-serif text-[18px] md:text-[20px] leading-[1.8] font-normal transition-colors duration-1000 ${isActive ? 'text-on-surface' : 'text-on-surface/35'} [&_p]:mb-5 [&_p:last-child]:mb-0`}
-            style={{ 
-              willChange: "mask-image, -webkit-mask-image",
-              transform: "translate3d(0, 0, 0)",
-              WebkitTransform: "translate3d(0, 0, 0)"
-            }}
+          <div
+            className={`narrative-text-container relative w-full font-serif text-[18px] md:text-[20px] leading-[1.8] font-normal transition-colors duration-300 ${isActive ? 'text-on-surface' : 'text-on-surface/35'} [&_p]:mb-5 [&_p:last-child]:mb-0`}
           >
             {act0.blocks.map((block, blockIndex) => (
               <div key={block.id} className="mb-10 last:mb-0 narrative-block" data-block-title={block.title} data-block-id={block.id}>
@@ -961,10 +967,10 @@ return (
 </span>
 </div>
 
-<AmbientGlow colorClass={act.colorName} className={`animate-float-${(index % 6) + 1} w-[900px] h-[700px] top-[-10%] left-[-20%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.25} />
-<AmbientGlow colorClass={act.colorName} className={`animate-float-${((index + 1) % 6) + 1} w-[950px] h-[700px] bottom-[5%] right-[-15%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.25} />
-<AmbientGlow colorClass={act.colorName} className={`animate-float-${((index + 2) % 6) + 1} w-[650px] h-[550px] top-[20%] left-[25%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.18} />
-<AmbientGlow colorClass={act.colorName} className={`animate-float-${((index + 3) % 6) + 1} w-[700px] h-[600px] top-[40%] right-[-8%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.18} />
+<AmbientGlow colorClass={act.colorName} className={`animate-float-${(index % 6) + 1} w-[900px] h-[700px] top-[-10%] left-[-20%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.25} paused={!isActive} />
+<AmbientGlow colorClass={act.colorName} className={`animate-float-${((index + 1) % 6) + 1} w-[950px] h-[700px] bottom-[5%] right-[-15%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.25} paused={!isActive} />
+<AmbientGlow colorClass={act.colorName} className={`animate-float-${((index + 2) % 6) + 1} w-[650px] h-[550px] top-[20%] left-[25%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.18} paused={!isActive} />
+<AmbientGlow colorClass={act.colorName} className={`animate-float-${((index + 3) % 6) + 1} w-[700px] h-[600px] top-[40%] right-[-8%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.18} paused={!isActive} />
 
 {/* Title (normal flow) + slim sticky chip + blocks */}
 <div className="relative w-full">
@@ -994,9 +1000,6 @@ return (
       Invisible while the arrival title is in view; fades in once the title scrolls off. */}
   <div className="sticky top-0 z-20 w-full pointer-events-none act-sticky-header">
     <div className="act-chip-inner opacity-0">
-      <div className="absolute top-0 left-0 right-0 h-[2px] bg-outline-variant/10 pointer-events-none">
-        <div className="act-progress-fill h-full origin-left transition-transform duration-200 ease-out will-change-transform" style={{ backgroundColor: actAccentVar }} />
-      </div>
       <div className="w-full px-3 md:px-6 xl:pl-20 xl:pr-4 pt-0 pb-0 pointer-events-auto">
         <div className="flex items-center gap-3 min-h-[20px]">
           <span className={`text-[11px] md:text-[12px] font-mono font-bold ${act.textColor} uppercase tracking-widest leading-none whitespace-nowrap transition-transform duration-700 origin-left ${isFlashing ? 'scale-110' : 'scale-100'}`}>
@@ -1021,6 +1024,10 @@ return (
       </div>
     </div>
   </div>
+  {/* Fixed progress bar — always at the top of the screen when the act is active */}
+  <div className="fixed top-0 left-0 right-0 z-50 h-[2px] bg-outline-variant/10 pointer-events-none transition-opacity duration-200" data-act-id={act.id} data-act-progress-bar style={{ opacity: 0 }}>
+    <div className="act-progress-fill h-full origin-left transition-transform duration-200 ease-out will-change-transform" style={{ backgroundColor: actAccentVar }} />
+  </div>
 
   <motion.section variants={chapterVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} className="relative z-10 pt-0 pb-3 lg:pb-4 w-full px-3 md:px-6 xl:pl-20 xl:pr-4">
     <div
@@ -1034,12 +1041,7 @@ return (
           ttsTargetRef.current = el;
           centerColumnRefsByAct.current[act.id] = el;
         }}
-        className={`narrative-text-container relative w-full font-serif text-[18px] md:text-[20px] leading-[1.8] font-normal transition-colors duration-1000 ${isActive ? 'text-on-surface' : 'text-on-surface/35'} [&_p]:mb-5 [&_p:last-child]:mb-0 order-1`}
-        style={{
-          willChange: "mask-image, -webkit-mask-image",
-          transform: "translate3d(0, 0, 0)",
-          WebkitTransform: "translate3d(0, 0, 0)"
-        }}
+        className={`narrative-text-container relative w-full font-serif text-[18px] md:text-[20px] leading-[1.8] font-normal transition-colors duration-300 ${isActive ? 'text-on-surface' : 'text-on-surface/35'} [&_p]:mb-5 [&_p:last-child]:mb-0 order-1`}
       >
         {act.blocks.map((block, blockIndex) => (
           <div key={block.id} className="mb-10 last:mb-0 narrative-block" data-block-title={block.title} data-block-id={block.id}>

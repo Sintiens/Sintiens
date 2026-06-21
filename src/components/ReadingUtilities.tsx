@@ -1,6 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { Pause, Square, Loader2, Volume2 } from "lucide-react";
+import { Pause, Square, Loader2, Volume2, Sliders, Settings2, BugPlay } from "lucide-react";
 import type { TopicBlockData } from "../types/story";
+
+declare global {
+  interface Window {
+    _activeUtterance?: SpeechSynthesisUtterance | null;
+    _activeUtterances?: SpeechSynthesisUtterance[] | null;
+  }
+}
 
 interface ReadingUtilitiesProps {
   actId: string;
@@ -13,9 +20,15 @@ type TTSState = "idle" | "playing" | "paused" | "loading";
 
 // ─── DOM helpers ─────────────────────────────────────────────────────────────
 
+const BLOCK_TAGS = new Set([
+  "P", "DIV", "LI", "H1", "H2", "H3", "H4", "H5", "H6", "BLOCKQUOTE", "PRE",
+  "SECTION", "ARTICLE", "ASIDE", "NAV", "HEADER", "FOOTER", "FORM", "OL", "UL",
+  "TABLE", "THEAD", "TBODY", "TR", "TH", "TD", "BR"
+]);
+
 const getWordBoundaries = (text: string): { start: number; end: number }[] => {
   const out: { start: number; end: number }[] = [];
-  const re = /[^\s\u00A0]+/g;
+  const re = /[\p{L}\p{N}]+(?:['’\-][\p{L}\p{N}]+)*/gu;
   let m: RegExpExecArray | null;
   while ((m = re.exec(text)) !== null) {
     out.push({ start: m.index, end: m.index + m[0].length });
@@ -28,27 +41,93 @@ const buildSpeechData = (
 ): { text: string; textNodes: { node: Text; start: number; end: number }[] } => {
   const textNodes: { node: Text; start: number; end: number }[] = [];
   let text = "";
-  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
-    acceptNode: (n) => {
-      const p = n.parentElement;
-      if (!p) return NodeFilter.FILTER_REJECT;
-      if (p.closest("button, svg, [aria-hidden='true']")) return NodeFilter.FILTER_REJECT;
-      return NodeFilter.FILTER_ACCEPT;
-    },
-  });
-  let node: Text | null;
-  while ((node = walker.nextNode() as Text | null)) {
-    const t = node.textContent || "";
-    textNodes.push({ node, start: text.length, end: text.length + t.length });
-    text += t;
+
+  const IGNORED_SELECTOR = "button, svg, script, style, [aria-hidden='true']";
+
+  const traverse = (node: Node) => {
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const element = node as Element;
+      if (element !== el && (element.matches(IGNORED_SELECTOR) || element.closest(IGNORED_SELECTOR))) {
+        return;
+      }
+
+      const isBlock = BLOCK_TAGS.has(element.tagName);
+      if (isBlock && text.length > 0 && !/\s$/.test(text)) {
+        text += " ";
+      }
+
+      for (let i = 0; i < element.childNodes.length; i++) {
+        traverse(element.childNodes[i]);
+      }
+
+      if (isBlock && text.length > 0 && !/\s$/.test(text)) {
+        text += " ";
+      }
+    } else if (node.nodeType === Node.TEXT_NODE) {
+      const t = node.textContent || "";
+      if (t.length > 0) {
+        textNodes.push({
+          node: node as Text,
+          start: text.length,
+          end: text.length + t.length,
+        });
+        text += t;
+      }
+    }
+  };
+
+  traverse(el);
+
+  let finalText = text;
+  if (finalText.endsWith(" ")) {
+    finalText = finalText.slice(0, -1);
   }
-  return { text, textNodes };
+
+  return { text: finalText, textNodes };
 };
 
-/**
- * Binary-search: returns the index of the word that contains charIdx,
- * or the index of the word immediately before it (if in whitespace).
- */
+interface SentenceChunk {
+  text: string;
+  start: number;
+  end: number;
+}
+
+const splitIntoSentences = (text: string): SentenceChunk[] => {
+  const chunks: SentenceChunk[] = [];
+  const sentenceEndRegex = /[.!?]+(?:\s+|$)/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  
+  const abbrevs = /\b(sr|sra|dr|dra|etc|ud|uds|av|gdor|gob|pág|pag|prof|prov|ee\.uu)\.$/i;
+
+  while ((match = sentenceEndRegex.exec(text)) !== null) {
+    const delimiterEnd = match.index + match[0].length;
+    const candidate = text.slice(lastIndex, delimiterEnd);
+    const trimmedCandidate = candidate.trim();
+    if (abbrevs.test(trimmedCandidate)) {
+      continue;
+    }
+    chunks.push({
+      text: candidate,
+      start: lastIndex,
+      end: delimiterEnd
+    });
+    lastIndex = delimiterEnd;
+  }
+  
+  if (lastIndex < text.length) {
+    const remaining = text.slice(lastIndex);
+    if (remaining.trim().length > 0) {
+      chunks.push({
+        text: remaining,
+        start: lastIndex,
+        end: text.length
+      });
+    }
+  }
+  return chunks;
+};
+
 function charToWordIdx(boundaries: { start: number; end: number }[], charIdx: number): number {
   if (!boundaries.length) return -1;
   let lo = 0, hi = boundaries.length - 1, found = -1;
@@ -74,13 +153,55 @@ export default function ReadingUtilities({
   const [ttsState, setTtsState] = useState<TTSState>("idle");
   const [ttsSupported, setTtsSupported] = useState(false);
 
+  // ── Voices state ─────────────────────────────────────────────────────────
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedVoiceURI, setSelectedVoiceURI] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("sintiens-tts-voice") || "";
+    }
+    return "";
+  });
+
+  useEffect(() => {
+    const ok = typeof window !== "undefined" && "speechSynthesis" in window;
+    setTtsSupported(ok);
+    if (!ok) return;
+
+    const updateVoices = () => {
+      const allVoices = window.speechSynthesis.getVoices();
+      setVoices(allVoices.filter((v) => v.lang.toLowerCase().startsWith("es")));
+    };
+    
+    updateVoices();
+    window.speechSynthesis.addEventListener("voiceschanged", updateVoices);
+    return () => window.speechSynthesis.removeEventListener("voiceschanged", updateVoices);
+  }, []);
+
+  const activeVoice = useMemo(() => {
+    if (voices.length === 0) return null;
+    let voice = voices.find((v) => v.voiceURI === selectedVoiceURI);
+    if (!voice) {
+      voice = voices.find((v) => v.localService) || voices[0];
+    }
+    return voice;
+  }, [voices, selectedVoiceURI]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && activeVoice) {
+      localStorage.setItem("sintiens-tts-voice", activeVoice.voiceURI);
+    }
+  }, [activeVoice]);
+
   // ── DOM state ─────────────────────────────────────────────────────────────
   const utteranceRef  = useRef<SpeechSynthesisUtterance | null>(null);
+  const utterancesRef = useRef<SpeechSynthesisUtterance[]>([]);
+  const chunksRef     = useRef<SentenceChunk[]>([]);
+  const currentChunkIdxRef = useRef(0);
+  const isWaitingForChunkStartRef = useRef(true);
   const wordSpansRef  = useRef<(HTMLSpanElement | null)[]>([]);
   const boundariesRef = useRef<{ start: number; end: number }[]>([]);
   const textLenRef    = useRef(0);
 
-  // Highlight window: prev / curr / next indices (-1 = none)
   const hlPrevRef = useRef(-1);
   const hlCurrRef = useRef(-1);
   const hlNextRef = useRef(-1);
@@ -91,27 +212,47 @@ export default function ReadingUtilities({
   const ttsStateRef = useRef<TTSState>("idle");
 
   // ── Timing ────────────────────────────────────────────────────────────────
-  // speechStartRef & baselineCharRef define the anchor from which the RAF
-  // estimates forward each frame. Re-anchored on every onboundary event.
-  const speechStartRef  = useRef(0);
-  const baselineCharRef = useRef(0);
-
-  // Raw boundary data for calibrating the observed chars/sec rate.
-  // Kept separate so that estimation doesn't corrupt calibration.
   const rawBdryCharRef = useRef(0);
   const rawBdryTimeRef = useRef(0);
+  const observedRateRef = useRef(14); // Start with a conservative 14 chars/sec estimate
+  const speechStartRef = useRef(0);
+  
+  // Settings
+  const [showSettings, setShowSettings] = useState(false);
+  const [showDebug, setShowDebug] = useState(false);
 
-  // Chars/sec rate estimate, calibrated from real inter-boundary timing.
-  // Start at 18 ≈ 170wpm × 6.5chars/word — close to typical Spanish TTS.
-  const observedRateRef = useRef(18);
-
-
-
+  const [latencyOffset, setLatencyOffset] = useState<number>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("sintiens-tts-latency-offset");
+      if (saved) {
+        const val = parseInt(saved, 10);
+        if (!isNaN(val)) return val;
+      }
+    }
+    return 0; // Default to 0ms
+  });
+  const latencyOffsetRef = useRef(latencyOffset);
   useEffect(() => {
-    const ok = typeof window !== "undefined" && "speechSynthesis" in window;
-    setTtsSupported(ok);
-    if (ok) window.speechSynthesis.getVoices();
-  }, []);
+    latencyOffsetRef.current = latencyOffset;
+    if (typeof window !== "undefined") localStorage.setItem("sintiens-tts-latency-offset", latencyOffset.toString());
+  }, [latencyOffset]);
+
+  const [speedRate, setSpeedRate] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("sintiens-tts-speed-rate");
+      if (saved) {
+        const val = parseFloat(saved);
+        if (!isNaN(val)) return val;
+      }
+    }
+    return 1.0;
+  });
+  const speedRateRef = useRef(speedRate);
+  useEffect(() => {
+    speedRateRef.current = speedRate;
+    if (typeof window !== "undefined") localStorage.setItem("sintiens-tts-speed-rate", speedRate.toString());
+    utterancesRef.current.forEach((u) => { u.rate = speedRate; });
+  }, [speedRate]);
 
   const activeBlock = useMemo(
     () => blocks.find((b) => b.id === activeBlockId) || blocks[0],
@@ -130,14 +271,9 @@ export default function ReadingUtilities({
     wordSpansRef.current[idx]?.classList.remove("tts-active", "tts-near");
   };
 
-  /** Throttled scroll‑into‑view – avoids forced layout every frame. */
   const lastScrollCheckRef = useRef(0);
   const SCROLL_CHECK_MS = 300;
 
-  /**
-   * Highlight 3‑word window centred on the word at charIdx.
-   * charIdx < 0 or >= textLen → clear all (fixes last‑word‑stuck bug).
-   */
   const highlightByCharIdx = useCallback((charIdx: number) => {
     const boundaries = boundariesRef.current;
     const spans = wordSpansRef.current;
@@ -160,15 +296,8 @@ export default function ReadingUtilities({
     const oldSet = new Set([hlPrevRef.current, hlCurrRef.current, hlNextRef.current]);
     const newSet = new Set([prevIdx, wordIdx, nextIdx]);
 
-    // Smooth fade‑out for spans leaving the window (CSS transition handles it)
     oldSet.forEach((i) => { if (i >= 0 && !newSet.has(i)) clearSpan(i); });
 
-    /**
-     * Instant entry, smooth exit.
-     * Transitions are disabled while the class is added so the background
-     * appears in the next frame (16ms). When the class is later removed
-     * (via clearSpan), the CSS transition fades it out gracefully.
-     */
     const applyClassInstant = (i: number, cls: string) => {
       if (i < 0) return;
       const s = spans[i];
@@ -176,8 +305,8 @@ export default function ReadingUtilities({
       s.style.transition = "none";
       s.classList.remove("tts-active", "tts-near");
       s.classList.add(cls);
-      void s.offsetHeight; // force reflow so the class takes effect at once
-      s.style.transition = ""; // restore CSS transition for future removal
+      void s.offsetHeight; 
+      s.style.transition = "";
     };
 
     applyClassInstant(prevIdx, "tts-near");
@@ -188,7 +317,6 @@ export default function ReadingUtilities({
     hlCurrRef.current = wordIdx;
     hlNextRef.current = nextIdx;
 
-    // Scroll into view only periodically to avoid forced layout jank
     const now = performance.now();
     if (now - lastScrollCheckRef.current > SCROLL_CHECK_MS) {
       lastScrollCheckRef.current = now;
@@ -201,8 +329,6 @@ export default function ReadingUtilities({
       }
     }
   }, []);
-
-  // ── DOM wrap / unwrap ────────────────────────────────────────────────────
 
   const unwrapWords = useCallback(() => {
     clearSpan(hlPrevRef.current);
@@ -280,9 +406,19 @@ export default function ReadingUtilities({
     unwrapWords();
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
       window.speechSynthesis.cancel();
+      window._activeUtterance = null;
+      window._activeUtterances = null;
     }
     utteranceRef.current = null;
+    utterancesRef.current = [];
+    chunksRef.current = [];
+    currentChunkIdxRef.current = 0;
+    isWaitingForChunkStartRef.current = true;
     setTtsState("idle");
+    
+    // Clear debug UI
+    const dbgEl = document.getElementById("tts-debug-overlay-text");
+    if (dbgEl) dbgEl.textContent = "Stopped";
   }, [unwrapWords]);
 
   useEffect(() => { ttsStateRef.current = ttsState; }, [ttsState]);
@@ -300,126 +436,148 @@ export default function ReadingUtilities({
 
     wrapWords();
 
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "es-ES";
-    u.rate = 1;
+    setTtsState("loading");
+    ttsStateRef.current = "loading";
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // SYNCHRONIZATION STRATEGY
-    //
-    // 1. CSS instant-entry: JS temporarily disables transition when adding
-    //    tts-active/tts-near classes. The background appears in the next
-    //    frame (16ms). Removal uses the CSS transition for a smooth 0.28s
-    //    fade-out. No lag compensation needed.
-    //
-    // 2. Rate calibration: consecutive onboundary events measure the real
-    //    chars/sec of the voice, updating observedRateRef with 50/50 blend.
-    //
-    // 3. RAF estimation: between boundaries, estimate the current position
-    //    as baselineChar + elapsed × rate. Each onboundary re-anchors the
-    //    timer, correcting any drift.
-    //
-    // 4. textLen guard: if estimation overshoots textLen, clear all
-    //    highlights (fixes the last-word-stuck bug).
-    // ─────────────────────────────────────────────────────────────────────────
+    const chunks = splitIntoSentences(text);
+    chunksRef.current = chunks;
+    currentChunkIdxRef.current = 0;
+    isWaitingForChunkStartRef.current = true;
+
+    // Use activeVoice selected by user
+    const selectedVoice = activeVoice;
+    const isCloudVoice = selectedVoice ? !selectedVoice.localService : false;
 
     const makeTick = (): (() => void) => {
       const fn = () => {
         if (ttsStateRef.current !== "playing") { rafIdRef.current = 0; return; }
-        const elapsed = (performance.now() - speechStartRef.current) / 1000;
-        const rate = observedRateRef.current * (utteranceRef.current?.rate ?? 1);
-        const estimated = baselineCharRef.current + Math.floor(elapsed * rate);
-        // textLen guard: if we've run past the end, clear highlights
-        highlightByCharIdx(estimated < textLenRef.current ? estimated : -1);
+        
+        const currentIdx = currentChunkIdxRef.current;
+        const currentChunk = chunksRef.current[currentIdx];
+        
+        let estimated = 0;
+        
+        if (isWaitingForChunkStartRef.current) {
+          const nextChunk = chunksRef.current[currentIdx + 1];
+          estimated = nextChunk ? nextChunk.start : (currentChunk ? currentChunk.end - 1 : 0);
+        } else {
+          const elapsedSinceBoundary = (performance.now() - rawBdryTimeRef.current) / 1000;
+          const rate = observedRateRef.current * speedRateRef.current;
+          const latencySec = latencyOffsetRef.current / 1000;
+          
+          estimated = rawBdryCharRef.current + (elapsedSinceBoundary + latencySec) * rate;
+          
+          // Cap the estimated character index to the end of the current chunk.
+          // This ensures that even if the voice is slow or onboundary is missing,
+          // the highlight won't jump into the next sentence prematurely.
+          if (currentChunk && estimated >= currentChunk.end) {
+            estimated = currentChunk.end - 1;
+          }
+        }
+
+        const clamped = Math.min(textLenRef.current - 1, Math.max(0, Math.floor(estimated)));
+        highlightByCharIdx(clamped);
+
+        const dbgEl = document.getElementById("tts-debug-overlay-text");
+        if (dbgEl && showDebug) {
+           dbgEl.textContent = `Idx: ${rawBdryCharRef.current} | Est: ${estimated.toFixed(0)} | Clp: ${clamped} | Chunk: ${currentIdx}/${chunks.length}`;
+        }
+
         rafIdRef.current = requestAnimationFrame(fn);
       };
       return fn;
     };
 
-    u.onstart = () => {
-      speechStartRef.current = performance.now();
-      baselineCharRef.current = 0;
-      rawBdryCharRef.current = 0;
-      rawBdryTimeRef.current = 0;
-      ttsStateRef.current = "playing";
-      setTtsState("playing");
-      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
-      const tick = makeTick();
-      tickFnRef.current = tick;
-      rafIdRef.current = requestAnimationFrame(tick);
-    };
-
-    u.onend = () => { stopTTS(); };
-
-    u.onerror = (e) => {
-      if ((e as SpeechSynthesisErrorEvent).error === "interrupted") return;
-      stopTTS();
-    };
-
-    u.onpause = () => {
-      ttsStateRef.current = "paused";
-      setTtsState("paused");
-      if (rafIdRef.current) { cancelAnimationFrame(rafIdRef.current); rafIdRef.current = 0; }
-    };
-
-    u.onresume = () => {
-      // Re-anchor from where the highlight currently is so paused time is excluded
-      const currWordStart = boundariesRef.current[hlCurrRef.current]?.start ?? baselineCharRef.current;
-      speechStartRef.current = performance.now();
-      baselineCharRef.current = currWordStart;
-      ttsStateRef.current = "playing";
-      setTtsState("playing");
-      if (!rafIdRef.current) {
-        const tick = tickFnRef.current ?? makeTick();
-        tickFnRef.current = tick;
-        rafIdRef.current = requestAnimationFrame(tick);
+    chunks.forEach((chunk, idx) => {
+      const u = new SpeechSynthesisUtterance(chunk.text);
+      u.lang = "es-ES";
+      u.rate = speedRateRef.current;
+      if (selectedVoice) {
+        u.voice = selectedVoice;
       }
-    };
 
-    u.onboundary = (evt) => {
-      if (typeof evt.charIndex !== "number") return;
-      if (evt.name && evt.name !== "word") return;
-      const now = performance.now();
-      const rawCharIdx = evt.charIndex;
+      u.onstart = () => {
+        if (ttsStateRef.current !== "playing" && ttsStateRef.current !== "loading") return;
+        setTtsState("playing");
+        ttsStateRef.current = "playing";
 
-      // Rate calibration from consecutive boundaries
-      if (rawBdryTimeRef.current > 0) {
-        const dt = (now - rawBdryTimeRef.current) / 1000;
-        const dc = rawCharIdx - rawBdryCharRef.current;
-        if (dt > 0 && dc > 0) {
-          const measured = Math.min(35, Math.max(8, dc / dt));
-          observedRateRef.current = observedRateRef.current * 0.5 + measured * 0.5;
+        currentChunkIdxRef.current = idx;
+        isWaitingForChunkStartRef.current = false;
+        
+        rawBdryCharRef.current = chunk.start;
+        rawBdryTimeRef.current = performance.now();
+        speechStartRef.current = performance.now();
+
+        if (idx === 0) {
+          if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+          const tick = makeTick();
+          tickFnRef.current = tick;
+          rafIdRef.current = requestAnimationFrame(tick);
         }
-      }
-      rawBdryCharRef.current = rawCharIdx;
-      rawBdryTimeRef.current = now;
+      };
 
-      // Re‑anchor the RAF timer to this exact position (no compensation needed
-      // — the CSS instant‑entry trick eliminates visual latency).
-      baselineCharRef.current = rawCharIdx;
-      speechStartRef.current = now;
+      u.onend = () => {
+        isWaitingForChunkStartRef.current = true;
+        
+        // Calibrate actual speed for voices that don't fire onboundary
+        const duration = (performance.now() - speechStartRef.current) / 1000;
+        if (duration > 0.5 && chunk.text.length > 0) {
+          const measuredBase = (chunk.text.length / duration) / speedRateRef.current;
+          // Slowly adapt the observed rate (low-pass filter) bounded between 8 and 30 chars/sec
+          observedRateRef.current = observedRateRef.current * 0.7 + Math.min(30, Math.max(8, measuredBase)) * 0.3;
+        }
 
-      // Immediate highlight snap at the exact word being spoken
-      highlightByCharIdx(rawCharIdx);
-    };
+        if (idx === chunks.length - 1) {
+          stopTTS();
+        }
+      };
 
-    utteranceRef.current = u;
-    setTtsState("loading");
-    ttsStateRef.current = "loading";
+      u.onerror = (e) => {
+        if ((e as SpeechSynthesisErrorEvent).error === "interrupted") return;
+        stopTTS();
+      };
 
-    const voices = window.speechSynthesis.getVoices();
-    const esVoice = voices.find((v) => v.lang.toLowerCase().startsWith("es"));
-    if (esVoice) u.voice = esVoice;
+      u.onpause = () => {
+        ttsStateRef.current = "paused";
+        setTtsState("paused");
+        if (rafIdRef.current) { cancelAnimationFrame(rafIdRef.current); rafIdRef.current = 0; }
+      };
 
-    // Reset timing — RAF starts in onstart, not here
-    baselineCharRef.current = 0;
-    rawBdryCharRef.current = 0;
-    rawBdryTimeRef.current = 0;
-    observedRateRef.current = 18;
-    tickFnRef.current = null;
+      u.onresume = () => {
+        ttsStateRef.current = "playing";
+        setTtsState("playing");
+        if (!rafIdRef.current) {
+          const tick = tickFnRef.current ?? makeTick();
+          tickFnRef.current = tick;
+          rafIdRef.current = requestAnimationFrame(tick);
+        }
+      };
 
-    window.speechSynthesis.speak(u);
-  }, [ttsSupported, getBlockEl, stopTTS, wrapWords, highlightByCharIdx]);
+      u.onboundary = (evt) => {
+        if (typeof evt.charIndex !== "number") return;
+        if (evt.name && evt.name !== "word") return;
+        
+        // Update the EXACT known character index
+        rawBdryCharRef.current = chunk.start + evt.charIndex;
+        rawBdryTimeRef.current = performance.now();
+        
+        const dbgBdryEl = document.getElementById("tts-debug-boundary-text");
+        if (dbgBdryEl && showDebug) {
+           dbgBdryEl.textContent = `Event: ${evt.name} @ ${evt.charIndex}`;
+        }
+      };
+
+      utterancesRef.current.push(u);
+    });
+
+    if (typeof window !== "undefined") {
+      window._activeUtterances = utterancesRef.current;
+    }
+
+    utterancesRef.current.forEach((utterance) => {
+      window.speechSynthesis.speak(utterance);
+    });
+  }, [ttsSupported, getBlockEl, stopTTS, wrapWords, activeVoice, showDebug]);
 
   const pauseTTS = () => {
     if (typeof window !== "undefined" && "speechSynthesis" in window && window.speechSynthesis.speaking) {
@@ -434,7 +592,16 @@ export default function ReadingUtilities({
   };
 
   useEffect(() => { return () => { stopTTS(); }; }, []);
-  useEffect(() => { stopTTS(); }, [actId, activeBlockId]);
+
+  useEffect(() => {
+    if (ttsStateRef.current !== "playing" && ttsStateRef.current !== "paused") {
+      stopTTS();
+    }
+  }, [activeBlockId]);
+
+  useEffect(() => {
+    stopTTS();
+  }, [actId]);
 
   const onPress = () => {
     if (!ttsSupported) return;
@@ -445,12 +612,16 @@ export default function ReadingUtilities({
   };
 
   if (!ttsSupported) return null;
+  
+  // FUNCIÓN DESACTIVADA TEMPORALMENTE POR PETICIÓN DEL USUARIO
+  return null;
 
   const isPlaying = ttsState === "playing";
   const isLoading = ttsState === "loading";
+  const isCloudVoice = activeVoice && !activeVoice.localService;
 
   return (
-    <div className="inline-flex items-center gap-2">
+    <div className="inline-flex items-center gap-2 relative">
       <button
         onClick={onPress}
         disabled={!activeBlock}
@@ -468,14 +639,121 @@ export default function ReadingUtilities({
         )}
         <span>{isPlaying ? "Pausar" : isLoading ? "…" : "Escuchar este acto"}</span>
       </button>
+      
       {ttsState !== "idle" && (
-        <button
-          onClick={stopTTS}
-          className="inline-flex items-center justify-center text-zinc-400/50 hover:text-zinc-400 transition-colors cursor-pointer"
-          aria-label="Detener narración"
-        >
-          <Square className="w-3 h-3" />
-        </button>
+        <>
+          <button
+            onClick={stopTTS}
+            className="inline-flex items-center justify-center text-zinc-400/50 hover:text-zinc-400 transition-colors cursor-pointer"
+            aria-label="Detener narración"
+          >
+            <Square className="w-3 h-3" />
+          </button>
+
+          <button
+            onClick={() => setShowSettings(!showSettings)}
+            className={`inline-flex items-center justify-center text-zinc-400/50 hover:text-zinc-400 transition-colors cursor-pointer ml-1 p-0.5 rounded ${
+              showSettings ? "bg-zinc-800/20 text-primary" : ""
+            }`}
+            title="Ajustes de narración"
+            aria-label="Ajustes de narración"
+          >
+            <Sliders className="w-3 h-3" />
+          </button>
+        </>
+      )}
+
+      {showSettings && (
+        <div className="absolute bottom-full mb-2 left-0 z-50 glass-enhance border border-outline-variant/35 bg-surface-container-low/95 dark:bg-zinc-900/95 backdrop-blur-md p-3.5 rounded-xl shadow-lg flex flex-col gap-2 min-w-[260px]">
+          
+          <div className="flex flex-col gap-1 mb-2">
+            <label className="text-[10px] font-mono text-zinc-400 font-bold uppercase tracking-wider flex items-center gap-1">
+              <Settings2 className="w-3 h-3" /> Voz de Narración
+            </label>
+            <select 
+              value={selectedVoiceURI} 
+              onChange={(e) => setSelectedVoiceURI(e.target.value)}
+              className="bg-zinc-800 border border-zinc-700 text-xs text-zinc-200 rounded p-1 outline-none focus:border-primary w-full"
+            >
+              {voices.map(v => (
+                <option key={v.voiceURI} value={v.voiceURI}>
+                  {v.name} {v.localService ? "(Local)" : "(Nube)"}
+                </option>
+              ))}
+            </select>
+            {isCloudVoice && (
+              <div className="text-[9px] text-amber-400/90 leading-tight mt-1 bg-amber-900/20 p-1.5 rounded border border-amber-900/50">
+                ⚠️ Las voces en la nube no permiten resaltado palabra-por-palabra. Elige una voz "(Local)" para sincronización perfecta.
+              </div>
+            )}
+          </div>
+
+          <div className="flex justify-between items-center text-[10px] font-mono text-zinc-400 font-bold uppercase tracking-wider">
+            <span>Sincronización</span>
+            <span className="font-mono text-primary font-bold">
+              {latencyOffset >= 0 ? `+${latencyOffset}` : latencyOffset}ms
+            </span>
+          </div>
+          <input
+            type="range"
+            min="-300"
+            max="500"
+            step="25"
+            value={latencyOffset}
+            onChange={(e) => setLatencyOffset(parseInt(e.target.value, 10))}
+            className="w-full h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-primary"
+            disabled={isCloudVoice}
+            style={{ opacity: isCloudVoice ? 0.4 : 1 }}
+          />
+
+          <div className="flex justify-between items-center text-[10px] font-mono text-zinc-400 font-bold uppercase tracking-wider mt-1.5 border-t border-zinc-800/40 pt-2">
+            <span>Velocidad</span>
+            <span className="font-mono text-primary font-bold">{speedRate.toFixed(2)}x</span>
+          </div>
+          <input
+            type="range"
+            min="0.75"
+            max="1.75"
+            step="0.05"
+            value={speedRate}
+            onChange={(e) => setSpeedRate(parseFloat(e.target.value))}
+            className="w-full h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-primary"
+          />
+
+          <div className="flex justify-between mt-1 border-t border-zinc-800/20 pt-2 items-center">
+            <button
+              onClick={() => setShowDebug(!showDebug)}
+              className={`text-[9px] font-mono uppercase tracking-wider font-bold cursor-pointer flex items-center gap-1 ${showDebug ? "text-primary" : "text-zinc-500 hover:text-zinc-400"}`}
+              title="Mostrar datos de sincronización"
+            >
+              <BugPlay className="w-3 h-3" /> Debug
+            </button>
+            <div className="flex gap-3">
+                <button
+                onClick={() => { setLatencyOffset(0); setSpeedRate(1.0); }}
+                className="text-[9px] font-mono uppercase tracking-wider text-zinc-400 hover:text-primary font-bold cursor-pointer"
+                >
+                Reiniciar
+                </button>
+                <button
+                onClick={() => setShowSettings(false)}
+                className="text-[9px] font-mono uppercase tracking-wider text-zinc-400 hover:text-primary font-bold cursor-pointer"
+                >
+                Cerrar
+                </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDebug && (
+         <div className="fixed bottom-4 right-4 z-50 bg-black/80 border border-primary/50 p-2 rounded text-[10px] font-mono text-green-400 flex flex-col gap-1 pointer-events-none">
+            <div className="font-bold text-white border-b border-white/20 pb-1 mb-1">TTS Sync Debug</div>
+            <div>Voice: {activeVoice?.name || "None"}</div>
+            <div>Local: {activeVoice?.localService ? "YES" : "NO"}</div>
+            <div id="tts-debug-boundary-text">Event: None</div>
+            <div id="tts-debug-overlay-text">Stopped</div>
+         </div>
       )}
     </div>
   );

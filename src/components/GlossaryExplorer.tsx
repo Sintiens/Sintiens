@@ -208,37 +208,106 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
   const [isMobileDetailOpen, setIsMobileDetailOpen] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
   const [forwardStack, setForwardStack] = useState<string[]>([]);
+  const [flashEntryId, setFlashEntryId] = useState<string | null>(null);
   const cardScrollRef = useRef<HTMLDivElement>(null);
   const prevEntryIdRef = useRef<string | null>(null);
+  const loadedFromHashRef = useRef<boolean>(false);
+  const listItemRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const index = useMemo(() => getGlossaryIndex(), []);
   const mostCentral = useMemo(() => getMostCentral(12), []);
 
+  // Read the URL hash ONLY when we are NOT being navigated to by an explicit
+  // initialEntryId (i.e. card click). This prevents a stale hash from a
+  // previous visit from overriding the correct entry on first mount.
   useEffect(() => {
-    if (initialEntryId) {
-      const entry = GLOSSARY_UNIFIED.find((e) => e.id === initialEntryId);
-      if (entry) {
-        setSelectedEntry(entry);
-        setSelectedType("all");
-        setSelectedCategory("all");
-        if (window.innerWidth < 1024) setIsMobileDetailOpen(true);
-      }
-      if (onClearInitialEntryId) onClearInitialEntryId();
-    }
-  }, [initialEntryId, onClearInitialEntryId]);
-
-  useEffect(() => {
+    if (initialEntryId) return;
     const hash = window.location.hash;
     if (hash && hash.startsWith("#glosario-")) {
       const id = hash.replace("#glosario-", "");
       const entry = GLOSSARY_UNIFIED.find((e) => e.id === id);
       if (entry) {
+        // Mark that this selection came from a hash-based navigation so the
+        // auto-scroll effect leaves the page at the top instead of jumping
+        // to the list item.
+        loadedFromHashRef.current = true;
         setSelectedEntry(entry);
       }
     }
+  }, [initialEntryId]);
+
+  // Sync selectedEntry with back/forward navigation (popstate).
+  useEffect(() => {
+    const onPop = () => {
+      const hash = window.location.hash;
+      if (hash && hash.startsWith("#glosario-")) {
+        const id = hash.replace("#glosario-", "");
+        const entry = GLOSSARY_UNIFIED.find((e) => e.id === id);
+        if (entry) setSelectedEntry(entry);
+      }
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
   }, []);
+
+  useEffect(() => {
+    if (initialEntryId) {
+      const entry = GLOSSARY_UNIFIED.find((e) => e.id === initialEntryId);
+      if (entry) {
+        setViewMode("lista");
+        setSearchQuery("");
+        setSelectedType("all");
+        setSelectedCategory("all");
+        setSelectedEntry(entry);
+        setFlashEntryId(entry.id);
+        if (window.innerWidth < 1024) setIsMobileDetailOpen(true);
+        // Clear any stale hash so the hash effect (and popstate) never
+        // override this entry on subsequent visits.
+        if (window.location.hash.startsWith("#glosario-")) {
+          const cleanUrl = window.location.pathname + window.location.search;
+          window.history.replaceState(null, "", cleanUrl);
+        }
+        // Scroll the list item into view and the page to the list section
+        requestAnimationFrame(() => {
+          const listItem = listItemRefs.current[entry.id];
+          if (listItem) {
+            listItem.scrollIntoView({ behavior: "auto", block: "center" });
+          }
+        });
+      }
+      if (onClearInitialEntryId) onClearInitialEntryId();
+    }
+  }, [initialEntryId, onClearInitialEntryId]);
+
+  // Auto-scroll the list item into view whenever selectedEntry changes via
+  // internal navigation (e.g. clicking another item from inside the glossary).
+  useEffect(() => {
+    if (!selectedEntry) return;
+    if (loadedFromHashRef.current) {
+      // The selection came from the URL hash (e.g. tab menu navigation).
+      // Skip the auto-scroll so the page stays at the top.
+      loadedFromHashRef.current = false;
+      return;
+    }
+    const isInitialFlash = flashEntryId === selectedEntry.id;
+    if (isInitialFlash) {
+      // Already handled in the initialEntryId effect.
+      return;
+    }
+    const listItem = listItemRefs.current[selectedEntry.id];
+    if (listItem) {
+      listItem.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [selectedEntry, flashEntryId]);
+
+  // Clear the flash highlight after a short delay so it acts as a pulse.
+  useEffect(() => {
+    if (!flashEntryId) return;
+    const t = setTimeout(() => setFlashEntryId(null), 1200);
+    return () => clearTimeout(t);
+  }, [flashEntryId]);
 
   useEffect(() => {
     if (selectedEntry) {
@@ -252,7 +321,7 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
   // Scroll the detail card to top when navigating to a new entry
   useEffect(() => {
     if (selectedEntry && prevEntryIdRef.current !== selectedEntry.id) {
-      cardScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+      cardScrollRef.current?.scrollTo({ top: 0, behavior: "auto" });
       prevEntryIdRef.current = selectedEntry.id;
     }
   }, [selectedEntry]);
@@ -444,7 +513,7 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
       <div className="flex flex-col gap-6 w-full">
         {/* Sticky header — stays visible while scrolling inside the card */}
         <div
-          className="sticky top-0 z-20 -mx-6 px-6 py-4 bg-background/85 backdrop-blur-md border-b border-outline-variant/15"
+          className="sticky top-0 z-20 -mx-6 px-6 py-4 bg-background border-b border-outline-variant/20"
         >
           {/* Back / forward navigation */}
           <div className="flex items-center gap-1 mb-3 -ml-1">
@@ -725,19 +794,21 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
 
   const renderListItem = (entry: GlossaryEntry, idx: number) => {
     const isSelected = selectedEntry?.id === entry.id;
+    const isFlashing = flashEntryId === entry.id;
     const catColor = `var(--${CATEGORY_COLOR_CLASS[entry.category]})`;
     const count = index[entry.id]?.count || 0;
     const centrality = getCentrality(entry.id);
     return (
       <button
         key={entry.id}
+        ref={(el) => { listItemRefs.current[entry.id] = el; }}
         onClick={() => handleSelectEntry(entry)}
         onMouseEnter={() => setHighlightedIndex(idx)}
         className={`group w-full text-left p-4 border-l-2 rounded-r-md transition-all duration-300 ${
           isSelected
             ? "bg-surface-dim/40 border-l-transparent"
             : "bg-transparent hover:bg-surface-dim/20 border-l-transparent hover:translate-x-0.5"
-        }`}
+        } ${isFlashing ? "animate-pulse-ring" : ""}`}
         style={isSelected ? { borderLeftColor: catColor, backgroundColor: `color-mix(in oklch, ${catColor} 6%, transparent)` } : undefined}
       >
         <div className="flex items-start justify-between gap-3">
@@ -1153,14 +1224,14 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
       </div>
 
       {/* ==================== VIEW CONTENT ==================== */}
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="popLayout" initial={false}>
         {viewMode === "grafo" ? (
           <motion.div
             key="graph-view"
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
             className="w-full"
             style={{
               width: "calc(100vw - var(--scrollbar-width, 0px))",
@@ -1174,10 +1245,10 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
         ) : viewMode === "nube" ? (
           <motion.div
             key="cloud-view"
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
             className="w-full px-3 md:px-8 lg:px-16"
             style={{
               width: "calc(100vw - var(--scrollbar-width, 0px))",
@@ -1191,32 +1262,32 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
         ) : (
           <motion.div
             key="list-view"
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="grid grid-cols-1 lg:grid-cols-[1fr_480px] gap-8"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-8"
             style={{
               width: "calc(100vw - 96px - var(--scrollbar-width, 0px))",
               marginLeft: "calc(-50vw + 48px + var(--scrollbar-width, 0px) / 2 + 50%)"
             }}
           >
             {/* List */}
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 min-w-0">
               {renderList()}
             </div>
 
             {/* Detail */}
             <div className="hidden lg:block relative">
               <div ref={cardScrollRef} className="sticky top-3 max-h-[calc(100vh-12px)] overflow-y-auto custom-scrollbar glass-enhance border border-outline-variant/25 rounded-xl p-6 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
-                <AnimatePresence mode="wait">
+                <AnimatePresence mode="popLayout" initial={false}>
                   {selectedEntry ? (
                     <motion.div
                       key={selectedEntry.id}
-                      initial={{ opacity: 0, y: 12 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -12 }}
-                      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.14, ease: "easeOut" }}
                     >
                       {renderEntryDetail(selectedEntry)}
                     </motion.div>

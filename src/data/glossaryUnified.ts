@@ -87,7 +87,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "sintiencia",
     shortDef: "Capacidad puramente biológica y física de detectar un daño en los tejidos a través de receptores de alarma (nociceptores). Diferente al sufrimiento emocional consciente: las plantas tienen respuestas químicas de alarma pero no una traducción emocional del dolor.",
     longDef: "La nocicepción es un reflejo físico que ocurre en la médula espinal. El dolor, en cambio, es la experiencia consciente y subjetiva de sufrimiento procesada en el cerebro. Esta distinción es clave para desmontar el mito de que 'las plantas sienten dolor'.",
-    relatedEntries: ["sintiencia", "snc", "frontera-vegetal-plantas"],
+    relatedEntries: ["sintiencia", "snc", "frontera-vegetal-plantas", "dolor-vs-nocicepcion"],
     relatedNodes: ["neurobiologia-dolor"],
     relatedDilemmas: ["plantas-sienten-dolor", "bivalvos-ostras"]
   },
@@ -1397,6 +1397,57 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     ],
     relatedEntries: ["bienestarismo", "abolicionismo", "utilitarismo", "deontologia", "enfoque-capacidades", "mascotas-carnivoras", "tauromaquia", "especies-invasoras"],
     relatedDilemmas: ["granja-feliz-ecologia", "conservacion-dehesas", "el-mito-de-la-carne-humanitaria", "bienestarismo-como-abolicionismo-fracaso", "r2-mascotas-carnivoras", "r2-ecologismo-animalismo", "r2-tauromaquia-patrimonio", "r2-especies-invasoras"]
+  },
+  {
+    id: "dolor-vs-nocicepcion",
+    term: "Dolor vs Nocicepción",
+    patterns: ["dolor vs nocicepción", "dolor y nocicepción", "sufrir vs reaccionar", "dolor consciente"],
+    type: "concepto",
+    category: "sintiencia",
+    shortDef: "Distinción clave entre el dolor (experiencia subjetiva consciente de sufrimiento) y la nocicepción (reflejo físico automático de detección de daño). Reaccionar no es sufrir.",
+    longDef: "Un termostato reacciona al frío, una planta busca la luz, pero ninguno 'siente' nada. La nocicepción es el sistema de alarma automático del cuerpo que ocurre en los nervios y la médula espinal. El dolor, en cambio, es la experiencia emocional desagradable procesada en el cerebro después del reflejo. Esta distinción es fundamental para la bioética animal: demuestra que los animales no son autómatas que reaccionan, sino seres que experimentan sufrimiento real.",
+    keyFacts: [
+      "Los peces modulan su comportamiento al recibir analgésicos, lo que indica que no solo reaccionan, sino que sufren.",
+      "La Declaración de Cambridge (2012) confirmó que los sustratos neuronales de la consciencia están presentes en todos los mamíferos, aves y otras criaturas.",
+      "Crustáceos decápodos como cangrejos y langostas muestran comportamientos de evitación del dolor que van más allá del simple reflejo (Elwood & Adams, 2015)."
+    ],
+    relatedEntries: ["nocicepcion", "sintiencia", "declaracion-cambridge", "declaracion-nueva-york"],
+    relatedNodes: ["neurobiologia-dolor"],
+    relatedDilemmas: ["plantas-sienten-dolor"]
+  },
+  {
+    id: "causalidad-sistemica",
+    term: "Causalidad sistémica",
+    altTerms: ["Pensamiento sistémico"],
+    patterns: ["causalidad sistémica", "pensamiento sistémico", "sistema vs individuo", "causa sistémica"],
+    type: "concepto",
+    category: "sistemas_uso",
+    shortDef: "Distinción entre un acto individual y el sistema que lo produce. No es lo mismo dejar de comer carne una vez que aceptar la lógica de toda una industria.",
+    longDef: "Muchos de los problemas que Sintiens examina (deforestación, emisiones, explotación animal) no son causados por individuos aislados sino por sistemas industriales, económicos y culturales. La causalidad sistémica permite ver que cambiar un hábito personal es distinto de cambiar la estructura que lo produce. Ambos niveles importan, pero confundirlos lleva a culpar solo al consumidor o a eximirse en la inercia del sistema.",
+    keyFacts: [
+      "El 80% de la tierra agrícola mundial se destina a la ganadería, pero produce solo el 18% de las calorías humanas (Poore & Nemecek, 2018).",
+      "Las decisiones individuales de consumo operan dentro de sistemas de subsidios, marketing y disponibilidad que las condicionan.",
+      "El concepto de 'externalidad negativa' (coste no reflejado en el precio) es un ejemplo de cómo los sistemas ocultan el daño real."
+    ],
+    relatedEntries: ["externalidad-negativa", "ganaderia-industrial", "especismo"],
+    relatedNodes: ["sistemas-uso", "ecologia"]
+  },
+  {
+    id: "axioma-implicito",
+    term: "Axioma implícito",
+    altTerms: ["Supuesto no examinado", "Premisa oculta", "Axioma no declarado"],
+    patterns: ["axioma implícito", "axiomas implícitos", "supuesto no examinado", "premisa oculta", "axioma no declarado", "no examinado"],
+    type: "concepto",
+    category: "psicologia",
+    shortDef: "Premisa que damos por cierta sin haberla examinado conscientemente y que sostiene la mayoría de nuestras decisiones y argumentos.",
+    longDef: "Un axioma implícito es una creencia que opera como fundamento de nuestro razonamiento pero que nunca ha sido sometida a escrutinio. Funciona como el 'sistema operativo' de nuestros argumentos: lo usamos constantemente sin ser conscientes de que está ahí. La herramienta Sintiens IA (Decompresor de Axiomas) está diseñada precisamente para detectar estos supuestos en los argumentos del usuario y hacerlos visibles.",
+    keyFacts: [
+      "El término 'axioma' proviene de la lógica y las matemáticas: una proposición que se asume verdadera sin necesidad de demostración.",
+      "En el contexto de Sintiens, un axioma implícito típico es 'los humanos merecen prioridad moral automática por ser humanos', que opera sin ser declarado.",
+      "La deconstrucción socrática consiste precisamente en hacer explícitos estos axiomas para examinarlos a la luz de la evidencia."
+    ],
+    relatedEntries: ["especismo", "carnismo", "disonancia-cognitiva", "falacia-naturalista"],
+    relatedNodes: ["sesgos-cognitivos", "axiomas"]
   }
 ];
 
