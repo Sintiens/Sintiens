@@ -463,7 +463,7 @@ Devuelve tu diagnóstico EXACTAMENTE en formato JSON conforme a la estructura de
     }
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+      model: "gemini-2.5-flash",
       contents: `Analiza y deconstruye críticamente la siguiente premisa: "${argument}"`,
       config: {
         systemInstruction: systemPrompt,

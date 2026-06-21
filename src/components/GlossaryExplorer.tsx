@@ -14,8 +14,7 @@ import {
   Sparkles,
   ArrowRight,
   ArrowUpRight,
-  ChevronUp,
-  ChevronDown,
+  ArrowLeft,
   X,
   Network,
   Cloud,
@@ -23,10 +22,8 @@ import {
   Hash,
   Award,
   ExternalLink,
-  Clock,
   TrendingUp,
-  Layers,
-  Lightbulb
+  Layers
 } from "lucide-react";
 import {
   GLOSSARY_UNIFIED,
@@ -49,28 +46,70 @@ import { Button } from "./ui/Button";
 import GlossaryGraph from "./GlossaryGraph";
 import TabNav, { TabType } from "./TabNav";
 
+// Build a lookup map of term names → entry IDs for inline link detection.
+// Longest names are matched first so multi-word terms ("Liberación Animal")
+// are caught before single words ("Liberación").
+const TERM_NAME_TO_ID: { [name: string]: string } = {};
+GLOSSARY_UNIFIED.forEach((e) => {
+  TERM_NAME_TO_ID[e.term.toLowerCase()] = e.id;
+  e.altTerms?.forEach((alt) => {
+    TERM_NAME_TO_ID[alt.toLowerCase()] = e.id;
+  });
+});
+const SORTED_TERM_NAMES = Object.keys(TERM_NAME_TO_ID).sort(
+  (a, b) => b.length - a.length
+);
+const TERM_LINK_PATTERN = new RegExp(
+  `\\b(${SORTED_TERM_NAMES.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})\\b`,
+  "gi"
+);
+
 const AmbientGlow = ({
   colorClass,
   className = "",
   opacity = 0.05,
+  style = {},
 }: {
   colorClass: string;
   className?: string;
   opacity?: number;
+  style?: React.CSSProperties;
 }) => {
   const textClass = colorClass.startsWith("bg-")
     ? colorClass.replace("bg-", "text-")
     : colorClass;
   return (
-    <div className={`absolute pointer-events-none select-none z-0 overflow-visible ${className}`}>
+    <div
+      className={`absolute pointer-events-none select-none z-0 overflow-visible ${className}`}
+      style={style}
+    >
       <div
-        className={`absolute top-1/2 left-1/2 w-[145%] h-[65%] aspect-[2.2/1] filter blur-[35px] sm:blur-[48px] ${textClass} animate-wobble-slow`}
+        className={`absolute top-1/2 left-1/2 w-[145%] h-[65%] aspect-[2.2/1] filter blur-[35px] sm:blur-[48px] ${textClass} animate-wobble-slow transition-colors duration-[600ms] ease-in-out`}
         style={{ opacity }}
-      />
-      <div
-        className={`absolute top-1/2 left-1/2 w-[130%] h-[55%] aspect-[2.5/1] filter blur-[60px] sm:blur-[80px] ${textClass} animate-rotate-slow`}
-        style={{ opacity: opacity * 0.6 }}
-      />
+      >
+        <svg
+          viewBox="0 0 200 200"
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-full h-full"
+        >
+          <path
+            fill="currentColor"
+            d="M30,75 C70,15 130,25 175,55 C195,85 165,135 145,165 C105,195 55,175 35,135 C15,95 10,80 30,75 Z"
+          >
+            <animate
+              attributeName="d"
+              dur="28s"
+              repeatCount="indefinite"
+              values="
+                M30,75 C70,15 130,25 175,55 C195,85 165,135 145,165 C105,195 55,175 35,135 C15,95 10,80 30,75 Z;
+                M55,35 C115,5 155,45 165,95 C175,155 115,175 75,155 C35,135 15,95 25,65 C35,35 15,35 55,35 Z;
+                M55,25 C115,5 145,55 155,105 C165,165 105,165 65,175 C25,185 35,115 35,75 C35,35 25,40 55,25 Z;
+                M30,75 C70,15 130,25 175,55 C195,85 165,135 145,165 C105,195 55,175 35,135 C15,95 10,80 30,75 Z
+              "
+            />
+          </path>
+        </svg>
+      </div>
     </div>
   );
 };
@@ -166,9 +205,11 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
   const [sortMode, setSortMode] = useState<SortMode>("az");
   const [listGroup, setListGroup] = useState<ListGroup>("az");
   const [selectedEntry, setSelectedEntry] = useState<GlossaryEntry | null>(null);
-  const [isBibliographyOpen, setIsBibliographyOpen] = useState(false);
   const [isMobileDetailOpen, setIsMobileDetailOpen] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
+  const [forwardStack, setForwardStack] = useState<string[]>([]);
+  const cardScrollRef = useRef<HTMLDivElement>(null);
+  const prevEntryIdRef = useRef<string | null>(null);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -208,8 +249,12 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
     }
   }, [selectedEntry]);
 
+  // Scroll the detail card to top when navigating to a new entry
   useEffect(() => {
-    setIsBibliographyOpen(false);
+    if (selectedEntry && prevEntryIdRef.current !== selectedEntry.id) {
+      cardScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+      prevEntryIdRef.current = selectedEntry.id;
+    }
   }, [selectedEntry]);
 
   useEffect(() => {
@@ -292,9 +337,38 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
   }, [filteredEntries]);
 
   const handleSelectEntry = (entry: GlossaryEntry) => {
-    setSelectedEntry(entry);
-    setHistory((prev) => [entry.id, ...prev.filter((id) => id !== entry.id)].slice(0, 8));
+    setSelectedEntry((prev) => {
+      if (prev && prev.id !== entry.id) {
+        setHistory((h) => [prev.id, ...h].slice(0, 50));
+      }
+      return entry;
+    });
+    setForwardStack([]);
     if (window.innerWidth < 1024) setIsMobileDetailOpen(true);
+  };
+
+  const handleGoBack = () => {
+    if (history.length === 0) return;
+    setSelectedEntry((prev) => {
+      if (!prev) return prev;
+      setForwardStack((f) => [prev.id, ...f].slice(0, 50));
+      const prevId = history[0];
+      const prevEntry = GLOSSARY_UNIFIED.find((e) => e.id === prevId);
+      setHistory((h) => h.slice(1));
+      return prevEntry ?? prev;
+    });
+  };
+
+  const handleGoForward = () => {
+    if (forwardStack.length === 0) return;
+    setSelectedEntry((prev) => {
+      if (!prev) return prev;
+      setHistory((h) => [prev.id, ...h].slice(0, 50));
+      const nextId = forwardStack[0];
+      const nextEntry = GLOSSARY_UNIFIED.find((e) => e.id === nextId);
+      setForwardStack((f) => f.slice(1));
+      return nextEntry ?? prev;
+    });
   };
 
   const handleNavigateAppearance = (appearance: Appearance) => {
@@ -344,63 +418,107 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
 
     const sectionTitleClass = "text-technical-xs text-primary flex items-center gap-2 font-bold";
 
+    // Renders text turning any mention of another glossary term into a clickable link.
+    // The current term is excluded (no self-links).
+    const renderTextWithLinks = (text: string): React.ReactNode => {
+      if (!text) return null;
+      const parts = text.split(TERM_LINK_PATTERN);
+      return parts.map((part, i) => {
+        const id = TERM_NAME_TO_ID[part.toLowerCase()];
+        if (id && id !== entry.id) {
+          return (
+            <button
+              key={i}
+              onClick={() => handleNavigateRelated(id)}
+              className="text-primary font-medium hover:underline underline-offset-2 decoration-primary/40 cursor-pointer transition-colors"
+            >
+              {part}
+            </button>
+          );
+        }
+        return <React.Fragment key={i}>{part}</React.Fragment>;
+      });
+    };
+
     return (
-      <div className="flex flex-col gap-10 w-full">
-        {/* Header */}
-        <div className="space-y-6">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span
-                className="flex items-center gap-1.5 px-3 py-1 rounded-sm border border-outline-variant/30 text-[10px] font-mono uppercase tracking-[0.2em] text-on-surface-variant backdrop-blur-sm"
-                style={{ backgroundColor: `color-mix(in oklch, ${catColor} 12%, transparent)` }}
-              >
-                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: catColor }} />
-                {GLOSSARY_CATEGORIES.find((c) => c.id === entry.category)?.label}
-              </span>
-              <span className="flex items-center gap-1.5 px-3 py-1 bg-surface-dim/50 border border-outline-variant/30 rounded-sm text-[10px] font-mono uppercase tracking-[0.2em] text-on-surface-variant backdrop-blur-sm">
-                {TYPE_ICON[entry.type]}
-                {TYPE_LABEL[entry.type]}
-              </span>
-            </div>
-            <div className="text-[10px] font-mono text-on-surface-variant/40 select-all">ID: {entry.id.toUpperCase()}</div>
+      <div className="flex flex-col gap-6 w-full">
+        {/* Sticky header — stays visible while scrolling inside the card */}
+        <div
+          className="sticky top-0 z-20 -mx-6 px-6 py-4 bg-background/85 backdrop-blur-md border-b border-outline-variant/15"
+        >
+          {/* Back / forward navigation */}
+          <div className="flex items-center gap-1 mb-3 -ml-1">
+            <button
+              onClick={handleGoBack}
+              disabled={history.length === 0}
+              aria-label="Término anterior"
+              className="p-1.5 rounded-md text-on-surface-variant/60 hover:text-primary hover:bg-surface-dim/50 disabled:opacity-25 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-all"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={handleGoForward}
+              disabled={forwardStack.length === 0}
+              aria-label="Término siguiente"
+              className="p-1.5 rounded-md text-on-surface-variant/60 hover:text-primary hover:bg-surface-dim/50 disabled:opacity-25 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-all"
+            >
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+            <span className="ml-2 text-[9px] font-mono uppercase tracking-widest text-on-surface-variant/30 select-none">
+              {history.length > 0 || forwardStack.length > 0
+                ? `${history.length} · ${forwardStack.length}`
+                : "inicio"}
+            </span>
           </div>
 
-          <h2 className="text-display-md text-on-surface border-l-4 pl-6 py-2 leading-tight" style={{ borderColor: catColor }}>
+          <div className="flex items-center gap-2 flex-wrap mb-3">
+            <span
+              className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-sm border border-outline-variant/30 text-[10px] font-mono uppercase tracking-[0.2em] text-on-surface-variant"
+              style={{ backgroundColor: `color-mix(in oklch, ${catColor} 12%, transparent)` }}
+            >
+              <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: catColor }} />
+              {GLOSSARY_CATEGORIES.find((c) => c.id === entry.category)?.label}
+            </span>
+            <span className="flex items-center gap-1.5 px-2.5 py-0.5 bg-surface-dim/50 border border-outline-variant/30 rounded-sm text-[10px] font-mono uppercase tracking-[0.2em] text-on-surface-variant">
+              {TYPE_ICON[entry.type]}
+              {TYPE_LABEL[entry.type]}
+            </span>
+            <span className="text-[10px] font-mono text-on-surface-variant/40 ml-auto">{entry.id.toUpperCase()}</span>
+          </div>
+          <h2 className="text-display-md text-on-surface border-l-4 pl-4 py-1 leading-tight" style={{ borderColor: catColor }}>
             {entry.term}
           </h2>
-
           {entry.altTerms && entry.altTerms.length > 0 && (
-            <div className="flex flex-wrap gap-2 -mt-2">
+            <div className="flex flex-wrap gap-2 mt-2">
               {entry.altTerms.map((alt) => (
-                <span key={alt} className="text-[11px] italic text-on-surface-variant/70 px-2 py-0.5 border-l border-outline-variant/40">
+                <span key={alt} className="text-[10px] italic text-on-surface-variant/60 px-2 py-0.5 border-l border-outline-variant/30">
                   {alt}
                 </span>
               ))}
             </div>
           )}
+        </div>
 
-          <div className="text-body-md leading-relaxed font-sans" style={{ color: `var(--${CATEGORY_COLOR_CLASS[entry.category]})` }}>
-            {entry.shortDef}
-          </div>
-
+        {/* Definition */}
+        <div className="space-y-4">
+          <p className="text-body-md leading-relaxed font-sans" style={{ color: `var(--${CATEGORY_COLOR_CLASS[entry.category]})` }}>
+            {renderTextWithLinks(entry.shortDef)}
+          </p>
           {entry.longDef && (
-            <div className="text-body-md text-on-surface/85 leading-relaxed border-l-2 pl-5 ml-1" style={{ borderColor: `color-mix(in oklch, ${catColor} 40%, transparent)` }}>
-              {entry.longDef}
-            </div>
+            <p className="text-body-md text-on-surface/85 leading-relaxed border-l-2 pl-4 ml-1" style={{ borderColor: `color-mix(in oklch, ${catColor} 40%, transparent)` }}>
+              {renderTextWithLinks(entry.longDef)}
+            </p>
           )}
         </div>
 
-        {/* Section separator */}
-        <div className="border-t border-outline-variant/15" />
-
         {/* Author block */}
         {entry.author && (
-          <div className="p-6 border border-outline-variant/15 rounded-lg bg-surface-dim/20 backdrop-blur-sm">
-            <div className="flex items-center gap-2 mb-4">
+          <div className="p-5 border border-outline-variant/15 rounded-lg bg-surface-dim/20 backdrop-blur-sm">
+            <div className="flex items-center gap-2 mb-3">
               <User className="w-4 h-4 text-primary" />
               <h4 className={sectionTitleClass}>Ficha de autor</h4>
             </div>
-            <div className="space-y-2.5 text-body-sm text-on-surface-variant">
+            <div className="space-y-2 text-body-sm text-on-surface-variant">
               {entry.author.era && (
                 <p className="flex gap-3">
                   <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 w-20 shrink-0">Época</span>
@@ -421,37 +539,31 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
           </div>
         )}
 
-        {/* Key facts */}
-        {entry.keyFacts && entry.keyFacts.length > 0 && (
-          <div className="space-y-4">
-            <h4 className={sectionTitleClass}>
-              <Lightbulb className="w-4 h-4" />
-              Datos clave
-            </h4>
-            <div className="space-y-3">
-              {entry.keyFacts.map((fact, i) => (
-                <div key={i} className="flex gap-4 p-5 bg-surface-dim/15 border border-outline-variant/10 rounded-lg hover:bg-surface-dim/30 transition-colors">
-                  <span className="text-[10px] font-mono text-primary/40 pt-1 shrink-0">{String(i + 1).padStart(2, "0")}</span>
-                  <p className="text-body-md text-on-surface-variant/90 leading-snug">{fact}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Open question */}
         {entry.openQuestion && (
-          <div className="p-5 border-l-2 border-primary/60 bg-primary/5 rounded-r-lg">
-            <p className="text-body-md text-on-surface-variant italic leading-relaxed">{entry.openQuestion}</p>
+          <div className="p-4 border-l-2 border-primary/60 bg-primary/5 rounded-r-lg">
+            <p className="text-body-sm text-on-surface-variant italic leading-relaxed">
+              {renderTextWithLinks(entry.openQuestion)}
+            </p>
           </div>
         )}
 
-        {/* Section separator */}
-        <div className="border-t border-outline-variant/15" />
+        {/* Stats bar — compact */}
+        <div className="flex items-center gap-4 text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/40 px-1">
+          <span className="flex items-center gap-1.5">
+            <TrendingUp className="w-3 h-3" />
+            Centralidad: {typeof centrality === 'number' ? centrality.toFixed(2) : centrality}
+          </span>
+          <span className="text-outline-variant/40">·</span>
+          <span className="flex items-center gap-1.5">
+            <Hash className="w-3 h-3" />
+            {appearances.length} apariciones
+          </span>
+        </div>
 
-        {/* Aparece en */}
+        {/* Aparece en — 2-col grid */}
         {appearances.length > 0 && (
-          <div className="space-y-4">
+          <div className="space-y-3">
             <h4 className={`${sectionTitleClass} justify-between`}>
               <span className="flex items-center gap-2">
                 <Hash className="w-4 h-4" />
@@ -459,7 +571,7 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
               </span>
               <span className="text-[10px] font-mono text-on-surface-variant/60 font-normal">{appearances.length} lugares</span>
             </h4>
-            <div className="space-y-2 max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {appearances.map((app, i) => {
                 const target = getAppearanceTarget(app);
                 const isExternal = target !== null;
@@ -468,15 +580,15 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
                     key={`${app.locationId}-${app.field}-${i}`}
                     onClick={() => handleNavigateAppearance(app)}
                     disabled={!isExternal}
-                    className={`w-full text-left p-3.5 border border-outline-variant/15 rounded-lg transition-all group ${
+                    className={`w-full text-left p-3 border border-outline-variant/15 rounded-lg transition-all group ${
                       isExternal ? "hover:border-primary/40 hover:bg-surface-dim/30 cursor-pointer" : "cursor-default opacity-70"
                     }`}
                   >
-                    <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0 space-y-1">
-                        <div className="flex items-center gap-2 flex-wrap">
+                        <div className="flex items-center gap-1.5 flex-wrap">
                           <span
-                            className="text-[9px] font-mono uppercase tracking-widest px-2 py-0.5 rounded-sm"
+                            className="text-[9px] font-mono uppercase tracking-widest px-1.5 py-0.5 rounded-sm"
                             style={{
                               backgroundColor: app.category ? `color-mix(in oklch, var(--${CATEGORY_COLOR_CLASS[app.category]}) 12%, transparent)` : "transparent",
                               color: app.category ? `var(--${CATEGORY_COLOR_CLASS[app.category]})` : "var(--on-surface-variant)"
@@ -484,15 +596,12 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
                           >
                             {app.locationType}
                           </span>
-                          <span className="text-[10px] font-mono text-on-surface-variant/60">{app.field}</span>
+                          <span className="text-[9px] font-mono text-on-surface-variant/50">{app.field}</span>
                         </div>
-                        <p className="text-body-sm text-on-surface font-medium leading-snug truncate">{app.title}</p>
-                        {app.snippet && (
-                          <p className="text-[11px] text-on-surface-variant/70 leading-relaxed line-clamp-2">{app.snippet}</p>
-                        )}
+                        <p className="text-[12px] text-on-surface font-medium leading-snug line-clamp-2">{app.title}</p>
                       </div>
                       {isExternal && (
-                        <ArrowUpRight className="w-3.5 h-3.5 text-primary/40 group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0 mt-1" />
+                        <ArrowUpRight className="w-3 h-3 text-primary/40 group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0 mt-0.5" />
                       )}
                     </div>
                   </button>
@@ -502,15 +611,17 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
           </div>
         )}
 
-        {/* Related glossary entries */}
-        {entry.relatedEntries && entry.relatedEntries.length > 0 && (
-          <div className="space-y-4">
+        {/* Conecta con — unified: related terms + system nodes + dilemmas */}
+        {(entry.relatedEntries?.length || entry.relatedNodes?.length || entry.relatedDilemmas?.length || coOccurrences.length) ? (
+          <div className="space-y-3">
             <h4 className={sectionTitleClass}>
-              <Sparkles className="w-4 h-4" />
-              Términos relacionados
+              <Network className="w-4 h-4" />
+              Conecta con
             </h4>
+
             <div className="flex flex-wrap gap-2">
-              {entry.relatedEntries.map((relId) => {
+              {/* Related glossary entries */}
+              {entry.relatedEntries?.map((relId) => {
                 const rel = GLOSSARY_UNIFIED.find((e) => e.id === relId);
                 if (!rel) return null;
                 const relColor = `var(--${CATEGORY_COLOR_CLASS[rel.category]})`;
@@ -526,24 +637,14 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
                   </button>
                 );
               })}
-            </div>
-          </div>
-        )}
 
-        {/* Co-occurrences */}
-        {coOccurrences.length > 0 && (
-          <div className="space-y-4">
-            <h4 className={sectionTitleClass}>
-              <TrendingUp className="w-4 h-4" />
-              Suele aparecer junto a
-            </h4>
-            <div className="flex flex-wrap gap-2">
+              {/* Co-occurrences (statistical neighbors) */}
               {coOccurrences.map((co) => {
                 const rel = GLOSSARY_UNIFIED.find((e) => e.id === co.id);
                 if (!rel) return null;
                 return (
                   <button
-                    key={co.id}
+                    key={`co-${co.id}`}
                     onClick={() => handleNavigateRelated(co.id)}
                     className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-dim/30 border border-outline-variant/20 hover:border-primary/40 transition-all text-[11px] text-on-surface-variant hover:text-on-surface"
                   >
@@ -552,27 +653,14 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
                   </button>
                 );
               })}
-            </div>
-          </div>
-        )}
 
-        {/* Section separator */}
-        <div className="border-t border-outline-variant/15" />
-
-        {/* Related system nodes / dilemmas */}
-        {((entry.relatedNodes && entry.relatedNodes.length > 0) || (entry.relatedDilemmas && entry.relatedDilemmas.length > 0)) && (
-          <div className="space-y-4">
-            <h4 className="text-technical-xs text-on-surface-variant/80 flex items-center gap-2 font-bold">
-              <Network className="w-3.5 h-3.5" />
-              En el sistema
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              {(entry.relatedNodes || []).map((id) => {
+              {/* System nodes */}
+              {entry.relatedNodes?.map((id) => {
                 const node = CORE_NODES.find((n) => n.id === id);
                 if (!node) return null;
                 return (
                   <button
-                    key={id}
+                    key={`node-${id}`}
                     onClick={() => handleNavigateExternalNode(id)}
                     className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-outline-variant/30 hover:border-primary/50 transition-all text-[11px] group"
                   >
@@ -582,12 +670,14 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
                   </button>
                 );
               })}
-              {(entry.relatedDilemmas || []).map((id) => {
+
+              {/* Dilemmas */}
+              {entry.relatedDilemmas?.map((id) => {
                 const dilemma = DILEMMAS_DATA.find((d) => d.id === id);
                 if (!dilemma) return null;
                 return (
                   <button
-                    key={id}
+                    key={`dilemma-${id}`}
                     onClick={() => handleNavigateExternalNode(id)}
                     className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-outline-variant/30 hover:border-primary/50 transition-all text-[11px] group"
                   >
@@ -599,62 +689,36 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
               })}
             </div>
           </div>
-        )}
+        ) : null}
 
-        {/* Section separator */}
-        <div className="border-t border-outline-variant/15" />
-
-        {/* References */}
+        {/* References — always visible, compact */}
         {refs.length > 0 && (
-          <div>
-            <button
-              onClick={() => setIsBibliographyOpen(!isBibliographyOpen)}
-              className="flex items-center justify-between w-full py-4 text-technical-xs text-on-surface-variant hover:text-primary transition-all group"
-            >
-              <span className="flex items-center gap-2">
-                <BookMarked className="w-4 h-4 opacity-50 group-hover:opacity-100" />
-                REFERENCIAS ({refs.length})
-              </span>
-              {isBibliographyOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-            </button>
-            <AnimatePresence>
-              {isBibliographyOpen && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="overflow-hidden"
-                >
-                  <ul className="pb-6 space-y-4 pt-2">
-                    {refs.map((ref) => (
-                      <li key={ref.id} className="text-[11px] leading-relaxed text-on-surface-variant/70 font-sans pl-4 border-l border-outline-variant/50">
-                        <span className="font-bold text-primary mr-2">[{ref.id}]</span>
-                        {ref.citation}
-                        {ref.url && (
-                          <a href={ref.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-link hover:underline ml-2">
-                            DOI <ExternalLink className="w-2.5 h-2.5" />
-                          </a>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </motion.div>
-              )}
-            </AnimatePresence>
+          <div className="space-y-3">
+            <h4 className={sectionTitleClass}>
+              <BookMarked className="w-4 h-4" />
+              Referencias
+            </h4>
+            <ol className="space-y-2.5">
+              {refs.map((ref) => (
+                <li key={ref.id} className="text-[11px] leading-relaxed text-on-surface-variant/80 font-sans pl-3 border-l border-outline-variant/30 flex items-start gap-2">
+                  <span className="text-[9px] font-mono text-primary/50 shrink-0 mt-0.5">[{ref.id}]</span>
+                  <span className="flex-1">{ref.citation}</span>
+                  {ref.url && (
+                    <a
+                      href={ref.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-link hover:underline shrink-0 mt-0.5"
+                      aria-label="Abrir enlace"
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
+                </li>
+              ))}
+            </ol>
           </div>
         )}
-
-        {/* Centrality footer */}
-        <div className="pt-6 border-t border-outline-variant/15 flex items-center justify-between text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/40">
-          <span className="flex items-center gap-2">
-            <TrendingUp className="w-3 h-3" />
-            Centralidad: {typeof centrality === 'number' ? centrality.toFixed(2) : centrality}
-          </span>
-          <span className="flex items-center gap-2">
-            <Hash className="w-3 h-3" />
-            {appearances.length} apariciones
-          </span>
-        </div>
       </div>
     );
   };
@@ -762,7 +826,7 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
       <div className="space-y-6">
         {groupedAz.map(({ letter, entries }) => (
           <div key={letter}>
-            <h5 className="text-[10px] font-mono uppercase tracking-widest mb-3 text-on-surface-variant/40 sticky top-0 bg-background/80 backdrop-blur-sm py-1 z-10">
+            <h5 className="text-[10px] font-mono uppercase tracking-widest mb-3 text-on-surface-variant/40 py-1">
               {letter}
               <span className="ml-2 text-on-surface-variant/30">({entries.length})</span>
             </h5>
@@ -828,16 +892,39 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
 
   return (
     <div className="space-y-10 w-full">
-      {/* ==================== HERO SECTION ==================== */}
-      <section
-        className="relative overflow-hidden bg-background"
+      {/* ==================== UPPER ZONE WITH GLOWS ==================== */}
+      <div
+        className="relative"
         style={{
           width: "calc(100vw - var(--scrollbar-width, 0px))",
           marginLeft: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
           marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
         }}
       >
-        <div className="min-h-[50vh] lg:min-h-[55vh] w-full flex flex-col items-center justify-center text-center relative py-16 lg:py-24 px-6 lg:px-16">
+        {/* Ambient Glows - covering entire upper zone (hero + search/filters) */}
+        <div className="absolute inset-x-0 top-0 bottom-[-8%] z-0 pointer-events-none opacity-80">
+          <div className="absolute top-[2%] left-[-2vw] w-[600px] h-[600px] animate-float-1">
+            <AmbientGlow colorClass="bg-ch4" className="w-full h-full" opacity={0.3} />
+          </div>
+          <div className="absolute top-[18%] right-[-5vw] w-[700px] h-[700px] animate-float-2">
+            <AmbientGlow colorClass="bg-ch1" className="w-full h-full" opacity={0.3} />
+          </div>
+          <div className="absolute top-[35%] left-[18vw] w-[500px] h-[500px] animate-float-3">
+            <AmbientGlow colorClass="bg-ch2" className="w-full h-full" opacity={0.25} />
+          </div>
+          <div className="absolute top-[-2%] right-[12vw] w-[550px] h-[550px] animate-float-4">
+            <AmbientGlow colorClass="bg-ch5" className="w-full h-full" opacity={0.25} />
+          </div>
+          <div className="absolute top-[60%] left-[8vw] w-[450px] h-[450px] animate-float-5">
+            <AmbientGlow colorClass="bg-ch3" className="w-full h-full" opacity={0.3} />
+          </div>
+          <div className="absolute top-[70%] right-[20vw] w-[480px] h-[480px] animate-float-6">
+            <AmbientGlow colorClass="bg-ch6" className="w-full h-full" opacity={0.3} />
+          </div>
+        </div>
+
+        {/* HERO SECTION */}
+        <div className="min-h-[50vh] lg:min-h-[55vh] w-full flex flex-col items-center justify-center text-center relative py-8 lg:py-10 px-6 lg:px-16">
           {/* Crosshair corners */}
           <div className="absolute top-6 left-6 w-6 h-6 pointer-events-none select-none flex items-center justify-center">
             <div className="absolute w-4 h-[2px] bg-primary/30" />
@@ -854,28 +941,6 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
           <div className="absolute bottom-6 right-6 w-6 h-6 pointer-events-none select-none flex items-center justify-center">
             <div className="absolute w-4 h-[2px] bg-primary/30" />
             <div className="absolute w-[2px] h-4 bg-primary/30" />
-          </div>
-
-          {/* Ambient Glows */}
-          <div className="absolute inset-x-0 top-[-10%] bottom-[-10%] z-0 pointer-events-none opacity-80">
-            <div className="absolute top-[-5%] left-[-2vw] w-[600px] h-[600px] animate-float-1">
-              <AmbientGlow colorClass="bg-ch1" className="w-full h-full" opacity={0.3} />
-            </div>
-            <div className="absolute top-[30%] right-[-5vw] w-[700px] h-[700px] animate-float-2">
-              <AmbientGlow colorClass="bg-ch4" className="w-full h-full" opacity={0.3} />
-            </div>
-            <div className="absolute top-[10%] left-[20vw] w-[500px] h-[500px] animate-float-3">
-              <AmbientGlow colorClass="bg-ch2" className="w-full h-full" opacity={0.25} />
-            </div>
-            <div className="absolute top-[-10%] right-[15vw] w-[550px] h-[550px] animate-float-4">
-              <AmbientGlow colorClass="bg-ch5" className="w-full h-full" opacity={0.25} />
-            </div>
-            <div className="absolute bottom-[20%] left-[10vw] w-[450px] h-[450px] animate-float-5">
-              <AmbientGlow colorClass="bg-ch3" className="w-full h-full" opacity={0.3} />
-            </div>
-            <div className="absolute bottom-[10%] right-[25vw] w-[480px] h-[480px] animate-float-6">
-              <AmbientGlow colorClass="bg-ch6" className="w-full h-full" opacity={0.3} />
-            </div>
           </div>
 
           {/* Background book icon */}
@@ -924,14 +989,13 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
 
           </motion.div>
         </div>
-      </section>
 
-      <div className="w-full py-4">
-        <TabNav activeTab={activeTab} onNavigate={onNavigate} theme={theme} onToggleTheme={onToggleTheme} />
-      </div>
+        <div className="w-full py-4 relative z-10">
+          <TabNav activeTab={activeTab} onNavigate={onNavigate} theme={theme} onToggleTheme={onToggleTheme} />
+        </div>
 
-      {/* View mode tabs */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pb-6 max-w-3xl mx-auto">
+        {/* View mode tabs */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pb-6 max-w-3xl mx-auto relative z-10">
         {([
           {
             id: "lista",
@@ -984,7 +1048,13 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
 
       {/* ==================== SEARCH + FILTERS (hidden in grafo view) ==================== */}
       {viewMode !== "grafo" && (
-        <div className="glass-enhance border border-outline-variant/30 rounded-2xl p-6 lg:p-8 space-y-5 relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
+        <div
+          className="glass-enhance border border-outline-variant/30 rounded-2xl p-3 lg:p-4 space-y-3 sticky top-3 z-30 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/40 dark:before:bg-surface-dim/20 before:backdrop-blur-md before:z-[-1] before:pointer-events-none"
+          style={{
+            width: "calc(100vw - 96px - var(--scrollbar-width, 0px))",
+            marginLeft: "calc(-50vw + 48px + var(--scrollbar-width, 0px) / 2 + 50%)"
+          }}
+        >
           <div className="relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant/40 pointer-events-none" />
             <input
@@ -992,9 +1062,12 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar término, autor, obra…  (pulsa /)"
-              className="w-full bg-surface-dim/30 border border-outline-variant/30 focus:border-primary rounded-lg px-12 py-3.5 text-body-md outline-none transition-all"
+              placeholder="Buscar…"
+              className="w-full bg-surface-dim/30 border border-outline-variant/30 focus:border-primary/60 rounded-lg px-11 py-2 text-sm outline-none transition-all"
             />
+            <kbd className="absolute right-9 top-1/2 -translate-y-1/2 pointer-events-none px-1.5 py-0.5 rounded border border-outline-variant/30 bg-surface-dim/40 text-[10px] font-mono text-on-surface-variant/60 select-none">
+              /
+            </kbd>
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
@@ -1010,7 +1083,7 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
             <div className="flex gap-1 flex-wrap">
               <button
                 onClick={() => setSelectedCategory("all")}
-                className={`text-[10px] font-mono uppercase tracking-tighter px-3 py-1.5 rounded-md border transition-all ${
+                className={`text-[10px] font-mono uppercase tracking-tighter px-2.5 py-0.5 rounded-md border transition-all ${
                   selectedCategory === "all"
                     ? "bg-primary/10 border-primary text-primary"
                     : "border-outline-variant/30 text-on-surface-variant hover:border-outline-variant"
@@ -1022,7 +1095,7 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={`text-[10px] font-mono uppercase tracking-tighter px-3 py-1.5 rounded-md border transition-all flex items-center gap-1.5 ${
+                  className={`text-[10px] font-mono uppercase tracking-tighter px-2.5 py-0.5 rounded-md border transition-all flex items-center gap-1.5 ${
                     selectedCategory === cat.id
                       ? "border-primary/60 text-on-surface"
                       : "border-outline-variant/30 text-on-surface-variant hover:border-outline-variant"
@@ -1039,7 +1112,7 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value as GlossaryType | "all")}
-              className="text-[10px] font-mono uppercase tracking-tighter px-3 py-1.5 rounded-md border border-outline-variant/30 bg-surface-dim/30 text-on-surface-variant hover:border-outline-variant transition-all outline-none"
+              className="text-[10px] font-mono uppercase tracking-tighter px-2.5 py-1 rounded-md border border-outline-variant/30 bg-surface-dim/30 text-on-surface-variant hover:border-outline-variant transition-all outline-none"
             >
               <option value="all">Todos los tipos</option>
               {GLOSSARY_TYPES.map((t) => (
@@ -1053,7 +1126,7 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
                 <select
                   value={sortMode}
                   onChange={(e) => setSortMode(e.target.value as SortMode)}
-                  className="text-[10px] font-mono uppercase tracking-tighter px-3 py-1.5 rounded-md border border-outline-variant/30 bg-surface-dim/30 text-on-surface-variant hover:border-outline-variant transition-all outline-none"
+                  className="text-[10px] font-mono uppercase tracking-tighter px-2.5 py-1 rounded-md border border-outline-variant/30 bg-surface-dim/30 text-on-surface-variant hover:border-outline-variant transition-all outline-none"
                 >
                   <option value="az">Orden A-Z</option>
                   <option value="citado">Más citado</option>
@@ -1062,7 +1135,7 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
                 <select
                   value={listGroup}
                   onChange={(e) => setListGroup(e.target.value as ListGroup)}
-                  className="text-[10px] font-mono uppercase tracking-tighter px-3 py-1.5 rounded-md border border-outline-variant/30 bg-surface-dim/30 text-on-surface-variant hover:border-outline-variant transition-all outline-none"
+                  className="text-[10px] font-mono uppercase tracking-tighter px-2.5 py-1 rounded-md border border-outline-variant/30 bg-surface-dim/30 text-on-surface-variant hover:border-outline-variant transition-all outline-none"
                 >
                   <option value="az">Agrupar A-Z</option>
                   <option value="categoria">Por categoría</option>
@@ -1077,33 +1150,7 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
           </div>
         </div>
       )}
-
-      {/* History */}
-      {history.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-2 flex-wrap text-[10px] font-mono"
-        >
-          <span className="flex items-center gap-1 text-on-surface-variant/50 uppercase tracking-widest">
-            <Clock className="w-3 h-3" />
-            Recientes
-          </span>
-          {history.slice(0, 6).map((id) => {
-            const e = GLOSSARY_UNIFIED.find((x) => x.id === id);
-            if (!e) return null;
-            return (
-              <button
-                key={id}
-                onClick={() => handleSelectEntry(e)}
-                className="px-2 py-0.5 rounded-sm border border-outline-variant/20 hover:border-primary/40 text-on-surface-variant hover:text-on-surface transition-all"
-              >
-                {e.term}
-              </button>
-            );
-          })}
-        </motion.div>
-      )}
+      </div>
 
       {/* ==================== VIEW CONTENT ==================== */}
       <AnimatePresence mode="wait">
@@ -1148,18 +1195,20 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -16 }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="grid grid-cols-1 lg:grid-cols-12 gap-8 min-h-[700px]"
+            className="grid grid-cols-1 lg:grid-cols-[1fr_480px] gap-8"
+            style={{
+              width: "calc(100vw - 96px - var(--scrollbar-width, 0px))",
+              marginLeft: "calc(-50vw + 48px + var(--scrollbar-width, 0px) / 2 + 50%)"
+            }}
           >
             {/* List */}
-            <div className="lg:col-span-7 flex flex-col gap-4">
-              <div className="overflow-y-auto max-h-[820px] pr-3 custom-scrollbar">
-                {renderList()}
-              </div>
+            <div className="flex flex-col gap-4">
+              {renderList()}
             </div>
 
             {/* Detail */}
-            <div className="hidden lg:block lg:col-span-5 relative">
-              <div className="sticky top-32 glass-enhance border border-outline-variant/25 rounded-xl p-8 h-fit max-h-[80vh] overflow-y-auto custom-scrollbar before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
+            <div className="hidden lg:block relative">
+              <div ref={cardScrollRef} className="sticky top-3 max-h-[calc(100vh-12px)] overflow-y-auto custom-scrollbar glass-enhance border border-outline-variant/25 rounded-xl p-6 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
                 <AnimatePresence mode="wait">
                   {selectedEntry ? (
                     <motion.div
