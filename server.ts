@@ -437,6 +437,10 @@ app.post("/api/dev/tasks/restore", async (req, res) => {
 
 
 // API routes FIRST
+app.get("/api/ping", (req, res) => {
+  res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
 app.post("/api/analyze-argument", async (req, res) => {
   try {
     const { argument, mode } = req.body;

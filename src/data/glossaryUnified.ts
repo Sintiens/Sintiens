@@ -64,7 +64,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     ],
     relatedEntries: ["nocicepcion", "snc", "declaracion-cambridge", "declaracion-nueva-york", "bentham"],
     relatedNodes: ["neuroanatomia-consciencia", "neurobiologia-dolor", "etologia-cognitiva"],
-    relatedDilemmas: ["plantas-sienten-dolor", "bivalvos-ostras"],
+    relatedDilemmas: ["plantas-sienten-dolor", "bivalvos-ostras", "r2-fetos-animales", "consenso-sintiencia-animal"],
     relatedActs: ["acto-1"]
   },
   {
@@ -147,7 +147,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     ],
     relatedEntries: ["antropocentrismo", "falacia-naturalista", "casos-marginales", "singer", "ryder", "obra-liberacion-animal"],
     relatedNodes: ["especismo", "disonancia-placer", "recorrido-historico-estatus"],
-    relatedDilemmas: ["leones-carne", "granja-feliz-ecologia", "el-argumento-del-contrato-social"],
+    relatedDilemmas: ["leones-carne", "granja-feliz-ecologia", "el-argumento-del-contrato-social", "r2-tauromaquia-patrimonio"],
     relatedActs: ["acto-2"]
   },
   {
@@ -171,7 +171,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     longDef: "El utilitarismo clásico de Jeremy Bentham revolucionó la ética al plantear que la verdadera pregunta no es '¿pueden razonar?' ni '¿pueden hablar?', sino '¿pueden sufrir?'. Este cambio de paradigma estableció la capacidad de sufrir como el único criterio moral válido. Su versión moderna aplicada a los animales fue desarrollada por Peter Singer.",
     relatedEntries: ["singer", "bentham", "deontologia", "bienestarismo", "abolicionismo"],
     relatedNodes: ["recorrido-historico-estatus"],
-    relatedDilemmas: ["granja-feliz-ecologia", "conservacion-dehesas", "bivalvos-ostras"],
+    relatedDilemmas: ["granja-feliz-ecologia", "conservacion-dehesas", "bivalvos-ostras", "bienestarismo-como-abolicionismo-fracaso"],
     relatedActs: ["acto-2"]
   },
   {
@@ -183,7 +183,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     shortDef: "Teoría filosófica basada en que ciertos seres poseen derechos absolutos y un valor intrínseco inalienable que prohíbe usarlos éticamente como simples herramientas o mercancías, sin importar el supuesto beneficio para otros.",
     relatedEntries: ["utilitarismo", "abolicionismo", "sujeto-de-una-vida", "regan", "derechos-animales"],
     relatedNodes: ["recorrido-historico-estatus", "estatus-juridico"],
-    relatedDilemmas: ["granja-feliz-ecologia", "conservacion-dehesas"]
+    relatedDilemmas: ["granja-feliz-ecologia", "conservacion-dehesas", "bienestarismo-como-abolicionismo-fracaso"]
   },
   {
     id: "bienestarismo",
@@ -194,7 +194,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     shortDef: "Postura ética reformista que acepta el uso de animales por los humanos pero exige reducir su sufrimiento (jaulas más grandes, transporte menos cruel, aturdimiento previo al sacrificio). Sus críticos abolicionistas argumentan que perpetúa el sistema al aceptar su marco.",
     relatedEntries: ["abolicionismo", "utilitarismo", "cinco-libertades", "aturdimiento", "ganaderia-industrial"],
     relatedNodes: ["marcos-eticos", "legislacion-bienestar"],
-    relatedDilemmas: ["granja-feliz-ecologia", "el-mito-de-la-carne-humanitaria"]
+    relatedDilemmas: ["granja-feliz-ecologia", "el-mito-de-la-carne-humanitaria", "r2-mascotas-carnivoras", "bienestarismo-como-abolicionismo-fracaso"]
   },
   {
     id: "abolicionismo",
@@ -214,7 +214,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     ],
     relatedEntries: ["regan", "francione", "deontologia", "sujeto-de-una-vida", "bienestarismo", "obra-case-animal-rights"],
     relatedNodes: ["marcos-eticos", "consistencia-moral"],
-    relatedDilemmas: ["granja-feliz-ecologia", "el-mito-de-la-carne-humanitaria"],
+    relatedDilemmas: ["granja-feliz-ecologia", "el-mito-de-la-carne-humanitaria", "r2-mascotas-carnivoras", "r2-prohibicion-mutilaciones-granjas", "bienestarismo-como-abolicionismo-fracaso"],
     relatedActs: ["acto-2"]
   },
   {
@@ -689,7 +689,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     ],
     relatedEntries: ["declaracion-nueva-york", "sintiencia", "snc", "cefalopodos", "mecanicismo-cartesiano"],
     relatedNodes: ["neuroanatomia-consciencia"],
-    relatedDilemmas: ["plantas-sienten-dolor", "bivalvos-ostras", "el-argumento-del-antropocentrismo-cartesiano"],
+    relatedDilemmas: ["plantas-sienten-dolor", "bivalvos-ostras", "el-argumento-del-antropocentrismo-cartesiano", "consenso-sintiencia-animal", "r2-quimeras-humanas"],
     relatedActs: ["acto-1"]
   },
   {
@@ -704,7 +704,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     ],
     relatedEntries: ["declaracion-cambridge", "declaracion-montreal", "principio-precaucion", "sintiencia", "cefalopodos"],
     relatedNodes: ["neuroanatomia-consciencia"],
-    relatedDilemmas: ["bivalvos-ostras", "comer-insectos-harinas"]
+    relatedDilemmas: ["bivalvos-ostras", "comer-insectos-harinas", "consenso-sintiencia-animal", "r2-fetos-animales", "sintiencia-insectos-granjas"]
   },
   {
     id: "declaracion-montreal",
@@ -715,7 +715,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     shortDef: "Documento de 2022 firmado por más de 500 filósofos y académicos que da un paso más allá de la ciencia de la consciencia: sostiene que, dado que los animales sufren y sus vidas les importan, es éticamente indefendible seguir confinándolos, mercantilizándolos y matándolos por fines gastronómicos triviales, y exige reformas jurídicas abolicionistas globales.",
     relatedEntries: ["declaracion-cambridge", "declaracion-nueva-york", "abolicionismo", "derechos-animales"],
     relatedNodes: ["estatus-juridico", "marcos-eticos"],
-    relatedDilemmas: ["el-mito-de-la-carne-humanitaria"]
+    relatedDilemmas: ["el-mito-de-la-carne-humanitaria", "consenso-sintiencia-animal", "r2-marco-legal-tfue"]
   },
   {
     id: "informe-brambell",
@@ -1183,6 +1183,154 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
   },
 
   // =====================================================================
+  // IX-A. FALACIAS CLÁSICAS Y CONCEPTOS DIALÉCTICOS (nuevas)
+  // =====================================================================
+  {
+    id: "falacia-ad-hominem",
+    term: "Falacia ad hominem",
+    altTerms: ["Ataque personal", "Falacia del mensajero"],
+    patterns: ["ad hominem", "ataque personal", "falacia del mensajero", "Ad Hominem"],
+    type: "tecnico",
+    category: "psicologia",
+    shortDef: "Falacia que consiste en descalificar una propuesta atacando a quien la enuncia, en lugar de evaluar el contenido del argumento.",
+    longDef: "La falacia ad hominem es una estrategia argumentativa falaz que rechaza o debilita una posición centrándose en características personales, identidad o circunstancias de quien la defiende, en lugar de discutir la validez del razonamiento. En debates sobre ética animal, se manifiesta al descalificar el veganismo por motivos de clase, etnia, género o apariencia del mensajero, sin abordar los argumentos sustantivos. La psicología cognitiva la relaciona con sesgos de rechazo y mecanismos de defensa identitaria.",
+    references: [
+      { id: "1", citation: "Walton, D. (1998). Ad hominem arguments. University of Alabama Press." }
+    ],
+    relatedEntries: ["falacia", "disonancia-cognitiva"],
+    relatedNodes: ["disonancia-placer", "categorizacion-sociocultural"],
+    relatedDilemmas: ["r2-falacia-ad-hominem"]
+  },
+  {
+    id: "falacia-pendiente-resbaladiza",
+    term: "Falacia de pendiente resbaladiza",
+    altTerms: ["Slippery slope", "Pendiente resbaladiza"],
+    patterns: ["pendiente resbaladiza", "slippery slope", "efecto dominó", "cascada de prohibiciones"],
+    type: "tecnico",
+    category: "psicologia",
+    shortDef: "Falacia que predice un encadenamiento de consecuencias extremas e inevitables a partir de una acción inicial, sin evidencia de la conexión causal entre cada paso.",
+    longDef: "La falacia de pendiente resbaladiza asume que aceptar una medida (por ejemplo, regular la producción cárnica) conducirá inevitablemente a una cadena de prohibiciones (huevos, lácteos, mascotas, etc.) sin demostrar empíricamente cada eslabón. Es una técnica retórica basada en el miedo y la persuasión emocional, no en la argumentación racional. Filósofos del discurso subrayan que cada decisión política requiere su propio análisis de méritos, sin asumir conexiones necesarias entre ellas.",
+    references: [
+      { id: "1", citation: "Walton, D. (2017). The slippery slope argument. In Oxford Handbook of Fallacies." }
+    ],
+    relatedEntries: ["falacia", "falacia-ad-hominem"],
+    relatedNodes: ["disonancia-placer"],
+    relatedDilemmas: ["r2-falacia-pendiente-resbaladiza"]
+  },
+  {
+    id: "falacia-composicion",
+    term: "Falacia de composición",
+    altTerms: ["Generalización apresurada", "Falacia de la parte por el todo"],
+    patterns: ["falacia de composición", "generalización apresurada", "de uno a todos", "composición"],
+    type: "tecnico",
+    category: "psicologia",
+    shortDef: "Falacia que atribuye las propiedades de un caso individual a todo un conjunto, o viceversa, asumiendo que lo que vale para una parte vale para el todo.",
+    longDef: "La falacia de composición consiste en inferir que un enunciado aplicable a cada elemento individual es necesariamente válido para el conjunto, o que lo verdadero del todo lo es para cada parte. En el debate sobre ganadería, se manifiesta al asumir que un ganadero ejemplar hace ética a toda la industria, ignorando dinámicas sistémicas, regulaciones permisivas y mayorías estadísticas. Es un error frecuente en discursos polarizados y se combate con muestreo representativo y evidencia agregada.",
+    references: [
+      { id: "1", citation: "Walton, D. (2017). Fallacies. Stanford Encyclopedia of Philosophy." }
+    ],
+    relatedEntries: ["falacia", "falacia-ad-hominem"],
+    relatedNodes: ["disonancia-placer", "categorizacion-sociocultural"],
+    relatedDilemmas: ["r2-falacia-composicion"]
+  },
+  {
+    id: "mascotas-carnivoras",
+    term: "Mascotas carnívoras (debate ético)",
+    altTerms: ["Alimentación de mascotas"],
+    patterns: ["mascotas carnívoras", "pienso cárnico", "alimentación mascotas", "dietas veganas mascotas"],
+    type: "concepto",
+    category: "sistemas_uso",
+    shortDef: "Debate ético sobre la alimentación de perros y gatos con piensos cárnicos industriales y la contradicción moral que esto genera en consumidores éticos.",
+    longDef: "La alimentación de mascotas carnívoras (especialmente gatos, que son carnívoros estrictos) plantea un dilema entre el bienestar del animal doméstico y la coherencia ética de su propietario. Mientras que los perros admiten dietas vegetales bien formuladas con suplementación, los gatos requieren nutrientes presentes solo en tejidos animales (taurina, ácido araquidónico, vitamina A preformada). El pienso comercial proviene en gran medida de subproductos de la ganadería industrial, perpetuando una cadena de sufrimiento que muchos propietarios intentan evitar en su dieta personal. Empresas como Meatly y Wagr han desarrollado piensos felinos a base de carne cultivada in vitro como solución tecnológica al dilema.",
+    references: [
+      { id: "1", citation: "Knight, A. & Leitsberger, M. (2016). A systematic review of vegan diets in dogs and cats. Veterinary Record, 179(7), 169-170." }
+    ],
+    relatedEntries: ["bienestarismo", "abolicionismo", "agricultura-celular"],
+    relatedNodes: ["sistemas-alimentacion", "vias-transicion"],
+    relatedDilemmas: ["r2-mascotas-carnivoras"]
+  },
+  {
+    id: "tauromaquia",
+    term: "Tauromaquia",
+    altTerms: ["Corridas de toros", "Fiesta brava"],
+    patterns: ["tauromaquia", "corrida de toros", "fiesta brava", "toreo", "lid"],
+    type: "concepto",
+    category: "sistemas_uso",
+    shortDef: "Práctica cultural consistente en la lidia y muerte de toros en plazas, declarada patrimonio cultural en algunos países y prohibida en otros por motivos de bienestar animal.",
+    longDef: "La tauromaquia es una práctica ritual y deportiva con siglos de tradición en España, Portugal, sur de Francia, países andinos y otras regiones hispanohablantes. Implica diversas fases (lanceo, banderillas, estoque) que producen dolor físico y estrés psicológico severo en el toro, documentados por etólogos y fisiólogos animales. Mientras España la declaró patrimonio cultural en 2013, regiones como Cataluña, Canarias y varias ciudades autónomas la han prohibido. En Latinoamérica, países como Argentina, Colombia y México mantienen la práctica con regulación variable. El debate enfrenta el relativismo cultural con valores universales de bienestar animal.",
+    references: [
+      { id: "1", citation: "Mariscal-Lucero, S. et al. (2020). Cognitive and emotional indicators of pain in bulls during bullfighting. Animals, 10(11), 2118." }
+    ],
+    relatedEntries: ["especismo", "tradicion", "bienestarismo"],
+    relatedNodes: ["historia-dominacion", "legislacion-bienestar", "otras-instrumentalizaciones"],
+    relatedDilemmas: ["r2-tauromaquia-patrimonio", "tradicion-no-hace-correcto"]
+  },
+  {
+    id: "quimeras-humano-animales",
+    term: "Quimeras humano-animales",
+    altTerms: ["Quimeras interespecíficas", "Embrión mixto"],
+    patterns: ["quimeras", "quimera humano-animal", "embrión mixto", "células madre humanas en animales"],
+    type: "concepto",
+    category: "sintiencia",
+    shortDef: "Organismos resultantes de la introducción de células humanas en embriones animales, empleados en investigación biomédica para generar tejidos y órganos compatibles.",
+    longDef: "Las quimeras humano-animales son organismos viables que contienen células de dos especies distintas, logrados mediante la inserción de células madre humanas en embriones animales en fases tempranas del desarrollo. Su objetivo principal es producir órganos trasplantables (riñones, hígados, páncreas) sin rechazo inmunológico. El debate ético se concentra en el porcentaje de células humanas admitidas en tejidos neurales: si estas migran al cerebro animal, podrían alterar la capacidad de consciencia. Marcos regulatorios como los Institutos Nacionales de Salud de EE.UU. han establecido límites al financiamiento federal, exigiendo moratorias para quimeras con contribución neural significativa.",
+    references: [
+      { id: "1", citation: "Aravena, M. (2025). Desafíos ético-legales de la experimentación con quimeras humano-animales. Revista de Bioética y Derecho, 31, 53-69." }
+    ],
+    relatedEntries: ["sintiencia", "declaracion-cambridge", "vias-transicion"],
+    relatedNodes: ["vias-transicion", "neuroanatomia-consciencia"],
+    relatedDilemmas: ["r2-quimeras-humanas"]
+  },
+  {
+    id: "organismos-modificados-geneticamente",
+    term: "Animales modificados genéticamente",
+    altTerms: ["Transgénicos", "OGM animales", "CRISPR animal"],
+    patterns: ["animales transgénicos", "transgénicos", "OGM animales", "animales modificados genéticamente", "CRISPR animal"],
+    type: "concepto",
+    category: "sistemas_uso",
+    shortDef: "Animales cuyo genoma ha sido alterado mediante técnicas de ingeniería genética (transgénesis, CRISPR) para fines de investigación, producción o biomedicina.",
+    longDef: "Los animales modificados genéticamente incluyen organismos a los que se les ha insertado, eliminado o editado genes específicos. Casos representativos: ratones knockout para estudio de enfermedades humanas, salmones AquAdvantage de crecimiento acelerado para alimentación, cerdos donantes de órganos para xenotrasplantes. La edición genética puede alterar el bienestar del animal mismo (enfermedades asociadas, metabolismo anómalo, dolor crónico) y plantea dilemas sobre su estatus moral: ¿es legítimo modificar un ser vivo hasta el punto de alterar su naturaleza biológica? La constitución suiza y la legislación europea exigen evaluaciones de dignidad animal previas a la aprobación.",
+    references: [
+      { id: "1", citation: "Dennis, C. J. (2002). Engineering animals through transgenesis: issues and perspectives for animal welfare. ILAR Journal, 43(3), 236-239." }
+    ],
+    relatedEntries: ["sintiencia", "vias-transicion", "agricultura-celular"],
+    relatedNodes: ["vias-transicion", "sistemas-alimentacion"],
+    relatedDilemmas: ["r2-animales-modificados-geneticamente", "r2-quimeras-humanas"]
+  },
+  {
+    id: "especies-invasoras",
+    term: "Especies invasoras",
+    altTerms: ["Especies exóticas invasoras", "Plagas introducidas"],
+    patterns: ["especies invasoras", "especies exóticas", "plagas introducidas", "fauna invasora"],
+    type: "concepto",
+    category: "ecologia",
+    shortDef: "Especies no nativas introducidas en un ecosistema, que se expanden causando daño ecológico, económico o de salud pública, y cuyo control genera dilemas éticos.",
+    longDef: "Las especies invasoras son aquellas trasladadas por acción humana fuera de su área de distribución natural, donde establecen poblaciones autosostenibles y causan impactos negativos en la biodiversidad nativa. Ejemplos notables: ratas y gatos asilvestrados en islas oceánicas, ranas toro en Australia, mapaches en Europa, serpientes arbóreas en Guam. La UICN las identifica como la segunda causa de pérdida de biodiversidad global. Su control letal (cebos tóxicos, trampas, caza) choca con la ética individualista de protección animal, generando dilemas sobre si es aceptable matar individuos invasores para proteger especies nativas.",
+    references: [
+      { id: "1", citation: "Roy, H. E. et al. (2023). Curbing the major and growing threats from invasive alien species. Science, 380(6643), 462-467." }
+    ],
+    relatedEntries: ["ecologismo", "individualismo", "bienestarismo"],
+    relatedNodes: ["crisis-ambiental", "huella-ecologica"],
+    relatedDilemmas: ["r2-especies-invasoras", "r2-ecologismo-animalismo"]
+  },
+  {
+    id: "fetos-animales-sintiencia",
+    term: "Sintiencia fetal animal",
+    altTerms: ["Conciencia prenatal", "Umbral de dolor fetal"],
+    patterns: ["sintiencia fetal", "conciencia prenatal", "umbral de dolor fetal", "dolor fetal animal"],
+    type: "concepto",
+    category: "sintiencia",
+    shortDef: "Capacidad de experiencia subjetiva (dolor, estrés) en embriones y fetos animales en desarrollo, cuyo umbral exacto es objeto de debate científico y ético.",
+    longDef: "La sintiencia fetal animal se refiere al momento del desarrollo gestacional en que un embrión o feto puede experimentar dolor consciente, más allá de respuestas reflejas. La neurociencia comparada sitúa este umbral en fases avanzadas de la gestación, cuando se completan las conexiones corticales y talámicas. La Directiva 2010/63/UE sobre protección de animales usados en investigación exige analgesia y eutanasia humanitaria para fetos en etapas avanzadas. El debate ético se centra en cómo aplicar el principio de precaución sin paralizar la investigación biomédica necesaria.",
+    references: [
+      { id: "1", citation: "European Union (2010). Directive 2010/63/EU on the protection of animals used for scientific purposes." }
+    ],
+    relatedEntries: ["sintiencia", "nocicepcion", "declaracion-nueva-york"],
+    relatedNodes: ["neurobiologia-dolor", "neuroanatomia-consciencia"],
+    relatedDilemmas: ["r2-fetos-animales"]
+  },
+
+  // =====================================================================
   // X. TAXONOMÍA DIALÉCTICA (clasificaciones de Tesis)
   // =====================================================================
   {
@@ -1198,8 +1346,8 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
       "La mayoría de las excusas populares para justificar el consumo animal caen en alguna categoría de falacia.",
       "Una falacia puede ser lógica (error de razonamiento), factual (error científico) o ambas."
     ],
-    relatedEntries: ["falacia-naturalista", "especismo", "disonancia-cognitiva"],
-    relatedDilemmas: ["leones-carne", "plantas-sienten-dolor", "caninos-dentadura", "explotacion-industrial-clima", "el-argumento-del-antropocentrismo-cartesiano", "el-argumento-del-contrato-social", "la-prioridad-humanitaria"]
+    relatedEntries: ["falacia-naturalista", "especismo", "disonancia-cognitiva", "falacia-ad-hominem", "falacia-pendiente-resbaladiza", "falacia-composicion"],
+    relatedDilemmas: ["leones-carne", "plantas-sienten-dolor", "caninos-dentadura", "explotacion-industrial-clima", "el-argumento-del-antropocentrismo-cartesiano", "el-argumento-del-contrato-social", "la-prioridad-humanitaria", "lo-natural-no-es-moral", "tradicion-no-hace-correcto", "r2-falacia-ad-hominem", "r2-falacia-pendiente-resbaladiza", "r2-falacia-composicion"]
   },
   {
     id: "consenso-cientifico",
@@ -1215,7 +1363,8 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
       "El consenso no es inmunidad a revisión: puede refinarse con nueva evidencia."
     ],
     relatedEntries: ["declaracion-cambridge", "declaracion-nueva-york", "declaracion-montreal", "sintiencia"],
-    relatedNodes: ["neuroanatomia-consciencia", "neurobiologia-dolor"]
+    relatedNodes: ["neuroanatomia-consciencia", "neurobiologia-dolor"],
+    relatedDilemmas: ["consenso-sintiencia-animal", "consenso-b12-suplementacion", "consenso-ineficiencia-energetica", "r2-marco-legal-tfue", "r2-prohibicion-mutilaciones-granjas"]
   },
   {
     id: "escenario-gris",
@@ -1230,8 +1379,8 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
       "Los bivalvos y los insectos son los dos escenarios grises principales en el debate actual sobre sintiencia.",
       "El principio de precaución sugiere inclinarse por la opción que minimice el daño potencial cuando hay incertidumbre."
     ],
-    relatedEntries: ["sintiencia", "cefalopodos", "principio-precaucion", "utilitarismo", "derechos-animales"],
-    relatedDilemmas: ["bivalvos-ostras", "comer-insectos-harinas"]
+    relatedEntries: ["sintiencia", "cefalopodos", "principio-precaucion", "utilitarismo", "derechos-animales", "fetos-animales-sintiencia", "quimeras-humano-animales", "organismos-modificados-geneticamente"],
+    relatedDilemmas: ["bivalvos-ostras", "comer-insectos-harinas", "sintiencia-insectos-granjas", "r2-quimeras-humanas", "r2-fetos-animales", "r2-animales-modificados-geneticamente"]
   },
   {
     id: "dilema",
@@ -1246,8 +1395,8 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
       "El dilema 'Granja Feliz' enfrenta bienestarismo vs. derechos animales: la vaca vive bien pero muere joven.",
       "El dilema 'Dehesas' enfrenta ecocentrismo (proteger el ecosistema) vs. individualismo (derecho del animal a no ser explotado)."
     ],
-    relatedEntries: ["bienestarismo", "abolicionismo", "utilitarismo", "deontologia", "enfoque-capacidades"],
-    relatedDilemmas: ["granja-feliz-ecologia", "conservacion-dehesas", "el-mito-de-la-carne-humanitaria"]
+    relatedEntries: ["bienestarismo", "abolicionismo", "utilitarismo", "deontologia", "enfoque-capacidades", "mascotas-carnivoras", "tauromaquia", "especies-invasoras"],
+    relatedDilemmas: ["granja-feliz-ecologia", "conservacion-dehesas", "el-mito-de-la-carne-humanitaria", "bienestarismo-como-abolicionismo-fracaso", "r2-mascotas-carnivoras", "r2-ecologismo-animalismo", "r2-tauromaquia-patrimonio", "r2-especies-invasoras"]
   }
 ];
 
