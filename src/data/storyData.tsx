@@ -42,6 +42,7 @@ export const actsData: ActData[] = [
         microQuiz: {
           question: "Un termostato enciende la calefacción cuando hace frío. ¿Es un ser sintiente?",
           options: ["Sí, porque reacciona al frío", "No: reacciona, pero no experimenta nada", "Solo si aprende de la experiencia"],
+          correctIndex: 1,
           revealFact: "La clave está en la experiencia subjetiva. Reaccionar a un estímulo —como hace un termostato, una bacteria o una planta— no implica sentir nada. La sintiencia empieza solo donde hay 'alguien' que experimenta lo que ocurre, no un mecanismo que responde."
         },
         deepDive: {
@@ -154,6 +155,7 @@ export const actsData: ActData[] = [
         microQuiz: {
           question: "¿Qué criterio debería decidir si alguien merece protección moral?",
           options: ["La inteligencia o el lenguaje", "La capacidad de sufrir", "La utilidad para los humanos"],
+          correctIndex: 1,
           revealFact: "Para Bentham y la ética moderna lo que cuenta es la capacidad de sufrir, no la inteligencia. Por eso protegemos a un bebé aunque no hable ni resuelva ecuaciones: no por su razonamiento, sino porque puede sufrir. Aplicar el mismo rasero a otros animales no es sentimentalismo, es coherencia."
         },
         deepDive: {

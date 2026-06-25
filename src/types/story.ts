@@ -19,6 +19,7 @@ export interface MicroQuizData {
   question: string;
   options: string[];
   revealFact: string;
+  correctIndex: number;
 }
 
 export interface TopicBlockData {

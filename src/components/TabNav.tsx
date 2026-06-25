@@ -1,6 +1,6 @@
 import { Sun, Moon } from "lucide-react";
 
-export type TabType = "historia_narrativa" | "grafo" | "cronologia" | "dialectica" | "calculadora" | "validador" | "datos";
+export type TabType = "historia_narrativa" | "grafo" | "cronologia" | "dialectica" | "calculadora" | "validador" | "datos" | "noticias";
 
 interface TabNavProps {
   activeTab: TabType;
@@ -16,6 +16,7 @@ const TABS: { id: TabType; label: string }[] = [
   { id: "dialectica", label: "Tesis" },
   { id: "calculadora", label: "Impacto" },
   { id: "validador", label: "IA" },
+  { id: "noticias", label: "Noticias" },
 ];
 
 export default function TabNav({ activeTab, onNavigate, theme, onToggleTheme }: TabNavProps) {

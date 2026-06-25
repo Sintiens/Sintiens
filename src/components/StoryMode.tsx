@@ -10,7 +10,7 @@ import { DeepDiveData } from "../types/story";
 import StoryTextRenderer from "./StoryTextRenderer";
 import SideNoteCard from "./SideNoteCard";
 import ReadingUtilities from "./ReadingUtilities";
-import ReadingEnrichments from "./ReadingEnrichments";
+import { BlockEnrichments } from "./InlineEnrichments";
 import MicroQuiz from "./MicroQuiz";
 import TabNav, { TabType } from "./TabNav";
 import { GlossaryEntry } from "../data/glossaryUnified";
@@ -1063,6 +1063,10 @@ return (
               />
             </div>
 
+            {/* Notas de lectura — inline so they appear on every screen size,
+                as a breathing pause within the reading flow. */}
+            <BlockEnrichments block={block} accent={act.textColor.replace("text-", "")} />
+
             {block.microQuiz && (
               <MicroQuiz quiz={block.microQuiz} accent={act.textColor.replace("text-", "")} />
             )}
@@ -1145,13 +1149,10 @@ return (
         )}
       </AnimatePresence>
 
-      {/* Right Rail (xl): Flowing enrichments + SideNoteCard at word's vertical position */}
+      {/* Right Rail (xl): SideNoteCard shown at the clicked word's vertical position.
+          The enrichments ("Notas de lectura") now render inline with the text,
+          so this rail only hosts the floating glossary/citation card. */}
       <div className="hidden xl:block relative w-full z-20 order-3">
-        <ReadingEnrichments
-          actColor={act.textColor}
-          blocks={act.blocks}
-        />
-
         {/* SideNoteCard positioned at the clicked word's vertical position */}
         <AnimatePresence>
           {activeNotesByAct[act.id] && (
