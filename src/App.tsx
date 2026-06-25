@@ -9,6 +9,7 @@ import StoryMode from "./components/StoryMode";
 import DevModeOverlay from "./components/DevModeOverlay";
 import DevErrorBoundary from "./components/DevErrorBoundary";
 import DataSection from "./components/DataSection";
+import NewsExplorer from "./components/NewsExplorer";
 import { motion, AnimatePresence } from "motion/react";
 import { CORE_NODES } from "./types";
 import { GLOSSARY_BY_ID, GLOSSARY_UNIFIED } from "./data/glossaryUnified";
@@ -25,6 +26,7 @@ const TAB_PATHS: Record<TabType, string> = {
   calculadora: "/calculadora",
   validador: "/validador",
   datos: "/datos",
+  noticias: "/noticias",
 };
 const PATH_TO_TAB: Record<string, TabType> = Object.fromEntries(
   Object.entries(TAB_PATHS).map(([k, v]) => [v, k as TabType])
@@ -268,6 +270,9 @@ export default function App() {
                   clearArgument={handleClearTrigger}
                   {...sharedProps}
                 />
+              )}
+              {activeTab === "noticias" && (
+                <NewsExplorer {...sharedProps} />
               )}
             </motion.div>
           </AnimatePresence>
