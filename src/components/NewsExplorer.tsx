@@ -16,7 +16,7 @@ import {
   AlertTriangle,
   MapPin
 } from "lucide-react";
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine } from "recharts";
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine } from "recharts";
 import TabNav, { TabType } from "./TabNav";
 import { PageGlows } from "./ui/AmbientGlow";
 import { NEWS_DATA, NewsItem } from "../data/newsData";
@@ -37,12 +37,104 @@ const CATEGORIES = [
   { id: "industria", label: "Industria y Producción", desc: "Ganadería intensiva y explotación" },
 ];
 
+const CustomTooltip = ({ active, payload }: any) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    const isPositive = data.impact === "positivo";
+    const isNegative = data.impact === "negativo";
+    const impactText = isPositive ? "+5" : isNegative ? "-5" : "";
+    const impactBadgeClass = isPositive
+      ? "bg-green-500/10 text-green-600 dark:bg-green-400/10 dark:text-green-400 border border-green-500/20"
+      : isNegative
+        ? "bg-red-500/10 text-red-500 dark:bg-red-400/10 dark:text-red-400 border border-red-500/20"
+        : "bg-surface-dim text-on-surface-variant/70 border border-outline-variant/30";
+
+    const titleSnippet = data.title && data.id !== "baseline"
+      ? data.title
+      : "Línea de Base Moral";
+
+    return (
+      <div className="border border-outline-variant/40 rounded-xl p-2.5 shadow-xl text-left pointer-events-none w-44 bg-surface/95 dark:bg-surface-dim/95 backdrop-blur-md relative z-50 text-[10px] font-mono select-none outline-none focus:outline-none flex flex-col gap-1.5 border-none">
+        {/* Title (spans full width at the top) */}
+        <div className="text-[10px] font-sans font-medium text-on-surface leading-tight break-words pr-1 line-clamp-2">
+          {titleSnippet}
+        </div>
+
+        {/* Footer: Date, Points, and Impact Pill consolidated in one row */}
+        <div className="flex items-center justify-between text-[9px] border-t border-outline-variant/15 pt-1.5 mt-0.5 text-on-surface-variant/60 font-mono">
+          <span>{data.id === "baseline" ? "Inicio" : data.date}</span>
+          <div className="flex items-center gap-1.5">
+            <span className="font-bold text-primary">{data["Progreso Moral"]} pts</span>
+            {impactText && (
+              <span className={`px-1 py-0.25 rounded-[3px] text-[7.5px] font-bold tracking-tighter ${impactBadgeClass}`}>
+                {impactText}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
 export default function NewsExplorer({ activeTab, onNavigate, theme, onToggleTheme }: NewsExplorerProps) {
   // State for filters
   const [selectedRegion, setSelectedRegion] = useState<"todos" | "españa" | "mundo">("todos");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedImpact, setSelectedImpact] = useState<"todos" | "positivo" | "negativo">("todos");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [highlightedCardId, setHighlightedCardId] = useState<string | null>(null);
+
+  const handlePointClickDirect = (clickedData: any) => {
+    if (clickedData && clickedData.id && clickedData.id !== "baseline") {
+      const item = NEWS_DATA.find((n) => n.id === clickedData.id);
+      if (item) {
+        let filtersChanged = false;
+        if (selectedRegion !== "todos" && selectedRegion !== item.region) {
+          setSelectedRegion("todos");
+          filtersChanged = true;
+        }
+        if (selectedCategory !== "all" && selectedCategory !== item.category) {
+          setSelectedCategory("all");
+          filtersChanged = true;
+        }
+        if (selectedImpact !== "todos" && selectedImpact !== item.impact) {
+          setSelectedImpact("todos");
+          filtersChanged = true;
+        }
+        if (searchQuery !== "") {
+          const query = searchQuery.toLowerCase().trim();
+          const matchesSearch = item.title.toLowerCase().includes(query) || 
+            item.summary.toLowerCase().includes(query) ||
+            item.category.toLowerCase().includes(query);
+          if (!matchesSearch) {
+            setSearchQuery("");
+            filtersChanged = true;
+          }
+        }
+
+        const scrollToTarget = () => {
+          const element = document.getElementById(item.id);
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth", block: "center" });
+            setHighlightedCardId(item.id);
+            setTimeout(() => {
+              setHighlightedCardId(null);
+            }, 3000);
+          }
+        };
+
+        if (filtersChanged) {
+          setTimeout(scrollToTarget, 150);
+        } else {
+          scrollToTarget();
+        }
+      }
+    }
+  };
+
+
 
   // Filtered news
   const filteredNews = useMemo(() => {
@@ -103,6 +195,7 @@ export default function NewsExplorer({ activeTab, onNavigate, theme, onToggleThe
     const points = sorted.map((item) => {
       currentScore += item.impact === "positivo" ? 5 : -5;
       return {
+        id: item.id,
         date: item.date,
         formattedDate: new Date(item.date).toLocaleDateString("es-ES", {
           month: "short",
@@ -115,7 +208,7 @@ export default function NewsExplorer({ activeTab, onNavigate, theme, onToggleThe
     });
 
     if (points.length === 0) {
-      return [{ date: "Línea de base", formattedDate: "Inicio", "Progreso Moral": 50 }];
+      return [{ date: "Línea de base", formattedDate: "Inicio", "Progreso Moral": 50, id: "baseline" }];
     }
 
     // Prepend a starting baseline point one month prior to the first news item
@@ -129,6 +222,7 @@ export default function NewsExplorer({ activeTab, onNavigate, theme, onToggleThe
 
     return [
       {
+        id: "baseline",
         date: baselineDateStr,
         formattedDate: formattedBaseline,
         "Progreso Moral": 50,
@@ -156,17 +250,32 @@ export default function NewsExplorer({ activeTab, onNavigate, theme, onToggleThe
 
   // Helper function to render a news card
   const renderCard = (item: NewsItem) => {
+    const isHighlighted = highlightedCardId === item.id;
+    const glowBgClass = item.impact === "positivo"
+      ? "bg-green-500/25 dark:bg-green-400/20"
+      : "bg-red-500/25 dark:bg-red-400/20";
+    const highlightedBorderClass = isHighlighted
+      ? (item.impact === "positivo"
+          ? "border-green-500 dark:border-green-400 ring-2 ring-green-500/30 scale-[1.02] z-20 shadow-[0_0_30px_rgba(34,197,94,0.15)]"
+          : "border-red-500 dark:border-red-400 ring-2 ring-red-500/30 scale-[1.02] z-20 shadow-[0_0_30px_rgba(239,68,68,0.15)]")
+      : "border-outline-variant/30";
+
     return (
       <motion.div
+        id={item.id}
         key={item.id}
         layout
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.3 }}
-        className="block w-full"
+        className="block w-full scroll-mt-24 relative"
       >
-        <div className="glass-enhance border border-outline-variant/30 rounded-xl p-6 flex flex-col justify-between relative hover:border-primary/45 transition-all duration-300 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none group">
+        {/* Ambient Glow behind the card */}
+        {isHighlighted && (
+          <div className={`absolute -inset-2 rounded-2xl blur-xl opacity-60 z-0 animate-pulse pointer-events-none transition-all duration-700 ${glowBgClass}`} />
+        )}
+        <div className={`glass-enhance border rounded-xl p-6 flex flex-col justify-between relative hover:border-primary/45 transition-all duration-300 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none group z-10 ${highlightedBorderClass}`}>
           <div className="space-y-4">
             {/* Tags and Date */}
             <div className="flex flex-wrap items-center justify-between gap-2 text-technical-xs text-on-surface-variant/60">
@@ -215,14 +324,27 @@ export default function NewsExplorer({ activeTab, onNavigate, theme, onToggleThe
               )}
             </div>
 
-            {/* Citation Link */}
+            {/* Citation Link (Visual Media Badge) */}
             <a
               href={item.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1 text-technical-xs font-mono text-link hover:text-link/80 transition-colors uppercase tracking-widest font-bold border-b border-transparent hover:border-link py-0.5"
+              className="inline-flex items-center gap-2.5 h-8 rounded-full bg-surface-dim dark:bg-surface-container border border-outline-variant/30 hover:border-link/50 hover:bg-link/5 hover:text-link text-on-surface-variant/80 transition-all duration-300 group shadow-[0_1px_2px_rgba(0,0,0,0.02)] pl-0 pr-3"
             >
-              Fuente <ExternalLink className="w-3 h-3" />
+              <span className="-ml-px w-8 h-8 rounded-full bg-white dark:bg-zinc-800 border border-outline-variant/30 flex items-center justify-center shrink-0 shadow-sm overflow-hidden z-10">
+                <img 
+                  src={`https://www.google.com/s2/favicons?sz=64&domain=${new URL(item.url).hostname}`} 
+                  alt={item.source}
+                  className="w-4.5 h-4.5 object-contain transition-transform duration-300 group-hover:scale-110"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2'/%3E%3Cpath d='M18 14h-8'/%3E%3Cpath d='M15 18h-5'/%3E%3Cpath d='M10 6h8v4h-8V6Z'/%3E%3C/svg%3E";
+                  }}
+                />
+              </span>
+              <span className="tracking-wider uppercase text-[10px] font-mono font-bold text-on-surface-variant/90 group-hover:text-link transition-colors duration-300">
+                {item.source}
+              </span>
+              <ExternalLink className="w-2.5 h-2.5 text-on-surface-variant/50 group-hover:text-link group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300 shrink-0 ml-0.5" />
             </a>
           </div>
         </div>
@@ -468,16 +590,34 @@ export default function NewsExplorer({ activeTab, onNavigate, theme, onToggleThe
             </h4>
             <p className="text-xs text-on-surface-variant/80 font-light">
               Mapea acumulativamente el progreso de bienestar moral. Sube $+5$ con cada ley o hábito favorable y baja $-5$ con retrocesos o industrialización.
+              <span className="block mt-1 text-[10px] text-primary/70 font-mono flex items-center gap-1.5 select-none animate-pulse">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary" />
+                Haz clic en un punto para desplazarte al evento.
+              </span>
             </p>
           </div>
 
           {/* Recharts Progress Index Timeline */}
           <div className="w-full h-52">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={timelineData} margin={{ top: 10, right: 20, left: -25, bottom: 0 }}>
+              <AreaChart 
+                data={timelineData} 
+                margin={{ top: 10, right: 20, left: -25, bottom: 0 }}
+                className="focus:outline-none select-none [&_*]:focus:outline-none [&_*]:outline-none outline-none"
+              >
+                <defs>
+                  <linearGradient id="colorMoral" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="var(--primary)" stopOpacity={0.0} />
+                  </linearGradient>
+                </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--outline)" opacity={0.12} />
                 <XAxis 
-                  dataKey="formattedDate" 
+                  dataKey="id" 
+                  tickFormatter={(id) => {
+                    const point = timelineData.find(p => p.id === id);
+                    return point ? point.formattedDate : "";
+                  }}
                   stroke="var(--on-surface-variant)" 
                   opacity={0.6}
                   fontSize={10} 
@@ -493,27 +633,8 @@ export default function NewsExplorer({ activeTab, onNavigate, theme, onToggleThe
                   axisLine={false}
                 />
                 <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: "color-mix(in oklch, var(--surface) 95%, transparent)", 
-                    borderColor: "var(--outline-variant)", 
-                    borderRadius: "12px", 
-                    boxShadow: "0 8px 30px rgba(0, 0, 0, 0.05)",
-                    fontSize: "11px",
-                    fontFamily: "var(--font-sans)",
-                    color: "var(--on-surface)"
-                  }}
-                  labelStyle={{ fontFamily: "var(--font-mono)", fontWeight: "bold", marginBottom: "4px" }}
-                  formatter={(value, name, props) => [
-                    <span className="font-mono font-bold text-primary">{value} pts</span>,
-                    "Índice de Progreso"
-                  ]}
-                  labelFormatter={(label, items) => {
-                    if (items && items[0]) {
-                      const payload = items[0].payload;
-                      return `${payload.date} · ${payload.title || ""}`;
-                    }
-                    return label;
-                  }}
+                  content={<CustomTooltip />}
+                  wrapperStyle={{ pointerEvents: 'none' }}
                 />
                 {/* Horizontal reference line representing baseline (50) */}
                 <ReferenceLine 
@@ -523,16 +644,57 @@ export default function NewsExplorer({ activeTab, onNavigate, theme, onToggleThe
                   opacity={0.4}
                   label={{ value: 'Línea Base', fill: 'var(--on-surface-variant)', fontSize: 9, position: 'insideBottomRight', opacity: 0.5 }} 
                 />
-                <Line 
+                <Area 
                   type="monotone" 
                   dataKey="Progreso Moral" 
                   name="Índice IPS"
                   stroke="var(--primary)" 
                   strokeWidth={2.5}
-                  dot={{ r: 4, stroke: "var(--primary)", strokeWidth: 1.5, fill: "var(--surface)" }}
-                  activeDot={{ r: 6, stroke: "var(--primary)", strokeWidth: 2, fill: "var(--primary)" }}
+                  fill="url(#colorMoral)"
+                  dot={(props: any) => {
+                    const { cx, cy, payload } = props;
+                    if (!payload || payload.id === "baseline") return null;
+                    return (
+                      <circle
+                        key={`dot-${payload.id}`}
+                        cx={cx}
+                        cy={cy}
+                        r={2.5}
+                        stroke="var(--primary)"
+                        strokeWidth={1.5}
+                        fill="var(--surface)"
+                        style={{ cursor: "pointer", outline: "none" }}
+                        className="focus:outline-none select-none outline-none"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handlePointClickDirect(payload);
+                        }}
+                      />
+                    );
+                  }}
+                  activeDot={(props: any) => {
+                    const { cx, cy, payload } = props;
+                    if (!payload || payload.id === "baseline") return null;
+                    return (
+                      <circle
+                        key={`active-dot-${payload.id}`}
+                        cx={cx}
+                        cy={cy}
+                        r={5}
+                        stroke="var(--primary)"
+                        strokeWidth={2}
+                        fill="var(--primary)"
+                        style={{ cursor: "pointer", outline: "none" }}
+                        className="focus:outline-none select-none outline-none"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handlePointClickDirect(payload);
+                        }}
+                      />
+                    );
+                  }}
                 />
-              </LineChart>
+              </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>

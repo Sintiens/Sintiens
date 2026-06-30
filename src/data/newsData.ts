@@ -7,6 +7,7 @@ export interface NewsItem {
   category: "ley" | "consumo" | "ciencia" | "social" | "industria";
   impact: "positivo" | "negativo";
   url: string;
+  source: string;
 }
 
 export const NEWS_DATA: NewsItem[] = [
@@ -18,7 +19,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "españa",
     category: "ley",
     impact: "positivo",
-    url: "https://maldita.es/malditateexplica/20240403/prohibicion-animales-circos-ley-bienestar-animal/"
+    url: "https://maldita.es/malditateexplica/20240403/prohibicion-animales-circos-ley-bienestar-animal/",
+    source: "Maldita.es"
   },
   {
     id: "es-consumo-smart-protein-2024",
@@ -28,7 +30,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "españa",
     category: "consumo",
     impact: "positivo",
-    url: "https://www.buenoyvegano.com/2024/04/05/el-48-porciento-espanoles-reducen-ingesta-de-carne-informe-smart-protein/"
+    url: "https://www.buenoyvegano.com/2024/04/05/el-48-porciento-espanoles-reducen-ingesta-de-carne-informe-smart-protein/",
+    source: "Bueno y Vegano"
   },
   {
     id: "world-alabama-labmeat-2024",
@@ -38,7 +41,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "mundo",
     category: "ley",
     impact: "negativo",
-    url: "https://www.usatoday.com/story/news/nation/2024/05/13/lab-grown-meat-ban-alabama/73678952007/"
+    url: "https://www.usatoday.com/story/news/nation/2024/05/13/lab-grown-meat-ban-alabama/73678952007/",
+    source: "USA Today"
   },
   {
     id: "world-uk-liveexports-2024",
@@ -48,7 +52,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "mundo",
     category: "ley",
     impact: "positivo",
-    url: "https://www.gov.uk/government/news/export-of-live-animals-banned"
+    url: "https://www.gov.uk/government/news/export-of-live-animals-banned",
+    source: "Gov.uk"
   },
   {
     id: "es-ciencia-carne-cultivada-2024",
@@ -58,7 +63,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "españa",
     category: "ciencia",
     impact: "positivo",
-    url: "https://elpais.com/proyecto-tendencias/2024-07-26/carne-cultivada-la-alternativa-no-vegana-para-proteger-el-ambiente.html"
+    url: "https://elpais.com/proyecto-tendencias/2024-07-26/carne-cultivada-la-alternativa-no-vegana-para-proteger-el-ambiente.html",
+    source: "El País"
   },
   {
     id: "world-romania-fur-ban-2024",
@@ -68,7 +74,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "mundo",
     category: "ley",
     impact: "positivo",
-    url: "https://www.reuters.com/world/europe/romanian-lawmakers-vote-phase-out-fur-farming-2027-2024-10-22/"
+    url: "https://www.furfreealliance.com/victory-romania-bans-fur-farming/",
+    source: "Fur Free Alliance"
   },
   {
     id: "es-social-macrogranja-burgo-2024",
@@ -78,7 +85,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "españa",
     category: "social",
     impact: "positivo",
-    url: "https://www.lanuevacronica.com/actualidad/clamor-vecinal-contra-macrogranja-cerdos-se-proyecta-en-burgo-ranero_168009_102.html"
+    url: "https://www.lanuevacronica.com/actualidad/clamor-vecinal-contra-macrogranja-cerdos-se-proyecta-en-burgo-ranero_168009_102.html",
+    source: "La Nueva Crónica"
   },
   {
     id: "es-industria-fin-moratoria-clm-2025",
@@ -88,7 +96,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "españa",
     category: "industria",
     impact: "negativo",
-    url: "https://www.youtube.com/watch?v=krx7fY0Nu6I"
+    url: "https://www.youtube.com/watch?v=krx7fY0Nu6I",
+    source: "Cadena SER"
   },
   {
     id: "world-nebraska-labmeat-ban-2025",
@@ -98,7 +107,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "mundo",
     category: "ley",
     impact: "negativo",
-    url: "https://www.nefb.org/05/16/2025/nebraska-passes-lab-grow-protein-ban-legal-challenge-to-florida-ban-continues/"
+    url: "https://governor.nebraska.gov/gov-pillen-sen-dekay-and-nda-director-vinton-celebrate-passage-nebraska-law-addressing-fake-meat",
+    source: "Gobierno de Nebraska"
   },
   {
     id: "es-ley-agricultura-aragon-2025",
@@ -108,7 +118,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "españa",
     category: "industria",
     impact: "negativo",
-    url: "https://www.ultimahora.es/noticias/comunidades/2025/05/15/2387531/aprobada-reforma-ley-agricultura-social-familiar-aragon.html"
+    url: "https://www.ultimahora.es/noticias/comunidades/2025/05/15/2387531/aprobada-reforma-ley-agricultura-social-familiar-aragon.html",
+    source: "Última Hora"
   },
   {
     id: "world-wildtype-salmon-2025",
@@ -118,7 +129,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "mundo",
     category: "consumo",
     impact: "positivo",
-    url: "https://finance.yahoo.com/news/us-fda-clears-wildtype-lab-110926147.html"
+    url: "https://finance.yahoo.com/news/us-fda-clears-wildtype-lab-110926147.html",
+    source: "Yahoo Finance"
   },
   {
     id: "es-ley-prohibicion-pulpos-2025",
@@ -128,7 +140,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "españa",
     category: "ley",
     impact: "positivo",
-    url: "https://www.ecoavant.com/consumo/sumar-erc-y-podemos-piden-al-gobierno-prohibir-la-acuicultura-de-pulpos_15280_102.html"
+    url: "https://www.ecoavant.com/consumo/sumar-erc-y-podemos-piden-al-gobierno-prohibir-la-acuicultura-de-pulpos_15280_102.html",
+    source: "EcoAvant"
   },
   {
     id: "es-ley-galgos-aragon-2025",
@@ -138,7 +151,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "españa",
     category: "ley",
     impact: "positivo",
-    url: "https://www.boa.aragon.es/cgi-bin/EBOA/BRSCGI?CMD=VERDOC&BASE=BOLE&SEC=BUSQUEDA_AVANZADA&DOCN=007950302"
+    url: "https://www.boa.aragon.es/cgi-bin/EBOA/BRSCGI?CMD=VERDOC&BASE=BOLE&SEC=BUSQUEDA_AVANZADA&DOCN=007950302",
+    source: "Boletín Oficial de Aragón"
   },
   {
     id: "world-oecd-fao-meat-outlook-2025",
@@ -148,7 +162,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "mundo",
     category: "consumo",
     impact: "negativo",
-    url: "https://www.oecd.org/en/publications/2025/07/oecd-fao-agricultural-outlook-2025-2034_3eb15914/full-report/meat_5462e384.html"
+    url: "https://www.3tres3.com/en/latest_swine_news/what-to-expect-in-the-global-meat-market-in-the-next-decade_21650/",
+    source: "3tres3"
   },
   {
     id: "es-ley-tauromaquia-ilp-2025",
@@ -158,7 +173,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "españa",
     category: "ley",
     impact: "negativo",
-    url: "https://unionvegetariana.org/el-congreso-bloquea-la-ilp-no-es-mi-cultura-y-frena-el-debate-sobre-la-tauromaquia/"
+    url: "https://unionvegetariana.org/el-congreso-bloquea-la-ilp-no-es-mi-cultura-y-frena-el-debate-sobre-la-tauromaquia/",
+    source: "Unión Vegetariana Española"
   },
   {
     id: "world-sei-nyu-sdg-animals-2025",
@@ -168,7 +184,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "mundo",
     category: "ciencia",
     impact: "positivo",
-    url: "https://allafrica.com/stories/202512090087.html"
+    url: "https://allafrica.com/stories/202512090087.html",
+    source: "AllAfrica"
   },
   {
     id: "world-unea7-onehealth-2025",
@@ -178,7 +195,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "mundo",
     category: "ley",
     impact: "positivo",
-    url: "https://wfa.org/unea-7-advances-on-one-health/"
+    url: "https://wfa.org/unea-7-advances-on-one-health/",
+    source: "World Federation for Animals"
   },
   {
     id: "es-industria-macrogranja-burgo-dia-2026",
@@ -188,7 +206,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "españa",
     category: "industria",
     impact: "negativo",
-    url: "https://www.tribunaleon.com/noticias/433932/la-junta-da-luz-verde-ambiental-a-una-macrogranja-porcina-en-el-burgo-ranero"
+    url: "https://www.tribunaleon.com/noticias/433932/la-junta-da-luz-verde-ambiental-a-una-macrogranja-porcina-en-el-burgo-ranero",
+    source: "Tribuna León"
   },
   {
     id: "world-florida-labmeat-appeal-2026",
@@ -198,7 +217,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "mundo",
     category: "ley",
     impact: "negativo",
-    url: "https://www.wftv.com/news/florida/floridas-cultivated-meat-ban-stands-after-legal-challenge/CRTIH7LVOVEVDNDHEPACOO4YLI/"
+    url: "https://ij.org/case/florida-cultivated-meat-ban/",
+    source: "Institute for Justice"
   },
   {
     id: "world-mercosur-feedlots-2026",
@@ -208,7 +228,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "mundo",
     category: "industria",
     impact: "negativo",
-    url: "https://www.eurogroupforanimals.org/news/mercosur-feedlot-footage-exposes-harsh-reality-behind-trade-agreement"
+    url: "https://www.eurogroupforanimals.org/news/mercosur-feedlot-footage-exposes-harsh-reality-behind-trade-agreement",
+    source: "Eurogroup for Animals"
   },
   {
     id: "world-eu-roadmap-testing-2026",
@@ -218,7 +239,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "mundo",
     category: "ley",
     impact: "positivo",
-    url: "https://single-market-economy.ec.europa.eu/sectors/chemicals/reach/roadmap-towards-phasing-out-animal-testing_en"
+    url: "https://single-market-economy.ec.europa.eu/sectors/chemicals/reach/roadmap-towards-phasing-out-animal-testing_en",
+    source: "Comisión Europea"
   },
   {
     id: "world-denmark-pig-election-2026",
@@ -228,7 +250,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "mundo",
     category: "ley",
     impact: "positivo",
-    url: "https://www.theguardian.com/world/2026/jun/06/industrial-farming-denmark-pig-election"
+    url: "https://www.theguardian.com/world/2026/jun/06/industrial-farming-denmark-pig-election",
+    source: "The Guardian"
   },
   {
     id: "world-eu-warzone-transport-2026",
@@ -238,7 +261,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "mundo",
     category: "social",
     impact: "negativo",
-    url: "https://www.eurogroupforanimals.org/news/50000-signatures-against-animal-transport-war-zones-submitted-eu-commission"
+    url: "https://www.eurogroupforanimals.org/news/50000-signatures-against-animal-transport-war-zones-submitted-eu-commission",
+    source: "Eurogroup for Animals"
   },
   {
     id: "es-social-estadistica-animal-2026",
@@ -248,7 +272,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "españa",
     category: "social",
     impact: "positivo",
-    url: "https://www.europapress.es/sociedad/noticia-espanoles-tienen-mas-15-millones-animales-compania-75-millones-perros-56-gatos-20260605111059.html"
+    url: "https://www.europapress.es/sociedad/noticia-espanoles-tienen-mas-15-millones-animales-compania-75-millones-perros-56-gatos-20260605111050.html",
+    source: "Europa Press"
   },
   {
     id: "es-social-vivotecnia-absolucion-2026",
@@ -258,7 +283,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "españa",
     category: "social",
     impact: "negativo",
-    url: "https://elpais.com/sociedad/2026-05-18/el-juez-absuelve-a-los-acusados-de-maltrato-en-el-caso-vivotecnia-porque-los-delitos-leves-han-prescrito.html"
+    url: "https://elpais.com/espana/madrid/2026-05-18/absueltos-los-dos-acusados-de-maltrato-animal-en-el-laboratorio-de-vivotecnia.html",
+    source: "El País"
   },
   {
     id: "world-social-marineland-orcas-2026",
@@ -268,7 +294,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "mundo",
     category: "social",
     impact: "positivo",
-    url: "https://www.theguardian.com/environment/2026/feb/12/the-race-to-save-wikie-and-keijo-the-mother-and-son-orcas-left-in-a-shut-down-aquarium"
+    url: "https://www.theguardian.com/environment/2026/feb/12/orcas-france-aquarium-marineland-antibes-killer-whales-wikie-keijo-animal-welfare",
+    source: "The Guardian"
   },
   {
     id: "es-ley-lobo-supremo-2026",
@@ -278,7 +305,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "españa",
     category: "ley",
     impact: "positivo",
-    url: "https://efeverde.com/tribunal-supremo-valida-cazar-lobo-unica-solucion-danos-ganado/"
+    url: "https://efeverde.com/el-tsja-anula-el-programa-de-control-de-lobo-de-asturias-2025-2026-que-autorizo-la-caza-de-53-ejemplares/",
+    source: "EFE Verde"
   },
   {
     id: "es-ley-coordinacion-ganado-2026",
@@ -288,7 +316,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "españa",
     category: "ley",
     impact: "positivo",
-    url: "https://www.boe.es/buscar/act.php?id=BOE-A-2026-2727"
+    url: "https://www.boe.es/buscar/act.php?id=BOE-A-2026-2727",
+    source: "Boletín Oficial del Estado"
   },
   {
     id: "world-ley-farrowing-crates-2025",
@@ -298,7 +327,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "mundo",
     category: "ley",
     impact: "positivo",
-    url: "https://www.gov.uk/government/publications/animal-welfare-strategy-for-england/animal-welfare-strategy-for-england"
+    url: "https://www.gov.uk/government/publications/animal-welfare-strategy-for-england/animal-welfare-strategy-for-england",
+    source: "Gov.uk"
   },
   {
     id: "es-ley-grandes-simios-2025",
@@ -308,7 +338,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "españa",
     category: "ley",
     impact: "positivo",
-    url: "https://www.rtve.es/noticias/20251013/gobierno-pondra-marcha-ley-jane-goodall-proteger-dignidad-libertad-grandes-simios/23641775.shtml"
+    url: "https://www.rtve.es/noticias/20251013/gobierno-ley-jane-goodall-proteger-grandes-simios/16769143.shtml",
+    source: "RTVE"
   },
   {
     id: "es-ley-violencia-vicaria-2025",
@@ -318,7 +349,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "españa",
     category: "ley",
     impact: "positivo",
-    url: "https://elpais.com/sociedad/2025-09-23/una-jueza-dicta-la-primera-sentencia-de-violencia-vicaria-por-matar-el-perro-de-su-expareja.html"
+    url: "https://elpais.com/sociedad/2025-09-23/una-jueza-dicta-la-primera-sentencia-de-violencia-vicaria-por-matar-el-perro-de-su-expareja.html",
+    source: "El País"
   },
   {
     id: "es-ley-toro-de-la-vega-2025",
@@ -328,7 +360,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "españa",
     category: "ley",
     impact: "positivo",
-    url: "https://elpais.com/sociedad/2025-05-14/la-justicia-ratifica-la-prohibicion-del-nuevo-torneo-del-toro-de-la-vega-de-tordesillas.html"
+    url: "https://www.eldiario.es/castilla-y-leon/provincias/valladolid/justicia-anula-bases-torneo-toro-vega-tordesillas-prohibe-celebracion_1_12299502.html",
+    source: "El Diario"
   },
   {
     id: "es-ley-lobo-desproteccion-2025",
@@ -338,7 +371,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "españa",
     category: "ley",
     impact: "negativo",
-    url: "https://www.eldiario.es/sociedad/congreso-desprotege-lobo-enmienda-pp-apoyada-vox-junts-pnv-ley-desperdicio-alimentario_1_11993432.html"
+    url: "https://www.eldiario.es/sociedad/congreso-aprueba-volver-cazar-lobos-anadido-ley-desperdicio-alimentos_1_12149091.html",
+    source: "El Diario"
   },
   {
     id: "world-ley-puppy-mills-ny-2024",
@@ -348,7 +382,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "mundo",
     category: "ley",
     impact: "positivo",
-    url: "https://www.governor.ny.gov/news/governor-hochul-signs-legislation-ban-sale-dogs-cats-and-rabbits-retail-pet-shops"
+    url: "https://ag.ny.gov/press-release/2024/attorney-general-james-reminds-new-yorkers-selling-pets-retail-stores-will-be",
+    source: "Fiscalía de Nueva York"
   },
   {
     id: "world-ley-octopus-ban-ca-2024",
@@ -358,7 +393,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "mundo",
     category: "ley",
     impact: "positivo",
-    url: "https://aldf.org/article/california-bans-octopus-farming/"
+    url: "https://aldf.org/article/california-governor-signs-octopus-farming-ban-into-law/",
+    source: "Animal Legal Defense Fund"
   },
   {
     id: "world-ley-pet-abduction-uk-2024",
@@ -368,7 +404,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "mundo",
     category: "ley",
     impact: "positivo",
-    url: "https://www.theguardian.com/uk-news/article/2024/aug/24/pet-thieves-could-be-jailed-for-up-to-five-years-under-new-law-in-uk"
+    url: "https://www.theguardian.com/uk-news/article/2024/aug/24/pet-thieves-could-be-jailed-for-up-to-five-years-under-new-uk-law",
+    source: "The Guardian"
   },
   {
     id: "es-social-protestas-taurinas-gijon-2024",
@@ -378,7 +415,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "españa",
     category: "social",
     impact: "negativo",
-    url: "https://www.eldiario.es/asturias/asturias-antitaurina-vuelve-calle-gijon-denunciar-maltrato-animal-feria-begona_1_11593922.html"
+    url: "https://www.eldiario.es/asturias/asturias-antitaurina-vuelve-calle-gijon-denunciar-maltrato-animal-feria-begona_1_11588549.html",
+    source: "El Diario"
   },
   {
     id: "world-ley-glue-traps-ban-2024",
@@ -388,7 +426,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "mundo",
     category: "ley",
     impact: "positivo",
-    url: "https://www.gov.uk/government/news/use-of-glue-traps-to-catch-rodents-strictly-controlled-from-today"
+    url: "https://www.gov.uk/government/publications/animal-sentience-committee-glue-traps-offences-act-2022/animal-sentience-committee-views-on-animals-as-sentient-beings-in-relation-to-the-glue-traps-offences-act-2022",
+    source: "Gov.uk"
   },
   {
     id: "world-ley-live-sheep-export-ban-2024",
@@ -398,7 +437,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "mundo",
     category: "ley",
     impact: "positivo",
-    url: "https://www.theguardian.com/australia-news/article/2024/jul/01/live-sheep-export-ban-passes-senate-australia"
+    url: "https://www.theguardian.com/australia-news/live/2024/jul/02/australia-politics-live-health-bulk-billing-medicare-labor-caucus-fatima-payman-coalition-wes-fang-mark-speakman-energy-economy-cost-of-living?page=with%3Ablock-6683449c8f08c06044cffd8f",
+    source: "The Guardian"
   },
   {
     id: "es-ley-premio-tauromaquia-2024",
@@ -408,17 +448,19 @@ export const NEWS_DATA: NewsItem[] = [
     region: "españa",
     category: "ley",
     impact: "positivo",
-    url: "https://elpais.com/cultura/2024-05-03/urtasun-cancela-el-premio-nacional-de-tauromaquia-por-la-tortura-animal.html"
+    url: "https://elpais.com/cultura/2024-09-06/cultura-suprime-oficialmente-el-premio-nacional-de-tauromaquia-con-un-90-de-apoyo-ciudadano.html",
+    source: "El País"
   },
   {
     id: "world-consumo-meat-decline-germany-2024",
     title: "El consumo de carne en Alemania desciende a un mínimo histórico",
-    summary: "El 4 de abril de 2024, el Centro Federal de Información Agrícola de Alemania reportó que el consumo per cápita de carne cayó en 2023 a 51,6 kg, el nivel más bajo desde que hay registros en 1991. Este descenso refleja un giro cultural hacia dietas flexitarianas y vegetales debido a preocupaciones ambientales y éticas de los consumidores sobre el bienestar de los animales en sistemas industriales.",
+    summary: "El 4 de abril de 2024, el Centro Federal de Información Agrícola de Alemania reportó que el consumo per cápita de carne cayó en 2023 a 51,6 kg, el level más bajo desde que hay registros en 1991. Este descenso refleja un giro cultural hacia dietas flexitarianas y vegetales debido a preocupaciones ambientales y éticas de los consumidores sobre el bienestar de los animales en sistemas industriales.",
     date: "2024-04-04",
     region: "mundo",
     category: "consumo",
     impact: "positivo",
-    url: "https://www.bmel.de/SharedDocs/Pressemitteilungen/DE/2024/240404-fleischkonsum.html"
+    url: "https://www.ble.de/SharedDocs/Meldungen/EN/2024/240510_Meat-Consumption.html",
+    source: "BLE"
   },
   {
     id: "world-ley-cage-age-court-2026",
@@ -428,7 +470,8 @@ export const NEWS_DATA: NewsItem[] = [
     region: "mundo",
     category: "ley",
     impact: "positivo",
-    url: "https://www.animanaturalis.org/n/la-comision-europea-se-enfrenta-a-un-juicio-historico-en-luxemburgo-por-la-iniciativa-end-the-cage-age"
+    url: "https://www.animanaturalis.org/n/la-comision-europea-se-enfrenta-a-un-juicio-historico-en-luxemburgo-por-la-iniciativa-end-the-cage-age",
+    source: "AnimaNaturalis"
   },
   {
     id: "world-ley-octopus-farming-wa-2024",
@@ -438,6 +481,7 @@ export const NEWS_DATA: NewsItem[] = [
     region: "mundo",
     category: "ley",
     impact: "positivo",
-    url: "https://www.pasadosafehaven.org/advocacy/octopus-farming-ban/"
+    url: "https://www.pasadosafehaven.org/get-involved/octopus-farming-ban-toolkit/",
+    source: "Pasado's Safe Haven"
   }
 ];
