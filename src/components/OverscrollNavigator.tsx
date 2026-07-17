@@ -58,10 +58,12 @@ export default function OverscrollNavigator({ activeTab, onNavigate, children }:
 
   useEffect(() => {
     const observerTop = new IntersectionObserver(([entry]) => {
+      if (!entry) return;
       isAtTopRef.current = entry.isIntersecting;
     }, { threshold: 0 });
 
     const observerBottom = new IntersectionObserver(([entry]) => {
+      if (!entry) return;
       isAtBottomRef.current = entry.isIntersecting;
     }, { threshold: 0 });
 
@@ -76,13 +78,17 @@ export default function OverscrollNavigator({ activeTab, onNavigate, children }:
 
   useEffect(() => {
     const handleTouchStart = (e: TouchEvent) => {
-      touchStartY.current = e.touches[0].clientY;
+      const touch = e.touches[0];
+      if (!touch) return;
+      touchStartY.current = touch.clientY;
     };
 
     const handleTouchMove = (e: TouchEvent) => {
       if (isNavigating.current) return;
       
-      const deltaY = e.touches[0].clientY - touchStartY.current;
+      const touch = e.touches[0];
+      if (!touch) return;
+      const deltaY = touch.clientY - touchStartY.current;
       
       // Si estamos visualizando el topRef y arrastramos hacia abajo
       if (isAtTopRef.current && deltaY > 0 && prevStep) {

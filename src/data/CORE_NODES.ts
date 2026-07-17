@@ -1,4 +1,4 @@
-import { NodeDetail } from "../types";
+import type { NodeDetail } from "../types";
 
 export const CORE_NODES: NodeDetail[] = [
   // I. SINTIENCIA Y NEUROBIOLOGÍA
@@ -321,11 +321,11 @@ export const CORE_NODES: NodeDetail[] = [
       "El nitrógeno y el fósforo derivados de los purines (excrementos) de los cerdos en las macrogranjas están colapsando los ecosistemas acuíferos locales (ej. el Mar Menor en España) [2]."
     ],
     connections: ["eficiencia-termodinamica", "crisis-ambiental"],
-    citation: "Poore, J., & Nemecek, T. (2018). Reducing food’s environmental impacts.",
+    citation: "Poore, J., & Nemecek, T. (2018). Reducing food's environmental impacts.",
     references: [
       {
         id: "1",
-        citation: "Poore, J., & Nemecek, T. (2018). Reducing food’s environmental impacts through producers and consumers. Science, 360(6392), 987-992."
+        citation: "Poore, J., & Nemecek, T. (2018). Reducing food's environmental impacts through producers and consumers. Science, 360(6392), 987-992."
       },
       {
         id: "2",

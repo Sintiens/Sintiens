@@ -98,7 +98,7 @@ const getUniqueSelector = (el: HTMLElement, root: HTMLElement | null = null): st
       break;
     }
     
-    const parent = current.parentElement;
+    const parent: HTMLElement | null = current.parentElement;
     const tagName = current.tagName.toLowerCase();
     
     let selector = tagName;
@@ -108,7 +108,22 @@ const getUniqueSelector = (el: HTMLElement, root: HTMLElement | null = null): st
       if (firstClass) selector += `.${firstClass}`;
     }
     
-    const siblings = Array.from(parent.children).filter(child => child.tagName === current?.tagName);
+    if (!parent) {
+      current = parent;
+      continue;
+    }
+    
+    if (!current) {
+      current = parent;
+      continue;
+    }
+    
+    if (!current.tagName) {
+      current = parent;
+      continue;
+    }
+    
+    const siblings = Array.from(parent.children).filter((child: Element) => child.tagName === current?.tagName);
     if (siblings.length > 1) {
       const index = siblings.indexOf(current) + 1;
       selector += `:nth-of-type(${index})`;
@@ -532,8 +547,12 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
                 const rw = task.rw !== undefined ? task.rw : 100;
                 const rh = task.rh !== undefined ? task.rh : 100;
 
-                const left = elRect.left - mainRect.left + (mainRef.current.scrollLeft || 0) + (elRect.width * rx) / 100;
-                const top = elRect.top - mainRect.top + (mainRef.current.scrollTop || 0) + (elRect.height * ry) / 100;
+                const mainEl = mainRef.current;
+                const mainScrollLeft = mainEl?.scrollLeft ?? 0;
+                const mainScrollTop = mainEl?.scrollTop ?? 0;
+
+                const left = elRect.left - mainRect.left + mainScrollLeft + (elRect.width * rx) / 100;
+                const top = elRect.top - mainRect.top + mainScrollTop + (elRect.height * ry) / 100;
                 const width = (elRect.width * rw) / 100;
                 const height = (elRect.height * rh) / 100;
 
@@ -553,8 +572,12 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
                 };
               } else if (task.rx !== undefined && task.ry !== undefined) {
                 // Point pin anchored to an element
-                const left = elRect.left - mainRect.left + (mainRef.current.scrollLeft || 0) + (elRect.width * task.rx) / 100;
-                const top = elRect.top - mainRect.top + (mainRef.current.scrollTop || 0) + (elRect.height * task.ry) / 100;
+                const mainEl = mainRef.current;
+                const mainScrollLeft = mainEl?.scrollLeft ?? 0;
+                const mainScrollTop = mainEl?.scrollTop ?? 0;
+
+                const left = elRect.left - mainRect.left + mainScrollLeft + (elRect.width * task.rx) / 100;
+                const top = elRect.top - mainRect.top + mainScrollTop + (elRect.height * task.ry) / 100;
 
                 const pinViewportRect = {
                   left: elRect.left + (elRect.width * task.rx) / 100 - 12,
@@ -988,7 +1011,7 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
       document.body.style.cursor = "";
       document.body.style.userSelect = "";
     }
-    return () => {
+    return (): void => {
       document.body.style.cursor = "";
       document.body.style.userSelect = "";
     };
@@ -1002,6 +1025,7 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
       }, 80);
       return () => clearTimeout(timer);
     }
+    return;
   }, [isCreatingInline]);
 
   // 4. Capture-phase Window event listeners for robust drag selection & snapping
@@ -1604,6 +1628,7 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
 
     for (let i = 0; i < tokens.length; i++) {
       const token = tokens[i];
+      if (!token) continue;
       
       // Comprobar combinaciones de dos palabras
       const nextToken = tokens[i + 1] ? tokens[i + 1] : "";
@@ -1620,6 +1645,7 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
         continue;
       }
 
+      if (!token) continue;
       if (priorityDict[token] !== undefined) {
         detectedPriority = priorityDict[token];
       } else if (statusDict[token] !== undefined) {
@@ -3808,7 +3834,7 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
 
       {/* Portaled elements to document.body to ensure zero viewport shifting */}
       {mounted && createPortal(
-        <>
+        <React.Fragment>
           {/* 1. Toggle Button Floating Bottom Right (Exclusive to local developer) */}
           <div className="fixed bottom-6 right-6 z-[99] pointer-events-auto dev-mode-ui">
             <button
@@ -4485,7 +4511,7 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
               </motion.div>
             )}
           </AnimatePresence>
-        </>,
+        </React.Fragment>,
         document.body
       )}
     </>

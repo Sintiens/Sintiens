@@ -1,4 +1,6 @@
-import { CORE_NODES, DILEMMAS_DATA, ReferenceDetail } from "../types";
+import { ReferenceDetail } from "../types";
+import { CORE_NODES } from "../data/CORE_NODES";
+import { DILEMMAS_DATA } from "../data/DILEMMAS_DATA";
 import { GLOSSARY_UNIFIED, GlossaryEntry, GlossaryCategory } from "../data/glossaryUnified";
 
 export type AppearanceLocation =
@@ -105,7 +107,7 @@ function coOccurInAppearances(appearances: Appearance[]): Record<string, number>
   const byLocation: Record<string, Set<string>> = {};
   appearances.forEach((a) => {
     if (!byLocation[a.locationId]) byLocation[a.locationId] = new Set();
-    byLocation[a.locationId].add(`${a.locationType}:${a.locationId}`);
+    byLocation[a.locationId]!.add(`${a.locationType}:${a.locationId}`);
   });
   return {};
 }
@@ -127,11 +129,11 @@ export function buildGlossaryIndex(): GlossaryIndex {
       ];
       fields.forEach(({ text, field }) => {
         const apps = scanText(text, entry, regex, node.id, "nodo", node.title, node.category, field);
-        index[entry.id].appearances.push(...apps);
+        index[entry.id]!.appearances.push(...apps);
       });
       (node.references || []).forEach((ref) => {
         const apps = scanText(ref.citation, entry, regex, node.id, "referencia", node.title, node.category, `Ref [${ref.id}]`);
-        index[entry.id].appearances.push(...apps);
+        index[entry.id]!.appearances.push(...apps);
       });
     });
 
@@ -144,11 +146,11 @@ export function buildGlossaryIndex(): GlossaryIndex {
       ];
       fields.forEach(({ text, field }) => {
         const apps = scanText(text, entry, regex, dilemma.id, "dilema", dilemma.title, dilemma.category, field);
-        index[entry.id].appearances.push(...apps);
+        index[entry.id]!.appearances.push(...apps);
       });
       (dilemma.references || []).forEach((ref) => {
         const apps = scanText(ref.citation, entry, regex, dilemma.id, "referencia", dilemma.title, dilemma.category, `Ref [${ref.id}]`);
-        index[entry.id].appearances.push(...apps);
+        index[entry.id]!.appearances.push(...apps);
       });
     });
 
@@ -156,7 +158,7 @@ export function buildGlossaryIndex(): GlossaryIndex {
       if (termIds.includes(entry.id)) {
         const meta = ACT_TITLES[actId];
         if (meta) {
-          index[entry.id].appearances.push({
+          index[entry.id]!.appearances.push({
             locationId: actId,
             locationType: "acto",
             title: meta.title,
@@ -171,31 +173,31 @@ export function buildGlossaryIndex(): GlossaryIndex {
 
   GLOSSARY_UNIFIED.forEach((entry) => {
     const deduped = new Map<string, Appearance>();
-    index[entry.id].appearances.forEach((a) => {
+    index[entry.id]!.appearances.forEach((a) => {
       const key = `${a.locationType}:${a.locationId}:${a.field}`;
       if (!deduped.has(key)) deduped.set(key, a);
     });
-    index[entry.id].appearances = Array.from(deduped.values());
-    index[entry.id].count = index[entry.id].appearances.length;
+    index[entry.id]!.appearances = Array.from(deduped.values());
+    index[entry.id]!.count = index[entry.id]!.appearances.length;
   });
 
   GLOSSARY_UNIFIED.forEach((entry) => {
     const coOccur: Record<string, number> = {};
-    index[entry.id].appearances.forEach((a) => {
+    index[entry.id]!.appearances.forEach((a) => {
       GLOSSARY_UNIFIED.forEach((other) => {
         if (other.id === entry.id) return;
-        if (index[other.id].appearances.some((oa) => oa.locationId === a.locationId && oa.locationType === a.locationType)) {
+        if (index[other.id]!.appearances.some((oa) => oa.locationId === a.locationId && oa.locationType === a.locationType)) {
           coOccur[other.id] = (coOccur[other.id] || 0) + 1;
         }
       });
     });
-    index[entry.id].coOccurrences = coOccur;
+    index[entry.id]!.coOccurrences = coOccur;
   });
 
   GLOSSARY_UNIFIED.forEach((entry) => {
     const explicit = (entry.relatedEntries || []).length + (entry.relatedNodes || []).length + (entry.relatedDilemmas || []).length;
-    const coCount = Object.keys(index[entry.id].coOccurrences).length;
-    index[entry.id].centrality = index[entry.id].count + coCount * 2 + explicit;
+    const coCount = Object.keys(index[entry.id]!.coOccurrences).length;
+    index[entry.id]!.centrality = index[entry.id]!.count + coCount * 2 + explicit;
   });
 
   return index;

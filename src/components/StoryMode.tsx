@@ -165,6 +165,10 @@ const recomputeAllLines = useCallback(() => {
     const next: Record<string, LineCoords | null> = {};
     for (const actId of Object.keys(activeNotesByAct)) {
       const note = activeNotesByAct[actId];
+      if (!note) {
+        next[actId] = null;
+        continue;
+      }
       const gridEl = gridContainerRefsByAct.current[actId];
       const cardEl = sideNoteCardRefsByAct.current[actId];
       if (!gridEl || !cardEl || !note.wordElement) {
@@ -364,15 +368,15 @@ dotClass: act.colorName,
 ];
 
 useEffect(() => {
-if (activeChapter) {
+if (!activeChapter) {
+setFlashChapter(null);
+return;
+}
 setFlashChapter(activeChapter);
 const timer = setTimeout(() => {
 setFlashChapter(null);
 }, 2500);
 return () => clearTimeout(timer);
-} else {
-setFlashChapter(null);
-}
 }, [activeChapter]);
 
 useEffect(() => {
@@ -429,7 +433,7 @@ const handleScroll = () => {
         headerRect: DOMRect | null;
         titleRect: DOMRect | null;
         lastBlockRect: DOMRect | null;
-        blockRects: DOMRect[];
+        blockRects: (DOMRect | null)[];
       }> = [];
 
       cache.forEach((entry, actId) => {
@@ -437,15 +441,16 @@ const handleScroll = () => {
         const textRect = entry.container.getBoundingClientRect();
         const headerRect = entry.stickyHeader ? entry.stickyHeader.getBoundingClientRect() : null;
         const titleRect = entry.titleEl ? entry.titleEl.getBoundingClientRect() : null;
-        const blockRects: DOMRect[] = new Array(entry.blocks.length);
+        const blockRects: (DOMRect | null)[] = new Array(entry.blocks.length);
         for (let i = 0; i < entry.blocks.length; i++) {
           const blockEl = entry.blocks[i];
+          if (!blockEl) continue;
           const subtitleEl = blockEl.querySelector(":scope > span") as HTMLElement | null;
           blockRects[i] = subtitleEl
             ? subtitleEl.getBoundingClientRect()
             : blockEl.getBoundingClientRect();
         }
-        const lastBlockRect = blockRects.length > 0 ? blockRects[blockRects.length - 1] : null;
+        const lastBlockRect = blockRects.length > 0 ? (blockRects[blockRects.length - 1] ?? null) : null;
 
         actData.push({
           actId,
@@ -497,9 +502,12 @@ const handleScroll = () => {
         let activeTitle = "";
         let activeBlockIdStr = "";
         for (let i = 0; i < blockRects.length; i++) {
-          if (blockRects[i].bottom <= stickyHeaderBottom) {
-            activeTitle = blocks[i].getAttribute("data-block-title") || "";
-            activeBlockIdStr = blocks[i].getAttribute("data-block-id") || "";
+          const blockRect = blockRects[i];
+          const block = blocks[i];
+          if (!blockRect || !block) continue;
+          if (blockRect.bottom <= stickyHeaderBottom) {
+            activeTitle = block.getAttribute("data-block-title") || "";
+            activeBlockIdStr = block.getAttribute("data-block-id") || "";
           }
         }
 
@@ -593,7 +601,7 @@ hidden: { opacity: 0, y: 40 },
 visible: { 
 opacity: 1, 
 y: 0, 
-transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } 
+transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] as const } 
 }
 };
 
@@ -611,12 +619,15 @@ document.body.style.overflow = '';
 
 return (
 <>
-<div className="flex flex-col w-full space-y-8 lg:space-y-12 pb-16">
+  {/* Page-level ambient glows - single continuous layer across all sections */}
+  <PageGlows />
+  
+  <div className="flex flex-col w-full space-y-8 lg:space-y-12 pb-16">
 
 {/* SECTION 0: Hero & Hook */}
 <section 
 id="hero"
-className="-mt-12 lg:-mt-20 flex flex-col items-center relative overflow-hidden bg-background"
+className="-mt-12 lg:-mt-20 flex flex-col items-center relative overflow-visible"
 style={{
 width: "calc(100vw - var(--scrollbar-width, 0px))",
 marginLeft: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
@@ -726,7 +737,7 @@ marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
 
 <div 
   id="intro" 
-  className="w-full relative min-h-screen pt-0 overflow-hidden"
+  className="w-full relative min-h-screen pt-0"
   style={{
     width: "calc(100vw - var(--scrollbar-width, 0px))",
     marginLeft: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
@@ -739,7 +750,7 @@ marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
     <div className="relative w-full text-center mb-6 lg:mb-10 pb-8 lg:pb-12 pt-8 lg:pt-12 px-4">
       {/* Background Glows - Continuously covers from top of section right down to the start of the concept cards */}
       <div 
-        className="absolute inset-0 z-0 pointer-events-none opacity-65 overflow-hidden"
+        className="absolute inset-0 z-0 pointer-events-none opacity-65"
         style={{
           width: "calc(100vw - var(--scrollbar-width, 0px))",
           left: "50%",
@@ -853,7 +864,6 @@ marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
       </div>
     </div>
 
-    <div className="border-b border-outline-variant/20 mt-12 mb-4" />
   </div>
 </div>
 
@@ -897,7 +907,7 @@ const isFlashing = flashChapter === act0.id;
       marginLeft: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
       marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
     }}>
-      <div className="absolute inset-y-0 right-[-5%] md:right-[5%] flex items-center justify-end pointer-events-none select-none overflow-hidden" style={{ zIndex: 0 }}>
+<div className="absolute inset-y-0 right-[-5%] md:right-[5%] flex items-center justify-end pointer-events-none select-none" style={{ zIndex: 0 }}>
         <span className={`font-serif font-bold leading-none ${act0.textColor}`} style={{ fontSize: "clamp(250px, 40vw, 600px)", opacity: 0.03, transform: "translateY(-5%)" }}>
           {act0.num}
         </span>
@@ -944,14 +954,14 @@ const isFlashing = flashChapter === act0.id;
                 <AnimatePresence mode="wait">
                   {(activeBlocks[act0.id] || act0.blocks.length === 1) && (
                     <motion.span
-                      key={activeBlocks[act0.id] || act0.blocks[0].title}
+                      key={activeBlocks[act0.id] || act0.blocks[0]!.title}
                       initial={{ opacity: 0, y: -4 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 4 }}
                       transition={{ duration: 0.25, ease: "easeOut" }}
                       className={`text-[11px] md:text-[12px] font-mono font-bold ${act0.textColor} uppercase tracking-[0.15em] leading-none truncate`}
                     >
-                      {"<\u00a0"}{(activeBlocks[act0.id] || act0.blocks[0].title).toUpperCase()}{"\u00a0>"}
+                      {"<\u00a0"}{(activeBlocks[act0.id] || act0.blocks[0]!.title).toUpperCase()}{"\u00a0>"}
                     </motion.span>
                   )}
                 </AnimatePresence>
@@ -1009,7 +1019,7 @@ return (
   marginLeft: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
   marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
 }}>
-<div className="absolute inset-y-0 right-[-5%] md:right-[5%] flex items-center justify-end pointer-events-none select-none overflow-hidden" style={{ zIndex: 0 }}>
+<div className="absolute inset-y-0 right-[-5%] md:right-[5%] flex items-center justify-end pointer-events-none select-none" style={{ zIndex: 0 }}>
 <span className={`font-serif font-bold leading-none ${act.textColor}`} style={{ fontSize: "clamp(250px, 40vw, 600px)", opacity: 0.03, transform: "translateY(-5%)" }}>
 {act.num}
 </span>
@@ -1057,14 +1067,14 @@ return (
           <AnimatePresence mode="wait">
             {(activeBlocks[act.id] || act.blocks.length === 1) && (
               <motion.span
-                key={activeBlocks[act.id] || act.blocks[0].title}
+                key={activeBlocks[act.id] || act.blocks[0]!.title}
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 4 }}
                 transition={{ duration: 0.25, ease: "easeOut" }}
                 className={`text-[11px] md:text-[12px] font-mono font-bold ${act.textColor} uppercase tracking-[0.15em] leading-none truncate`}
               >
-                {"<\u00a0"}{(activeBlocks[act.id] || act.blocks[0].title).toUpperCase()}{"\u00a0>"}
+                {"<\u00a0"}{(activeBlocks[act.id] || act.blocks[0]!.title).toUpperCase()}{"\u00a0>"}
               </motion.span>
             )}
           </AnimatePresence>
@@ -1203,13 +1213,16 @@ return (
       <div className="hidden xl:block relative w-full z-20 order-3">
         {/* SideNoteCard positioned at the clicked word's vertical position */}
         <AnimatePresence>
-          {activeNotesByAct[act.id] && (
+          {(() => {
+            const activeNote = activeNotesByAct[act.id];
+            if (!activeNote) return null;
+            return (
             <motion.div
-              key={`card-${act.id}-${activeNotesByAct[act.id].id}-${activeNotesByAct[act.id].instanceId || ""}`}
+              key={`card-${act.id}-${activeNote.id}-${activeNote.instanceId || ""}`}
               ref={(el) => { sideNoteCardRefsByAct.current[act.id] = el; }}
               className="absolute left-0 right-16 z-20"
               style={{
-                top: `${Math.max(20, activeNotesByAct[act.id].y - 80)}px`,
+                top: `${Math.max(20, activeNote.y - 80)}px`,
               }}
               initial={{ opacity: 0, x: 24, scale: 0.96 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
@@ -1217,8 +1230,8 @@ return (
               transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
             >
               <SideNoteCard
-                item={activeNotesByAct[act.id].item}
-                type={activeNotesByAct[act.id].type}
+                item={activeNote.item}
+                type={activeNote.type}
                 actColor={act.textColor}
                 onClose={() => {
                   setActiveNotesByAct(prev => {
@@ -1229,7 +1242,8 @@ return (
                 }}
               />
             </motion.div>
-          )}
+          );
+          })()}
         </AnimatePresence>
       </div>
 

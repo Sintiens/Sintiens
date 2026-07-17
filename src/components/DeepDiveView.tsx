@@ -72,7 +72,7 @@ export default function DeepDiveView({ actId, actNum, actColor, data, onClose }:
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 50 }}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] as const }}
       className="fixed inset-0 z-50 flex justify-center bg-background/95 backdrop-blur-sm overflow-y-auto"
     >
       <div className="w-full max-w-7xl min-h-screen flex flex-col lg:flex-row relative">

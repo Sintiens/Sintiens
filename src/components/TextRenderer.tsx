@@ -2,7 +2,8 @@ import React, { useState, useRef, useEffect, useCallback, useLayoutEffect } from
 import { X, ArrowRight, ArrowUpRight, BookOpen, ExternalLink, HelpCircle, Activity, Globe, Scale, Layers, ScrollText, Sparkles } from "lucide-react";
 import { ReferenceDetail } from "../types";
 import { GLOSSARY_UNIFIED, GlossaryEntry } from "../data/glossaryUnified";
-import { CORE_NODES, DILEMMAS_DATA } from "../types";
+import { CORE_NODES } from "../data/CORE_NODES";
+import { DILEMMAS_DATA } from "../data/DILEMMAS_DATA";
 import GlossaryLink from "./GlossaryLink";
 
 const CATEGORY_COLOR_VAR: Record<string, string> = {
@@ -325,7 +326,7 @@ export default function TextRenderer({ text, references }: TextRendererProps) {
           const citationMatch = segment.match(/^\[([0-9,\s]+)\]$/);
           if (citationMatch) {
             if (!references || references.length === 0) return <span key={idx}>{segment}</span>;
-            const numbers = citationMatch[1].split(",").map((num) => num.trim());
+            const numbers = citationMatch[1]!.split(",").map((num) => num.trim());
             return (
               <span key={idx} className="inline-flex gap-0.5 select-none">
                 {numbers.map((refId, nIdx) => {

@@ -1,4 +1,4 @@
-import { TimelineGroup } from "../types";
+import type { TimelineGroup } from "../types";
 
 export const TIMELINE_DATA: TimelineGroup[] = [
   {

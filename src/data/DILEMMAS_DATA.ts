@@ -1,4 +1,4 @@
-import { DilemmaDetail, ReferenceDetail } from "../types";
+import type { DilemmaDetail } from "../types";
 
 export const DILEMMAS_DATA: DilemmaDetail[] = [
   {
@@ -49,7 +49,7 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
       },
       {
         id: "3",
-        citation: "Poore, J., & Nemecek, T. (2018). Reducing food’s environmental impacts. Science, 360(6392)."
+        citation: "Poore, J., & Nemecek, T. (2018). Reducing food's environmental impacts. Science, 360(6392)."
       }
     ]
   },
@@ -97,7 +97,7 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
       },
       {
         id: "3",
-        citation: "Poore, J., & Nemecek, T. (2018). Reducing food’s environmental impacts. Science, 360(6392)."
+        citation: "Poore, J., & Nemecek, T. (2018). Reducing food's environmental impacts. Science, 360(6392)."
       }
     ]
   },
@@ -259,7 +259,7 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
       },
       {
         id: "3",
-        citation: "Poore, J. & Nemecek, T. (2018). Reducing food’s environmental impacts."
+        citation: "Poore, J. & Nemecek, T. (2018). Reducing food's environmental impacts."
       }
     ]
   },
@@ -580,24 +580,3 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
     openQuestion: "¿En qué medida nuestras propias generalizaciones basadas en experiencias individuales moldean injustamente cómo valoramos el comportamiento de industrias enteras?"
   }
 ];
-
-export interface TimelineMilestone {
-  id: string;
-  year: number; // For sorting and timeline-lag computations (can be negative for BCE/a.C.)
-  yearLabel: string; // e.g. "c. 10.000 a.C." o "1637"
-  title: string;
-  shortDesc: string;
-  longDesc: string;
-  scientificFacts: string[];
-  references?: ReferenceDetail[];
-  relatedNodeId?: string; // Optional reference to a CORE_NODE id (for linking back to concepts/dilemmas!)
-  openQuestion?: string;
-}
-
-export interface TimelineGroup {
-  id: "usos" | "etica" | "regulaciones" | "alimentacion";
-  title: string;
-  description: string;
-  color: string; // color theme identifier
-  milestones: TimelineMilestone[];
-}

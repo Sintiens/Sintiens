@@ -196,7 +196,7 @@ export default function GraphWidget({ act, block, onNodeSelect, activeNodeId, on
           maxScale={2}
           centerOnInit={false}
           wheel={{ step: 0.1 }}
-          panning={{ velocityMultiplier: 0.8 }}
+          panning={{ disabled: false }}
         >
           <TransformComponent wrapperStyle={{ width: '100%', height: '100%' }} contentStyle={{ width: graphData.graphWidth, height: graphData.graphHeight }}>
             <div className="relative w-full h-full p-8">

@@ -28,7 +28,9 @@ import {
   Trophy,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { DILEMMAS_DATA, ConsensusType, CORE_NODES } from "../types";
+import { DILEMMAS_DATA } from "../data/DILEMMAS_DATA";
+import { CORE_NODES } from "../data/CORE_NODES";
+import { ConsensusType } from "../types";
 import type { DilemmaDetail as DilemmaDetailType } from "../types";
 import { GLOSSARY_UNIFIED, GLOSSARY_CATEGORIES } from "../data/glossaryUnified";
 import TextRenderer from "./TextRenderer";
@@ -317,6 +319,7 @@ export default function ExcusesDilemmas({ onAnalyzeTrigger, activeTab, onNavigat
         document.body.style.overflow = prev;
       };
     }
+    return;
   }, [isMobileDetailOpen]);
 
   /* ── Listener inter-pestana: abrir una tesis desde fuera ── */
@@ -353,20 +356,20 @@ export default function ExcusesDilemmas({ onAnalyzeTrigger, activeTab, onNavigat
 
   const goBack = () => {
     if (history.length === 0) return;
-    setSelectedId((prev) => {
+    setSelectedId((prev: string | null): string | null => {
       if (prev) setForwardStack((f) => [prev, ...f].slice(0, 50));
       const prevId = history[0];
       setHistory((h) => h.slice(1));
-      return prevId;
+      return prevId ?? null;
     });
   };
   const goForward = () => {
     if (forwardStack.length === 0) return;
-    setSelectedId((prev) => {
+    setSelectedId((prev: string | null): string | null => {
       if (prev) setHistory((h) => [prev, ...h].slice(0, 50));
       const nextId = forwardStack[0];
       setForwardStack((f) => f.slice(1));
-      return nextId;
+      return nextId ?? null;
     });
   };
 
@@ -509,7 +512,7 @@ export default function ExcusesDilemmas({ onAnalyzeTrigger, activeTab, onNavigat
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] as const }}
             className="grid grid-cols-1 lg:grid-cols-2 gap-6 relative z-10"
           >
             {/* Distribución de consenso */}
@@ -544,13 +547,13 @@ export default function ExcusesDilemmas({ onAnalyzeTrigger, activeTab, onNavigat
                         <span className="text-[10px] font-mono font-bold text-on-surface">{count}</span>
                       </div>
                       <div className="h-2 rounded-full bg-surface-dim/60 overflow-hidden">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${pct}%` }}
-                          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-                          className="h-full rounded-full group-hover:brightness-110 transition-all"
-                          style={{ backgroundColor: color }}
-                        />
+<motion.div
+                           initial={{ width: 0 }}
+                           animate={{ width: `${pct}%` }}
+                           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] as const, delay: 0.1 }}
+                           className="h-full rounded-full group-hover:brightness-110 transition-all"
+                           style={{ backgroundColor: color }}
+                         />
                       </div>
                     </button>
                   );

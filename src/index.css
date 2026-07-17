@@ -412,6 +412,141 @@ html:not(.dark) .glass-enhance::before {
   background-color: rgba(179, 204, 190, 0.15) !important;
 }
 
+/* ── Scroll-driven ambient glow transitions ────────────────────────────── */
+/* Each section has a named scroll timeline. Glows fade in/out smoothly based on scroll position. */
+
+@scroll-timeline --hero-timeline {
+  source: selector(#hero);
+  axis: block;
+  start: 0%;
+  end: 100%;
+}
+
+@scroll-timeline --intro-timeline {
+  source: selector(#intro);
+  axis: block;
+  start: 0%;
+  end: 100%;
+}
+
+@scroll-timeline --acto0-timeline {
+  source: selector(#acto-0);
+  axis: block;
+  start: 0%;
+  end: 100%;
+}
+
+@scroll-timeline --acto1-timeline {
+  source: selector(#acto-1);
+  axis: block;
+  start: 0%;
+  end: 100%;
+}
+
+@scroll-timeline --acto2-timeline {
+  source: selector(#acto-2);
+  axis: block;
+  start: 0%;
+  end: 100%;
+}
+
+@scroll-timeline --acto3-timeline {
+  source: selector(#acto-3);
+  axis: block;
+  start: 0%;
+  end: 100%;
+}
+
+@scroll-timeline --acto4-timeline {
+  source: selector(#acto-4);
+  axis: block;
+  start: 0%;
+  end: 100%;
+}
+
+@scroll-timeline --acto5-timeline {
+  source: selector(#acto-5);
+  axis: block;
+  start: 0%;
+  end: 100%;
+}
+
+@scroll-timeline --acto6-timeline {
+  source: selector(#acto-6);
+  axis: block;
+  start: 0%;
+  end: 100%;
+}
+
+/* Glow containers use animation-timeline for smooth opacity transitions */
+.ambient-glow-hero {
+  animation: glow-fade linear;
+  animation-timeline: --hero-timeline;
+}
+
+.ambient-glow-intro {
+  animation: glow-fade linear;
+  animation-timeline: --intro-timeline;
+}
+
+.ambient-glow-acto0 {
+  animation: glow-fade linear;
+  animation-timeline: --acto0-timeline;
+}
+
+.ambient-glow-acto1 {
+  animation: glow-fade linear;
+  animation-timeline: --acto1-timeline;
+}
+
+.ambient-glow-acto2 {
+  animation: glow-fade linear;
+  animation-timeline: --acto2-timeline;
+}
+
+.ambient-glow-acto3 {
+  animation: glow-fade linear;
+  animation-timeline: --acto3-timeline;
+}
+
+.ambient-glow-acto4 {
+  animation: glow-fade linear;
+  animation-timeline: --acto4-timeline;
+}
+
+.ambient-glow-acto5 {
+  animation: glow-fade linear;
+  animation-timeline: --acto5-timeline;
+}
+
+.ambient-glow-acto6 {
+  animation: glow-fade linear;
+  animation-timeline: --acto6-timeline;
+}
+
+@keyframes glow-fade {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Fallback for browsers without scroll-driven animations */
+@supports not (animation-timeline: works) {
+  .ambient-glow-hero,
+  .ambient-glow-intro,
+  .ambient-glow-acto0,
+  .ambient-glow-acto1,
+  .ambient-glow-acto2,
+  .ambient-glow-acto3,
+  .ambient-glow-acto4,
+  .ambient-glow-acto5,
+  .ambient-glow-acto6 {
+    opacity: 1;
+    animation: none;
+  }
+}
+
 /* ── TTS word-highlight system ──────────────────────────────────────────── */
 /* Every wrapped word gets the base class. The transition only applies on
    class REMOVAL (fade-out). On ADDITION, JavaScript temporarily disables

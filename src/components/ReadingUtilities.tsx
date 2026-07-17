@@ -57,7 +57,9 @@ const buildSpeechData = (
       }
 
       for (let i = 0; i < element.childNodes.length; i++) {
-        traverse(element.childNodes[i]);
+        const child = element.childNodes[i];
+        if (!child) continue;
+        traverse(child);
       }
 
       if (isBlock && text.length > 0 && !/\s$/.test(text)) {
@@ -134,6 +136,7 @@ function charToWordIdx(boundaries: { start: number; end: number }[], charIdx: nu
   while (lo <= hi) {
     const mid = (lo + hi) >> 1;
     const b = boundaries[mid];
+    if (!b) break;
     if (charIdx < b.start) { hi = mid - 1; }
     else if (charIdx >= b.end) { lo = mid + 1; }
     else { found = mid; break; }
@@ -371,6 +374,7 @@ export default function ReadingUtilities({
       for (let i = 0; i < boundaries.length; i++) {
         if (newSpans[i]) continue;
         const b = boundaries[i];
+        if (!b) continue;
         if (b.start >= tn.start && b.end <= tn.end) wordsInNode.push({ b, i });
       }
       if (!wordsInNode.length) continue;
@@ -618,7 +622,7 @@ export default function ReadingUtilities({
 
   const isPlaying = ttsState === "playing";
   const isLoading = ttsState === "loading";
-  const isCloudVoice = activeVoice && !activeVoice.localService;
+  const isCloudVoice = activeVoice !== null && activeVoice !== undefined && !activeVoice!.localService;
 
   return (
     <div className="inline-flex items-center gap-2 relative">

@@ -66,7 +66,7 @@ export default function ImpactCalculator({ activeTab, onNavigate, theme, onToggl
   const [showInfo, setShowInfo] = useState(false);
   const [challengeTarget, setChallengeTarget] = useState<number>(30); // % reduction target
 
-  const populationScale = POPULATION_STEPS[scaleIndex].value;
+  const populationScale = POPULATION_STEPS[scaleIndex]!.value;
 
   // Sync profile to custom meals when profile changes (if not custom)
   useEffect(() => {
@@ -395,7 +395,7 @@ export default function ImpactCalculator({ activeTab, onNavigate, theme, onToggl
             </div>
             <div className="text-center pt-2">
               <span className="text-xl font-bold tracking-tight text-on-surface">
-                {POPULATION_STEPS[scaleIndex].value.toLocaleString()} personas
+                {POPULATION_STEPS[scaleIndex]!.value.toLocaleString()} personas
               </span>
               <p className="text-[11px] text-on-surface-variant/60 mt-1">
                 adoptando esta dieta durante <strong className="text-on-surface font-semibold">1 año</strong>

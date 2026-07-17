@@ -1,0 +1,97 @@
+﻿const handleScroll = () => {
+  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+    setActiveChapter("acto-6");
+  }
+
+  const newActiveBlocks: Record<string, string> = {};
+
+  const els = document.querySelectorAll(".narrative-text-container");
+  els.forEach((el) => {
+    const element = el as HTMLElement;
+    // Encontrar la secci├│n del acto padre para ubicar su h2
+    const parentAct = element.closest('[id^="acto-"]');
+    if (!parentAct) return;
+
+    const h2 = parentAct.querySelector("h2");
+    if (!h2) return;
+
+    const headerContainer = parentAct.querySelector(".act-sticky-header") as HTMLElement | null;
+    const headerRect = headerContainer ? headerContainer.getBoundingClientRect() : h2.getBoundingClientRect();
+    const textRect = element.getBoundingClientRect();
+
+    // relativeBottom es la posici├│n inferior de la cabecera sticky relativa al top de este contenedor
+    const relativeBottom = headerRect.bottom - textRect.top;
+
+    if (relativeBottom <= 0) {
+      element.style.webkitMaskImage = "";
+      element.style.maskImage = "";
+    } else {
+      // Start fading out 35px below the subtitle (fadeEnd) and become fully transparent 15px above its bottom edge (fadeStart).
+      const fadeStart = relativeBottom - 15;
+      const fadeEnd = relativeBottom + 35;
+
+      const maskVal = `linear-gradient(to bottom, transparent ${fadeStart}px, black ${fadeEnd}px)`;
+      element.style.webkitMaskImage = maskVal;
+      element.style.maskImage = maskVal;
+    }
+
+    // Detectar bloque activo para este acto
+    const blocks = parentAct.querySelectorAll(".narrative-block");
+    let activeTitle = "";
+    const stickyHeaderBottom = headerRect.bottom;
+
+    blocks.forEach((blockEl) => {
+      const subtitleEl = blockEl.querySelector(":scope > span");
+      const subtitleRect = subtitleEl ? subtitleEl.getBoundingClientRect() : blockEl.getBoundingClientRect();
+
+      // Si el subt├¡tulo del bloque ha cruzado completamente el l├¡mite inferior de la cabecera sticky
+      if (subtitleRect.bottom <= stickyHeaderBottom) {
+        activeTitle = blockEl.getAttribute("data-block-title") || "";
+      }
+    });
+
+    // Guardar el t├¡tulo activo (o vac├¡o para no duplicar si el primer subt├¡tulo a├║n est├í visible)
+    newActiveBlocks[parentAct.id] = activeTitle || "";
+
+    // Dinamizar el "unstick" de la cabecera cuando el ├║ltimo bloque est├í activo
+    if (headerContainer && blocks.length > 0) {
+      const lastBlock = blocks[blocks.length - 1];
+      let lastElement = lastBlock.lastElementChild as HTMLElement | null;
+      if (lastElement && lastElement.tagName.toLowerCase() === "div" && lastElement.lastElementChild) {
+        lastElement = lastElement.lastElementChild as HTMLElement;
+      }
+
+      if (lastElement) {
+        const lastElementRect = lastElement.getBoundingClientRect();
+        const headerHeight = headerContainer.offsetHeight;
+        
+        // Desplazar hacia arriba cuando el ├║ltimo elemento (p├írrafo o bot├│n) empieza a subir debajo de la cabecera
+        const translateY = Math.max(0, headerHeight - lastElementRect.top);
+        const maxTranslate = headerHeight + 50;
+        const finalTranslate = Math.min(maxTranslate, translateY);
+        
+        headerContainer.style.transform = finalTranslate > 0 ? `translate3d(0, -${finalTranslate}px, 0)` : "";
+      } else {
+        headerContainer.style.transform = "";
+      }
+    }
+  });
+
+  if (Object.keys(newActiveBlocks).length > 0) {
+    setActiveBlocks((prev) => {
+      let hasChanged = false;
+      for (const key in newActiveBlocks) {
+        if (prev[key] !== newActiveBlocks[key]) {
+          hasChanged = true;
+          break;
+        }
+      }
+      if (hasChanged) {
+        return { ...prev, ...newActiveBlocks };
+      }
+      return prev;
+    });
+  }
+};
+
+window.addEventListener("scroll", handleScroll, { passive: true });

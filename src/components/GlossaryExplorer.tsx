@@ -395,7 +395,7 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
   const groupedAz = useMemo(() => {
     const groups: Record<string, GlossaryEntry[]> = {};
     filteredEntries.forEach((e) => {
-      const letter = e.term[0].toUpperCase();
+      const letter = (e.term[0] ?? "").toUpperCase();
       const key = /[A-ZÑ]/.test(letter) ? letter : "#";
       if (!groups[key]) groups[key] = [];
       groups[key].push(e);
@@ -404,7 +404,7 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
       if (a === "#") return 1;
       if (b === "#") return -1;
       return a.localeCompare(b);
-    }).map((k) => ({ letter: k, entries: groups[k] }));
+    }).map((k) => ({ letter: k, entries: groups[k]! }));
   }, [filteredEntries]);
 
   const groupedByCategory = useMemo(() => {
@@ -978,7 +978,7 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
   };
   const childVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const } }
   };
 
   return (

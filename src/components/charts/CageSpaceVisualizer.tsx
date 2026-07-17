@@ -243,8 +243,10 @@ export default function CageSpaceVisualizer() {
   const [henCount, setHenCount] = useState<number>(6); 
 
   const activeId = hoveredId || selectedId;
-  const activeItem = areaData.find((d) => d.id === activeId) || areaData[0];
-  const currentLaw = lawPresets.find((l) => l.id === activeLawId) || lawPresets[0];
+  const foundItem = areaData.find((d) => d.id === activeId);
+  const activeItem: AreaItem = foundItem ?? areaData[0]!;
+  const foundLaw = lawPresets.find((l) => l.id === activeLawId);
+  const currentLaw: LawPreset = foundLaw ?? lawPresets[0]!;
 
   const activeW = activeItem.widthPx;
   const activeH = activeItem.heightPx;

@@ -193,7 +193,7 @@ export default function StoryTextRenderer({
         const parsedChildren = React.Children.map(children, (child, cIdx) =>
           processNode(child, cIdx)
         );
-        return React.cloneElement(node, { ...node.props } as any, parsedChildren);
+        return React.cloneElement(node, { ...(node.props || {}) } as any, parsedChildren);
       }
     }
 

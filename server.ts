@@ -4,6 +4,7 @@ import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import fs from "fs/promises";
+import fsSync from "fs";
 import { fileURLToPath } from "url";
 import os from "os";
 
@@ -15,7 +16,7 @@ const PORT = 3000;
 
 // Mutex to serialize all database operations and prevent race conditions
 class Mutex {
-  private queue: (() => Promise<any>)[] = [];
+  private queue: Array<() => Promise<any>> = [];
   private locked = false;
 
   async run<T>(fn: () => Promise<T>): Promise<T> {
@@ -32,7 +33,7 @@ class Mutex {
     });
   }
 
-  private async dequeue() {
+  private async dequeue(): Promise<void> {
     if (this.locked || this.queue.length === 0) return;
     this.locked = true;
     const fn = this.queue.shift()!;
@@ -46,6 +47,39 @@ class Mutex {
 }
 
 const dbMutex = new Mutex();
+
+// Rate limiter for AI endpoint (simple in-memory, per IP)
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
+const RATE_LIMIT_MAX_REQUESTS = 10; // 10 requests per minute per IP
+
+function checkRateLimit(ip: string): { allowed: boolean; remaining: number; resetAt: number } {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  
+  if (!entry || now > entry.resetAt) {
+    const newEntry = { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS };
+    rateLimitMap.set(ip, newEntry);
+    return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - 1, resetAt: newEntry.resetAt };
+  }
+  
+  if (entry.count >= RATE_LIMIT_MAX_REQUESTS) {
+    return { allowed: false, remaining: 0, resetAt: entry.resetAt };
+  }
+  
+  entry.count += 1;
+  return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - entry.count, resetAt: entry.resetAt };
+}
+
+// Cleanup old rate limit entries periodically
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, entry] of rateLimitMap.entries()) {
+    if (now > entry.resetAt) {
+      rateLimitMap.delete(ip);
+    }
+  }
+}, 5 * 60 * 1000);
 
 // Lazy initialize Gemini clients with hot-swapping capability
 let aiClient: GoogleGenAI | null = null;
@@ -84,10 +118,20 @@ try {
   }
 }
 
-// If running from production dist folder, step up to the project root
-if (path.basename(tasksDirectory) === "dist") {
-  tasksDirectory = path.dirname(tasksDirectory);
+// Robust project root detection: walk up until we find package.json or todo.json
+function findProjectRoot(startDir: string): string {
+  let current = startDir;
+  while (current !== path.dirname(current)) { // stop at filesystem root
+    if (fsSync.existsSync(path.join(current, "package.json")) || 
+        fsSync.existsSync(path.join(current, "todo.json"))) {
+      return current;
+    }
+    current = path.dirname(current);
+  }
+  return startDir; // fallback
 }
+
+tasksDirectory = findProjectRoot(tasksDirectory);
 
 const TASKS_FILE_PATH = path.join(tasksDirectory, "todo.json");
 
@@ -172,8 +216,9 @@ async function writeTasks(tasks: any[]): Promise<boolean> {
 // Express Endpoints for Dev Tasks wrapped in database Mutex to prevent race conditions
 
 app.get("/api/dev/tasks", async (req, res) => {
-  const tasks = await dbMutex.run(async () => readTasks());
+  const tasks = await dbMutex.run(async (): Promise<any[]> => readTasks());
   res.json(tasks);
+  return;
 });
 
 app.post("/api/dev/tasks", async (req, res) => {
@@ -186,7 +231,7 @@ app.post("/api/dev/tasks", async (req, res) => {
       return res.status(400).json({ error: "El título de la tarea es obligatorio." });
     }
 
-    const newTask = await dbMutex.run(async () => {
+    const newTask = await dbMutex.run(async (): Promise<any> => {
       const tasks = await readTasks();
       const createdTask = {
         id: Math.random().toString(36).substring(2, 9) + Date.now().toString(36),
@@ -217,8 +262,10 @@ app.post("/api/dev/tasks", async (req, res) => {
     });
 
     res.status(201).json(newTask);
+    return;
   } catch (err: any) {
     res.status(500).json({ error: err.message });
+    return;
   }
 });
 
@@ -239,14 +286,16 @@ app.put("/api/dev/tasks", async (req, res) => {
       }
     }
     
-    const success = await dbMutex.run(async () => writeTasks(tasks));
+    const success = await dbMutex.run(async (): Promise<boolean> => writeTasks(tasks));
     if (!success) {
       throw new Error("No se pudieron guardar las tareas importadas.");
     }
     
     res.json({ message: `Se importaron ${tasks.length} tareas correctamente.` });
+    return;
   } catch (err: any) {
     res.status(500).json({ error: err.message });
+    return;
   }
 });
 
@@ -264,7 +313,7 @@ app.put("/api/dev/tasks/:id", async (req, res) => {
   try {
     const { title, description, priority, status, selector, rx, ry, rw, rh, category } = req.body;
 
-    const updated = await dbMutex.run(async () => {
+    const updated = await dbMutex.run(async (): Promise<any | null> => {
       const tasks = await readTasks();
       const taskIndex = tasks.findIndex((t) => t.id === id);
       if (taskIndex === -1) {
@@ -297,8 +346,10 @@ app.put("/api/dev/tasks/:id", async (req, res) => {
       return res.status(404).json({ error: "Tarea no encontrada." });
     }
     res.json(updated);
+    return;
   } catch (err: any) {
     res.status(500).json({ error: err.message });
+    return;
   }
 });
 
@@ -313,7 +364,7 @@ app.delete("/api/dev/tasks/:id", async (req, res) => {
   }
 
   try {
-    const deleted = await dbMutex.run(async () => {
+    const deleted = await dbMutex.run(async (): Promise<boolean> => {
       const tasks = await readTasks();
       const filteredTasks = tasks.filter((t) => t.id !== id);
 
@@ -332,8 +383,10 @@ app.delete("/api/dev/tasks/:id", async (req, res) => {
       return res.status(404).json({ error: "Tarea no encontrada." });
     }
     res.json({ message: "Tarea eliminada correctamente." });
+    return;
   } catch (err: any) {
     res.status(500).json({ error: err.message });
+    return;
   }
 });
 
@@ -364,8 +417,10 @@ app.get("/api/dev/tasks/backups", async (req, res) => {
     // Sort backups from newest to oldest
     backups.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
     res.json(backups);
+    return;
   } catch (err: any) {
     res.status(500).json({ error: err.message });
+    return;
   }
 });
 
@@ -380,7 +435,7 @@ app.post("/api/dev/tasks/backup", async (req, res) => {
     const backupFilePath = path.join(BACKUPS_DIR, backupFilename);
     
     // Read the current tasks
-    const tasks = await dbMutex.run(async () => readTasks());
+    const tasks = await dbMutex.run(async (): Promise<any[]> => readTasks());
     
     // Write atomically to the backups folder
     await atomicWriteFile(backupFilePath, JSON.stringify(tasks, null, 2));
@@ -390,8 +445,10 @@ app.post("/api/dev/tasks/backup", async (req, res) => {
       filename: backupFilename,
       createdAt: new Date().toISOString()
     });
+    return;
   } catch (err: any) {
     res.status(500).json({ error: err.message });
+    return;
   }
 });
 
@@ -415,7 +472,7 @@ app.post("/api/dev/tasks/restore", async (req, res) => {
     }
     
     // Read from backup and write to main todo.json
-    await dbMutex.run(async () => {
+    await dbMutex.run(async (): Promise<void> => {
       const data = await fs.readFile(backupFilePath, "utf-8");
       const tasks = JSON.parse(data);
       if (!Array.isArray(tasks)) {
@@ -428,8 +485,10 @@ app.post("/api/dev/tasks/restore", async (req, res) => {
     });
     
     res.json({ message: "Tablero restaurado correctamente desde la copia de seguridad." });
+    return;
   } catch (err: any) {
     res.status(500).json({ error: err.message });
+    return;
   }
 });
 
@@ -439,9 +498,25 @@ app.post("/api/dev/tasks/restore", async (req, res) => {
 // API routes FIRST
 app.get("/api/ping", (req, res) => {
   res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+  return;
 });
 
 app.post("/api/analyze-argument", async (req, res) => {
+  // Rate limiting
+  const clientIp = req.ip || req.socket.remoteAddress || "unknown";
+  const rateLimit = checkRateLimit(clientIp);
+  
+  res.setHeader("X-RateLimit-Limit", RATE_LIMIT_MAX_REQUESTS.toString());
+  res.setHeader("X-RateLimit-Remaining", rateLimit.remaining.toString());
+  res.setHeader("X-RateLimit-Reset", Math.ceil(rateLimit.resetAt / 1000).toString());
+  
+  if (!rateLimit.allowed) {
+    return res.status(429).json({ 
+      error: "Demasiadas peticiones. Inténtalo de nuevo en un minuto.",
+      retryAfter: Math.ceil((rateLimit.resetAt - Date.now()) / 1000)
+    });
+  }
+
   try {
     const { argument, mode } = req.body;
     if (!argument || typeof argument !== "string" || !argument.trim()) {
@@ -541,9 +616,11 @@ Devuelve tu diagnóstico EXACTAMENTE en formato JSON conforme a la estructura de
 
     const payload = JSON.parse(textOutput);
     res.json(payload);
+    return;
   } catch (err: any) {
     console.error("Gemini Error:", err);
     res.status(500).json({ error: err?.message || "Algo salió mal procesando tu argumento con la Inteligencia de Sintiens." });
+    return;
   }
 });
 

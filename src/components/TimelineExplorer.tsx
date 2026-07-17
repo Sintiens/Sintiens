@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
+import { TIMELINE_DATA } from "../data/TIMELINE_DATA";
+import { CORE_NODES } from "../data/CORE_NODES";
 import { 
-  TIMELINE_DATA, 
   TimelineMilestone, 
   TimelineGroup, 
-  ReferenceDetail, 
-  CORE_NODES 
+  ReferenceDetail 
 } from "../types";
 import { 
   Search, 
@@ -531,9 +531,9 @@ export default function TimelineExplorer({ onRedirectToConcept, activeTab, onNav
   };
 
   const renderDetailsContent = (milestone: TimelineMilestone) => {
-    const isUsos = TIMELINE_DATA[0].milestones.some(m => m.id === milestone.id);
-    const isEtica = TIMELINE_DATA[1].milestones.some(m => m.id === milestone.id);
-    const isRegulaciones = TIMELINE_DATA[2].milestones.some(m => m.id === milestone.id);
+    const isUsos = TIMELINE_DATA[0]?.milestones.some(m => m.id === milestone.id) ?? false;
+    const isEtica = TIMELINE_DATA[1]?.milestones.some(m => m.id === milestone.id) ?? false;
+    const isRegulaciones = TIMELINE_DATA[2]?.milestones.some(m => m.id === milestone.id) ?? false;
     const mColor = isUsos ? getTimelineColorClasses("usos") :
                    isEtica ? getTimelineColorClasses("etica") :
                    isRegulaciones ? getTimelineColorClasses("regulaciones") : getTimelineColorClasses("alimentacion");
@@ -826,6 +826,7 @@ export default function TimelineExplorer({ onRedirectToConcept, activeTab, onNav
               </button>
               {(Object.keys(TRACK_META) as Array<keyof typeof TRACK_META>).map(trackKey => {
                 const meta = TRACK_META[trackKey];
+                if (!meta) return null;
                 const isSelected = mobileActiveTrack === trackKey;
                 const Icon = meta.icon;
                 return (
@@ -1016,6 +1017,7 @@ export default function TimelineExplorer({ onRedirectToConcept, activeTab, onNav
                         {/* 🌟 Milestones Flow in this Era 🌟 */}
                         {eraMilestones.map((milestone) => {
                           const meta = TRACK_META[milestone.trackId];
+                          if (!meta) return null;
                           const isSelected = selectedMilestone?.id === milestone.id;
                           const isHovered = hoveredMilestoneId === milestone.id;
                           const isLinked = svgPaths.some(p => p.toId === milestone.id || p.fromId === milestone.id);
@@ -1283,7 +1285,7 @@ export default function TimelineExplorer({ onRedirectToConcept, activeTab, onNav
                 return (
                   <button
                     key={t.id}
-                    onClick={() => setActiveTimelineId(t.id)}
+                    onClick={() => setActiveTimelineId(t.id as "usos" | "etica" | "regulaciones" | "alimentacion")}
                     className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-semibold tracking-tight transition-all duration-300 cursor-pointer shrink-0 ${
                       isActive
                         ? `bg-white dark:bg-zinc-800 ${tColor.text} shadow-sm border border-zinc-200/80 dark:border-transparent scale-102`

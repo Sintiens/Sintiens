@@ -331,7 +331,9 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId }: Glossa
     if (!containerRef.current) return;
     const resizeObserver = new ResizeObserver((entries) => {
       if (!entries || entries.length === 0) return;
-      const { width, height } = entries[0].contentRect;
+      const entry = entries[0];
+      if (!entry) return;
+      const { width, height } = entry.contentRect;
       window.requestAnimationFrame(() => {
         setDimensions({
           width: Math.max(width, 300),
@@ -357,8 +359,10 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId }: Glossa
         const repulsionRadius = isMobile ? 80 : 110;
         for (let i = 0; i < nextNodes.length; i++) {
           const nodeA = nextNodes[i];
+          if (!nodeA) continue;
           for (let j = i + 1; j < nextNodes.length; j++) {
             const nodeB = nextNodes[j];
+            if (!nodeB) continue;
             const dx = nodeB.x - nodeA.x;
             const dy = nodeB.y - nodeA.y;
             const dist = Math.sqrt(dx * dx + dy * dy) || 1;
@@ -712,6 +716,7 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId }: Glossa
   const getNodeAt = (logicalX: number, logicalY: number): GraphNode | null => {
     for (let i = nodes.length - 1; i >= 0; i--) {
       const n = nodes[i];
+      if (!n) continue;
       const dx = logicalX - n.x;
       const dy = logicalY - n.y;
       const hitRadius = (n.radius + 4) / Math.max(zoom, 0.5);

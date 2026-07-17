@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Sun, Moon, ChevronLeft } from "lucide-react";
+import { Sun, Moon } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   CATEGORIES,
@@ -8,6 +8,24 @@ import {
   hasSubNav,
 } from "../data/sections";
 import type { TabType } from "./TabNav";
+
+const PRELOAD_MAP: Record<string, () => Promise<any>> = {
+  historia_narrativa: () => import("./StoryMode"),
+  grafo: () => import("./GlossaryExplorer"),
+  cronologia: () => import("./TimelineExplorer"),
+  dialectica: () => import("./ExcusesDilemmas"),
+  datos: () => import("./DataSection"),
+  noticias: () => import("./NewsExplorer"),
+  calculadora: () => import("./ImpactCalculator"),
+  validador: () => import("./AiValidator"),
+  laboratorio_hub: () => import("./LaboratorioHub"),
+};
+let preloadedTabs = new Set<string>();
+function preloadTab(tab: string) {
+  if (preloadedTabs.has(tab)) return;
+  preloadedTabs.add(tab);
+  PRELOAD_MAP[tab]?.();
+}
 
 interface MiniTabNavProps {
   activeTab: TabType;
@@ -43,6 +61,7 @@ export default function MiniTabNav({ activeTab, onNavigate, theme, onToggleTheme
               <button
                 key={cat.id}
                 onClick={() => onNavigate(cat.defaultTabId)}
+                onMouseEnter={() => preloadTab(cat.defaultTabId)}
                 className={`${dockItemBase} ${
                   isActive ? "text-on-surface font-bold" : "text-on-surface-variant hover:text-on-surface"
                 }`}
@@ -90,6 +109,7 @@ export default function MiniTabNav({ activeTab, onNavigate, theme, onToggleTheme
                   <button
                     key={sub.tabId}
                     onClick={() => onNavigate(sub.tabId)}
+                    onMouseEnter={() => preloadTab(sub.tabId)}
                     className={`${subDockItemBase} ${
                       isActive ? "text-primary font-medium" : "text-on-surface-variant/70 hover:text-on-surface"
                     }`}

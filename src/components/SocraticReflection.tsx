@@ -225,10 +225,10 @@ export default function SocraticReflection() {
       
       if (currentOfCat && pool.length > 1) {
         const otherPool = pool.filter(q => q.id !== currentOfCat.id);
-        return otherPool[Math.floor(Math.random() * otherPool.length)];
+        return otherPool[Math.floor(Math.random() * otherPool.length)]!;
       }
       
-      return pool[Math.floor(Math.random() * pool.length)];
+      return pool[Math.floor(Math.random() * pool.length)]!;
     });
   };
 

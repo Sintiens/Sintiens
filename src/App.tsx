@@ -1,22 +1,28 @@
-import { useState, useEffect, useRef } from "react";
-import GlossaryExplorer from "./components/GlossaryExplorer";
-import TimelineExplorer from "./components/TimelineExplorer";
-import ExcusesDilemmas from "./components/ExcusesDilemmas";
-import ImpactCalculator from "./components/ImpactCalculator";
-import AiValidator from "./components/AiValidator";
-import SintiensLogo from "./components/SintiensLogo";
-import StoryMode from "./components/StoryMode";
-import DevModeOverlay from "./components/DevModeOverlay";
-import DevErrorBoundary from "./components/DevErrorBoundary";
-import DataSection from "./components/DataSection";
-import NewsExplorer from "./components/NewsExplorer";
-import LaboratorioHub from "./components/LaboratorioHub";
+import { useState, useEffect, useRef, Suspense, lazy } from "react";
+import React from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { CORE_NODES } from "./types";
-import { GLOSSARY_BY_ID, GLOSSARY_UNIFIED } from "./data/glossaryUnified";
+import SintiensLogo from "./components/SintiensLogo";
 import TabNav, { TabType } from "./components/TabNav";
 import MiniTabNav from "./components/MiniTabNav";
 import { isSameCategory } from "./data/sections";
+import type { NodeDetail } from "./types";
+import type { GlossaryEntry } from "./data/glossaryUnified";
+
+const StoryMode = lazy(() => import("./components/StoryMode"));
+const GlossaryExplorer = lazy(() => import("./components/GlossaryExplorer"));
+const TimelineExplorer = lazy(() => import("./components/TimelineExplorer"));
+const ExcusesDilemmas = lazy(() => import("./components/ExcusesDilemmas"));
+const ImpactCalculator = lazy(() => import("./components/ImpactCalculator"));
+const AiValidator = lazy(() => import("./components/AiValidator"));
+const DataSection = lazy(() => import("./components/DataSection"));
+const NewsExplorer = lazy(() => import("./components/NewsExplorer"));
+const LaboratorioHub = lazy(() => import("./components/LaboratorioHub"));
+const DevModeOverlay = lazy(() => import("./components/DevModeOverlay"));
+const DevErrorBoundary = lazy(() => import("./components/DevErrorBoundary"));
+
+function LazyTabWrapper({ children, fallback }: { children: React.ReactNode; fallback?: React.ReactNode }) {
+  return <Suspense fallback={fallback || null}>{children}</Suspense>;
+}
 
 // Mapeo bidireccional entre IDs de pestaña y paths de URL.
 // Se usa la History API del navegador para que los botones atrás/adelante
@@ -72,19 +78,12 @@ export default function App() {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  // Navegación entre pestañas basada en la History API del navegador.
-  // Cada cambio de pestaña crea una entrada en history, de modo que los
-  // botones atrás/adelante del navegador y los atajos Alt+← / Alt+→
-  // navegan entre pestañas en vez de salir de la app.
   const navigateToTab = (tab: TabType) => {
     if (tab === activeTab) return;
     window.history.pushState({ tab }, "", TAB_PATHS[tab]);
     setActiveTab(tab);
   };
 
-  // Ref para que los listeners globales (montados con useEffect de deps [])
-  // siempre llamen a la versión más reciente de navigateToTab, que captura
-  // el activeTab vigente.
   const navFnRef = useRef(navigateToTab);
   navFnRef.current = navigateToTab;
 
@@ -98,8 +97,6 @@ export default function App() {
     return () => window.removeEventListener("resize", updateScrollbarWidth);
   }, []);
 
-  // Sembrar history.state en el mount sin crear una entrada extra en el
-  // historial del navegador. Garantiza que el primer popstate reciba {tab}.
   useEffect(() => {
     window.history.replaceState(
       { tab: activeTab },
@@ -109,7 +106,6 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Escuchar los botones atrás/adelante del navegador.
   useEffect(() => {
     const onPopState = (e: PopStateEvent) => {
       const tab =
@@ -121,15 +117,11 @@ export default function App() {
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
-  // Remove the static loading screen once React has mounted.
   useEffect(() => {
     const loader = document.querySelector(".instant-loader-container");
     if (loader) loader.remove();
   }, []);
 
-  // Atajos de teclado para navegar entre pestañas: Alt+← atrás, Alt+→ adelante.
-  // Usa la History API del navegador, igual que los botones del browser.
-  // No se dispara si el foco está en un campo de texto editable.
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
@@ -155,15 +147,25 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [activeTab]);
 
+  const [coreNodes, setCoreNodes] = useState<NodeDetail[] | null>(null);
+  const [glossaryData, setGlossaryData] = useState<{ GLOSSARY_BY_ID: Record<string, GlossaryEntry>; GLOSSARY_UNIFIED: GlossaryEntry[] } | null>(null);
+
   useEffect(() => {
+    import("./data/CORE_NODES").then(m => setCoreNodes(m.CORE_NODES));
+    import("./data/glossaryUnified").then(m => setGlossaryData({ GLOSSARY_BY_ID: m.GLOSSARY_BY_ID, GLOSSARY_UNIFIED: m.GLOSSARY_UNIFIED }));
+  }, []);
+
+  useEffect(() => {
+    if (!coreNodes || !glossaryData) return;
+    
     const handleNavigate = (e: Event) => {
       const customEvent = e as CustomEvent<string>;
       const targetId = customEvent.detail;
       if (!targetId) return;
 
-      const isNode = CORE_NODES.some((n) => n.id === targetId);
+      const isNode = coreNodes.some((n) => n.id === targetId);
       if (isNode) {
-        const relatedGlossaryEntry = GLOSSARY_UNIFIED.find((entry) =>
+        const relatedGlossaryEntry = glossaryData.GLOSSARY_UNIFIED.find((entry: any) =>
           (entry.relatedNodes || []).includes(targetId)
         );
         if (relatedGlossaryEntry) {
@@ -181,14 +183,16 @@ export default function App() {
 
     window.addEventListener("navigate-to-item", handleNavigate);
     return () => window.removeEventListener("navigate-to-item", handleNavigate);
-  }, []);
+  }, [coreNodes, glossaryData]);
 
   useEffect(() => {
+    if (!glossaryData) return;
+    
     const handleNavigateGlossary = (e: Event) => {
       const customEvent = e as CustomEvent<string>;
       const targetId = customEvent.detail;
       if (!targetId) return;
-      if (GLOSSARY_BY_ID[targetId]) {
+      if (glossaryData.GLOSSARY_BY_ID[targetId]) {
         setRedirectEntryId(targetId);
         navFnRef.current("grafo");
       }
@@ -196,7 +200,7 @@ export default function App() {
 
     window.addEventListener("navigate-to-glossary", handleNavigateGlossary);
     return () => window.removeEventListener("navigate-to-glossary", handleNavigateGlossary);
-  }, []);
+  }, [glossaryData]);
 
   const handleDeconstructTrigger = (excuse: string) => {
     setPassedArgument(excuse);
@@ -256,59 +260,79 @@ export default function App() {
               transition={
                 isSubTabNav
                   ? { duration: 0.18, ease: "easeOut" }
-                  : { duration: 0.26, ease: [0.25, 1, 0.5, 1] }
+                  : { duration: 0.26, ease: [0.25, 1, 0.5, 1] as const }
               }
               className="w-full"
             >
               {activeTab === "historia_narrativa" && (
-                <StoryMode {...sharedProps} />
+                <LazyTabWrapper>
+                  <StoryMode {...sharedProps} />
+                </LazyTabWrapper>
               )}
-              {activeTab === "grafo" && (
-                <GlossaryExplorer
-                  initialEntryId={redirectEntryId}
-                  onClearInitialEntryId={() => setRedirectEntryId(null)}
-                  {...sharedProps}
-                />
+              {activeTab === "grafo" && glossaryData && (
+                <LazyTabWrapper>
+                  <GlossaryExplorer
+                    initialEntryId={redirectEntryId}
+                    onClearInitialEntryId={() => setRedirectEntryId(null)}
+                    {...sharedProps}
+                  />
+                </LazyTabWrapper>
               )}
-              {activeTab === "cronologia" && (
-                <TimelineExplorer
-                  onRedirectToConcept={handleRedirectToConcept}
-                  {...sharedProps}
-                />
+              {activeTab === "cronologia" && coreNodes && (
+                <LazyTabWrapper>
+                  <TimelineExplorer
+                    onRedirectToConcept={handleRedirectToConcept}
+                    {...sharedProps}
+                  />
+                </LazyTabWrapper>
               )}
               {activeTab === "dialectica" && (
-                <ExcusesDilemmas
-                  onAnalyzeTrigger={handleDeconstructTrigger}
-                  {...sharedProps}
-                />
+                <LazyTabWrapper>
+                  <ExcusesDilemmas
+                    onAnalyzeTrigger={handleDeconstructTrigger}
+                    {...sharedProps}
+                  />
+                </LazyTabWrapper>
               )}
               {activeTab === "calculadora" && (
-                <ImpactCalculator {...sharedProps} />
+                <LazyTabWrapper>
+                  <ImpactCalculator {...sharedProps} />
+                </LazyTabWrapper>
               )}
               {activeTab === "datos" && (
-                <DataSection {...sharedProps} />
+                <LazyTabWrapper>
+                  <DataSection {...sharedProps} />
+                </LazyTabWrapper>
               )}
               {activeTab === "validador" && (
-                <AiValidator
-                  argumentToAnalyze={passedArgument}
-                  clearArgument={handleClearTrigger}
-                  {...sharedProps}
-                />
+                <LazyTabWrapper>
+                  <AiValidator
+                    argumentToAnalyze={passedArgument}
+                    clearArgument={handleClearTrigger}
+                    {...sharedProps}
+                  />
+                </LazyTabWrapper>
               )}
               {activeTab === "noticias" && (
-                <NewsExplorer {...sharedProps} />
+                <LazyTabWrapper>
+                  <NewsExplorer {...sharedProps} />
+                </LazyTabWrapper>
               )}
               {activeTab === "laboratorio_hub" && (
-                <LaboratorioHub {...sharedProps} />
+                <LazyTabWrapper>
+                  <LaboratorioHub {...sharedProps} />
+                </LazyTabWrapper>
               )}
             </motion.div>
           </AnimatePresence>
         </div>
 
-        {import.meta.env.DEV && (
-          <DevErrorBoundary>
-            <DevModeOverlay activeTab={activeTab} setActiveTab={navigateToTab} />
-          </DevErrorBoundary>
+        {import.meta.env.DEV && coreNodes && glossaryData && (
+          <LazyTabWrapper>
+            <DevErrorBoundary>
+              <DevModeOverlay activeTab={activeTab} setActiveTab={navigateToTab} />
+            </DevErrorBoundary>
+          </LazyTabWrapper>
         )}
       </main>
 

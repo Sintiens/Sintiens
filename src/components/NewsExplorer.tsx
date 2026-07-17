@@ -227,13 +227,13 @@ export default function NewsExplorer({ activeTab, onNavigate, theme, onToggleThe
     });
 
     if (points.length === 0) {
-      return [{ date: "Línea de base", formattedDate: "Inicio", "Progreso Moral": 50, id: "baseline" }];
+      return [{ date: "Línea de base", formattedDate: "Inicio", "Progreso Moral": 50, id: "baseline", title: "Línea de Base Moral", impact: "neutral" }];
     }
 
     // Prepend a starting baseline point one month prior to the first news item
-    const firstDate = new Date(sorted[0].date);
+    const firstDate = new Date(sorted[0]!.date);
     firstDate.setMonth(firstDate.getMonth() - 1);
-    const baselineDateStr = firstDate.toISOString().split("T")[0];
+    const baselineDateStr = firstDate.toISOString().split("T")[0]!;
     const formattedBaseline = firstDate.toLocaleDateString("es-ES", {
       month: "short",
       year: "2-digit",
