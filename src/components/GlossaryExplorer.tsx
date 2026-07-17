@@ -65,55 +65,6 @@ const TERM_LINK_PATTERN = new RegExp(
   "gi"
 );
 
-const AmbientGlow = ({
-  colorClass,
-  className = "",
-  opacity = 0.05,
-  style = {},
-}: {
-  colorClass: string;
-  className?: string;
-  opacity?: number;
-  style?: React.CSSProperties;
-}) => {
-  const textClass = colorClass.startsWith("bg-")
-    ? colorClass.replace("bg-", "text-")
-    : colorClass;
-  return (
-    <div
-      className={`absolute pointer-events-none select-none z-0 overflow-visible ${className}`}
-      style={style}
-    >
-      <div
-        className={`absolute top-1/2 left-1/2 w-[145%] h-[65%] aspect-[2.2/1] filter blur-[35px] sm:blur-[48px] ${textClass} animate-wobble-slow transition-colors duration-[600ms] ease-in-out`}
-        style={{ opacity }}
-      >
-        <svg
-          viewBox="0 0 200 200"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-full"
-        >
-          <path
-            fill="currentColor"
-            d="M30,75 C70,15 130,25 175,55 C195,85 165,135 145,165 C105,195 55,175 35,135 C15,95 10,80 30,75 Z"
-          >
-            <animate
-              attributeName="d"
-              dur="28s"
-              repeatCount="indefinite"
-              values="
-                M30,75 C70,15 130,25 175,55 C195,85 165,135 145,165 C105,195 55,175 35,135 C15,95 10,80 30,75 Z;
-                M55,35 C115,5 155,45 165,95 C175,155 115,175 75,155 C35,135 15,95 25,65 C35,35 15,35 55,35 Z;
-                M55,25 C115,5 145,55 155,105 C165,165 105,165 65,175 C25,185 35,115 35,75 C35,35 25,40 55,25 Z;
-                M30,75 C70,15 130,25 175,55 C195,85 165,135 145,165 C105,195 55,175 35,135 C15,95 10,80 30,75 Z
-              "
-            />
-          </path>
-        </svg>
-      </div>
-    </div>
-  );
-};
 
 type ViewMode = "lista" | "grafo" | "nube";
 type SortMode = "az" | "citado" | "conectado";
@@ -992,27 +943,6 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
           marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
         }}
       >
-        {/* Ambient Glows - covering entire upper zone (hero + search/filters) */}
-        <div className="absolute inset-x-0 top-0 bottom-[-8%] z-0 pointer-events-none opacity-80">
-          <div className="absolute top-[2%] left-[-2vw] w-[600px] h-[600px] animate-float-1">
-            <AmbientGlow colorClass="bg-ch4" className="w-full h-full" opacity={0.3} />
-          </div>
-          <div className="absolute top-[18%] right-[-5vw] w-[700px] h-[700px] animate-float-2">
-            <AmbientGlow colorClass="bg-ch1" className="w-full h-full" opacity={0.3} />
-          </div>
-          <div className="absolute top-[35%] left-[18vw] w-[500px] h-[500px] animate-float-3">
-            <AmbientGlow colorClass="bg-ch2" className="w-full h-full" opacity={0.25} />
-          </div>
-          <div className="absolute top-[-2%] right-[12vw] w-[550px] h-[550px] animate-float-4">
-            <AmbientGlow colorClass="bg-ch5" className="w-full h-full" opacity={0.25} />
-          </div>
-          <div className="absolute top-[60%] left-[8vw] w-[450px] h-[450px] animate-float-5">
-            <AmbientGlow colorClass="bg-ch3" className="w-full h-full" opacity={0.3} />
-          </div>
-          <div className="absolute top-[70%] right-[20vw] w-[480px] h-[480px] animate-float-6">
-            <AmbientGlow colorClass="bg-ch6" className="w-full h-full" opacity={0.3} />
-          </div>
-        </div>
 
         {/* HERO SECTION */}
         <div className="h-[550px] min-h-[550px] lg:h-[600px] lg:min-h-[600px] w-full flex flex-col items-center justify-center text-center relative py-6 lg:py-8 px-6 lg:px-16">
