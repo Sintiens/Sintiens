@@ -659,28 +659,6 @@ marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
 </div>
 </div>
 
-        {/* Ambient Glows */}
-        <div className="absolute inset-x-0 top-[-10%] bottom-[-10%] z-0 pointer-events-none opacity-80">
-          <div className="absolute top-[-5%] left-[-2vw] w-[600px] h-[600px] animate-float-1">
-            <AmbientGlow colorClass="bg-ch4" className="w-full h-full" opacity={0.3} />
-          </div>
-          <div className="absolute top-[30%] right-[-5vw] w-[700px] h-[700px] animate-float-2">
-            <AmbientGlow colorClass="bg-ch1" className="w-full h-full" opacity={0.3} />
-          </div>
-          <div className="absolute top-[10%] left-[20vw] w-[500px] h-[500px] animate-float-3">
-            <AmbientGlow colorClass="bg-ch2" className="w-full h-full" opacity={0.25} />
-          </div>
-          <div className="absolute top-[-10%] right-[15vw] w-[550px] h-[550px] animate-float-4">
-            <AmbientGlow colorClass="bg-ch5" className="w-full h-full" opacity={0.25} />
-          </div>
-          <div className="absolute bottom-[20%] left-[10vw] w-[450px] h-[450px] animate-float-5">
-            <AmbientGlow colorClass="bg-ch3" className="w-full h-full" opacity={0.3} />
-          </div>
-          <div className="absolute bottom-[10%] right-[25vw] w-[480px] h-[480px] animate-float-6">
-            <AmbientGlow colorClass="bg-ch6" className="w-full h-full" opacity={0.3} />
-          </div>
-        </div>
-
 <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden" style={{ zIndex: 0 }}>
 <span className="font-serif font-bold leading-none text-zinc-900 dark:text-zinc-100 blur" style={{ fontSize: "clamp(160px, 50vw, 600px)", opacity: 0.08, transform: "translateY(-20%)" }}>¿</span>
 </div>
