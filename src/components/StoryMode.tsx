@@ -14,7 +14,6 @@ import { BlockEnrichments } from "./InlineEnrichments";
 import MicroQuiz from "./MicroQuiz";
 import TabNav, { TabType } from "./TabNav";
 import { GlossaryEntry } from "../data/glossaryUnified";
-import { PageGlows } from "./ui/AmbientGlow";
 
 const AmbientGlow = ({
 colorClass,
@@ -620,7 +619,6 @@ document.body.style.overflow = '';
 return (
 <>
   {/* Page-level ambient glows - single continuous layer across all sections */}
-  <PageGlows />
   
   <div className="flex flex-col w-full space-y-8 lg:space-y-12 pb-16">
 

@@ -35,7 +35,6 @@ import type { DilemmaDetail as DilemmaDetailType } from "../types";
 import { GLOSSARY_UNIFIED, GLOSSARY_CATEGORIES } from "../data/glossaryUnified";
 import TextRenderer from "./TextRenderer";
 import { Button } from "./ui/Button";
-import { PageGlows } from "./ui/AmbientGlow";
 import TabNav, { TabType } from "./TabNav";
 
 /* ──────────────────────────────────────────────────────────────────────────
@@ -411,7 +410,6 @@ export default function ExcusesDilemmas({ onAnalyzeTrigger, activeTab, onNavigat
       animate="visible"
       className="-mt-12 lg:-mt-20 space-y-10 w-full relative"
     >
-      <PageGlows />
 
       {/* ───────────── HERO ───────────── */}
       <div className="w-full flex flex-col lg:justify-center items-center text-center relative h-[550px] min-h-[550px] lg:h-[600px] lg:min-h-[600px] pt-16 lg:pt-28 pb-20 lg:pb-24 px-6 lg:px-16 border-b border-outline-variant/20">

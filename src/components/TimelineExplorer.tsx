@@ -28,7 +28,6 @@ import {
   Binary
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { PageGlows } from "./ui/AmbientGlow";
 import TextRenderer from "./TextRenderer";
 import { Button } from "./ui/Button";
 import TabNav, { TabType } from "./TabNav";
@@ -678,7 +677,6 @@ export default function TimelineExplorer({ onRedirectToConcept, activeTab, onNav
   return (
     <div className="-mt-12 lg:-mt-20 space-y-10 w-full relative select-none">
 
-      <PageGlows />
 
       {/* SECTION 0: Hero & Hook */}
       <div 

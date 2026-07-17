@@ -30,7 +30,6 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { PageGlows } from "./ui/AmbientGlow";
 import TabNav, { TabType } from "./TabNav";
 
 interface AIAnalysisResult {
@@ -349,7 +348,6 @@ export default function AiValidator({
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
-      <PageGlows />
 
       {/* ═════════════════════════ HERO ═════════════════════════ */}
       <div className="w-full flex flex-col lg:justify-center items-center text-center relative h-[550px] min-h-[550px] lg:h-[600px] lg:min-h-[600px] pt-16 lg:pt-28 pb-20 lg:pb-24 px-6 lg:px-16 border-b border-outline-variant/20">

@@ -7,6 +7,7 @@ import MiniTabNav from "./components/MiniTabNav";
 import { isSameCategory } from "./data/sections";
 import type { NodeDetail } from "./types";
 import type { GlossaryEntry } from "./data/glossaryUnified";
+import { PageGlows } from "./components/ui/AmbientGlow";
 
 const StoryMode = lazy(() => import("./components/StoryMode"));
 const GlossaryExplorer = lazy(() => import("./components/GlossaryExplorer"));
@@ -239,6 +240,8 @@ export default function App() {
       }} 
       className="min-h-screen bg-background text-on-background font-sans selection:bg-primary selection:text-on-primary flex flex-col transition-colors duration-500 pb-0"
     >
+      {/* Global ambient glows — rendered ONCE for the entire app, never remounted on tab changes */}
+      <PageGlows />
       
       {/* Global Tab Navigation - Absolute positioned below the title (hero section) for continuous transitions */}
       <div className="absolute top-[480px] lg:top-[530px] left-0 w-full z-[200] flex justify-center pointer-events-none">
