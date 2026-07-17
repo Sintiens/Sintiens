@@ -41,7 +41,8 @@ import {
   getMostCentral,
   Appearance
 } from "../utils/buildGlossaryIndex";
-import { CORE_NODES, DILEMMAS_DATA } from "../types";
+import { CORE_NODES } from "../data/CORE_NODES";
+import { DILEMMAS_DATA } from "../data/DILEMMAS_DATA";
 import { Button } from "./ui/Button";
 import GlossaryGraph from "./GlossaryGraph";
 import TabNav, { TabType } from "./TabNav";
@@ -198,6 +199,25 @@ function getAppearanceTarget(appearance: Appearance): { tab: string; label: stri
 }
 
 export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId, activeTab, onNavigate, theme, onToggleTheme }: GlossaryExplorerProps) {
+  const navRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (navRef.current) {
+        const rect = navRef.current.getBoundingClientRect();
+        // If the top of the nav container hits the top of the viewport
+        window.dispatchEvent(new CustomEvent('toggle-min-nav', { detail: rect.top <= 0 }));
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    // Call once on mount
+    handleScroll();
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.dispatchEvent(new CustomEvent('toggle-min-nav', { detail: false }));
+    };
+  }, []);
+
   const [viewMode, setViewMode] = useState<ViewMode>("lista");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState<GlossaryType | "all">("all");
@@ -962,7 +982,7 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
   };
 
   return (
-    <div className="space-y-10 w-full">
+    <div className="-mt-12 lg:-mt-20 space-y-10 w-full">
       {/* ==================== UPPER ZONE WITH GLOWS ==================== */}
       <div
         className="relative"
@@ -995,7 +1015,7 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
         </div>
 
         {/* HERO SECTION */}
-        <div className="min-h-[50vh] lg:min-h-[55vh] w-full flex flex-col items-center justify-center text-center relative py-8 lg:py-10 px-6 lg:px-16">
+        <div className="h-[550px] min-h-[550px] lg:h-[600px] lg:min-h-[600px] w-full flex flex-col items-center justify-center text-center relative py-6 lg:py-8 px-6 lg:px-16">
           {/* Crosshair corners */}
           <div className="absolute top-6 left-6 w-6 h-6 pointer-events-none select-none flex items-center justify-center">
             <div className="absolute w-4 h-[2px] bg-primary/30" />
@@ -1061,8 +1081,12 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
           </motion.div>
         </div>
 
-        <div className="w-full py-4 relative z-10">
-          <TabNav activeTab={activeTab} onNavigate={onNavigate} theme={theme} onToggleTheme={onToggleTheme} />
+        <div ref={navRef} className="w-full relative z-[100] px-6 lg:px-16 max-w-7xl mx-auto pb-8 lg:pb-12">
+          <div className="flex justify-center">
+            <div className="pointer-events-auto">
+              {/* TabNav is now global in App.tsx */}
+            </div>
+          </div>
         </div>
 
         {/* View mode tabs */}

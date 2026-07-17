@@ -10,10 +10,13 @@ import DevModeOverlay from "./components/DevModeOverlay";
 import DevErrorBoundary from "./components/DevErrorBoundary";
 import DataSection from "./components/DataSection";
 import NewsExplorer from "./components/NewsExplorer";
+import LaboratorioHub from "./components/LaboratorioHub";
 import { motion, AnimatePresence } from "motion/react";
 import { CORE_NODES } from "./types";
 import { GLOSSARY_BY_ID, GLOSSARY_UNIFIED } from "./data/glossaryUnified";
-import type { TabType } from "./components/TabNav";
+import TabNav, { TabType } from "./components/TabNav";
+import MiniTabNav from "./components/MiniTabNav";
+import { isSameCategory } from "./data/sections";
 
 // Mapeo bidireccional entre IDs de pestaña y paths de URL.
 // Se usa la History API del navegador para que los botones atrás/adelante
@@ -27,6 +30,7 @@ const TAB_PATHS: Record<TabType, string> = {
   validador: "/validador",
   datos: "/datos",
   noticias: "/noticias",
+  laboratorio_hub: "/laboratorio",
 };
 const PATH_TO_TAB: Record<string, TabType> = Object.fromEntries(
   Object.entries(TAB_PATHS).map(([k, v]) => [v, k as TabType])
@@ -44,11 +48,20 @@ export default function App() {
   const [passedArgument, setPassedArgument] = useState<string | null>(null);
   const [redirectNodeId, setRedirectNodeId] = useState<string | null>(null);
   const [redirectEntryId, setRedirectEntryId] = useState<string | null>(null);
-  const [theme, setTheme] = useState<"dark" | "light">(() => {
-    const saved = localStorage.getItem("theme");
-    if (saved === "light" || saved === "dark") return saved;
-    return "dark";
-  });
+  const [theme, setTheme] = useState<"dark" | "light">(
+    () => {
+      const saved = localStorage.getItem("theme");
+      if (saved === "light" || saved === "dark") return saved;
+      return "dark";
+    }
+  );
+
+  const prevTabRef = useRef<TabType>(activeTab);
+  const isSubTabNav = isSameCategory(prevTabRef.current, activeTab);
+
+  useEffect(() => {
+    prevTabRef.current = activeTab;
+  }, [activeTab]);
 
   useEffect(() => {
     if (theme === "dark") {
@@ -223,17 +236,28 @@ export default function App() {
       className="min-h-screen bg-background text-on-background font-sans selection:bg-primary selection:text-on-primary flex flex-col transition-colors duration-500 pb-0"
     >
       
-      {/* Main Content — navigation is handled inside each tab via TabNav */}
+      {/* Global Tab Navigation - Absolute positioned below the title (hero section) for continuous transitions */}
+      <div className="absolute top-[480px] lg:top-[530px] left-0 w-full z-[200] flex justify-center pointer-events-none">
+        <div className="w-full max-w-[1440px] px-3 md:px-8 lg:px-16 pointer-events-auto flex justify-center">
+          <MiniTabNav activeTab={activeTab} onNavigate={handleNavigate} theme={theme} onToggleTheme={handleToggleTheme} />
+        </div>
+      </div>
+
+      {/* Main Content */}
       <main className="flex-1 max-w-[1440px] w-full mx-auto px-3 md:px-8 lg:px-16 py-12 lg:py-20 relative">
 
         <div className="min-h-[600px]">
           <AnimatePresence mode="popLayout" initial={false}>
             <motion.div
               key={activeTab}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.18, ease: "easeOut" }}
+              initial={isSubTabNav ? { opacity: 0, y: 6 } : { opacity: 0, y: 12, scale: 0.98 }}
+              animate={isSubTabNav ? { opacity: 1, y: 0 } : { opacity: 1, y: 0, scale: 1 }}
+              exit={isSubTabNav ? { opacity: 0, y: -4 } : { opacity: 0, y: -8, scale: 0.99 }}
+              transition={
+                isSubTabNav
+                  ? { duration: 0.18, ease: "easeOut" }
+                  : { duration: 0.26, ease: [0.25, 1, 0.5, 1] }
+              }
               className="w-full"
             >
               {activeTab === "historia_narrativa" && (
@@ -273,6 +297,9 @@ export default function App() {
               )}
               {activeTab === "noticias" && (
                 <NewsExplorer {...sharedProps} />
+              )}
+              {activeTab === "laboratorio_hub" && (
+                <LaboratorioHub {...sharedProps} />
               )}
             </motion.div>
           </AnimatePresence>

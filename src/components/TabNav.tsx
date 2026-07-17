@@ -1,6 +1,6 @@
 import { Sun, Moon } from "lucide-react";
 
-export type TabType = "historia_narrativa" | "grafo" | "cronologia" | "dialectica" | "calculadora" | "validador" | "datos" | "noticias";
+export type TabType = "historia_narrativa" | "grafo" | "cronologia" | "dialectica" | "calculadora" | "validador" | "datos" | "noticias" | "laboratorio_hub";
 
 interface TabNavProps {
   activeTab: TabType;

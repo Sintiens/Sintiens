@@ -344,7 +344,7 @@ export default function AiValidator({
   return (
     <motion.section
       id="ai-validator-view"
-      className="space-y-10 w-full relative"
+      className="-mt-12 lg:-mt-20 space-y-10 w-full relative"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
@@ -352,7 +352,7 @@ export default function AiValidator({
       <PageGlows />
 
       {/* ═════════════════════════ HERO ═════════════════════════ */}
-      <div className="relative z-10 min-h-[42vh] flex flex-col items-center justify-center text-center py-8 lg:py-10">
+      <div className="w-full flex flex-col lg:justify-center items-center text-center relative h-[550px] min-h-[550px] lg:h-[600px] lg:min-h-[600px] pt-16 lg:pt-28 pb-20 lg:pb-24 px-6 lg:px-16 border-b border-outline-variant/20">
         {/* Esquinas crosshair */}
         {["top-6 left-6", "top-6 right-6", "bottom-6 left-6", "bottom-6 right-6"].map((pos) => (
           <div
@@ -364,15 +364,15 @@ export default function AiValidator({
           </div>
         ))}
 
-        {/* Icono de fondo rotando */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
+        {/* Icono de fondo */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden" style={{ zIndex: 0 }}>
           <BrainCircuit
-            className="text-on-surface animate-rotate-slow"
+            className="text-zinc-900 dark:text-zinc-100 blur"
             style={{
-              width: "clamp(140px,32vw,360px)",
-              height: "clamp(140px,32vw,360px)",
-              opacity: 0.04,
-              strokeWidth: 0.5,
+              width: "clamp(144px, 45vw, 540px)",
+              height: "clamp(144px, 45vw, 540px)",
+              opacity: 0.08,
+              strokeWidth: 1.5,
             }}
           />
         </div>
@@ -391,14 +391,13 @@ export default function AiValidator({
           </motion.span>
           <motion.h1
             variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-            className="text-display-lg text-on-background select-none"
+            className="text-[clamp(42px,8.5vw,80px)] font-bold tracking-tight font-heading leading-[1.05] text-on-background select-none"
           >
-            Descompresor
-            <span className="text-secondary/60 font-light"> · Axiomas No Examinados</span>
+            Descomponer<span className="text-secondary/60 font-light block mt-2 text-[clamp(24px,4vw,40px)]">Axiomas No Examinados</span>
           </motion.h1>
           <motion.p
             variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-            className="text-body-md text-on-surface-variant max-w-xl mx-auto leading-relaxed"
+            className="max-w-2xl mx-auto pt-1 font-serif italic font-light text-on-surface-variant/70 leading-relaxed text-[14px] sm:text-[16px] md:text-[18px] lg:text-[19px] text-center tracking-normal select-none"
           >
             Escribe cualquier argumento o excusa que utilices para justificar el consumo animal. La IA de Sintiens
             deconstruirá su validez lógica y expondrá sus sesgos.
@@ -427,7 +426,7 @@ export default function AiValidator({
 
       {/* ───────────── NAVEGACIÓN DE PESTAÑAS ───────────── */}
       <div className="w-full py-4 relative z-10">
-        <TabNav activeTab={activeTab} onNavigate={onNavigate} theme={theme} onToggleTheme={onToggleTheme} />
+        
       </div>
 
       {/* ═════════════════════════ SELECTOR DE MODO ═════════════════════════ */}

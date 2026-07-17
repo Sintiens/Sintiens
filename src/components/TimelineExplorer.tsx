@@ -676,21 +676,62 @@ export default function TimelineExplorer({ onRedirectToConcept, activeTab, onNav
   };
 
   return (
-    <div className="space-y-10 w-full relative select-none">
+    <div className="-mt-12 lg:-mt-20 space-y-10 w-full relative select-none">
 
       <PageGlows />
 
-      {/* Header */}
-      <div className="relative z-10 space-y-3 border-b border-outline-variant/20 pb-8">
-        <span className="text-[10px] font-mono font-bold text-primary select-none tracking-[0.25em] uppercase block opacity-60">
-          [ HISTORIA ]
-        </span>
-        <h3 className="text-display-md text-on-surface">
-          Cronología<span className="text-secondary/60 font-light"> · Línea Temporal</span>
-        </h3>
-        <p className="text-body-md text-on-surface-variant max-w-2xl">
-          Recorrido histórico por los hitos que han moldeado nuestra relación con los demás animales, desde la filosofía clásica hasta la neurociencia contemporánea.
-        </p>
+      {/* SECTION 0: Hero & Hook */}
+      <div 
+        id="hero"
+        className="flex flex-col items-center relative bg-transparent w-full"
+        style={{
+          width: "calc(100vw - var(--scrollbar-width, 0px))",
+          marginLeft: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
+          marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
+        }}
+      >
+        <div className="w-full flex flex-col lg:justify-center items-center text-center relative h-[550px] min-h-[550px] lg:h-[600px] lg:min-h-[600px] pt-16 lg:pt-28 pb-20 lg:pb-24 px-6 lg:px-16 border-b border-outline-variant/20">
+          <motion.div layoutId="global-crosshairs" className="absolute inset-0 pointer-events-none select-none z-0">
+            <div className="absolute top-[25px] left-[20px] w-6 h-6 flex items-center justify-center">
+              <div className="absolute w-4 h-[2px] bg-primary/30" /><div className="absolute w-[2px] h-4 bg-primary/30" />
+            </div>
+            <div className="absolute top-[25px] right-[20px] w-6 h-6 flex items-center justify-center">
+              <div className="absolute w-4 h-[2px] bg-primary/30" /><div className="absolute w-[2px] h-4 bg-primary/30" />
+            </div>
+            <div className="absolute bottom-[25px] left-[20px] w-6 h-6 flex items-center justify-center">
+              <div className="absolute w-4 h-[2px] bg-primary/30" /><div className="absolute w-[2px] h-4 bg-primary/30" />
+            </div>
+            <div className="absolute bottom-[25px] right-[20px] w-6 h-6 flex items-center justify-center">
+              <div className="absolute w-4 h-[2px] bg-primary/30" /><div className="absolute w-[2px] h-4 bg-primary/30" />
+            </div>
+          </motion.div>
+
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden" style={{ zIndex: 0 }}>
+            <Clock
+              className="text-zinc-900 dark:text-zinc-100 blur"
+              style={{
+                width: "clamp(144px, 45vw, 540px)",
+                height: "clamp(144px, 45vw, 540px)",
+                opacity: 0.08,
+                strokeWidth: 1,
+              }}
+            />
+          </div>
+
+          <div className="flex-1 lg:flex-none flex flex-col justify-center items-center w-full">
+            <div className="space-y-2 lg:space-y-4 max-w-3xl w-full text-center relative z-10 mt-12 lg:mt-20">
+              <span className="text-[10px] font-mono font-bold text-primary select-none tracking-[0.25em] uppercase block opacity-60">
+                [ HISTORIA ]
+              </span>
+              <h1 className="text-[clamp(42px,8.5vw,80px)] font-bold tracking-tight font-heading leading-[1.05] text-on-background select-none">
+                Cronología<span className="text-secondary/60 font-light block mt-2 text-[clamp(24px,4vw,40px)]">Línea Temporal</span>
+              </h1>
+              <p className="max-w-2xl mx-auto pt-1 font-serif italic font-light text-on-surface-variant/70 leading-relaxed text-[14px] sm:text-[16px] md:text-[18px] lg:text-[19px] text-center tracking-normal select-none">
+                Recorrido histórico por los hitos que han moldeado nuestra relación con los demás animales, desde la filosofía clásica hasta la neurociencia contemporánea.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* 🌟 LAYOUT VIEWS SELECTOR TOGGLE AND COMPARISON MODE (Unified Bar) 🌟 */}
@@ -760,7 +801,7 @@ export default function TimelineExplorer({ onRedirectToConcept, activeTab, onNav
       </div>
 
       <div className="w-full py-4">
-        <TabNav activeTab={activeTab} onNavigate={onNavigate} theme={theme} onToggleTheme={onToggleTheme} />
+        
       </div>
 
       {layoutView === "swimlanes" && (() => {

@@ -14,6 +14,7 @@ import { BlockEnrichments } from "./InlineEnrichments";
 import MicroQuiz from "./MicroQuiz";
 import TabNav, { TabType } from "./TabNav";
 import { GlossaryEntry } from "../data/glossaryUnified";
+import { PageGlows } from "./ui/AmbientGlow";
 
 const AmbientGlow = ({
 colorClass,
@@ -81,6 +82,25 @@ return (
 };
 
 export default function StoryMode({ activeTab, onNavigate, theme, onToggleTheme }: { activeTab: TabType; onNavigate: (tab: TabType) => void; theme: "dark" | "light"; onToggleTheme: () => void }) {
+const navRef = useRef<HTMLDivElement>(null);
+
+useEffect(() => {
+  const handleScroll = () => {
+    if (navRef.current) {
+      const rect = navRef.current.getBoundingClientRect();
+      // If the top of the nav container hits the top of the viewport
+      window.dispatchEvent(new CustomEvent('toggle-min-nav', { detail: rect.top <= 0 }));
+    }
+  };
+  window.addEventListener('scroll', handleScroll, { passive: true });
+  // Call once on mount
+  handleScroll();
+  return () => {
+    window.removeEventListener('scroll', handleScroll);
+    window.dispatchEvent(new CustomEvent('toggle-min-nav', { detail: false }));
+  };
+}, []);
+
 const [activeChapter, setActiveChapter] = useState<string | null>(null);
 const [flashChapter, setFlashChapter] = useState<string | null>(null);
 
@@ -506,12 +526,13 @@ const handleScroll = () => {
         if (chipInner) {
           const fadeBand = 40;
           const headerHeight = chipHeight;
+          const stickyOffset = 0;
           const fadeIn = titleRect
-            ? Math.max(0, Math.min(1, (fadeBand - titleRect.bottom) / fadeBand))
+            ? Math.max(0, Math.min(1, (fadeBand + stickyOffset - titleRect.bottom) / fadeBand))
             : 1;
           let fadeOut = 1;
           if (lastBlockRect) {
-            fadeOut = Math.max(0, Math.min(1, (lastBlockRect.bottom - headerHeight) / fadeBand));
+            fadeOut = Math.max(0, Math.min(1, (lastBlockRect.bottom - headerHeight - stickyOffset) / fadeBand));
           }
           chipInner.style.opacity = (fadeIn * fadeOut).toFixed(3);
         }
@@ -522,9 +543,10 @@ const handleScroll = () => {
           if (actId === newActive) {
             const fadeBand = 40;
             const headerHeight = chipHeight;
+            const stickyOffset = 0;
             let fadeOut = 1;
             if (lastBlockRect) {
-              fadeOut = Math.max(0, Math.min(1, (lastBlockRect.bottom - headerHeight) / fadeBand));
+              fadeOut = Math.max(0, Math.min(1, (lastBlockRect.bottom - headerHeight - stickyOffset) / fadeBand));
             }
             opacity = fadeOut;
           }
@@ -602,7 +624,7 @@ marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
 }}
 >
 {/* ... Hero Content ... */}
-<div className="w-full flex flex-col lg:justify-center items-center text-center relative min-h-[calc(100vh-160px)] pt-16 lg:pt-28 pb-16 lg:pb-24 px-6 lg:px-16">
+<div className="w-full flex flex-col lg:justify-center items-center text-center relative h-[550px] min-h-[550px] lg:h-[600px] lg:min-h-[600px] pt-16 lg:pt-28 pb-12 lg:pb-16 px-6 lg:px-16">
 <div className="absolute top-[25px] left-[20px] w-6 h-6 pointer-events-none select-none flex items-center justify-center">
 <div className="absolute w-4 h-[2px] bg-primary/30" /><div className="absolute w-[2px] h-4 bg-primary/30" />
 </div>
@@ -681,8 +703,12 @@ marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
 </motion.div>
 </div>
 
-<div className="w-full relative z-10 px-6 lg:px-16 max-w-7xl mx-auto pt-8 lg:pt-12">
-  <TabNav activeTab={activeTab} onNavigate={onNavigate} theme={theme} onToggleTheme={onToggleTheme} />
+<div ref={navRef} className="w-full relative z-[100] px-6 lg:px-16 max-w-7xl mx-auto pt-8 lg:pt-12">
+  <div className="flex justify-center">
+    <div className="pointer-events-auto">
+      {/* TabNav is now global in App.tsx */}
+    </div>
+  </div>
 </div>
 
 <div className="absolute bottom-[20px] left-[20px] w-6 h-6 pointer-events-none select-none flex items-center justify-center">
@@ -700,37 +726,46 @@ marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
 
 <div 
   id="intro" 
-  className="w-full scroll-mt-0 relative overflow-visible"
+  className="w-full relative min-h-screen pt-0 overflow-hidden"
   style={{
     width: "calc(100vw - var(--scrollbar-width, 0px))",
     marginLeft: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
     marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
   }}
 >
-  {/* Spread out Background Shapes - Unconfined, covers entire intro section */}
-  <div className="absolute inset-x-0 top-[-100px] bottom-[-100px] z-0 pointer-events-none opacity-60">
-    <div className="absolute top-[-50px] left-[-5vw] w-[500px] h-[500px] animate-float-1">
-      <AmbientGlow colorClass="bg-ch1" className="w-full h-full" opacity={0.3} />
-    </div>
-    <div className="absolute bottom-[20px] right-[-5vw] w-[650px] h-[650px] animate-float-2">
-      <AmbientGlow colorClass="bg-ch4" className="w-full h-full" opacity={0.2} />
-    </div>
-    <div className="absolute top-[30%] left-[8vw] w-[450px] h-[450px] animate-float-3">
-      <AmbientGlow colorClass="bg-ch5" className="w-full h-full" opacity={0.3} />
-    </div>
-    <div className="absolute top-[-80px] right-[10vw] w-[550px] h-[550px] animate-float-4">
-      <AmbientGlow colorClass="bg-ch2" className="w-full h-full" opacity={0.3} />
-    </div>
-    <div className="absolute bottom-[50px] left-[20vw] w-[400px] h-[400px] animate-float-5">
-      <AmbientGlow colorClass="bg-ch3" className="w-full h-full" opacity={0.3} />
-    </div>
-    <div className="absolute top-[40%] right-[25vw] w-[480px] h-[480px] animate-float-6">
-      <AmbientGlow colorClass="bg-ch6" className="w-full h-full" opacity={0.3} />
-    </div>
-  </div>
 
   <div className="w-full max-w-7xl mx-auto px-6 lg:px-16 pt-0 relative z-10">
-    <div className="relative w-full text-center mb-8 lg:mb-12 pb-10 lg:pb-12 pt-20 lg:pt-32 px-4">
+    {/* Intro Header Section with Full-Bleed Scoped Ambient Glows */}
+    <div className="relative w-full text-center mb-6 lg:mb-10 pb-8 lg:pb-12 pt-8 lg:pt-12 px-4">
+      {/* Background Glows - Continuously covers from top of section right down to the start of the concept cards */}
+      <div 
+        className="absolute inset-0 z-0 pointer-events-none opacity-65 overflow-hidden"
+        style={{
+          width: "calc(100vw - var(--scrollbar-width, 0px))",
+          left: "50%",
+          transform: "translateX(-50%)",
+        }}
+      >
+        <div className="absolute top-[0px] left-[-5vw] w-[500px] h-[500px] animate-float-1">
+          <AmbientGlow colorClass="bg-ch1" className="w-full h-full" opacity={0.3} />
+        </div>
+        <div className="absolute top-[20px] right-[-5vw] w-[600px] h-[600px] animate-float-2">
+          <AmbientGlow colorClass="bg-ch4" className="w-full h-full" opacity={0.25} />
+        </div>
+        <div className="absolute top-[40%] left-[8vw] w-[450px] h-[450px] animate-float-3">
+          <AmbientGlow colorClass="bg-ch5" className="w-full h-full" opacity={0.3} />
+        </div>
+        <div className="absolute top-[-20px] right-[10vw] w-[500px] h-[500px] animate-float-4">
+          <AmbientGlow colorClass="bg-ch2" className="w-full h-full" opacity={0.3} />
+        </div>
+        <div className="absolute bottom-[20px] left-[20vw] w-[400px] h-[400px] animate-float-5">
+          <AmbientGlow colorClass="bg-ch3" className="w-full h-full" opacity={0.3} />
+        </div>
+        <div className="absolute top-[30%] right-[25vw] w-[450px] h-[450px] animate-float-6">
+          <AmbientGlow colorClass="bg-ch6" className="w-full h-full" opacity={0.3} />
+        </div>
+      </div>
+
       <div className="relative z-10 space-y-6 lg:space-y-8 max-w-4xl mx-auto">
         {/* Restored Hero Details */}
         <span className="text-[10px] font-mono font-bold text-primary uppercase tracking-widest block leading-none mb-4 drop-shadow-md">
@@ -755,58 +790,71 @@ marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
         {[
-          'sintiencia',
-          'dolor-vs-nocicepcion',
-          'especismo',
-          'causalidad-sistemica',
-          'axioma-implicito',
-        ].map((id, i) => (
-          <ConceptCard key={id} number={i + 1} glossaryId={id} />
+          { id: 'sintiencia', color: 'bg-ch1' },
+          { id: 'dolor-vs-nocicepcion', color: 'bg-ch2' },
+          { id: 'especismo', color: 'bg-ch4' },
+          { id: 'causalidad-sistemica', color: 'bg-ch3' },
+          { id: 'axioma-implicito', color: 'bg-ch5' },
+        ].map((item, i) => (
+          <ConceptCard key={item.id} number={i + 1} glossaryId={item.id} colorClass={item.color} />
         ))}
       </div>
     </div>
 
-    {/* Frosted Glass Index Card */}
-    <div className="text-center mb-6 lg:mb-8">
-      <span className="text-[10px] font-mono font-bold text-primary uppercase tracking-widest block leading-none mb-3 drop-shadow-md">
-        [ ÍNDICE ]
-      </span>
-    </div>
-    <div 
-      className="glass-enhance border border-outline-variant/35 rounded-3xl p-6 sm:p-8 lg:p-10 w-full relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-container/25 dark:before:bg-surface-container/12 before:backdrop-blur-xl before:z-[-1] before:pointer-events-none"
-    >
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 sm:gap-x-8 md:gap-x-12 gap-y-4 lg:gap-y-6">
+    {/* 6 Tarjetas del Índice de Actos */}
+    <div className="relative z-10 mb-16 lg:mb-24 -mx-6 lg:-mx-20">
+      <div className="text-center mb-6 lg:mb-8">
+        <span className="text-[10px] font-mono font-bold text-primary uppercase tracking-widest block leading-none mb-3 drop-shadow-md">
+          [ ÍNDICE ]
+        </span>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-5">
         {actsData.map((act) => (
-          <div 
+          <div
             key={`idx-${act.id}`}
             onClick={() => handleScrollTo(act.id)}
-            className="group relative py-2 px-2 sm:py-3 sm:px-4 lg:py-4 transition-all duration-500 cursor-pointer flex flex-col items-start text-left"
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                handleScrollTo(act.id);
+              }
+            }}
+            aria-label={`Navegar a ACTO ${act.num}: ${act.label}`}
+            className="group relative w-full h-full text-left p-5 sm:p-6 rounded-2xl border border-outline-variant/25 bg-surface-container/30 hover:bg-surface-container/60 hover:border-outline-variant/50 transition-all duration-500 flex flex-col justify-between gap-4 cursor-pointer overflow-hidden"
           >
-            {/* Confined, morphing individual act glow */}
-            <AmbientGlow 
-              colorClass={act.colorName} 
-              className="w-[160%] h-[240px] sm:h-[280px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 pointer-events-none" 
-              opacity={0.20} 
+            {/* Ambient glow per act on hover */}
+            <AmbientGlow
+              colorClass={act.colorName}
+              className="w-[160%] h-[240px] sm:h-[280px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 pointer-events-none"
+              opacity={0.22}
             />
 
-            <div className="relative z-10 w-full">
-              <span className={`text-[9px] sm:text-[10px] font-mono font-bold ${act.textColor} uppercase tracking-widest block leading-none mb-2 sm:mb-3 group-hover:translate-x-1 transition-transform duration-300`}>
-                [ ACTO {act.num} ]
+            <div className="space-y-2.5 flex-1 relative z-10">
+              <span className={`text-[10px] font-mono font-bold ${act.textColor} uppercase tracking-widest block leading-none`}>
+                — ACTO {act.num}
               </span>
-              <h3 className={`text-sm sm:text-base md:text-xl font-bold font-heading text-on-background mb-1 sm:mb-2 transition-colors duration-300 ${act.hoverColor}`}>
+              <h3 className={`text-base sm:text-lg lg:text-xl font-bold font-heading text-on-background ${act.hoverColor} transition-colors duration-300`}>
                 {act.label}
               </h3>
-              <p className="hidden sm:block text-[13px] font-sans font-light text-on-surface-variant/60 group-hover:text-on-surface-variant/90 transition-colors duration-300 leading-relaxed m-0">
+              <p className="text-[13px] sm:text-sm font-sans text-on-surface-variant/80 group-hover:text-on-surface-variant/95 leading-relaxed m-0 transition-colors duration-300">
                 {act.desc}
               </p>
             </div>
+            <span
+              aria-hidden="true"
+              className={`relative z-10 self-end ${act.textColor} opacity-70 group-hover:opacity-100 transition-all duration-300 text-xl font-bold leading-none -mt-1 group-hover:scale-125 group-hover:translate-x-0.5`}
+            >
+              +
+            </span>
           </div>
         ))}
       </div>
     </div>
 
-<div className="border-b border-outline-variant/20 mt-12 mb-4" />
-</div>
+    <div className="border-b border-outline-variant/20 mt-12 mb-4" />
+  </div>
 </div>
 
 
@@ -912,7 +960,7 @@ const isFlashing = flashChapter === act0.id;
           </div>
         </div>
         {/* Fixed progress bar — always at the top of the screen when the act is active */}
-        <div className="fixed top-0 left-0 right-0 z-50 h-[2px] bg-outline-variant/10 pointer-events-none transition-opacity duration-200" data-act-id={act0.id} data-act-progress-bar style={{ opacity: 0 }}>
+        <div className="fixed top-0 left-0 right-0 z-[200] h-[2px] bg-outline-variant/10 pointer-events-none transition-opacity duration-200" data-act-id={act0.id} data-act-progress-bar style={{ opacity: 0 }}>
           <div className="act-progress-fill h-full origin-left transition-transform duration-200 ease-out will-change-transform" style={{ backgroundColor: "var(--primary)" }} />
         </div>
 
@@ -1025,7 +1073,7 @@ return (
     </div>
   </div>
   {/* Fixed progress bar — always at the top of the screen when the act is active */}
-  <div className="fixed top-0 left-0 right-0 z-50 h-[2px] bg-outline-variant/10 pointer-events-none transition-opacity duration-200" data-act-id={act.id} data-act-progress-bar style={{ opacity: 0 }}>
+  <div className="fixed top-0 left-0 right-0 z-[200] h-[2px] bg-outline-variant/10 pointer-events-none transition-opacity duration-200" data-act-id={act.id} data-act-progress-bar style={{ opacity: 0 }}>
     <div className="act-progress-fill h-full origin-left transition-transform duration-200 ease-out will-change-transform" style={{ backgroundColor: actAccentVar }} />
   </div>
 
@@ -1251,7 +1299,7 @@ return name === "primary" ? "var(--primary)" : `var(--${name})`;
 };
 
 return (
-<div className={`fixed left-6 top-1/2 -translate-y-1/2 z-50 hidden xl:flex flex-col gap-2 transition-all duration-700 ${activeChapter ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8 pointer-events-none'}`}>
+<div className={`fixed left-6 top-1/2 -translate-y-1/2 z-[200] hidden xl:flex flex-col gap-2 transition-all duration-700 ${activeChapter ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8 pointer-events-none'}`}>
 {chaptersList.map((ch) => {
 const isActive = activeChapter === ch.id;
 const isVisited = visitedChapters.has(ch.id);
@@ -1299,7 +1347,6 @@ isActive ? 'opacity-100' : 'opacity-0'
 </div>
 );
 })()}
-
 
 </>
 );

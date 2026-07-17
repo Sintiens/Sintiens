@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { 
   Newspaper, 
@@ -79,6 +79,25 @@ const CustomTooltip = ({ active, payload }: any) => {
 };
 
 export default function NewsExplorer({ activeTab, onNavigate, theme, onToggleTheme }: NewsExplorerProps) {
+  const navRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (navRef.current) {
+        const rect = navRef.current.getBoundingClientRect();
+        // If the top of the nav container hits the top of the viewport
+        window.dispatchEvent(new CustomEvent('toggle-min-nav', { detail: rect.top <= 0 }));
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    // Call once on mount
+    handleScroll();
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.dispatchEvent(new CustomEvent('toggle-min-nav', { detail: false }));
+    };
+  }, []);
+
   // State for filters
   const [selectedRegion, setSelectedRegion] = useState<"todos" | "españa" | "mundo">("todos");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -353,25 +372,36 @@ export default function NewsExplorer({ activeTab, onNavigate, theme, onToggleThe
   };
 
   return (
-    <div id="news-section-view" className="space-y-10 w-full relative">
+    <div id="news-section-view" className="-mt-12 lg:-mt-20 space-y-10 w-full relative">
       <PageGlows />
 
       {/* Header */}
-      <div className="relative z-10 space-y-3 border-b border-outline-variant/20 pb-8">
-        <span className="text-[10px] font-mono font-bold text-primary select-none tracking-[0.25em] uppercase block opacity-60">
+      <div className="w-full flex flex-col lg:justify-center items-center text-center relative h-[550px] min-h-[550px] lg:h-[600px] lg:min-h-[600px] pt-16 lg:pt-28 pb-20 lg:pb-24 px-6 lg:px-16 border-b border-outline-variant/20">
+        <div className="absolute top-[25px] left-[20px] w-6 h-6 pointer-events-none select-none flex items-center justify-center">
+          <div className="absolute w-4 h-[2px] bg-primary/30" /><div className="absolute w-[2px] h-4 bg-primary/30" />
+        </div>
+        <div className="absolute top-[25px] right-[20px] w-6 h-6 pointer-events-none select-none flex items-center justify-center">
+          <div className="absolute w-4 h-[2px] bg-primary/30" /><div className="absolute w-[2px] h-4 bg-primary/30" />
+        </div>
+
+        <span className="text-[10px] font-mono font-bold text-primary select-none tracking-[0.25em] uppercase block opacity-60 mb-4">
           [ DEBATE Y ACTUALIDAD ]
         </span>
-        <h3 className="text-display-md text-on-surface">
-          Recopilatorio de Noticias<span className="text-secondary/60 font-light"> · España y el Mundo</span>
+        <h3 className="text-[clamp(42px,8.5vw,80px)] font-bold tracking-tight font-heading leading-[1.05] text-on-background select-none mb-4">
+          Recopilatorio de Noticias<span className="text-secondary/60 font-light block mt-2 text-[clamp(24px,4vw,40px)]">España y el Mundo</span>
         </h3>
-        <p className="text-body-md text-on-surface-variant max-w-2xl">
+        <p className="max-w-2xl mx-auto pt-1 font-serif italic font-light text-on-surface-variant/70 leading-relaxed text-[14px] sm:text-[16px] md:text-[18px] lg:text-[19px] text-center tracking-normal select-none">
           Análisis del estado moral y legal de nuestra relación con los animales. Monitoreo continuo de avances legislativos, tendencias de consumo, hitos científicos e industriales.
         </p>
       </div>
 
       {/* Tabs navigation panel */}
-      <div className="w-full py-4 relative z-10">
-        <TabNav activeTab={activeTab} onNavigate={onNavigate} theme={theme} onToggleTheme={onToggleTheme} />
+      <div ref={navRef} className="w-full relative z-[100] px-6 lg:px-16 max-w-7xl mx-auto pb-8">
+        <div className="flex justify-center">
+          <div className="pointer-events-auto">
+            {/* TabNav is now global in App.tsx */}
+          </div>
+        </div>
       </div>
 
       {/* Interactive Controls & Filters */}
