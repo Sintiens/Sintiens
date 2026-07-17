@@ -238,12 +238,9 @@ export default function App() {
         width: "calc(100% - var(--dev-sidebar-width, 0px))", 
         transition: "var(--dev-sidebar-transition, width 0.3s cubic-bezier(0.25, 1, 0.5, 1))" 
       }} 
-      className="min-h-screen text-on-background font-sans selection:bg-primary selection:text-on-primary flex flex-col pb-0"
+      className="min-h-screen bg-background text-on-background font-sans selection:bg-primary selection:text-on-primary flex flex-col pb-0 transition-colors duration-500 relative"
     >
-      {/* Background layer: opaque, behind glows (-z-20) */}
-      <div className="fixed inset-0 -z-20 bg-background transition-colors duration-500" />
-
-      {/* Global ambient glows: always visible on every tab, z-[1] above background, z-[2] below content */}
+      {/* Global ambient glows: absolute at top of page, scroll away naturally */}
       <GlobalGlows />
       
       {/* Global Tab Navigation - Absolute positioned below the title (hero section) for continuous transitions */}
@@ -254,7 +251,7 @@ export default function App() {
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-[1440px] w-full mx-auto px-3 md:px-8 lg:px-16 py-12 lg:py-20 relative z-[2]">
+      <main className="flex-1 max-w-[1440px] w-full mx-auto px-3 md:px-8 lg:px-16 py-12 lg:py-20 relative z-[1]">
 
         <div className="min-h-[600px]">
           <AnimatePresence mode="popLayout" initial={false}>
@@ -343,7 +340,7 @@ export default function App() {
       </main>
 
       {/* Modern Academic Footer */}
-      <footer className="border-t border-outline-variant/30 py-16 bg-surface-dim/20 mt-32 relative z-[2]">
+      <footer className="border-t border-outline-variant/30 py-16 bg-surface-dim/20 mt-32">
         <div className="max-w-[1440px] mx-auto px-3 md:px-8 lg:px-16 flex flex-col md:flex-row items-center justify-between gap-6 text-on-surface-variant">
           <div className="space-y-4">
              <div className="flex items-center gap-3">

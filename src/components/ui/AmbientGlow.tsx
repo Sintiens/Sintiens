@@ -202,14 +202,14 @@ export function PageGlows() {
 }
 
 /**
- * GlobalGlows — 6 floating color blobs always visible on every page.
- * Uses z-[1] (positive) so it renders above the opaque background layer (-z-20)
- * but below all content (z-[2]+). pointer-events-none ensures no interaction blocking.
+ * GlobalGlows — 6 floating color blobs at the top of every page.
+ * position: absolute so they stay at the hero zone and scroll away naturally.
+ * The parent App div must have position: relative (already set).
  */
 export function GlobalGlows() {
   return (
     <div
-      className="fixed inset-0 z-[1] pointer-events-none overflow-hidden"
+      className="absolute inset-x-0 top-0 h-screen pointer-events-none overflow-hidden z-0"
       style={{
         width: "calc(100vw - var(--scrollbar-width, 0px))",
         left: "50%",
