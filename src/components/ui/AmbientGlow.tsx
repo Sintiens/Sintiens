@@ -7,6 +7,7 @@ const COLOR_MAP: Record<string, string> = {
   "bg-ch4": "var(--ch4)",
   "bg-ch5": "var(--ch5)",
   "bg-ch6": "var(--ch6)",
+  "bg-primary": "var(--primary)",
 };
 
 export default function AmbientGlow({
@@ -14,11 +15,13 @@ export default function AmbientGlow({
   className = "",
   opacity = 0.05,
   style,
+  paused,
 }: {
   colorClass: string;
   className?: string;
   opacity?: number;
   style?: React.CSSProperties;
+  paused?: boolean;
 }) {
   const color = COLOR_MAP[colorClass] || "var(--ch1)";
 
@@ -200,13 +203,13 @@ export function PageGlows() {
 
 /**
  * GlobalGlows — 6 floating color blobs always visible on every page.
- * No scroll-driven animation: opacity is always on.
- * These are the same visual style as the StoryMode hero section glows.
+ * Uses z-[1] (positive) so it renders above the opaque background layer (-z-20)
+ * but below all content (z-[2]+). pointer-events-none ensures no interaction blocking.
  */
 export function GlobalGlows() {
   return (
     <div
-      className="fixed inset-0 -z-10 pointer-events-none overflow-hidden"
+      className="fixed inset-0 z-[1] pointer-events-none overflow-hidden"
       style={{
         width: "calc(100vw - var(--scrollbar-width, 0px))",
         left: "50%",
