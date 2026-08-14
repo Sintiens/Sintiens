@@ -1,7 +1,8 @@
 // Service Worker for Sintiens - Offline caching and performance
-const CACHE_NAME = 'sintiens-v1';
-const STATIC_CACHE_NAME = 'sintiens-static-v1';
-const DYNAMIC_CACHE_NAME = 'sintiens-dynamic-v1';
+// Bump all version suffixes on each deploy to invalidate stale caches
+const CACHE_NAME = 'sintiens-v2';
+const STATIC_CACHE_NAME = 'sintiens-static-v2';
+const DYNAMIC_CACHE_NAME = 'sintiens-dynamic-v2';
 
 // Assets to cache immediately on install
 const STATIC_ASSETS = [
@@ -48,6 +49,9 @@ self.addEventListener('fetch', (event) => {
 
   // Skip non-GET requests
   if (request.method !== 'GET') return;
+
+  // Never cache API requests: they must always hit the network
+  if (url.pathname.startsWith('/api/')) return;
 
   // Skip cross-origin requests (fonts, APIs)
   if (url.origin !== location.origin) {

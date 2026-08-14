@@ -12,7 +12,10 @@ import os from "os";
 dotenv.config();
 
 const app = express();
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
+
+// Trust the first proxy hop (Render/Vercel) so req.ip reflects the real client IP
+app.set("trust proxy", 1);
 
 // Mutex to serialize all database operations and prevent race conditions
 class Mutex {
@@ -104,7 +107,7 @@ function getAiClient() {
   return aiClient;
 }
 
-app.use(express.json());
+app.use(express.json({ limit: "10kb" }));
 
 // Stable ESM/CJS relative path resolution for the local database
 let tasksDirectory = process.cwd();
@@ -216,6 +219,9 @@ async function writeTasks(tasks: any[]): Promise<boolean> {
 // Express Endpoints for Dev Tasks wrapped in database Mutex to prevent race conditions
 
 app.get("/api/dev/tasks", async (req, res) => {
+  if (process.env.NODE_ENV === "production") {
+    return res.status(403).json({ error: "No permitido en producción" });
+  }
   const tasks = await dbMutex.run(async (): Promise<any[]> => readTasks());
   res.json(tasks);
   return;
@@ -522,6 +528,10 @@ app.post("/api/analyze-argument", async (req, res) => {
     if (!argument || typeof argument !== "string" || !argument.trim()) {
       return res.status(400).json({ error: "El argumento ingresado está vacío o no es válido." });
     }
+    const trimmedArgument = argument.trim().slice(0, 4000);
+    if (trimmedArgument.length > 4000) {
+      return res.status(400).json({ error: "El argumento es demasiado largo (máximo 4000 caracteres)." });
+    }
 
     const ai = getAiClient();
     let systemPrompt = `Eres la Inteligencia Artificial "Sintiens Dialéctica", un motor de análisis filosófico-científico en español. Tu objetivo es realizar una deconstrucción socrática, científica y bioética laica de los argumentos, reflexiones, dudas o justificaciones que utiliza el ser humano para consumir y explotar animales no humanos.
@@ -541,13 +551,18 @@ Devuelve tu diagnóstico EXACTAMENTE en formato JSON conforme a la estructura de
       systemPrompt += `MODO DIALÉCTICA CLÍNICA: Mantén un tono clínico, profundo, altamente intelectual, respetuoso pero rigurosamente analítico, objetivo y académico. No utilices adjetivos floridos, sentimentalismos ni halagos comerciales. Utiliza conceptos sólidos de neurobiología, ética laica formal y ecología de sistemas complejos.`;
     }
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: `Analiza y deconstruye críticamente la siguiente premisa: "${argument}"`,
-      config: {
-        systemInstruction: systemPrompt,
-        responseMimeType: "application/json",
-        responseSchema: {
+    const GEMINI_TIMEOUT_MS = 60_000;
+    // Models in priority order; if one is temporarily saturated (503) the
+    // request falls through to the next one instead of failing.
+    const AI_MODELS = ["gemini-3.5-flash", "gemini-3.6-flash", "gemini-flash-latest"];
+    const buildRequest = (model: string) =>
+      ai.models.generateContent({
+        model,
+        contents: `Analiza y deconstruye críticamente la siguiente premisa: <argument>${trimmedArgument}</argument>`,
+        config: {
+          systemInstruction: systemPrompt,
+          responseMimeType: "application/json",
+          responseSchema: {
           type: Type.OBJECT,
           required: [
             "argumentSummary",
@@ -607,19 +622,50 @@ Devuelve tu diagnóstico EXACTAMENTE en formato JSON conforme a la estructura de
           }
         }
       }
-    });
+      });
+
+    let response: Awaited<ReturnType<typeof buildRequest>> | null = null;
+    let lastError: unknown = null;
+    for (const model of AI_MODELS) {
+      try {
+        response = await Promise.race([
+          buildRequest(model),
+          new Promise<never>((_, reject) => {
+            setTimeout(() => reject(new Error("El motor de deconstrucción tardó demasiado en responder.")), GEMINI_TIMEOUT_MS);
+          }),
+        ]);
+        break;
+      } catch (err: any) {
+        lastError = err;
+        // 503 (saturated) or timeout: try the next model; anything else propagates
+        if (!(err?.status === 503 || err?.message?.includes("tardó demasiado"))) {
+          throw err;
+        }
+        console.warn(`Model ${model} unavailable (${err?.status || "timeout"}), falling back...`);
+      }
+    }
+    if (!response) {
+      throw lastError || new Error("No se obtuvo respuesta del motor de deconstrucción.");
+    }
 
     const textOutput = response.text?.trim();
     if (!textOutput) {
       throw new Error("No se obtuvo respuesta del motor de deconstrucción.");
     }
 
-    const payload = JSON.parse(textOutput);
+    // Defensive: strip markdown code fences if the model wraps the JSON
+    let jsonText = textOutput;
+    const fenceMatch = jsonText.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/);
+    if (fenceMatch) {
+      jsonText = fenceMatch[1]!;
+    }
+
+    const payload = JSON.parse(jsonText);
     res.json(payload);
     return;
   } catch (err: any) {
     console.error("Gemini Error:", err);
-    res.status(500).json({ error: err?.message || "Algo salió mal procesando tu argumento con la Inteligencia de Sintiens." });
+    res.status(500).json({ error: "Algo salió mal procesando tu argumento con la Inteligencia de Sintiens." });
     return;
   }
 });
@@ -635,16 +681,28 @@ async function startServer() {
   } else {
     const distPath = path.join(process.cwd(), "dist");
     app.use(express.static(distPath));
-    app.get("*", (req, res) => {
+    // SPA fallback for non-API routes; /api/* 404s properly instead of returning HTML
+    app.get(/^\/(?!api(?:\/|$)).*/, (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));
+    });
+    app.use("/api", (req, res) => {
+      res.status(404).json({ error: "Ruta de API no encontrada." });
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on port ${PORT}`);
-  });
+  try {
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (err) {
+    console.error("Failed to start server:", err);
+    process.exit(1);
+  }
 }
 
-startServer();
+startServer().catch((err) => {
+  console.error("Server startup error:", err);
+  process.exit(1);
+});
 
 

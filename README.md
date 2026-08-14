@@ -57,6 +57,6 @@ Una herramienta interactiva impulsada por Inteligencia Artificial que recibe cua
 ---
 
 ## ☁️ Despliegue en la Nube (Hosting)
-Este proyecto está configurado para desplegarse mediante integración continua en **Vercel** o **Netlify**. Cada cambio que se empuje a la rama `main` en GitHub actualizará el enlace público del sitio de manera automática en menos de un minuto.
+El proyecto está configurado para desplegarse en **Render** mediante `render.yaml`. Cada cambio que se empuje a la rama `main` en GitHub actualizará el sitio de forma automática. Se requiere la variable de entorno `GEMINI_API_KEY` (configurable en el panel de Render).
 
 
