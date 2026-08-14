@@ -27,7 +27,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
           {
             id: "2",
             citation: "Diamond, J. (1997). Guns, Germs, and Steel: The Fates of Human Societies. W. W. Norton & Company."
-          },
+          , url: "https://en.wikipedia.org/wiki/Guns,_Germs,_and_Steel"},
           {
             id: "3",
             citation: "Zeder, M. A. (2008). Domestication and early agriculture in the Mediterranean Basin: Origins, diffusion, and impact. Proceedings of the National Academy of Sciences, 105(33), 11597-11604.",
@@ -51,11 +51,11 @@ export const TIMELINE_DATA: TimelineGroup[] = [
           {
             id: "1",
             citation: "Bulliet, R. W. (2005). Hunters, Herders, and Hamburgers: The Past and Future of Human-Animal Relationships. Columbia University Press."
-          },
+          , url: "https://www.google.com/books/edition/Hunters_Herders_and_Hamburgers"},
           {
             id: "2",
             citation: "Toynbee, J. M. C. (1973). Animals in Roman Life and Art. Cornell University Press."
-          }
+          , url: "https://www.google.com/books/edition/Animals_in_Roman_Life_and_Art"}
         ],
         relatedNodeId: "historia-dominacion"
       },
@@ -98,11 +98,11 @@ export const TIMELINE_DATA: TimelineGroup[] = [
           {
             id: "1",
             citation: "Cronon, W. (1991). Nature's Metropolis: Chicago and the Great West. W. W. Norton & Company."
-          },
+          , url: "https://en.wikipedia.org/wiki/Nature%27s_Metropolis"},
           {
             id: "2",
             citation: "Ford, H. (1922). My Life and Work. Garden City Publishing Co."
-          }
+          , url: "https://en.wikipedia.org/wiki/My_Life_and_Work"}
         ],
         relatedNodeId: "sistemas-alimentacion"
       },
@@ -121,11 +121,11 @@ export const TIMELINE_DATA: TimelineGroup[] = [
           {
             id: "1",
             citation: "Harrison, R. (1964). Animal Machines: The New Factory Farming Industry. Vincent Stuart Publishers."
-          },
+          , url: "https://en.wikipedia.org/wiki/Animal_Machines"},
           {
             id: "2",
             citation: "Webster, J. (2008). Animal Welfare: Limiting Pain and Suffering. Wiley-Blackwell."
-          },
+          , url: "https://www.google.com/books/edition/Animal_Welfare"},
           {
             id: "3",
             citation: "Landrigan, P. J., et al. (2018). The Lancet Commission on Pollution and Health. The Lancet, 391(10119), 462-512.",
@@ -182,11 +182,11 @@ export const TIMELINE_DATA: TimelineGroup[] = [
           {
             id: "1",
             citation: "Sorabji, R. (1993). Animal Minds and Human Morals: The Origins of the Western Debate. Cornell University Press."
-          },
+          , url: "https://www.google.com/books/edition/Animal_Minds_and_Human_Morals"},
           {
             id: "2",
             citation: "Plutarco. (c. 100 d.C.). Moralia: De esu carnium (Sobre el comer carne)."
-          }
+          , url: "https://es.wikipedia.org/wiki/Moralia"}
         ],
         relatedNodeId: "marcos-eticos"
       },
@@ -205,7 +205,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
           {
             id: "1",
             citation: "Descartes, R. (1637). Discurso del método (Parte V)."
-          },
+          , url: "https://es.wikipedia.org/wiki/Discurso_del_m%C3%A9todo"},
           {
             id: "2",
             citation: "Harrison, P. (1992). Descartes on animals. Philosophical Quarterly, 42(167), 219-227.",
@@ -229,11 +229,11 @@ export const TIMELINE_DATA: TimelineGroup[] = [
           {
             id: "1",
             citation: "Bentham, J. (1789). An Introduction to the Principles of Morals and Legislation. T. Payne and Son."
-          },
+          , url: "https://en.wikipedia.org/wiki/An_Introduction_to_the_Principles_of_Morals_and_Legislation"},
           {
             id: "2",
             citation: "Singer, P. (2011). Practical Ethics (3rd ed.). Cambridge University Press."
-          }
+          , url: "https://en.wikipedia.org/wiki/Practical_Ethics"}
         ],
         relatedNodeId: "marcos-eticos"
       },
@@ -252,11 +252,11 @@ export const TIMELINE_DATA: TimelineGroup[] = [
           {
             id: "1",
             citation: "Singer, P. (1975). Animal Liberation: A New Ethics. HarperCollins."
-          },
+          , url: "https://en.wikipedia.org/wiki/Animal_Liberation_(book)"},
           {
             id: "2",
             citation: "Regan, T. (1983). The Case for Animal Rights. University of California Press."
-          }
+          , url: "https://en.wikipedia.org/wiki/The_Case_for_Animal_Rights"}
         ],
         relatedNodeId: "marcos-eticos"
       },
@@ -305,7 +305,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
           {
             id: "2",
             citation: "Nussbaum, M. C. (2023). Justice for Animals: Our Collective Responsibility. Simon & Schuster."
-          }
+          , url: "https://www.google.com/books/edition/Justice_for_Animals"}
         ],
         relatedNodeId: "marcos-eticos"
       }
@@ -332,7 +332,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
           {
             id: "1",
             citation: "Martin, R. (1822). Cruel Treatment of Cattle Act. UK Parliament."
-          },
+          , url: "https://en.wikipedia.org/wiki/Martin%27s_Act"},
           {
             id: "2",
             citation: "Ryder, R. D. (2000). Animal Revolution: Changing Attitudes towards Speciesism. Berg Publishers."
@@ -355,7 +355,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
           {
             id: "1",
             citation: "Brambell Committee. (1965). Report of the Technical Committee to Enquire into the Welfare of Animals Kept under Intensive Livestock Husbandry Systems. HM Stationery Office."
-          },
+          , url: "https://edepot.wur.nl/134379"},
           {
             id: "2",
             citation: "Mellor, D. J. (2016). Moving beyond the Five Freedoms: Positive welfare states. Animals, 6(3), 21.",
@@ -384,7 +384,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
           {
             id: "2",
             citation: "Radford, M. (2001). Animal Welfare Law in Britain: Regulation and Responsibility. Oxford University Press."
-          }
+          , url: "https://www.google.com/books/edition/Animal_Welfare_Law_in_Britain"}
         ],
         relatedNodeId: "estatus-juridico"
       },
@@ -408,7 +408,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
           {
             id: "2",
             citation: "Francione, G. L. (1995). Animals, Property, and the Law. Temple University Press."
-          }
+          , url: "https://www.google.com/books/edition/Animals_Property_and_the_Law"}
         ],
         relatedNodeId: "estatus-juridico"
       },
@@ -432,7 +432,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
           {
             id: "2",
             citation: "Grandin, T. (2015). Improving Animal Welfare: A Practical Approach. CABI."
-          }
+          , url: "https://www.google.com/books/edition/Improving_Animal_Welfare"}
         ],
         relatedNodeId: "legislacion-bienestar"
       }
@@ -464,7 +464,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
           {
             id: "2",
             citation: "Wrangham, R. (2009). Catching Fire: How Cooking Made Us Human. Basic Books."
-          }
+          , url: "https://en.wikipedia.org/wiki/Catching_Fire:_How_Cooking_Made_Us_Human"}
         ],
         relatedNodeId: "vias-transicion"
       },
@@ -508,11 +508,11 @@ export const TIMELINE_DATA: TimelineGroup[] = [
           {
             id: "1",
             citation: "Watson, D. (1944). The Vegan News: Quarterley Organ of the Non-Dairy Vegetarians, 1(1)."
-          },
+          , url: "https://veganhistory.org/2022/03/01/the-vegan-news-1944/"},
           {
             id: "2",
             citation: "Vegan Society. (2020). History of the Vegan Society: Looking back at over 75 years."
-          }
+          , url: "https://www.vegansociety.com/about-us/history"}
         ],
         relatedNodeId: "vias-transicion"
       },
@@ -561,7 +561,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
           {
             id: "2",
             citation: "Springmann, M., et al. (2016). Analysis and valuation of the health and climate change co-benefits of dietary change. Proceedings of the National Academy of Sciences, 113(15), 4146-4151."
-          }
+          , url: "https://doi.org/10.1073/pnas.1523119113"}
         ],
         relatedNodeId: "vias-transicion"
       }

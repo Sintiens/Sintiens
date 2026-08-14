@@ -1,18 +1,16 @@
-import { useState, useEffect, useMemo, memo } from "react";import { 
+import { useState, useEffect, useMemo, memo } from "react";
+import { 
   Plus, 
   Minus, 
   Droplet, 
   Grid, 
   Trees, 
   Flame, 
-  ChevronDown,
   Calculator,
   ArrowRight,
   TrendingDown,
-  LineChart,
   Users,
   Settings2,
-  Info,
   X,
   Target,
   Sparkles,
@@ -58,6 +56,16 @@ export default memo(function ImpactCalculator() {
   const [challengeTarget, setChallengeTarget] = useState<number>(30); // % reduction target
 
   const populationScale = POPULATION_STEPS[scaleIndex]!.value;
+
+  // Close the info modal with Escape
+  useEffect(() => {
+    if (!showInfo) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setShowInfo(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [showInfo]);
 
   // Sync profile to custom meals when profile changes (if not custom)
   useEffect(() => {

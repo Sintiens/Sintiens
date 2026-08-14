@@ -3,8 +3,7 @@ import { TIMELINE_DATA } from "../data/TIMELINE_DATA";
 import { CORE_NODES } from "../data/CORE_NODES";
 import { 
   TimelineMilestone, 
-  TimelineGroup, 
-  ReferenceDetail 
+  TimelineGroup 
 } from "../types";
 import { 
   Search, 
@@ -18,18 +17,14 @@ import {
   ArrowRight, 
   ArrowLeft,
   Sparkles,
-  Info,
   Calendar,
   Activity,
   Globe,
   Scale,
-  Layers,
-  HelpCircle,
-  Binary
+  Layers
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import TextRenderer from "./TextRenderer";
-import { Button } from "./ui/Button";
 
 // Track metadata for coloring and labels in parallel view
 const TRACK_META: Record<string, { label: string; icon: any; color: string; textClass: string; bgClass: string; borderClass: string; glowClass: string }> = {
@@ -146,7 +141,7 @@ export default React.memo(function TimelineExplorer({ onRedirectToConcept }: Tim
   // Parallel swimlanes state
   const [mobileActiveTrack, setMobileActiveTrack] = useState<string>("todos");
   const [svgPaths, setSvgPaths] = useState<{ path: string; color: string; fromId: string; toId: string }[]>([]);
-  const [dotPositions, setDotPositions] = useState<Record<string, number>>({});
+  const [, setDotPositions] = useState<Record<string, number>>({});
 
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -155,6 +150,16 @@ export default React.memo(function TimelineExplorer({ onRedirectToConcept }: Tim
   useEffect(() => {
     setIsBibliographyOpen(false);
   }, [selectedMilestone]);
+
+  // Close the mobile detail drawer with Escape
+  useEffect(() => {
+    if (!isMobileDetailOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsMobileDetailOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isMobileDetailOpen]);
 
   // Flatten all milestones from groups and add track information
   const allMilestones: MilestoneWithTrack[] = useMemo(

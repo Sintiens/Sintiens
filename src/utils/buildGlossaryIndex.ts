@@ -46,10 +46,6 @@ const ACT_CONCEPT_MAP: Record<string, string[]> = {
   "acto-6": ["habeas-corpus", "steven-wise", "obra-rattling-cage", "agricultura-celular", "donaldson-kymlicka", "obra-zoopolis", "persona-no-humana", "cosificacion", "b12", "veganismo", "consistencia-moral", "enfoque-capacidades", "nussbaum", "obra-frontiers-justice", "declaracion-nueva-york", "declaracion-montreal"]
 };
 
-function escapeRegExp(s: string): string {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
 function extractSnippet(text: string, pattern: string, radius = 90): string {
   const idx = text.toLowerCase().indexOf(pattern.toLowerCase());
   if (idx === -1) return text.slice(0, radius * 2);

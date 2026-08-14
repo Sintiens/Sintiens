@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { HelpCircle, Heart, Scale, Sparkles, ChevronDown, EyeOff, RotateCcw, Shuffle, Eye, HelpCircle as HelpIcon, Flame, Globe, ArrowRight } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
+import { Heart, Scale, Sparkles, RotateCcw, Eye, HelpCircle as HelpIcon, Flame, Globe, ArrowRight } from "lucide-react";
+import { motion } from "motion/react";
 
 interface ReflectionItem {
   id: number;
@@ -248,9 +248,6 @@ export default function SocraticReflection() {
   const handleToggleCard = (id: number) => {
     setExpandedCard(expandedCard === id ? null : id);
   };
-
-  // Find the selected question details
-  const activeQuestion = visibleQuestions.find(q => q.id === expandedCard);
 
   return (
     <motion.div

@@ -23,7 +23,7 @@ export const CORE_NODES: NodeDetail[] = [
       {
         id: "2",
         citation: "Andrews, K., et al. (2024). The New York Declaration on Animal Consciousness."
-      }
+      , url: "https://nyudeclaration.org/"}
     ]
   },
   {
@@ -47,7 +47,7 @@ export const CORE_NODES: NodeDetail[] = [
       {
         id: "2",
         citation: "Braithwaite, V. A. (2010). Do Fish Feel Pain? Oxford University Press."
-      }
+      , url: "https://www.google.com/books/edition/Do_Fish_Feel_Pain"}
     ]
   },
   {
@@ -66,11 +66,11 @@ export const CORE_NODES: NodeDetail[] = [
       {
         id: "1",
         citation: "Marino, L., & Colvin, C. M. (2015). Thinking pigs: A comparative review of cognition, emotion, and personality. International Journal of Comparative Psychology, 28."
-      },
+      , url: "https://doi.org/10.1016/j.anbehav.2015.03.014"},
       {
         id: "2",
         citation: "Weary, D. M., & Chua, B. (2000). Effects of early separation on the dairy cow and calf. Applied Animal Behaviour Science, 69(3), 177-188."
-      }
+      , url: "https://doi.org/10.1016/S0168-1591(00)00137-2"}
     ]
   },
 
@@ -91,11 +91,11 @@ export const CORE_NODES: NodeDetail[] = [
       {
         id: "1",
         citation: "Descartes, R. (1637). Discurso del método."
-      },
+      , url: "https://es.wikipedia.org/wiki/Discurso_del_m%C3%A9todo"},
       {
         id: "2",
         citation: "Bentham, J. (1789). An Introduction to the Principles of Morals and Legislation. T. Payne and Son."
-      }
+      , url: "https://en.wikipedia.org/wiki/An_Introduction_to_the_Principles_of_Morals_and_Legislation"}
     ]
   },
   {
@@ -114,11 +114,11 @@ export const CORE_NODES: NodeDetail[] = [
       {
         id: "1",
         citation: "Ryder, R. D. (1970). Speciesism. (First coined in a printed leaflet)."
-      },
+      , url: "https://en.wikipedia.org/wiki/Speciesism"},
       {
         id: "2",
         citation: "Singer, P. (1975). Animal Liberation: A New Ethics. HarperCollins."
-      }
+      , url: "https://en.wikipedia.org/wiki/Animal_Liberation_(book)"}
     ]
   },
   {
@@ -137,7 +137,7 @@ export const CORE_NODES: NodeDetail[] = [
       {
         id: "1",
         citation: "Francione, G. L. (1996). Rain Without Thunder: The Ideology of the Animal Rights Movement. Temple University Press."
-      },
+      , url: "https://www.google.com/books/edition/Rain_Without_Thunder"},
       {
         id: "2",
         citation: "Regan, T. (1983). The Case for Animal Rights. University of California Press."
@@ -162,11 +162,11 @@ export const CORE_NODES: NodeDetail[] = [
       {
         id: "1",
         citation: "Loughnan, S., Haslam, N., & Bastian, B. (2010). The role of meat consumption in the denial of moral status and mind to meat animals. Appetite, 55(1), 156-159."
-      },
+      , url: "https://doi.org/10.1016/j.appet.2010.05.043"},
       {
         id: "2",
         citation: "Joy, M. (2010). Why We Love Dogs, Eat Pigs, and Wear Cows: An Introduction to Carnism. Conari Press."
-      }
+      , url: "https://en.wikipedia.org/wiki/Carnism"}
     ]
   },
   {
@@ -185,7 +185,7 @@ export const CORE_NODES: NodeDetail[] = [
       {
         id: "1",
         citation: "Joy, M. (2010). Why We Love Dogs, Eat Pigs, and Wear Cows: An Introduction to Carnism. Conari Press."
-      },
+      , url: "https://en.wikipedia.org/wiki/The_Sexual_Politics_of_Meat"},
       {
         id: "2",
         citation: "Adams, C. J. (1990). The Sexual Politics of Meat: A Feminist-Vegetarian Critical Theory. Continuum."
@@ -207,11 +207,11 @@ export const CORE_NODES: NodeDetail[] = [
       {
         id: "1",
         citation: "Francione, G. L. (2000). Introduction to Animal Rights: Your Child or the Dog? Temple University Press."
-      },
+      , url: "https://www.google.com/books/edition/Introduction_to_Animal_Rights"},
       {
         id: "2",
         citation: "Bastian, B., & Loughnan, S. (2017). Resolving the Meat-Paradox: A Motivational Account of Moral Disengagement. Personality and Social Psychology Review, 21(3), 278-299."
-      }
+      , url: "https://doi.org/10.1177/0146167217709240"}
     ]
   },
 
@@ -232,7 +232,7 @@ export const CORE_NODES: NodeDetail[] = [
       {
         id: "1",
         citation: "Scott, J. C. (2017). Against the Grain: A Deep History of the Earliest States. Yale University Press."
-      },
+      , url: "https://en.wikipedia.org/wiki/J._C._Scott"},
       {
         id: "2",
         citation: "Webster, J. (2008). Animal Welfare: Limiting Pain and Suffering. Wiley-Blackwell."
@@ -255,11 +255,11 @@ export const CORE_NODES: NodeDetail[] = [
       {
         id: "1",
         citation: "Harrison, R. (1964). Animal Machines: The New Factory Farming Industry."
-      },
+      , url: "https://en.wikipedia.org/wiki/Animal_Machines"},
       {
         id: "2",
         citation: "Mood, A., & Brooke, P. (2010). Estimating the Number of Fish Caught in Global Fishing Each Year. Fishcount."
-      }
+      , url: "https://www.fishcount.org.uk/fish-count-estimates-2012"}
     ]
   },
   {
@@ -278,11 +278,11 @@ export const CORE_NODES: NodeDetail[] = [
       {
         id: "1",
         citation: "Knight, A. (2011). The Costs and Benefits of Animal Experiments. Palgrave Macmillan."
-      },
+      , url: "https://www.palgrave.com/gp/book/9780230241349"},
       {
         id: "2",
         citation: "Cudworth, E. (2011). Social Lives and Other Animals: The Sociology of Human-Animal Relations."
-      }
+      , url: "https://www.google.com/books/edition/Social_Lives_and_Other_Animals"}
     ]
   },
 
@@ -303,11 +303,11 @@ export const CORE_NODES: NodeDetail[] = [
       {
         id: "1",
         citation: "Shepon, A., Eshel, G., Noor, E., & Milo, R. (2018). The opportunity cost of animal based diets exceeds all food losses. PNAS, 115(15), 3804-3809."
-      },
+      , url: "https://doi.org/10.1073/pnas.1713820115"},
       {
         id: "2",
         citation: "Cassidy, E. S., West, P. C., Gerber, J. S., & Foley, J. A. (2013). Redefining agricultural yields: from tonnes to people fed per hectare. Environmental Research Letters, 8(3)."
-      }
+      , url: "https://doi.org/10.1088/1748-9326/8/3/034015"}
     ]
   },
   {
@@ -326,11 +326,11 @@ export const CORE_NODES: NodeDetail[] = [
       {
         id: "1",
         citation: "Poore, J., & Nemecek, T. (2018). Reducing food's environmental impacts through producers and consumers. Science, 360(6392), 987-992."
-      },
+      , url: "https://doi.org/10.1126/science.aaq0216"},
       {
         id: "2",
         citation: "Mekonnen, M. M., & Hoekstra, A. Y. (2012). A Global Assessment of the Water Footprint of Farm Animal Products. Ecosystems, 15, 401-415."
-      }
+      , url: "https://doi.org/10.1007/s10021-011-9517-8"}
     ]
   },
   {
@@ -349,7 +349,7 @@ export const CORE_NODES: NodeDetail[] = [
       {
         id: "1",
         citation: "Bar-On, Y. M., Phillips, R., & Milo, R. (2018). The biomass distribution on Earth. PNAS, 115(25), 6506-6511."
-      },
+      , url: "https://doi.org/10.1073/pnas.1711842115"},
       {
         id: "2",
         citation: "IPCC. (2019). Special Report on Climate Change and Land. Intergovernmental Panel on Climate Change."
@@ -374,7 +374,7 @@ export const CORE_NODES: NodeDetail[] = [
       {
         id: "1",
         citation: "Giménez-Candela, T. (2019). La descosificación de los animales en el derecho. Derecho Animal (Forum of Animal Law Studies)."
-      },
+      , url: "https://revistes.uab.cat/da"},
       {
         id: "2",
         citation: "Favre, D. (2018). Respecting Animals. Prometheus Books."
@@ -397,11 +397,11 @@ export const CORE_NODES: NodeDetail[] = [
       {
         id: "1",
         citation: "Wolfson, D. J., & Sullivan, M. (2004). Foxes in the Hen House: Animals, Agribusiness, and the Law. In Animal Rights: Current Debates and New Directions."
-      },
+      , url: "https://www.google.com/books/edition/Foxes_in_the_Hen_House"},
       {
         id: "2",
         citation: "Pachirat, T. (2011). Every Twelve Seconds: Industrialized Slaughter and the Politics of Sight. Yale University Press."
-      }
+      , url: "https://www.google.com/books/edition/Every_Twelve_Seconds"}
     ]
   },
   {
@@ -420,11 +420,11 @@ export const CORE_NODES: NodeDetail[] = [
       {
         id: "1",
         citation: "Tuomisto, H. L., & Teixeira de Mattos, M. J. (2011). Environmental Impacts of Cultured Meat Production. Environmental Science & Technology, 45(14)."
-      },
+      , url: "https://doi.org/10.1021/es200130u"},
       {
         id: "2",
         citation: "Wise, S. M. (2000). Rattling the Cage: Toward Legal Rights for Animals. Perseus Books."
-      }
+      , url: "https://www.google.com/books/edition/Rattling_the_Cage"}
     ]
   }
 ];

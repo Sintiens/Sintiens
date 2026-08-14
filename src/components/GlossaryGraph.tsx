@@ -21,7 +21,6 @@ import {
   SlidersHorizontal,
   ArrowRight,
   Network,
-  History,
   Home,
   ChevronRight
 } from "lucide-react";
@@ -149,8 +148,6 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId }: Glossa
   const [detailNodeId, setDetailNodeId] = useState<string | null>(null);
   const [selectedNodeInternal, setSelectedNodeInternal] = useState<string | null>(selectedEntryId || null);
 
-  const isMobileDevice = dimensions.width < 768;
-
   // Search matches (Set of node ids) with fuzzy scoring
   const searchMatches = useMemo(() => {
     const q = searchQuery.trim();
@@ -258,9 +255,7 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId }: Glossa
     const centralities = GLOSSARY_UNIFIED.map((e) => index[e.id]?.centrality || 0);
     const maxCentrality = Math.max(...centralities, 1);
 
-    const initialNodes: GraphNode[] = GLOSSARY_UNIFIED.map((entry, i) => {
-      const angle = (i * 0.5) % (Math.PI * 2);
-      const dist = 30 + ((i * 17) % 60);
+    const initialNodes: GraphNode[] = GLOSSARY_UNIFIED.map((entry, _i) => {
       const centrality = index[entry.id]?.centrality || 0;
       const radius = 4 + (centrality / maxCentrality) * 10;
       return {

@@ -1,5 +1,4 @@
-import React from "react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
 const data = [
   { name: "Carne de vaca", value: 41 },
@@ -24,7 +23,7 @@ export default function DeforestationChart() {
             itemStyle={{ color: "#f4f4f5" }}
           />
           <Bar dataKey="value" radius={[0, 4, 4, 0]}>
-            {data.map((entry, index) => (
+            {data.map((_, index) => (
               <Cell key={`cell-${index}`} fill={index === 0 ? "#f43f5e" : "#10b981"} opacity={0.8} />
             ))}
           </Bar>

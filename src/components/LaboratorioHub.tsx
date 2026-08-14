@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { motion } from "motion/react";
-import { FlaskConical, Calculator, BrainCircuit, ChevronDown, Activity, Layers } from "lucide-react";
+import { FlaskConical, Calculator, BrainCircuit, Activity, Layers } from "lucide-react";
 import type { TabType } from "../types";
 
 interface LaboratorioHubProps {

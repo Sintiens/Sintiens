@@ -60,6 +60,16 @@ export default function GlossaryLink({ entry, children, noPopup, isActive, onAct
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen, isMobile, noPopup]);
 
+  // Close the popup/bottom-sheet with Escape
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isOpen]);
+
   const handleLinkClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();

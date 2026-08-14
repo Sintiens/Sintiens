@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import type { TopicBlockData } from "../types/story";
 import { BlockEnrichments } from "./InlineEnrichments";
 import { getActReadingStats } from "../utils/readingTime";

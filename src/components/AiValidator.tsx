@@ -229,13 +229,13 @@ export default memo(function AiValidator({
 
   /* ── Disparo desde otras pestañas (argumento pasado por props) ── */
   useEffect(() => {
-    if (argumentToAnalyze) {
+    if (argumentToAnalyze && !loading) {
       setUserInput(argumentToAnalyze);
       void handleSubmit(argumentToAnalyze, mode);
       clearArgument();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [argumentToAnalyze]);
+  }, [argumentToAnalyze, loading]);
 
   /* ── Atajo de teclado: Cmd/Ctrl+Enter para someter ── */
   useEffect(() => {
@@ -355,6 +355,8 @@ export default memo(function AiValidator({
     navigator.clipboard?.writeText(text).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {
+      /* portapapeles no disponible: silencioso */
     });
   }, [analysis, lastAnalyzedMode]);
 

@@ -174,11 +174,6 @@ export const ReflectionPrompt: React.FC<{
 
 // ─── Container: "Notas de lectura" ──────────────────────────────────────────
 
-interface NotePreview {
-  key: string;
-  icon: React.ReactNode;
-}
-
 export const BlockEnrichments: React.FC<{
   block: TopicBlockData;
   accent: string;

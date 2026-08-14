@@ -6,21 +6,15 @@ import {
   Trash2, 
   Check, 
   X, 
-  Filter, 
   MapPin, 
   AlertCircle, 
   ExternalLink,
   MessageSquare,
   Sparkles,
   ClipboardList,
-  Edit2,
-  Calendar,
   Layers,
-  Heart,
   Minimize2,
-  Maximize2,
-  ChevronLeft,
-  ChevronRight
+  Maximize2
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -292,8 +286,8 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
   // Detail / Editing Modal states
   const [selectedTask, setSelectedTask] = useState<DevTask | null>(null);
   const prevSelectedTaskIdRef = useRef<string | null>(null);
-  const [isEditingTask, setIsEditingTask] = useState<boolean>(false);
-  const [showMapPopover, setShowMapPopover] = useState<boolean>(false);
+  const [, setIsEditingTask] = useState<boolean>(false);
+  const [, setShowMapPopover] = useState<boolean>(false);
   const [editTitle, setEditTitle] = useState<string>("");
   const [editDesc, setEditDesc] = useState<string>("");
   const [editPriority, setEditPriority] = useState<"low" | "normal" | "medium" | "high">("normal");
@@ -309,13 +303,9 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [hoveredFilter, setHoveredFilter] = useState<"estado" | "priority" | "tab" | "category" | null>(null);
   const [hoveredEditFilter, setHoveredEditFilter] = useState<"estado" | "priority" | "tab" | "category" | null>(null);
-  const [hoveredStatusOption, setHoveredStatusOption] = useState<string | null>(null);
-  const [hoveredPriorityOption, setHoveredPriorityOption] = useState<string | null>(null);
-  const [hoveredTabOption, setHoveredTabOption] = useState<string | null>(null);
 
   // Target ref to measure relative coordinates on main
   const mainRef = useRef<HTMLDivElement | null>(null);
-  const bannerInputRef = useRef<HTMLInputElement | null>(null);
   const [mousePos, setMousePos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
   // Dragging & Snapping States
@@ -1332,45 +1322,6 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
       window.removeEventListener("click", handleWindowClick, true);
     };
   }, [isActive, isPinningMode, dragStart, dragRect, snappedBounds, activeTab, isCreatingInline]);
-
-  // 5.5 Quick create a general note directly from the pinning mode top guide banner
-  const handleCreateGeneralDirectly = async () => {
-    if (!formTitle.trim()) return;
-
-    const payload = {
-      title: formTitle.trim(),
-      description: "",
-      tab: "general",
-      priority: "normal",
-      status: "todo",
-      category: "otros"
-    };
-
-    try {
-      const res = await fetch("/api/dev/tasks", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-
-      if (res.ok) {
-        const newTask = await res.json();
-        setTasks(prev => [newTask, ...prev]);
-        // Reset form and states
-        setFormTitle("");
-        setFormDesc("");
-        setFormPriority("normal");
-        setFormCategory("visual");
-        setIsPinningMode(false);
-        setIsSidebarOpen(true); // Re-open the main panel
-      } else {
-        alert("Error al guardar la nota general");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Error al conectar con la API de desarrollo");
-    }
-  };
 
   // 6. Creating a task
   const handleCreateTask = async (e: React.FormEvent) => {

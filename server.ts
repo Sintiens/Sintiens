@@ -110,7 +110,7 @@ function getAiClient() {
 app.use(express.json({ limit: "10kb" }));
 
 // Basic security headers for all responses
-app.use((req, res, next) => {
+app.use((_req, res, next) => {
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
   res.setHeader("X-Frame-Options", "SAMEORIGIN");
@@ -227,7 +227,7 @@ async function writeTasks(tasks: any[]): Promise<boolean> {
 
 // Express Endpoints for Dev Tasks wrapped in database Mutex to prevent race conditions
 
-app.get("/api/dev/tasks", async (req, res) => {
+app.get("/api/dev/tasks", async (_req, res) => {
   if (process.env.NODE_ENV === "production") {
     return res.status(403).json({ error: "No permitido en producción" });
   }
@@ -408,7 +408,7 @@ app.delete("/api/dev/tasks/:id", async (req, res) => {
 // --- BACKUP & RESTORE SYSTEM ENDPOINTS ---
 const BACKUPS_DIR = path.join(tasksDirectory, "backups");
 
-app.get("/api/dev/tasks/backups", async (req, res) => {
+app.get("/api/dev/tasks/backups", async (_req, res) => {
   if (process.env.NODE_ENV === "production") {
     return res.status(403).json({ error: "No permitido en producción" });
   }
@@ -439,7 +439,7 @@ app.get("/api/dev/tasks/backups", async (req, res) => {
   }
 });
 
-app.post("/api/dev/tasks/backup", async (req, res) => {
+app.post("/api/dev/tasks/backup", async (_req, res) => {
   if (process.env.NODE_ENV === "production") {
     return res.status(403).json({ error: "No permitido en producción" });
   }
@@ -511,7 +511,7 @@ app.post("/api/dev/tasks/restore", async (req, res) => {
 
 
 // API routes FIRST
-app.get("/api/ping", (req, res) => {
+app.get("/api/ping", (_req, res) => {
   res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
   return;
 });
@@ -691,10 +691,10 @@ async function startServer() {
     const distPath = path.join(process.cwd(), "dist");
     app.use(express.static(distPath));
     // SPA fallback for non-API routes; /api/* 404s properly instead of returning HTML
-    app.get(/^\/(?!api(?:\/|$)).*/, (req, res) => {
+    app.get(/^\/(?!api(?:\/|$)).*/, (_req, res) => {
       res.sendFile(path.join(distPath, "index.html"));
     });
-    app.use("/api", (req, res) => {
+    app.use("/api", (_req, res) => {
       res.status(404).json({ error: "Ruta de API no encontrada." });
     });
   }

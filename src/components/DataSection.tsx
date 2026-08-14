@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { motion } from "motion/react";
-import { Database, Info, Compass, HelpCircle, Eye, ChevronDown, LineChart } from "lucide-react";
+import { Database, Info, Compass, Eye, LineChart } from "lucide-react";
 import AnimalsSlaughteredChart from "./charts/AnimalsSlaughteredChart";
 import MeatConsumptionChart from "./charts/MeatConsumptionChart";
 import DeforestationChart from "./charts/DeforestationChart";

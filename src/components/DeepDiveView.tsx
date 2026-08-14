@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'motion/react';
 import { DeepDiveData, BranchNode } from '../types/story';
 import { X, Lightbulb, Link2, Bookmark } from 'lucide-react';
 
 interface DeepDiveViewProps {
-  actId: string;
   actNum: string;
   actColor: string;
   data: DeepDiveData;
@@ -74,7 +73,16 @@ export const DeepDiveCard: React.FC<{ node: BranchNode; colorClass: string }> = 
   );
 };
 
-export default function DeepDiveView({ actId, actNum, actColor, data, onClose }: DeepDiveViewProps) {
+export default function DeepDiveView({ actNum, actColor, data, onClose }: DeepDiveViewProps) {
+  // Close the deep-dive overlay with Escape
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
   // To ensure the component adapts properly to the light/dark mode but retains the clean look
   // as per the screenshots.
   return (

@@ -20,7 +20,6 @@ import {
   Cloud,
   List,
   Hash,
-  Award,
   ExternalLink,
   TrendingUp,
   Layers
@@ -43,7 +42,6 @@ import {
 } from "../utils/buildGlossaryIndex";
 import { CORE_NODES } from "../data/CORE_NODES";
 import { DILEMMAS_DATA } from "../data/DILEMMAS_DATA";
-import { Button } from "./ui/Button";
 import GlossaryGraph from "./GlossaryGraph";
 import type { TabType } from "../types";
 
@@ -162,7 +160,7 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
   const prevEntryIdRef = useRef<string | null>(null);
   const loadedFromHashRef = useRef<boolean>(false);
   const listItemRefs = useRef<Record<string, HTMLButtonElement | null>>({});
-  const [highlightedIndex, setHighlightedIndex] = useState(0);
+  const [, setHighlightedIndex] = useState(0);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const index = useMemo(() => getGlossaryIndex(), []);

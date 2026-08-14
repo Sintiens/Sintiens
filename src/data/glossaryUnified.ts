@@ -60,7 +60,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     ],
     openQuestion: "¿Hasta dónde se extiende la frontera de la sintiencia en el reino animal?",
     references: [
-      { id: "1", citation: "Bentham, J. (1789). An Introduction to the Principles of Morals and Legislation. T. Payne and Son." }
+      { id: "1", citation: "Bentham, J. (1789). An Introduction to the Principles of Morals and Legislation. T. Payne and Son." , url: "https://en.wikipedia.org/wiki/An_Introduction_to_the_Principles_of_Morals_and_Legislation"}
     ],
     relatedEntries: ["nocicepcion", "snc", "declaracion-cambridge", "declaracion-nueva-york", "bentham"],
     relatedNodes: ["neuroanatomia-consciencia", "neurobiologia-dolor", "etologia-cognitiva"],
@@ -142,8 +142,8 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     ],
     openQuestion: "Si usar la inteligencia como barrera moral excluiría a humanos con discapacidad cognitiva, ¿no es la capacidad de sufrir el único criterio moral coherente?",
     references: [
-      { id: "1", citation: "Ryder, R. D. (1970). Speciesism. (First coined in a printed leaflet)." },
-      { id: "2", citation: "Singer, P. (1975). Animal Liberation: A New Ethics. HarperCollins." }
+      { id: "1", citation: "Ryder, R. D. (1970). Speciesism. (First coined in a printed leaflet)." , url: "https://en.wikipedia.org/wiki/Speciesism"},
+      { id: "2", citation: "Singer, P. (1975). Animal Liberation: A New Ethics. HarperCollins." , url: "https://www.google.com/books/edition/Animal_Liberation/zb8nAQAAIAAJ"}
     ],
     relatedEntries: ["antropocentrismo", "falacia-naturalista", "casos-marginales", "singer", "ryder", "obra-liberacion-animal"],
     relatedNodes: ["especismo", "disonancia-placer", "recorrido-historico-estatus"],
@@ -209,8 +209,8 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
       "Gary Francione: rechaza el bienestarismo como placebo que perpetúa la explotación."
     ],
     references: [
-      { id: "1", citation: "Regan, T. (1983). The Case for Animal Rights. University of California Press." },
-      { id: "2", citation: "Francione, G. L. (1996). Rain Without Thunder: The Ideology of the Animal Rights Movement. Temple University Press." }
+      { id: "1", citation: "Regan, T. (1983). The Case for Animal Rights. University of California Press." , url: "https://www.google.com/books/edition/The_Case_for_Animal_Rights/mFqJDwAAQBAJ"},
+      { id: "2", citation: "Francione, G. L. (1996). Rain Without Thunder: The Ideology of the Animal Rights Movement. Temple University Press." , url: "https://www.google.com/books/edition/Rain_Without_Thunder"}
     ],
     relatedEntries: ["regan", "francione", "deontologia", "sujeto-de-una-vida", "bienestarismo", "obra-case-animal-rights"],
     relatedNodes: ["marcos-eticos", "consistencia-moral"],
@@ -259,7 +259,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "etica",
     shortDef: "Error lógico, formulado por David Hume, que consiste en deducir que algo es 'bueno' o 'ético' simplemente porque ocurre en la naturaleza. Justificar la ganadería porque 'los leones cazan' o 'tenemos caninos' cae en esta trampa: confunde lo biológicamente natural con lo moralmente permisible.",
     references: [
-      { id: "1", citation: "Hume, D. (1739). A Treatise of Human Nature (Book III, Part I, Section I)." }
+      { id: "1", citation: "Hume, D. (1739). A Treatise of Human Nature (Book III, Part I, Section I)." , url: "https://en.wikipedia.org/wiki/A_Treatise_of_Human_Nature"}
     ],
     relatedEntries: ["hume", "antropocentrismo", "especismo"],
     relatedNodes: ["recorrido-historico-estatus"],
@@ -315,8 +315,8 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
       "La industria oculta deliberadamente los mataderos lejos de los núcleos urbanos para alimentar la desconexión."
     ],
     references: [
-      { id: "1", citation: "Festinger, L. (1957). A Theory of Cognitive Dissonance. Stanford University Press." },
-      { id: "2", citation: "Loughnan, S., Haslam, N., & Bastian, B. (2010). The role of meat consumption in the denial of moral status and mind to meat animals. Appetite, 55(1), 156-159." }
+      { id: "1", citation: "Festinger, L. (1957). A Theory of Cognitive Dissonance. Stanford University Press." , url: "https://en.wikipedia.org/wiki/A_Theory_of_Cognitive_Dissonance"},
+      { id: "2", citation: "Loughnan, S., Haslam, N., & Bastian, B. (2010). The role of meat consumption in the denial of moral status and mind to meat animals. Appetite, 55(1), 156-159." , url: "https://doi.org/10.1016/j.appet.2010.05.043"}
     ],
     relatedEntries: ["paradoja-carne", "carnismo", "referente-ausente", "festinger", "loughnan"],
     relatedNodes: ["disonancia-placer", "categorizacion-sociocultural"],
@@ -344,7 +344,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     shortDef: "Sistema de creencias invisible, descrito por la psicóloga Melanie Joy, que nos enseña a clasificar a ciertas especies como 'comestibles' y a otras como 'amadas' sin percibir esa decisión como una elección cultural arbitraria. Es la ideología dominante, espejo invertido del veganismo.",
     longDef: "Bautizado por la psicóloga Melanie Joy en 'Why We Love Dogs, Eat Pigs, and Wear Cows'. Da por 'normal' y 'natural' comer ciertos animales mientras rechazamos comer a otros. Funciona mediante tres pilares: normalizar, naturalizar y necesitar el consumo de ciertos animales.",
     references: [
-      { id: "1", citation: "Joy, M. (2010). Why We Love Dogs, Eat Pigs, and Wear Cows: An Introduction to Carnism. Conari Press." }
+      { id: "1", citation: "Joy, M. (2010). Why We Love Dogs, Eat Pigs, and Wear Cows: An Introduction to Carnism. Conari Press." , url: "https://en.wikipedia.org/wiki/Carnism"}
     ],
     relatedEntries: ["melanie-joy", "disonancia-cognitiva", "paradoja-carne", "referente-ausente", "especismo"],
     relatedNodes: ["categorizacion-sociocultural", "disonancia-placer"],
@@ -392,7 +392,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "sistemas_uso",
     shortDef: "Sistemas masivos de extracción acuática: la acuicultura confina a miles de peces en piscimas o redes (estrés, parásitos, falta de oxígeno), mientras la pesca de arrastre barre el fondo del mar capturando entre 1 y 2.7 billones de peces salvajes al año que mueren por asfixia y descompresión.",
     references: [
-      { id: "1", citation: "Mood, A., & Brooke, P. (2010). Estimating the Number of Fish Caught in Global Fishing Each Year. Fishcount." }
+      { id: "1", citation: "Mood, A., & Brooke, P. (2010). Estimating the Number of Fish Caught in Global Fishing Each Year. Fishcount." , url: "https://www.fishcount.org.uk/fish-count-estimates-2012"}
     ],
     relatedEntries: ["ganaderia-industrial", "sintiencia"],
     relatedNodes: ["sistemas-alimentacion"],
@@ -418,7 +418,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "sistemas_uso",
     shortDef: "Marco ético propuesto en 1959 por Russell y Burch para la experimentación animal: Reemplazar el uso de animales por alternativas no animales, Reducir el número de individuos usados y Refinar los procedimientos para minimizar su dolor. Estándar oficial en muchos laboratorios, aunque rara vez se aplica de forma que cuestione el propio uso del animal.",
     references: [
-      { id: "1", citation: "Russell, W. M. S., & Burch, R. L. (1959). The Principles of Humane Experimental Technique. Methuen." }
+      { id: "1", citation: "Russell, W. M. S., & Burch, R. L. (1959). The Principles of Humane Experimental Technique. Methuen." , url: "https://caat.jhsph.edu/principles/the-principles-of-humane-experimental-technique"}
     ],
     relatedEntries: ["viviseccion", "bienestarismo"],
     relatedNodes: ["otras-instrumentalizaciones"],
@@ -583,7 +583,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
       "La biomasa de mamíferos salvajes representa solo el 4%; el 96% restante somos humanos y nuestro ganado en cautiverio."
     ],
     references: [
-      { id: "1", citation: "Bar-On, Y. M., Phillips, R., & Milo, R. (2018). The biomass distribution on Earth. PNAS, 115(25), 6506-6511." }
+      { id: "1", citation: "Bar-On, Y. M., Phillips, R., & Milo, R. (2018). The biomass distribution on Earth. PNAS, 115(25), 6506-6511." , url: "https://doi.org/10.1073/pnas.1711842115"}
     ],
     relatedEntries: ["deforestacion", "termodinamica", "gases-efecto-invernadero", "ganaderia-industrial"],
     relatedNodes: ["crisis-ambiental", "huella-ecologica"],
@@ -642,7 +642,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
       "Autoridades de seguridad alimentaria en Singapur y Estados Unidos (FDA) ya han evaluado y aprobado su venta comercial."
     ],
     references: [
-      { id: "1", citation: "Tuomisto, H. L., & Teixeira de Mattos, M. J. (2011). Environmental Impacts of Cultured Meat Production. Environmental Science & Technology, 45(14)." }
+      { id: "1", citation: "Tuomisto, H. L., & Teixeira de Mattos, M. J. (2011). Environmental Impacts of Cultured Meat Production. Environmental Science & Technology, 45(14)." , url: "https://doi.org/10.1021/es200130u"}
     ],
     relatedEntries: ["veganismo", "consistencia-moral", "b12"],
     relatedNodes: ["vias-transicion"],
@@ -700,7 +700,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "sintiencia",
     shortDef: "Manifiesto firmado en 2024 por un amplio consenso de científicos que amplió la Declaración de Cambridge a más grupos: pulpos, decápodos (cangrejos, langostas) e insectos. Establece que existe evidencia sólida de experiencia consciente en estos animales y recomienda aplicar el principio de precaución ante la duda razonable.",
     references: [
-      { id: "1", citation: "Andrews, K., et al. (2024). The New York Declaration on Animal Consciousness." }
+      { id: "1", citation: "Andrews, K., et al. (2024). The New York Declaration on Animal Consciousness." , url: "https://nyudeclaration.org/"}
     ],
     relatedEntries: ["declaracion-cambridge", "declaracion-montreal", "principio-precaucion", "sintiencia", "cefalopodos"],
     relatedNodes: ["neuroanatomia-consciencia"],
@@ -725,7 +725,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "sistemas_uso",
     shortDef: "Informe oficial británico de 1965, redactado por el profesor Roger Brambell tras el escándalo de 'Animal Machines' de Ruth Harrison, que definió por primera vez las condiciones mínimas de bienestar animal que toda granja debe garantizar. De él nacieron las 'Cinco Libertades', estándar fundacional del bienestarismo moderno.",
     references: [
-      { id: "1", citation: "Brambell, F. W. R. (1965). Report of the Technical Committee to Enquire into the Welfare of Animals Kept under Intensive Livestock Husbandry Systems. HMSO London." }
+      { id: "1", citation: "Brambell, F. W. R. (1965). Report of the Technical Committee to Enquire into the Welfare of Animals Kept under Intensive Livestock Husbandry Systems. HMSO London." , url: "https://edepot.wur.nl/134379"}
     ],
     relatedEntries: ["cinco-libertades", "bienestarismo", "ganaderia-industrial", "harrison"],
     relatedNodes: ["legislacion-bienestar"],
@@ -748,7 +748,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
       "Defiende una postura utilitarista: maximizar el bienestar y minimizar el sufrimiento de cualquier ser sintiente."
     ],
     references: [
-      { id: "1", citation: "Singer, P. (1975). Animal Liberation: A New Ethics for Our Treatment of Animals. HarperCollins." }
+      { id: "1", citation: "Singer, P. (1975). Animal Liberation: A New Ethics for Our Treatment of Animals. HarperCollins." , url: "https://en.wikipedia.org/wiki/Animal_Liberation_(book)"}
     ],
     author: { name: "Peter Singer", era: "1946–", works: ["Liberación Animal (1975)", "Practical Ethics (1979)", "Animal Liberation Now! (2023)"] },
     relatedEntries: ["obra-liberacion-animal", "utilitarismo", "especismo", "ryder", "bentham", "casos-marginales"],
@@ -800,7 +800,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "sintiencia",
     shortDef: "Filósofo, matemático y científico francés (1596–1650). En 'Discurso del método' (1637) defendió el mecanicismo: los animales son autómatas biológicos sin alma ni consciencia, cuyos gritos de dolor serían equivalentes al chirrido de un engranaje. Su doctrina sirvió como 'inmunización moral' para justificar la vivisección y el abuso durante siglos.",
     references: [
-      { id: "1", citation: "Descartes, R. (1637). Discurso del método (Parte V)." }
+      { id: "1", citation: "Descartes, R. (1637). Discurso del método (Parte V)." , url: "https://es.wikipedia.org/wiki/Discurso_del_m%C3%A9todo"}
     ],
     author: { name: "René Descartes", era: "1596–1650", works: ["Discurso del método (1637)", "Meditaciones metafísicas (1641)"] },
     relatedEntries: ["obra-discurso-metodo", "mecanicismo-cartesiano", "viviseccion", "antropocentrismo"],
@@ -815,7 +815,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "etica",
     shortDef: "Filósofa estadounidense (1947–2024) desarrolladora del 'enfoque de las capacidades'. En 'Frontiers of Justice' (2006) lo extendió a los animales: cada ser sintiente tiene derecho a prosperar desarrollando sus actividades naturales específicas (jugar, correr, volar, vivir libre de miedo).",
     references: [
-      { id: "1", citation: "Nussbaum, M. C. (2006). Frontiers of Justice: Species Membership. Harvard University Press." }
+      { id: "1", citation: "Nussbaum, M. C. (2006). Frontiers of Justice: Species Membership. Harvard University Press." , url: "https://www.google.com/books/edition/Frontiers_of_Justice/6ZPgCgAAQBAJ"}
     ],
     author: { name: "Martha Nussbaum", era: "1947–2024", works: ["Frontiers of Justice (2006)", "Creating Capabilities (2011)"] },
     relatedEntries: ["obra-frontiers-justice", "enfoque-capacidades", "deontologia", "derechos-animales"],
@@ -830,7 +830,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "psicologia",
     shortDef: "Filósofa y feminista estadounidense (1951–). Su obra 'The Sexual Politics of Meat' (1990) vinculó el ecofeminismo con el antropocentrismo y teorizó el 'referente ausente': cómo el lenguaje oculta al animal-víctima ('carne', 'filete') para desensibilizar al consumidor.",
     references: [
-      { id: "1", citation: "Adams, C. J. (1990). The Sexual Politics of Meat: A Feminist-Vegetarian Critical Theory. Continuum." }
+      { id: "1", citation: "Adams, C. J. (1990). The Sexual Politics of Meat: A Feminist-Vegetarian Critical Theory. Continuum." , url: "https://www.google.com/books/edition/The_Sexual_Politics_of_Meat/f_8KDwAAQBAJ"}
     ],
     author: { name: "Carol J. Adams", era: "1951–", works: ["The Sexual Politics of Meat (1990)", "The Pornography of Meat (2003)"] },
     relatedEntries: ["obra-sexual-politics-meat", "referente-ausente", "carnismo", "disonancia-cognitiva"],
@@ -846,7 +846,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     shortDef: "Jurista y filósofo estadounidense (1954–), teórico del abolicionismo jurídico. Sostiene que los animales tienen un derecho moral inviolable a no ser propiedad y que las reformas bienestaristas son un placebo que perpetúa el sistema de uso. Defiende el veganismo como línea de base moral.",
     references: [
       { id: "1", citation: "Francione, G. L. (1996). Rain Without Thunder: The Ideology of the Animal Rights Movement. Temple University Press." },
-      { id: "2", citation: "Francione, G. L. (2000). Introduction to Animal Rights: Your Child or the Dog? Temple University Press." }
+      { id: "2", citation: "Francione, G. L. (2000). Introduction to Animal Rights: Your Child or the Dog? Temple University Press." , url: "https://www.google.com/books/edition/Introduction_to_Animal_Rights"}
     ],
     author: { name: "Gary Francione", era: "1954–", works: ["Rain Without Thunder (1996)", "Introduction to Animal Rights (2000)"] },
     relatedEntries: ["abolicionismo", "bienestarismo", "consistencia-moral", "veganismo"],
@@ -877,7 +877,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "legal",
     shortDef: "Jurista estadounidense (1952–2024) fundador del Nonhuman Rights Project. Pionero en utilizar el recurso de 'Habeas Corpus' para exigir ante la Corte el derecho a la libertad de animales cognitivamente complejos (grandes simios, elefantes), buscando que se les reconozca como 'personas no humanas'.",
     references: [
-      { id: "1", citation: "Wise, S. M. (2000). Rattling the Cage: Toward Legal Rights for Animals. Perseus Books." }
+      { id: "1", citation: "Wise, S. M. (2000). Rattling the Cage: Toward Legal Rights for Animals. Perseus Books." , url: "https://www.google.com/books/edition/Rattling_the_Cage/DCppAAAAMAAJ"}
     ],
     author: { name: "Steven Wise", era: "1952–2024", works: ["Rattling the Cage (2000)", "Drawing the Line (2002)"] },
     relatedEntries: ["obra-rattling-cage", "habeas-corpus", "persona-no-humana", "derechos-animales"],
@@ -893,7 +893,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "sintiencia",
     shortDef: "Primatólogo y etólogo neerlandés (1948–2024). Documentó extensamente la vida cognitiva y emocional de los grandes simios en obras como '¿Tenemos suficiente inteligencia para entender la inteligencia de los animales?', desmontando la frontera entre la mente humana y la animal.",
     references: [
-      { id: "1", citation: "de Waal, F. (2016). Are We Smart Enough to Know How Smart Animals Are? W. W. Norton." }
+      { id: "1", citation: "de Waal, F. (2016). Are We Smart Enough to Know How Smart Animals Are? W. W. Norton." , url: "https://en.wikipedia.org/wiki/Are_We_Smart_Enough_to_Know_How_Smart_Animals_Are%3F"}
     ],
     author: { name: "Frans de Waal", era: "1948–2024", works: ["Chimpanzee Politics (1982)", "Are We Smart Enough to Know How Smart Animals Are? (2016)"] },
     relatedEntries: ["etologia", "jennifer-ackerman", "sintiencia"],
@@ -908,7 +908,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "sintiencia",
     shortDef: "Divulgadora científica y ornitóloga estadounidense. En 'El ingenio de los pájaros' documentó cómo aves como los cuervos de Nueva Caledonia fabrican herramientas complejas, hito cognitivo que redefinió nuestra comprensión de la inteligencia aviar.",
     references: [
-      { id: "1", citation: "Ackerman, J. (2016). The Genius of Birds. Penguin Press." }
+      { id: "1", citation: "Ackerman, J. (2016). The Genius of Birds. Penguin Press." , url: "https://www.google.com/books/edition/The_Genius_of_Birds/qm5BDAAAQBAJ"}
     ],
     author: { name: "Jennifer Ackerman", era: "1959–", works: ["The Genius of Birds (2016)", "The Bird Way (2020)"] },
     relatedEntries: ["obra-ingenio-pajaros", "etologia", "frans-de-waal", "sintiencia"],
@@ -923,7 +923,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "etica",
     shortDef: "Novelista y ensayista estadounidense (1977–). En 'Comer animales' (2009) expone cómo el lenguaje culinario y el aislamiento arquitectónico de los mataderos están diseñados para desconectar al consumidor de la realidad del animal, narrando su propia transformación ética.",
     references: [
-      { id: "1", citation: "Foer, J. S. (2009). Eating Animals. Little, Brown and Company." }
+      { id: "1", citation: "Foer, J. S. (2009). Eating Animals. Little, Brown and Company." , url: "https://www.google.com/books/edition/Eating_Animals/8vZiQgAACAAJ"}
     ],
     author: { name: "Jonathan Safran Foer", era: "1977–", works: ["Eating Animals (2009)"] },
     relatedEntries: ["obra-comer-animales", "referente-ausente", "disonancia-cognitiva", "ganaderia-industrial"],
@@ -992,7 +992,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "psicologia",
     shortDef: "Psicólogo social coautor con Loughnan de los estudios fundacionales de la 'paradoja de la carne'. En 'Resolving the Meat-Paradox' (2017) analizó los mecanismos motivacionales de desvinculación moral que el consumidor despliega para sostener la contradicción entre amar y comer animales.",
     references: [
-      { id: "1", citation: "Bastian, B., & Loughnan, S. (2017). Resolving the Meat-Paradox: A Motivational Account of Moral Disengagement. Personality and Social Psychology Review, 21(3), 278-299." }
+      { id: "1", citation: "Bastian, B., & Loughnan, S. (2017). Resolving the Meat-Paradox: A Motivational Account of Moral Disengagement. Personality and Social Psychology Review, 21(3), 278-299." , url: "https://doi.org/10.1177/0146167217709240"}
     ],
     author: { name: "Brock Bastian", era: "fl. 2010", works: ["Resolving the Meat-Paradox (2017)"] },
     relatedEntries: ["paradoja-carne", "disonancia-cognitiva", "loughnan"]
@@ -1005,7 +1005,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "legal",
     shortDef: "Filósofos políticos canadienses autores de 'Zoopolis' (2011). Proponen ir más allá de los derechos negativos y otorgar derechos políticos: considerar a los animales domésticos como 'ciudadanos' con deberes y protecciones compartidas, a los salvajes como naciones soberanas y a los liminales (urbanos) como residentes.",
     references: [
-      { id: "1", citation: "Donaldson, S., & Kymlicka, W. (2011). Zoopolis: A Political Theory of Animal Rights. Oxford University Press." }
+      { id: "1", citation: "Donaldson, S., & Kymlicka, W. (2011). Zoopolis: A Political Theory of Animal Rights. Oxford University Press." , url: "https://www.google.com/books/edition/Zoopolis/YzSNgXr7n5oC"}
     ],
     author: { name: "Sue Donaldson & Will Kymlicka", era: "fl. 2011", works: ["Zoopolis (2011)"] },
     relatedEntries: ["obra-zoopolis", "derechos-animales", "persona-no-humana", "enfoque-capacidades"],
@@ -1020,7 +1020,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "sistemas_uso",
     shortDef: "Activista y escritora británica (1920–2000). Su libro 'Animal Machines' (1964) denunció por primera vez las condiciones de la granadería industrial intensiva y provocó tal escándalo público que el Parlamento británico encargó el Informe Brambell (1965), origen de las 'Cinco Libertades'.",
     references: [
-      { id: "1", citation: "Harrison, R. (1964). Animal Machines: The New Factory Farming Industry. Vincent Stuart." }
+      { id: "1", citation: "Harrison, R. (1964). Animal Machines: The New Factory Farming Industry. Vincent Stuart." , url: "https://www.google.com/books/edition/Animal_Machines/HYdtAAAAMAAJ"}
     ],
     author: { name: "Ruth Harrison", era: "1920–2000", works: ["Animal Machines (1964)"] },
     relatedEntries: ["obra-animal-machines", "informe-brambell", "cinco-libertades", "ganaderia-industrial"],
@@ -1034,7 +1034,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "ecologia",
     shortDef: "Autor de 'Meatonomics' (2013), donde analiza cómo la industria cárnica externaliza inmensos costes ambientales, sanitarios y morales, haciendo creer al consumidor que la producción animal es 'barata' cuando su precio real lo paga la sociedad y el planeta.",
     references: [
-      { id: "1", citation: "Simon, D. R. (2013). Meatonomics: How the Rigged Economics of Meat and Dairy Make You Consume Too Much. Conari Press." }
+      { id: "1", citation: "Simon, D. R. (2013). Meatonomics: How the Rigged Economics of Meat and Dairy Make You Consume Too Much. Conari Press." , url: "https://www.google.com/books/edition/Meatonomics/0M0uAAAAQBAJ"}
     ],
     author: { name: "David Robinson Simon", era: "fl. 2013", works: ["Meatonomics (2013)"] },
     relatedEntries: ["obra-meatonomics", "ganaderia-industrial", "antropoceno", "termodinamica"],
@@ -1227,7 +1227,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     shortDef: "Falacia que atribuye las propiedades de un caso individual a todo un conjunto, o viceversa, asumiendo que lo que vale para una parte vale para el todo.",
     longDef: "La falacia de composición consiste en inferir que un enunciado aplicable a cada elemento individual es necesariamente válido para el conjunto, o que lo verdadero del todo lo es para cada parte. En el debate sobre ganadería, se manifiesta al asumir que un ganadero ejemplar hace ética a toda la industria, ignorando dinámicas sistémicas, regulaciones permisivas y mayorías estadísticas. Es un error frecuente en discursos polarizados y se combate con muestreo representativo y evidencia agregada.",
     references: [
-      { id: "1", citation: "Walton, D. (2017). Fallacies. Stanford Encyclopedia of Philosophy." }
+      { id: "1", citation: "Walton, D. (2017). Fallacies. Stanford Encyclopedia of Philosophy." , url: "https://plato.stanford.edu/entries/fallacies/"}
     ],
     relatedEntries: ["falacia", "falacia-ad-hominem"],
     relatedNodes: ["disonancia-placer", "categorizacion-sociocultural"],
@@ -1243,7 +1243,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     shortDef: "Debate ético sobre la alimentación de perros y gatos con piensos cárnicos industriales y la contradicción moral que esto genera en consumidores éticos.",
     longDef: "La alimentación de mascotas carnívoras (especialmente gatos, que son carnívoros estrictos) plantea un dilema entre el bienestar del animal doméstico y la coherencia ética de su propietario. Mientras que los perros admiten dietas vegetales bien formuladas con suplementación, los gatos requieren nutrientes presentes solo en tejidos animales (taurina, ácido araquidónico, vitamina A preformada). El pienso comercial proviene en gran medida de subproductos de la ganadería industrial, perpetuando una cadena de sufrimiento que muchos propietarios intentan evitar en su dieta personal. Empresas como Meatly y Wagr han desarrollado piensos felinos a base de carne cultivada in vitro como solución tecnológica al dilema.",
     references: [
-      { id: "1", citation: "Knight, A. & Leitsberger, M. (2016). A systematic review of vegan diets in dogs and cats. Veterinary Record, 179(7), 169-170." }
+      { id: "1", citation: "Knight, A. & Leitsberger, M. (2016). A systematic review of vegan diets in dogs and cats. Veterinary Record, 179(7), 169-170." , url: "https://doi.org/10.1136/vr.103953"}
     ],
     relatedEntries: ["bienestarismo", "abolicionismo", "agricultura-celular"],
     relatedNodes: ["sistemas-alimentacion", "vias-transicion"],
@@ -1259,7 +1259,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     shortDef: "Práctica cultural consistente en la lidia y muerte de toros en plazas, declarada patrimonio cultural en algunos países y prohibida en otros por motivos de bienestar animal.",
     longDef: "La tauromaquia es una práctica ritual y deportiva con siglos de tradición en España, Portugal, sur de Francia, países andinos y otras regiones hispanohablantes. Implica diversas fases (lanceo, banderillas, estoque) que producen dolor físico y estrés psicológico severo en el toro, documentados por etólogos y fisiólogos animales. Mientras España la declaró patrimonio cultural en 2013, regiones como Cataluña, Canarias y varias ciudades autónomas la han prohibido. En Latinoamérica, países como Argentina, Colombia y México mantienen la práctica con regulación variable. El debate enfrenta el relativismo cultural con valores universales de bienestar animal.",
     references: [
-      { id: "1", citation: "Mariscal-Lucero, S. et al. (2020). Cognitive and emotional indicators of pain in bulls during bullfighting. Animals, 10(11), 2118." }
+      { id: "1", citation: "Mariscal-Lucero, S. et al. (2020). Cognitive and emotional indicators of pain in bulls during bullfighting. Animals, 10(11), 2118." , url: "https://doi.org/10.3390/ani10112118"}
     ],
     relatedEntries: ["especismo", "bienestarismo"],
     relatedNodes: ["historia-dominacion", "legislacion-bienestar", "otras-instrumentalizaciones"],
@@ -1275,7 +1275,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     shortDef: "Organismos resultantes de la introducción de células humanas en embriones animales, empleados en investigación biomédica para generar tejidos y órganos compatibles.",
     longDef: "Las quimeras humano-animales son organismos viables que contienen células de dos especies distintas, logrados mediante la inserción de células madre humanas en embriones animales en fases tempranas del desarrollo. Su objetivo principal es producir órganos trasplantables (riñones, hígados, páncreas) sin rechazo inmunológico. El debate ético se concentra en el porcentaje de células humanas admitidas en tejidos neurales: si estas migran al cerebro animal, podrían alterar la capacidad de consciencia. Marcos regulatorios como los Institutos Nacionales de Salud de EE.UU. han establecido límites al financiamiento federal, exigiendo moratorias para quimeras con contribución neural significativa.",
     references: [
-      { id: "1", citation: "Aravena, M. (2025). Desafíos ético-legales de la experimentación con quimeras humano-animales. Revista de Bioética y Derecho, 31, 53-69." }
+      { id: "1", citation: "Aravena, M. (2025). Desafíos ético-legales de la experimentación con quimeras humano-animales. Revista de Bioética y Derecho, 31, 53-69." , url: "https://revistes.ub.edu/index.php/RBD/article/view/50112"}
     ],
     relatedEntries: ["sintiencia", "declaracion-cambridge"],
     relatedNodes: ["vias-transicion", "neuroanatomia-consciencia"],
@@ -1291,7 +1291,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     shortDef: "Animales cuyo genoma ha sido alterado mediante técnicas de ingeniería genética (transgénesis, CRISPR) para fines de investigación, producción o biomedicina.",
     longDef: "Los animales modificados genéticamente incluyen organismos a los que se les ha insertado, eliminado o editado genes específicos. Casos representativos: ratones knockout para estudio de enfermedades humanas, salmones AquAdvantage de crecimiento acelerado para alimentación, cerdos donantes de órganos para xenotrasplantes. La edición genética puede alterar el bienestar del animal mismo (enfermedades asociadas, metabolismo anómalo, dolor crónico) y plantea dilemas sobre su estatus moral: ¿es legítimo modificar un ser vivo hasta el punto de alterar su naturaleza biológica? La constitución suiza y la legislación europea exigen evaluaciones de dignidad animal previas a la aprobación.",
     references: [
-      { id: "1", citation: "Dennis, C. J. (2002). Engineering animals through transgenesis: issues and perspectives for animal welfare. ILAR Journal, 43(3), 236-239." }
+      { id: "1", citation: "Dennis, C. J. (2002). Engineering animals through transgenesis: issues and perspectives for animal welfare. ILAR Journal, 43(3), 236-239." , url: "https://doi.org/10.1093/ilar.43.3.236"}
     ],
     relatedEntries: ["sintiencia", "agricultura-celular"],
     relatedNodes: ["vias-transicion", "sistemas-alimentacion"],
@@ -1307,7 +1307,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     shortDef: "Especies no nativas introducidas en un ecosistema, que se expanden causando daño ecológico, económico o de salud pública, y cuyo control genera dilemas éticos.",
     longDef: "Las especies invasoras son aquellas trasladadas por acción humana fuera de su área de distribución natural, donde establecen poblaciones autosostenibles y causan impactos negativos en la biodiversidad nativa. Ejemplos notables: ratas y gatos asilvestrados en islas oceánicas, ranas toro en Australia, mapaches en Europa, serpientes arbóreas en Guam. La UICN las identifica como la segunda causa de pérdida de biodiversidad global. Su control letal (cebos tóxicos, trampas, caza) choca con la ética individualista de protección animal, generando dilemas sobre si es aceptable matar individuos invasores para proteger especies nativas.",
     references: [
-      { id: "1", citation: "Roy, H. E. et al. (2023). Curbing the major and growing threats from invasive alien species. Science, 380(6643), 462-467." }
+      { id: "1", citation: "Roy, H. E. et al. (2023). Curbing the major and growing threats from invasive alien species. Science, 380(6643), 462-467." , url: "https://doi.org/10.1126/science.adi3650"}
     ],
     relatedEntries: ["bienestarismo"],
     relatedNodes: ["crisis-ambiental", "huella-ecologica"],
@@ -1323,7 +1323,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     shortDef: "Capacidad de experiencia subjetiva (dolor, estrés) en embriones y fetos animales en desarrollo, cuyo umbral exacto es objeto de debate científico y ético.",
     longDef: "La sintiencia fetal animal se refiere al momento del desarrollo gestacional en que un embrión o feto puede experimentar dolor consciente, más allá de respuestas reflejas. La neurociencia comparada sitúa este umbral en fases avanzadas de la gestación, cuando se completan las conexiones corticales y talámicas. La Directiva 2010/63/UE sobre protección de animales usados en investigación exige analgesia y eutanasia humanitaria para fetos en etapas avanzadas. El debate ético se centra en cómo aplicar el principio de precaución sin paralizar la investigación biomédica necesaria.",
     references: [
-      { id: "1", citation: "European Union (2010). Directive 2010/63/EU on the protection of animals used for scientific purposes." }
+      { id: "1", citation: "European Union (2010). Directive 2010/63/EU on the protection of animals used for scientific purposes." , url: "https://eur-lex.europa.eu/eli/dir/2010/63/oj"}
     ],
     relatedEntries: ["sintiencia", "nocicepcion", "declaracion-nueva-york"],
     relatedNodes: ["neurobiologia-dolor", "neuroanatomia-consciencia"],

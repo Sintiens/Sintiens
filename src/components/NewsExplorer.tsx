@@ -7,11 +7,7 @@ import {
   Calendar, 
   ExternalLink, 
   Globe, 
-  Landmark, 
   TrendingUp, 
-  FileText, 
-  TrendingDown, 
-  Eye, 
   CheckCircle, 
   AlertTriangle,
   MapPin
@@ -27,8 +23,6 @@ const getDomain = (url: string): string => {
     return "";
   }
 };
-
-interface NewsExplorerProps {}
 
 const CATEGORIES = [
   { id: "all", label: "Todas las Temáticas" },

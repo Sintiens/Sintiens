@@ -1,4 +1,3 @@
-import React from "react";
 import { Sun, Moon } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -38,8 +37,6 @@ export default function MiniTabNav({ activeTab, onNavigate, theme, onToggleTheme
   const activeCategory = getCategoryForTab(activeTab);
   const showSubNav = hasSubNav(activeTab);
   const subSections = getSubSectionsForTab(activeTab);
-
-  const categoryLabel = CATEGORIES.find((cat) => cat.id === activeCategory)?.label || "";
 
   // Main Menu Aesthetic
   const dockContainer = "flex items-center gap-1 p-1 rounded-full bg-background/40 dark:bg-background/20 backdrop-blur-2xl border border-outline-variant/30 shadow-sm";

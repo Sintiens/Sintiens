@@ -15,15 +15,15 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
       {
         id: "1",
         citation: "Singer, P. (1975). Animal Liberation (Chapter 6). HarperCollins."
-      },
+      , url: "https://en.wikipedia.org/wiki/Animal_Liberation_(book)"},
       {
         id: "2",
         citation: "Hume, D. (1739). A Treatise of Human Nature (Book III, Part I, Section I)."
-      },
+      , url: "https://en.wikipedia.org/wiki/A_Treatise_of_Human_Nature"},
       {
         id: "3",
         citation: "National Research Council. (2006). Nutrient Requirements of Dogs and Cats. National Academies Press."
-      }
+      , url: "https://doi.org/10.17226/10668"}
     ]
   },
   {
@@ -50,7 +50,7 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
       {
         id: "3",
         citation: "Poore, J., & Nemecek, T. (2018). Reducing food's environmental impacts. Science, 360(6392)."
-      }
+      , url: "https://doi.org/10.1126/science.aaq0216"}
     ]
   },
   {
@@ -89,7 +89,7 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
       {
         id: "1",
         citation: "Regan, T. (1983). The Case for Animal Rights (Chapter 8). University of California Press."
-      },
+      , url: "https://en.wikipedia.org/wiki/The_Case_for_Animal_Rights"},
       {
         id: "2",
         citation: "McMahan, J. (2008). Eating animals the nice way. Daedalus, 137(1), 66-76.",
@@ -168,7 +168,7 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
       {
         id: "2",
         citation: "Melina, V. et al. (2016). Position of the Academy of Nutrition and Dietetics: Vegetarian Diets."
-      }
+      , url: "https://doi.org/10.1016/j.jand.2016.09.025"}
     ]
   },
   {
@@ -185,15 +185,15 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
       {
         id: "1",
         citation: "Gerber, P. J., et al. (2013). Tackling climate change through livestock: a global assessment of emissions and mitigation opportunities. FAO."
-      },
+      , url: "https://www.fao.org/3/i3437e/i3437e.pdf"},
       {
         id: "2",
         citation: "IPCC. (2019). Special Report on Climate Change and Land."
-      },
+      , url: "https://www.ipcc.ch/srccl/"},
       {
         id: "3",
         citation: "Springmann, M. et al. (2016). Analysis and valuation of the health and climate change co-benefits of dietary change. PNAS."
-      }
+      , url: "https://doi.org/10.1073/pnas.1523119113"}
     ]
   },
   {
@@ -210,11 +210,11 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
       {
         id: "1",
         citation: "Descartes, R. (1637). Discurso del método (Parte V)."
-      },
+      , url: "https://es.wikipedia.org/wiki/Discurso_del_m%C3%A9todo"},
       {
         id: "2",
         citation: "Low, P., Panksepp, J. et al. (2012). The Cambridge Declaration on Consciousness."
-      }
+      , url: "https://fcmconference.org/img/CambridgeDeclarationOnConsciousness.pdf"}
     ]
   },
   {
@@ -231,11 +231,11 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
       {
         id: "1",
         citation: "Nussbaum, M. C. (2006). Frontiers of Justice: Species Membership. Harvard University Press."
-      },
+      , url: "https://en.wikipedia.org/wiki/Frontiers_of_Justice"},
       {
         id: "2",
         citation: "Regan, T. (1983). The Case for Animal Rights. University of California Press."
-      }
+      , url: "https://en.wikipedia.org/wiki/The_Case_for_Animal_Rights"}
     ]
   },
   {
@@ -260,7 +260,7 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
       {
         id: "3",
         citation: "Poore, J. & Nemecek, T. (2018). Reducing food's environmental impacts."
-      }
+      , url: "https://doi.org/10.1126/science.aaq0216"}
     ]
   },
   {
@@ -277,11 +277,11 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
       {
         id: "1",
         citation: "Adams, C. J. (1990). The Sexual Politics of Meat. Continuum."
-      },
+      , url: "https://en.wikipedia.org/wiki/The_Sexual_Politics_of_Meat"},
       {
         id: "2",
         citation: "Singer, P. (1975). Animal Liberation. HarperCollins."
-      },
+      , url: "https://en.wikipedia.org/wiki/Animal_Liberation_(book)"},
       {
         id: "3",
         citation: "Springmann, M. et al. (2016). Analysis and valuation of the health and climate change co-benefits of dietary change. PNAS.",
@@ -301,8 +301,8 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
     philosophicalDeconstruction: "El argumento «lo natural es bueno» ignora distinciones metaéticas clave. Moore argumentó que atribuir bondad a lo natural confunde lo descriptivo con lo normativo. Aunque ciertos animales cazan (lo «natural»), esto no convierte en moralmente correcto causar sufrimiento para el placer humano. Filósofos contemporáneos (Singer, Regan) enfatizan que la ética requiere justificaciones independientes de la biología: la mera pertenencia a un proceso evolutivo no confiere deber moral alguno. Es un error lógico asumir que el universo natural opera conforme a principios morales; la moralidad exige argumentos éticos, no meras observaciones naturales [1, 2].",
     coexistenceImpact: "Asumir erróneamente que «lo natural» es justo impide reconocer injusticias en prácticas alimentarias. Usar animales porque somos «omnívoros naturales» distrae del sufrimiento real. ¿Por qué otorgar valor moral a una característica evolutiva arbitraria? ¿Realmente la naturaleza decide qué está bien o mal en la alimentación humana?",
     references: [
-      { id: "1", citation: "Moore, G. E. (1903). Principia Ethica. Cambridge University Press." },
-      { id: "2", citation: "Singer, P. (2011). Practical Ethics (3rd ed.). Cambridge University Press." }
+      { id: "1", citation: "Moore, G. E. (1903). Principia Ethica. Cambridge University Press." , url: "https://en.wikipedia.org/wiki/Principia_Ethica"},
+      { id: "2", citation: "Singer, P. (2011). Practical Ethics (3rd ed.). Cambridge University Press." , url: "https://en.wikipedia.org/wiki/Practical_Ethics"}
     ],
     openQuestion: "¿Puede algo ser moral solo porque existe en la naturaleza? ¿Deberíamos derivar normas éticas directamente de la observación natural?"
   },
@@ -316,8 +316,8 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
     philosophicalDeconstruction: "Filósofos políticos como Rawls y Sen remarcan que no toda tradición es éticamente legítima. El argumento «siempre fue así» se opone al principio de justicia: solo ritos que respetan derechos fundamentales pueden sobrevivir a la crítica ética. Singer argumentaría que la tradición no puede sobreponerse al principio de reducir sufrimiento si existen alternativas morales viables. Frente a la falacia tradicional, debe aplicarse reflexión crítica: la existencia de una práctica no prueba que sea valiosa moralmente [1, 2].",
     coexistenceImpact: "La insistencia en «mantener tradiciones» choca con los avances éticos (leyes antibullfighting, vetos internacionales). Si algo causa dolor evidente, ¿sigue justificado por su antigüedad? ¿Cómo equilibrar el respeto cultural con la evidencia científica de daño?",
     references: [
-      { id: "1", citation: "Sen, A. (2006). Identity and Violence. W. W. Norton & Company." },
-      { id: "2", citation: "Mariscal-Lucero, S. et al. (2020). Cognitive and emotional indicators of pain in bulls during bullfighting. Animals, 10(11), 2118." }
+      { id: "1", citation: "Sen, A. (2006). Identity and Violence. W. W. Norton & Company." , url: "https://en.wikipedia.org/wiki/Identity_and_Violence"},
+      { id: "2", citation: "Mariscal-Lucero, S. et al. (2020). Cognitive and emotional indicators of pain in bulls during bullfighting. Animals, 10(11), 2118." , url: "https://doi.org/10.3390/ani10112118"}
     ],
     openQuestion: "¿Debe la tradición justificar prácticas que hoy sabemos causan sufrimiento? ¿Cómo reconciliamos respeto cultural con el principio de no causar daño?"
   },
@@ -331,8 +331,8 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
     philosophicalDeconstruction: "Filosóficamente, el dilema refleja una tensión entre utilitarismo pragmático y principios de derechos. El bienestarismo se asocia al consecuencialismo: si se reduce sufrimiento agregado, el uso podría ser éticamente tolerable. El abolicionismo parte de derechos inalienables (Kantiano) que prohibirían tratar animales como medios, sin importar los resultados. Autores como Regan y Francione sostienen que cualquier concesión al uso animal implica seguir violando deberes éticos fundamentales. ¿Es más grave causar sufrimiento evitable (abolición), o es preferible disminuirlo gradualmente (bienestarismo)? La filosofía contemporánea no resuelve el dilema [1, 2].",
     coexistenceImpact: "El dilema lleva a la sociedad a preguntarse si podemos coexistir con prácticas que optimizan bienestar sin eliminarlas. Influye en políticas agropecuarias y dietas. ¿Aceptamos sacrificios éticos parciales para avances graduales, o apostamos por la transformación radical aunque sea socialmente difícil?",
     references: [
-      { id: "1", citation: "FAO. (2013). Tackling climate change through livestock. Food and Agriculture Organization." },
-      { id: "2", citation: "Francione, G. L. (1996). Rain Without Thunder. Temple University Press." }
+      { id: "1", citation: "FAO. (2013). Tackling climate change through livestock. Food and Agriculture Organization." , url: "https://www.fao.org/3/i3437e/i3437e.pdf"},
+      { id: "2", citation: "Francione, G. L. (1996). Rain Without Thunder. Temple University Press." , url: "https://www.google.com/books/edition/Rain_Without_Thunder"}
     ],
     openQuestion: "¿Debe nuestra ética animal priorizar la reducción gradual del daño o la erradicación completa del uso animal?"
   },
@@ -346,7 +346,7 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
     philosophicalDeconstruction: "Este caso cuestiona dónde trazamos la línea moral de la sintiencia. Algunos utilitaristas podrían restar importancia al sufrimiento de insectos por su bajo desarrollo neural; otros lo ven bajo el principio de igualdad para cualquier ser capaz de sufrir en cualquier grado. Birch plantea que, en caso de duda, debemos priorizar la prevención de sufrimiento potencial [2]. Así, la coexistencia con insectos de granja entra en una zona gris de ética práctica: aun asumiendo que quizá no «sienten» igual, el hecho de tratarlos masivamente despierta el dilema de si deberíamos extenderles alguna consideración mínima.",
     coexistenceImpact: "Refleja el dilema sobre prácticas emergentes como la entomofagia masiva. ¿Debemos aplicar normativas de bienestar a insectos? Dado lo incierto, ¿cómo convivir con la duda científica? Esto exige revaluar normas alimentarias según nuevos hallazgos. ¿Tratamos a los insectos como simples recursos o planteamos límites prudentes mientras la ciencia avanza?",
     references: [
-      { id: "1", citation: "Andrews, K. et al. (2024). The New York Declaration on Animal Consciousness." },
+      { id: "1", citation: "Andrews, K. et al. (2024). The New York Declaration on Animal Consciousness." , url: "https://nyudeclaration.org/"},
       { id: "2", citation: "Birch, J. (2017). Animal sentience and the precautionary principle. Animal Sentience, 2(16)." }
     ],
     openQuestion: "¿En la duda, deberíamos asumir que los insectos pueden sufrir y actuar en consecuencia? ¿Qué norma ética aplicar mientras la ciencia avanza?"
@@ -361,7 +361,7 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
     philosophicalDeconstruction: "Desde la filosofía de la ciencia, las declaraciones formales representan un amplio acuerdo epistemológico: ciertos animales son sintientes. Este consenso supera la mera opinión pública: expertos en neuroética recomiendan tratarlos con consideración moral. Éticamente, si el conocimiento científico es sólido, el imperativo moral es actuar en consecuencia (principio de precaución respaldado por evidencia). En la Declaración de Montreal, los intereses de evitar el dolor animal se equiparan a principios de justicia. Esta tesis afirma que existen «hechos bioéticos» resueltos, reflejando la corriente dominante en la comunidad científica y filosófica actual [1, 2, 3].",
     coexistenceImpact: "El reconocimiento casi unánime de la sintiencia animal ya influye en políticas (leyes de bienestar, restricción de prácticas crueles). Si muchos animales son sintientes como afirma la ciencia, ¿debemos revisar conductas cotidianas (alimentación, vestimenta, entretenimiento)? ¿Estamos preparados para integrar este consenso en nuestra convivencia diaria?",
     references: [
-      { id: "1", citation: "Low, P. et al. (2012). The Cambridge Declaration on Consciousness." },
+      { id: "1", citation: "Low, P. et al. (2012). The Cambridge Declaration on Consciousness." , url: "https://fcmconference.org/img/CambridgeDeclarationOnConsciousness.pdf"},
       { id: "2", citation: "Andrews, K. et al. (2024). The New York Declaration on Animal Consciousness." },
       { id: "3", citation: "Declaration of Montreal on Animal Exploitation. (2022)." }
     ],
@@ -393,7 +393,7 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
     coexistenceImpact: "Refuerza políticas públicas de fomento de dietas vegetales. Cierra argumentos de que «necesitamos más ganado». Para la convivencia social, ¿estamos dispuestos a cambiar la producción alimentaria por razones de eficiencia? ¿Sería éticamente inconsistente ignorar pruebas científicas que muestran que podemos alimentar mejor al mundo con recursos más directamente?",
     references: [
       { id: "1", citation: "Poore, J. & Nemecek, T. (2018). Reducing food's environmental impacts through producers and consumers. Science, 360(6392), 987-992." },
-      { id: "2", citation: "Ritchie, H. (2020). Food production is responsible for one-quarter of the world's greenhouse gas emissions. Our World in Data." }
+      { id: "2", citation: "Ritchie, H. (2020). Food production is responsible for one-quarter of the world's greenhouse gas emissions. Our World in Data." , url: "https://ourworldindata.org/food-emissions"}
     ],
     openQuestion: "¿Estamos dispuestos a reorientar la producción alimentaria global basándonos en este consenso termodinámico?"
   },
@@ -470,7 +470,7 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
     coexistenceImpact: "Este escenario radical plantea cómo acompañar el avance científico manteniendo valores éticos. Una propuesta es la regulación: por ejemplo, si un embrión quimérico llega a cierto estadio o proporción humana crítica, se debería interrumpir su gestación por respeto a su dignidad emergente. Otro enfoque es la transparencia y el diálogo público sobre estos experimentos. La pregunta final es si es posible convivir con esta tecnología creando límites claros: ¿qué características debería tener un embrión quimérico para que la sociedad le reconozca derechos propios? En consecuencia, se invita a la reflexión sobre si la posibilidad de salvar vidas humanas justifica el riesgo de crear entes híbridos éticamente problemáticos.",
     references: [
       { id: "1", citation: "Aravena, M. (2025). Desafíos ético-legales de la experimentación con quimeras humano-animales. Revista de Bioética y Derecho, 31, 53-69."},
-      { id: "2", citation: "Bhan, A., Singer, P. A., & Daar, A. S. (2010). Human–animal chimeras for vaccine development: An endangered species or opportunity for the developing world? BMC International Health and Human Rights, 10(8)."}
+      { id: "2", citation: "Bhan, A., Singer, P. A., & Daar, A. S. (2010). Human–animal chimeras for vaccine development: An endangered species or opportunity for the developing world? BMC International Health and Human Rights, 10(8).", url: "https://doi.org/10.1186/1472-698X-10-8"}
     ],
     openQuestion: "¿Cuáles límites éticos debemos trazar en la investigación con quimeras para que los beneficios médicos no comprometan la dignidad de especies sintientes?"
   },
@@ -499,7 +499,7 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
     philosophicalDeconstruction: "Ética y filosóficamente, la cuestión aborda el respeto a la naturaleza del animal. La constitución suiza es pionera al exigir que la dignidad del ser vivo sea considerada en biotecnología, lo que implica que no basta la eficiencia productiva si se vulnera el bienestar intrínseco. Desde este enfoque, los animales transgénicos no deben reducirse a meros instrumentos: la modificación genética debe evaluarse también por sus efectos sobre el ser vivo en sí. En contraste, algunos utilitaristas podrían justificar ciertas modificaciones si se reducen daños mayores (p.ej., eliminar enfermedades genéticas) y en general mejorar el bienestar de poblaciones. La discusión ética invita a preguntarse si dotar a los animales de nuevos genes cambia su estatus moral o si sigue aplicando para ellos la misma consideración de interés que antes de la modificación. En últimas, se plantea si conviene aplicar principios de precaución: ¿debe tener más protección un animal cuyo genoma ha sido alterado artificialmente?",
     coexistenceImpact: "En la praxis social, los animales transgénicos plantean retos de regulación y aceptación. ¿Deben recibir protecciones especiales? Por ejemplo, el primer salmón transgénico aprobado para consumo generó debates regulatorios sobre rotulado y bioseguridad. La pregunta final es cómo integrar estos seres en una coexistencia ética: ¿existe un límite ético en la ingeniería animal que la sociedad deba acordar, pensando en el interés y bienestar de los animales involucrados? El asunto sugiere que debemos decidir colectivamente cuánto interviniendo en su naturaleza vamos a aceptar para fines humanos.",
     references: [
-      { id: "1", citation: "Dennis, C. J. (2002). Engineering animals through transgenesis: issues and perspectives for animal welfare. ILAR Journal, 43(3), 236–239."},
+      { id: "1", citation: "Dennis, C. J. (2002). Engineering animals through transgenesis: issues and perspectives for animal welfare. ILAR Journal, 43(3), 236–239.", url: "https://doi.org/10.1093/ilar.43.3.236"},
       { id: "2", citation: "Cimadori, I. (2025). Farm Animal Welfare in Breeding and Gene Editing: EU and Swiss law. Journal of Animal Law, Ethics & One Health (LEOH)."}
     ],
     openQuestion: "¿Qué límites éticos deben regir la manipulación genética de animales si así se altera irreversiblemente su naturaleza?"
@@ -559,7 +559,7 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
     philosophicalDeconstruction: "Desde el punto de vista filosófico del argumento, la falacia radica en que no hay conexión demostrada entre cada paso hipotético. Pensadores del discurso racional insisten en evaluar cada propuesta por sus méritos independientes. En ética pragmática, conjurar escenarios extremos sirve más como una técnica de persuasión emocional que como un razonamiento válido. Por tanto, este argumento carece de justificación moral sólida: incluso si a alguien le preocupa la libertad alimentaria, debe aportar motivos concretos para cada prohibición propuesta, no suponerlas todas derivadas unas de otras. Este tipo de razonamiento suele agravar la polarización en el debate social al apelar al miedo a lo desconocido en lugar de a consideraciones fundadas.",
     coexistenceImpact: "Reflexionando sobre esto, surge la pregunta: ¿cómo distinguir entre un escenario plausible y uno infundado al discutir cambios de consumo? La invitación socrática es a examinar cada paso de la supuesta pendiente críticamente: ¿qué evidencia existe de que prohibir un producto lleve a cerrar puertas adicionales? Este cuestionamiento sugiere que para convivir pacíficamente deberíamos exigir argumentos sólidos para cada cambio, en lugar de basarnos en temores encadenados. En última instancia, nos insta a ser escépticos con advertencias alarmistas: en el diálogo sobre alimentación, ¿deberíamos reformular el debate centrándonos en la causa directa (por qué prohibir carne) y no en los miedos colaterales?",
     references: [
-      { id: "1", citation: "Excelsior OWL. (s.f.). Slippery Slope Fallacy. Writing Commons."},
+      { id: "1", citation: "Excelsior OWL. (s.f.). Slippery Slope Fallacy. Writing Commons.", url: "https://owl.excelsior.edu/argument-and-critical-thinking/logical-fallacies/"},
       { id: "2", citation: "Stanford Encyclopedia of Philosophy (2017). Fallacy of Slippery Slope (Walton, D.).", url: "https://plato.stanford.edu/entries/fallacies/" }
     ],
     openQuestion: "¿Cómo podemos distinguir entre un escenario plausible y un miedo infundado cuando debatimos cambios en prácticas humanas?"

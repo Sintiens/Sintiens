@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef, useLayoutEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
-import { ChevronDown, Info, X } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import SocraticReflection from "./SocraticReflection";
 import ConceptCard from "./ConceptCard";
 import { actsData } from "../data/storyData";
@@ -90,7 +90,6 @@ actNum: string;
 actColor: string;
 data: DeepDiveData;
 } | null>(null);
-const [showMobileInfo, setShowMobileInfo] = useState(false);
 const [activeBlocks, setActiveBlocks] = useState<Record<string, string>>({});
 const [visitedChapters, setVisitedChapters] = useState<Set<string>>(new Set());
 const [activeBlockId, setActiveBlockId] = useState<Record<string, string>>({});
@@ -128,6 +127,16 @@ const [mobileNote, setMobileNote] = useState<{
   item: GlossaryEntry;
   actColor: string;
 } | null>(null);
+
+// Close the mobile note sheet with Escape
+useEffect(() => {
+  if (!mobileNote) return;
+  const onKey = (e: KeyboardEvent) => {
+    if (e.key === "Escape") setMobileNote(null);
+  };
+  window.addEventListener("keydown", onKey);
+  return () => window.removeEventListener("keydown", onKey);
+}, [mobileNote]);
 
 // Refs to compute dynamic SVG line positions
 const gridContainerRefsByAct = useRef<Record<string, HTMLDivElement | null>>({});
@@ -263,53 +272,6 @@ const handleClickNote = (e: React.SyntheticEvent, noteId: string, item: Glossary
   }
 };
 
-const handleHoverSidebarItem = (noteId: string, type: "glossary" | "citation", item: GlossaryEntry, actId: string) => {
-  // Just trigger a visual highlight of the word in the text (non-intrusive)
-  const wordEl = document.querySelector(`[data-note-id="${noteId}"]`) as HTMLElement;
-  if (wordEl) {
-    wordEl.classList.add("pulse-highlight");
-  }
-};
-
-const handleLeaveSidebarItem = (noteId: string) => {
-  const wordEl = document.querySelector(`[data-note-id="${noteId}"]`) as HTMLElement;
-  if (wordEl) {
-    wordEl.classList.remove("pulse-highlight");
-  }
-};
-
-const handleConceptClick = (noteId: string, type: "glossary" | "citation", item: GlossaryEntry, actId: string) => {
-  const wordEl = document.querySelector(`[data-note-id="${noteId}"]`) as HTMLElement;
-  const gridContainer = wordEl?.closest(".grid-container-relative");
-  if (wordEl && gridContainer) {
-    const wordRect = wordEl.getBoundingClientRect();
-    const gridRect = gridContainer.getBoundingClientRect();
-
-    const relativeX = wordRect.right - gridRect.left;
-    const relativeY = wordRect.top - gridRect.top + (wordRect.height / 2);
-
-    // Scroll the word into view
-    wordEl.scrollIntoView({ behavior: "smooth", block: "center" });
-    wordEl.classList.add("pulse-highlight");
-    setTimeout(() => {
-      wordEl.classList.remove("pulse-highlight");
-    }, 2000);
-
-    // Set active note
-    setActiveNotesByAct(prev => ({
-      ...prev,
-      [actId]: {
-        id: noteId,
-        type,
-        item,
-        x: relativeX,
-        y: relativeY,
-        wordElement: wordEl
-      }
-    }));
-  }
-};
-
 // Close active note when clicking outside the card and outside highlighted words
 useEffect(() => {
   if (Object.keys(activeNotesByAct).length === 0) return;
@@ -362,7 +324,6 @@ useEffect(() => {
 // Build DOM cache for all acts once. This avoids querySelector / querySelectorAll
 // on every scroll frame (the previous implementation did ~10 queries per act per frame).
 const cache = actDomCache.current;
-const allSections = document.querySelectorAll('[id^="acto-"], #hero, #intro');
 const actSections = document.querySelectorAll('[id^="acto-"]');
 actSections.forEach((section) => {
   const actEl = section as HTMLElement;
@@ -845,7 +806,6 @@ blocks: [
 ]
 };
 const isActive = activeChapter === act0.id;
-const isFlashing = flashChapter === act0.id;
 
   return (
     <div key={act0.id} id={act0.id} className="w-full scroll-mt-0 relative overflow-visible" style={{
@@ -1200,7 +1160,6 @@ return (
 <AnimatePresence>
 {deepDiveData && (
 <DeepDiveView 
-actId={deepDiveData.actId}
 actNum={deepDiveData.actNum}
 actColor={deepDiveData.actColor}
 data={deepDiveData.data}

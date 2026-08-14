@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion } from "motion/react";
 import { Activity, Bone, Link, Dna } from "lucide-react";
 import { chickenPaths1957, chickenPaths1978, chickenPaths2005 } from "../../data/chickenAnatomyPaths";
