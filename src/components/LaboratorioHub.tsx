@@ -1,15 +1,13 @@
+import { memo } from "react";
 import { motion } from "motion/react";
 import { FlaskConical, Calculator, BrainCircuit, ChevronDown, Activity, Layers } from "lucide-react";
 import type { TabType } from "../types";
 
 interface LaboratorioHubProps {
-  activeTab: TabType;
   onNavigate: (tab: TabType) => void;
-  theme: "dark" | "light";
-  onToggleTheme: () => void;
 }
 
-export default function LaboratorioHub({ activeTab, onNavigate, theme, onToggleTheme }: LaboratorioHubProps) {
+export default memo(function LaboratorioHub({ onNavigate }: LaboratorioHubProps) {
   return (
     <motion.div
       key="laboratorio_hub"
@@ -135,4 +133,4 @@ export default function LaboratorioHub({ activeTab, onNavigate, theme, onToggleT
       </div>
     </motion.div>
   );
-}
+});

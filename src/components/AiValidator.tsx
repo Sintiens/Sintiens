@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, memo } from "react";
 import type { ReactNode } from "react";
 import {
   Send,
@@ -30,7 +30,6 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import type { TabType } from "../types";
 
 interface AIAnalysisResult {
   argumentSummary: string;
@@ -60,10 +59,6 @@ interface HistoryEntry {
 interface AiValidatorProps {
   argumentToAnalyze: string | null;
   clearArgument: () => void;
-  activeTab: TabType;
-  onNavigate: (tab: TabType) => void;
-  theme: "dark" | "light";
-  onToggleTheme: () => void;
 }
 
 /* ── Catálogo de modos de análisis (la API ya los soporta, estaban dormidos) ── */
@@ -176,13 +171,9 @@ function inferSeverity(rating: string): { level: "critico" | "moderado" | "matiz
   return { level: "matizado", label: "Premisa Matizada", color: "var(--link)" };
 }
 
-export default function AiValidator({
+export default memo(function AiValidator({
   argumentToAnalyze,
   clearArgument,
-  activeTab,
-  onNavigate,
-  theme,
-  onToggleTheme,
 }: AiValidatorProps) {
   const [userInput, setUserInput] = useState("");
   const [mode, setMode] = useState<AnalysisMode>("clinical");
@@ -936,7 +927,7 @@ export default function AiValidator({
       )}
     </motion.section>
   );
-}
+});
 
 /* ──────────────────────────────────────────────────────────────────────────
  *  Subcomponente: sección de resultado reutilizable

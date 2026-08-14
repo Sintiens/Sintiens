@@ -34,13 +34,23 @@ export default defineConfig((): UserConfig => {
       },
       rollupOptions: {
         output: {
-          manualChunks: {
-            'vendor-react': ['react', 'react-dom'],
-            'vendor-motion': ['motion'],
-            'vendor-charts': ['recharts'],
-            'vendor-icons': ['lucide-react'],
-            'vendor-ai': ['@google/genai'],
-            'vendor-zoom': ['react-zoom-pan-pinch'],
+          // Function form: only split vendor modules actually used by the
+          // entry. recharts is deliberately NOT listed here so Rollup emits
+          // it as a shared async chunk, only downloaded when a lazy tab
+          // (Datos/Noticias) is opened — previously it was force-loaded on
+          // startup via modulepreload (~99 KB gzip).
+          manualChunks(id: string) {
+            if (!id.includes('node_modules')) return undefined;
+            if (id.includes('/react/') || id.includes('/react-dom/') || id.includes('/scheduler/')) {
+              return 'vendor-react';
+            }
+            if (id.includes('/motion/') || id.includes('/framer-motion/')) {
+              return 'vendor-motion';
+            }
+            if (id.includes('lucide-react')) {
+              return 'vendor-icons';
+            }
+            return undefined;
           },
           chunkFileNames: 'assets/[name]-[hash].js',
           entryFileNames: 'assets/[name]-[hash].js',

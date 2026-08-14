@@ -35,7 +35,6 @@ import type { DilemmaDetail as DilemmaDetailType } from "../types";
 import { GLOSSARY_UNIFIED, GLOSSARY_CATEGORIES } from "../data/glossaryUnified";
 import TextRenderer from "./TextRenderer";
 import { Button } from "./ui/Button";
-import type { TabType } from "../types";
 
 /* ──────────────────────────────────────────────────────────────────────────
  *  Dialéctica · Socrática — rediseño completo
@@ -46,10 +45,6 @@ import type { TabType } from "../types";
 
 interface ExcusesDilemmasProps {
   onAnalyzeTrigger: (excuseText: string) => void;
-  activeTab: TabType;
-  onNavigate: (tab: TabType) => void;
-  theme: "dark" | "light";
-  onToggleTheme: () => void;
 }
 
 /* ── Persistencia: mismas claves kebab-case y patrón lazy + writer de la base ── */
@@ -250,7 +245,7 @@ function getRelatedNodes(dilemmaId: string): string[] {
 /* ──────────────────────────────────────────────────────────────────────────
  *  Componente principal
  * ────────────────────────────────────────────────────────────────────────── */
-export default function ExcusesDilemmas({ onAnalyzeTrigger, activeTab, onNavigate, theme, onToggleTheme }: ExcusesDilemmasProps) {
+export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: ExcusesDilemmasProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedConsensus, setSelectedConsensus] = useState<string>("all");
@@ -961,7 +956,7 @@ export default function ExcusesDilemmas({ onAnalyzeTrigger, activeTab, onNavigat
       </AnimatePresence>
     </motion.section>
   );
-}
+});
 
 /* ──────────────────────────────────────────────────────────────────────────
  *  Panel de detalle de una tesis

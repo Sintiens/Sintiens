@@ -73,10 +73,7 @@ type ListGroup = "az" | "categoria" | "tipo";
 interface GlossaryExplorerProps {
   initialEntryId?: string | null;
   onClearInitialEntryId?: () => void;
-  activeTab: TabType;
   onNavigate: (tab: TabType) => void;
-  theme: "dark" | "light";
-  onToggleTheme: () => void;
 }
 
 const TYPE_ICON: Record<GlossaryType, React.ReactNode> = {
@@ -149,7 +146,7 @@ function getAppearanceTarget(appearance: Appearance): { tab: string; label: stri
   }
 }
 
-export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId, activeTab, onNavigate, theme, onToggleTheme }: GlossaryExplorerProps) {
+export default React.memo(function GlossaryExplorer({ initialEntryId, onClearInitialEntryId, onNavigate }: GlossaryExplorerProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("lista");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState<GlossaryType | "all">("all");
@@ -1269,4 +1266,4 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
       </AnimatePresence>
     </div>
   );
-}
+});

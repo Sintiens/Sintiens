@@ -30,7 +30,6 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 import TextRenderer from "./TextRenderer";
 import { Button } from "./ui/Button";
-import type { TabType } from "../types";
 
 // Track metadata for coloring and labels in parallel view
 const TRACK_META: Record<string, { label: string; icon: any; color: string; textClass: string; bgClass: string; borderClass: string; glowClass: string }> = {
@@ -124,13 +123,9 @@ const ERAS: Era[] = [
 
 interface TimelineExplorerProps {
   onRedirectToConcept?: (nodeId: string) => void;
-  activeTab: TabType;
-  onNavigate: (tab: TabType) => void;
-  theme: "dark" | "light";
-  onToggleTheme: () => void;
 }
 
-export default function TimelineExplorer({ onRedirectToConcept, activeTab, onNavigate, theme, onToggleTheme }: TimelineExplorerProps) {
+export default React.memo(function TimelineExplorer({ onRedirectToConcept }: TimelineExplorerProps) {
   // Layout state toggle: swimlanes (visually stunning grid) vs detallado (original split view with comparison)
   const [layoutView, setLayoutView] = useState<"swimlanes" | "detallado">("swimlanes");
   
@@ -1566,6 +1561,6 @@ export default function TimelineExplorer({ onRedirectToConcept, activeTab, onNav
 
     </div>
   );
-}
+});
 
 

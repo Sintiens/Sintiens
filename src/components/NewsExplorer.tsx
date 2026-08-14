@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, memo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { 
   Newspaper, 
@@ -17,7 +17,6 @@ import {
   MapPin
 } from "lucide-react";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine } from "recharts";
-import type { TabType } from "../types";
 import { NEWS_DATA, NewsItem } from "../data/newsData";
 
 // Safe hostname extraction for favicon URLs (never throws on bad data)
@@ -29,12 +28,7 @@ const getDomain = (url: string): string => {
   }
 };
 
-interface NewsExplorerProps {
-  activeTab: TabType;
-  onNavigate: (tab: TabType) => void;
-  theme: "dark" | "light";
-  onToggleTheme: () => void;
-}
+interface NewsExplorerProps {}
 
 const CATEGORIES = [
   { id: "all", label: "Todas las Temáticas" },
@@ -86,7 +80,7 @@ const CustomTooltip = ({ active, payload }: any) => {
   return null;
 };
 
-export default function NewsExplorer({ activeTab, onNavigate, theme, onToggleTheme }: NewsExplorerProps) {
+export default memo(function NewsExplorer() {
   // State for filters
   const [selectedRegion, setSelectedRegion] = useState<"todos" | "españa" | "mundo">("todos");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -770,4 +764,4 @@ export default function NewsExplorer({ activeTab, onNavigate, theme, onToggleThe
 
     </div>
   );
-}
+});

@@ -262,20 +262,13 @@ export default function App() {
     setRedirectEntryId(null);
   }, []);
 
-  const handleNavigate = (tab: TabType) => {
+  const handleNavigate = useCallback((tab: TabType) => {
     navigateToTab(tab);
-  };
+  }, [activeTab]);
 
-  const handleToggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
-
-  const sharedProps = {
-    activeTab,
-    onNavigate: handleNavigate,
-    theme,
-    onToggleTheme: handleToggleTheme,
-  };
+  const handleToggleTheme = useCallback(() => {
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  }, []);
 
   return (
     <div 
@@ -314,7 +307,7 @@ export default function App() {
             >
               {activeTab === "historia_narrativa" && (
                 <LazyTabWrapper>
-                  <StoryMode {...sharedProps} />
+                  <StoryMode />
                 </LazyTabWrapper>
               )}
               {activeTab === "grafo" && glossaryData && (
@@ -322,34 +315,28 @@ export default function App() {
                   <GlossaryExplorer
                     initialEntryId={redirectEntryId}
                     onClearInitialEntryId={handleClearRedirectEntryId}
-                    {...sharedProps}
+                    onNavigate={handleNavigate}
                   />
                 </LazyTabWrapper>
               )}
               {activeTab === "cronologia" && coreNodes && (
                 <LazyTabWrapper>
-                  <TimelineExplorer
-                    onRedirectToConcept={handleRedirectToConcept}
-                    {...sharedProps}
-                  />
+                  <TimelineExplorer onRedirectToConcept={handleRedirectToConcept} />
                 </LazyTabWrapper>
               )}
               {activeTab === "dialectica" && (
                 <LazyTabWrapper>
-                  <ExcusesDilemmas
-                    onAnalyzeTrigger={handleDeconstructTrigger}
-                    {...sharedProps}
-                  />
+                  <ExcusesDilemmas onAnalyzeTrigger={handleDeconstructTrigger} />
                 </LazyTabWrapper>
               )}
               {activeTab === "calculadora" && (
                 <LazyTabWrapper>
-                  <ImpactCalculator {...sharedProps} />
+                  <ImpactCalculator />
                 </LazyTabWrapper>
               )}
               {activeTab === "datos" && (
                 <LazyTabWrapper>
-                  <DataSection {...sharedProps} />
+                  <DataSection />
                 </LazyTabWrapper>
               )}
               {activeTab === "validador" && (
@@ -357,18 +344,17 @@ export default function App() {
                   <AiValidator
                     argumentToAnalyze={passedArgument}
                     clearArgument={handleClearTrigger}
-                    {...sharedProps}
                   />
                 </LazyTabWrapper>
               )}
               {activeTab === "noticias" && (
                 <LazyTabWrapper>
-                  <NewsExplorer {...sharedProps} />
+                  <NewsExplorer />
                 </LazyTabWrapper>
               )}
               {activeTab === "laboratorio_hub" && (
                 <LazyTabWrapper>
-                  <LaboratorioHub {...sharedProps} />
+                  <LaboratorioHub onNavigate={handleNavigate} />
                 </LazyTabWrapper>
               )}
             </motion.div>

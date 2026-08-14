@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { motion } from "motion/react";
 import { Database, Info, Compass, HelpCircle, Eye, ChevronDown, LineChart } from "lucide-react";
 import AnimalsSlaughteredChart from "./charts/AnimalsSlaughteredChart";
@@ -5,15 +6,7 @@ import MeatConsumptionChart from "./charts/MeatConsumptionChart";
 import DeforestationChart from "./charts/DeforestationChart";
 import ChickenGrowthVisualizer from "./charts/ChickenGrowthVisualizer";
 import CageSpaceVisualizer from "./charts/CageSpaceVisualizer";
-import type { TabType } from "../types";
-interface DataSectionProps {
-  activeTab: TabType;
-  onNavigate: (tab: TabType) => void;
-  theme: "dark" | "light";
-  onToggleTheme: () => void;
-}
-
-export default function DataSection({ activeTab, onNavigate, theme, onToggleTheme }: DataSectionProps) {
+export default memo(function DataSection() {
   return (
     <div id="data-section-view" className="space-y-16 w-full relative text-left">
 
@@ -243,4 +236,4 @@ export default function DataSection({ activeTab, onNavigate, theme, onToggleThem
       <div className="h-32" />
     </div>
   );
-}
+});

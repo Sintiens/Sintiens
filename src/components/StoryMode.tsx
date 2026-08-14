@@ -12,7 +12,6 @@ import SideNoteCard from "./SideNoteCard";
 import ReadingUtilities from "./ReadingUtilities";
 import { BlockEnrichments } from "./InlineEnrichments";
 import MicroQuiz from "./MicroQuiz";
-import type { TabType } from "../types";
 import { GlossaryEntry } from "../data/glossaryUnified";
 
 const AmbientGlow = ({
@@ -80,7 +79,7 @@ return (
 );
 };
 
-export default function StoryMode({ activeTab, onNavigate, theme, onToggleTheme }: { activeTab: TabType; onNavigate: (tab: TabType) => void; theme: "dark" | "light"; onToggleTheme: () => void }) {
+export default React.memo(function StoryMode() {
 const [activeChapter, setActiveChapter] = useState<string | null>(null);
 const [flashChapter, setFlashChapter] = useState<string | null>(null);
 
@@ -1307,4 +1306,4 @@ isActive ? 'opacity-100' : 'opacity-0'
 
 </>
 );
-}
+});

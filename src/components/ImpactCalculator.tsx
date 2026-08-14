@@ -1,5 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
-import { 
+import { useState, useEffect, useMemo, memo } from "react";import { 
   Plus, 
   Minus, 
   Droplet, 
@@ -28,14 +27,6 @@ import {
   FoodCategory, 
   DietProfile 
 } from "../data/foodImpactData";
-import type { TabType } from "../types";
-
-interface ImpactCalculatorProps {
-  activeTab: TabType;
-  onNavigate: (tab: TabType) => void;
-  theme: "dark" | "light";
-  onToggleTheme: () => void;
-}
 
 const POPULATION_STEPS = [
   { value: 1, label: "Tú" },
@@ -57,7 +48,7 @@ const calculateCo2 = (meals: Record<FoodCategory, number>) => {
   return Object.entries(meals).reduce((sum, [key, count]) => sum + FOOD_IMPACTS[key as FoodCategory].co2 * count, 0);
 };
 
-export default function ImpactCalculator({ activeTab, onNavigate, theme, onToggleTheme }: ImpactCalculatorProps) {
+export default memo(function ImpactCalculator() {
   const [calcMode, setCalcMode] = useState<"explore" | "challenge">("explore");
   const [profile, setProfile] = useState<DietProfile>("omnivore");
   const [customMeals, setCustomMeals] = useState<Record<FoodCategory, number>>(DIET_PROFILES.omnivore);
@@ -527,7 +518,7 @@ export default function ImpactCalculator({ activeTab, onNavigate, theme, onToggl
       </AnimatePresence>
     </div>
   );
-}
+});
 
 function MetricCard({ icon, colorClass, title, value, unit, delay, equivalence }: any) {
   const bgClasses = {
