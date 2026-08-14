@@ -1098,7 +1098,7 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId }: Glossa
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute top-0 right-0 bottom-0 z-50 w-80 max-w-[85vw] glass-enhance border-l border-outline-variant/30 p-5 overflow-y-auto custom-scrollbar before:content-[''] before:absolute before:inset-0 before:bg-surface-dim/40 dark:before:bg-surface-dim/20 before:backdrop-blur-xl before:z-[-1] before:pointer-events-none"
+              className="absolute top-0 right-0 bottom-0 z-50 w-80 max-w-[85vw] glass-enhance border-l border-outline-variant/30 p-5 overflow-y-auto overscroll-y-contain custom-scrollbar before:content-[''] before:absolute before:inset-0 before:bg-surface-dim/40 dark:before:bg-surface-dim/20 before:backdrop-blur-xl before:z-[-1] before:pointer-events-none"
             >
               <div className="flex items-center justify-between mb-5">
                 <h3 className="text-[11px] font-mono uppercase tracking-widest text-primary font-bold">
@@ -1240,7 +1240,7 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId }: Glossa
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: "100%", opacity: 0 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute top-0 right-0 bottom-0 z-40 w-[min(560px,50vw)] max-w-[85vw] glass-enhance border-l border-outline-variant/30 p-5 overflow-y-auto custom-scrollbar flex flex-col before:content-[''] before:absolute before:inset-0 before:bg-surface-dim/40 dark:before:bg-surface-dim/20 before:backdrop-blur-xl before:z-[-1] before:pointer-events-none"
+            className="absolute top-0 right-0 bottom-0 z-40 w-[min(560px,50vw)] max-w-[85vw] glass-enhance border-l border-outline-variant/30 p-5 overflow-y-auto overscroll-y-contain custom-scrollbar flex flex-col before:content-[''] before:absolute before:inset-0 before:bg-surface-dim/40 dark:before:bg-surface-dim/20 before:backdrop-blur-xl before:z-[-1] before:pointer-events-none"
           >
             <div className="flex items-start justify-between gap-2 mb-4">
               <div className="flex flex-col gap-2 min-w-0 flex-1">

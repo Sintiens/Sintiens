@@ -50,7 +50,7 @@ export default function ConceptCard({ number, glossaryId, colorClass = "bg-ch1" 
 
       <div className="space-y-2.5 flex-1 relative z-10">
         <span className="text-[10px] font-mono font-bold text-primary uppercase tracking-widest block leading-none">
-          — 0{number}
+          — {String(number).padStart(2, "0")}
         </span>
         <h3 className="text-base sm:text-lg font-bold font-heading text-on-background group-hover:text-primary transition-colors duration-300">
           {entry.term}

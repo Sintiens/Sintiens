@@ -30,6 +30,7 @@ export default function SideNoteCard({ item, type, actColor, onClose }: SideNote
       {onClose && (
         <button
           onClick={onClose}
+          aria-label="Cerrar nota"
           className="absolute top-3 right-3 p-1 rounded-full hover:bg-surface-variant/50 dark:hover:bg-zinc-800/70 text-on-surface-variant transition-colors cursor-pointer"
         >
           <X className="w-3.5 h-3.5" />

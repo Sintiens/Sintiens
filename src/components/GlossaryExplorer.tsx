@@ -1214,7 +1214,7 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
 
             {/* Detail */}
             <div className="hidden lg:block relative">
-              <div ref={cardScrollRef} className="sticky top-3 max-h-[calc(100vh-12px)] overflow-y-auto custom-scrollbar glass-enhance border border-outline-variant/25 rounded-xl p-6 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
+              <div ref={cardScrollRef} className="sticky top-3 max-h-[calc(100vh-12px)] overflow-y-auto overscroll-y-contain custom-scrollbar glass-enhance border border-outline-variant/25 rounded-xl p-6 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
                 <AnimatePresence mode="popLayout" initial={false}>
                   {selectedEntry ? (
                     <motion.div
@@ -1251,10 +1251,11 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
             <motion.div
               initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="relative w-full max-h-[92vh] overflow-y-auto bg-background border-t border-outline-variant/30 p-8 rounded-t-xl z-10 custom-scrollbar shadow-2xl"
+              className="relative w-full max-h-[92vh] overflow-y-auto overscroll-y-contain bg-background border-t border-outline-variant/30 p-8 rounded-t-xl z-10 custom-scrollbar shadow-2xl"
             >
               <button
                 onClick={() => setIsMobileDetailOpen(false)}
+                aria-label="Cerrar detalle"
                 className="absolute top-6 right-6 p-2 rounded-full hover:bg-surface-dim transition-colors"
               >
                 <X className="w-5 h-5" />

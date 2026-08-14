@@ -88,6 +88,7 @@ export default function DeepDiveView({ actId, actNum, actColor, data, onClose }:
       <div className="w-full max-w-7xl min-h-screen flex flex-col lg:flex-row relative">
         <button 
           onClick={onClose}
+          aria-label="Cerrar archivo de profundización"
           className="absolute top-6 right-6 lg:fixed lg:top-8 lg:right-8 w-12 h-12 flex items-center justify-center rounded-full bg-surface-variant/30 hover:bg-surface-variant text-on-surface transition-colors z-50"
         >
           <X className="w-6 h-6" />

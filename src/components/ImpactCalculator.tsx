@@ -88,7 +88,8 @@ export default function ImpactCalculator({ activeTab, onNavigate, theme, onToggl
     if (calcMode !== "challenge") return null;
 
     let currentMeals = { ...customMeals };
-    let originalCo2 = calculateCo2(customMeals);
+    let currentCo2 = calculateCo2(customMeals);
+    const originalCo2 = currentCo2;
     let targetCo2 = originalCo2 * (1 - challengeTarget / 100);
     
     let changes: { from: FoodCategory, to: FoodCategory, count: number }[] = [];
@@ -98,7 +99,9 @@ export default function ImpactCalculator({ activeTab, onNavigate, theme, onToggl
     const substitute: FoodCategory = "plantBased";
 
     for (let cat of reductionPriority) {
-      while (currentMeals[cat] > 0 && calculateCo2(currentMeals) > targetCo2) {
+      while (currentMeals[cat] > 0 && currentCo2 > targetCo2) {
+        currentCo2 -= FOOD_IMPACTS[cat].co2;
+        currentCo2 += FOOD_IMPACTS[substitute].co2;
         currentMeals[cat]--;
         currentMeals[substitute]++;
         
@@ -111,7 +114,7 @@ export default function ImpactCalculator({ activeTab, onNavigate, theme, onToggl
       }
     }
 
-    const achievedCo2 = calculateCo2(currentMeals);
+    const achievedCo2 = currentCo2;
     const achievedReduction = originalCo2 > 0 ? ((originalCo2 - achievedCo2) / originalCo2) * 100 : 0;
 
     return {

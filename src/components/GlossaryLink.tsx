@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
-import { X, ArrowRight, ArrowUpRight, HelpCircle, Activity, Globe, Scale, BookOpen, Layers, ScrollText, Sparkles } from "lucide-react";
+import { X, ArrowRight, ArrowUpRight, HelpCircle, Activity, Globe, Scale, BookOpen, Layers, ScrollText, Sparkles, ChevronDown } from "lucide-react";
 import { GlossaryEntry } from "../data/glossaryUnified";
 import { CORE_NODES } from "../data/CORE_NODES";
 import { DILEMMAS_DATA } from "../data/DILEMMAS_DATA";
@@ -35,6 +35,7 @@ const CATEGORY_COLOR_VAR: Record<string, string> = {
 
 export default function GlossaryLink({ entry, children, noPopup, isActive, onActivate }: GlossaryLinkProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [showRelations, setShowRelations] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef<HTMLSpanElement>(null);
 
@@ -73,6 +74,7 @@ export default function GlossaryLink({ entry, children, noPopup, isActive, onAct
     e.stopPropagation();
     e.preventDefault();
     setIsOpen(false);
+    setShowRelations(false);
     const navEvent = new CustomEvent("navigate-to-item", { detail: targetId });
     window.dispatchEvent(navEvent);
   };
@@ -81,6 +83,7 @@ export default function GlossaryLink({ entry, children, noPopup, isActive, onAct
     e.stopPropagation();
     e.preventDefault();
     setIsOpen(false);
+    setShowRelations(false);
     const navEvent = new CustomEvent("navigate-to-glossary", { detail: entry.id });
     window.dispatchEvent(navEvent);
   };
@@ -144,27 +147,34 @@ export default function GlossaryLink({ entry, children, noPopup, isActive, onAct
 
       {allRelations.length > 0 && (
         <div className="space-y-2 pt-1">
-          <span className="text-[9px] font-mono tracking-wider uppercase text-on-surface-variant block font-bold">
-            Ver más sobre esto en:
-          </span>
-          <div className="flex flex-col gap-1.5">
-            {allRelations.slice(0, 6).map((relId) => {
-              const rel = getRelatedItemTitle(relId);
-              return (
-                <button
-                  key={relId}
-                  onClick={(e) => handleNavigate(relId, e)}
-                  className="w-full text-left text-[11px] px-3 py-2 rounded-xl bg-surface-container hover:bg-surface-variant border border-surface-variant text-on-surface hover:border-primary/30 transition-all flex items-center justify-between group cursor-pointer"
-                >
-                  <div className="flex items-center gap-2 truncate">
-                    {accentIcon}
-                    <span className="truncate font-medium">{rel.title}</span>
-                  </div>
-                  <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-0.5 text-primary shrink-0" />
-                </button>
-              );
-            })}
-          </div>
+          <button
+            onClick={() => setShowRelations((v) => !v)}
+            aria-expanded={showRelations}
+            className="w-full flex items-center justify-between gap-2 text-[9px] font-mono tracking-wider uppercase text-on-surface-variant font-bold hover:text-on-surface transition-colors cursor-pointer"
+          >
+            <span>Ver más sobre esto en:</span>
+            <ChevronDown className={`w-3 h-3 shrink-0 transition-transform duration-200 ${showRelations ? "rotate-180" : ""}`} />
+          </button>
+          {showRelations && (
+            <div className="flex flex-col gap-1.5">
+              {allRelations.slice(0, 6).map((relId) => {
+                const rel = getRelatedItemTitle(relId);
+                return (
+                  <button
+                    key={relId}
+                    onClick={(e) => handleNavigate(relId, e)}
+                    className="w-full text-left text-[11px] px-3 py-2 rounded-xl bg-surface-container hover:bg-surface-variant border border-surface-variant text-on-surface hover:border-primary/30 transition-all flex items-center justify-between group cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      {accentIcon}
+                      <span className="truncate font-medium">{rel.title}</span>
+                    </div>
+                    <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-0.5 text-primary shrink-0" />
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -216,11 +226,12 @@ export default function GlossaryLink({ entry, children, noPopup, isActive, onAct
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 26, stiffness: 240 }}
-              className="relative w-full max-h-[75vh] overflow-y-auto bg-surface-container border-t border-surface-variant dark:border-zinc-850 p-6 rounded-t-3xl flex flex-col z-10 shadow-2xl text-left pointer-events-auto select-none"
+              className="relative w-full max-h-[75vh] overflow-y-auto overscroll-y-contain bg-surface-container border-t border-surface-variant dark:border-zinc-850 p-6 rounded-t-3xl flex flex-col z-10 shadow-2xl text-left pointer-events-auto select-none"
             >
               <div className="w-12 h-1 rounded-full bg-zinc-350 dark:bg-zinc-800 mx-auto mb-4 shrink-0" />
               <button
                 onClick={() => setIsOpen(false)}
+                aria-label="Cerrar"
                 className="absolute top-5 right-5 p-2 rounded-full bg-surface-container border border-surface-variant text-on-surface-variant hover:text-on-surface dark:hover:text-white transition-all cursor-pointer"
               >
                 <X className="w-4 h-4" />

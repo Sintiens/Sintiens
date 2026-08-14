@@ -855,7 +855,7 @@ export default function ExcusesDilemmas({ onAnalyzeTrigger, activeTab, onNavigat
                 <div className="sticky top-24 max-h-[calc(100vh-12rem)] glass-enhance border border-outline-variant/25 rounded-xl relative overflow-hidden before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-0 before:pointer-events-none">
                   <div
                     ref={detailScrollRef}
-                    className="relative z-10 max-h-[calc(100vh-12rem)] overflow-y-auto custom-scrollbar"
+                    className="relative z-10 max-h-[calc(100vh-12rem)] overflow-y-auto overscroll-y-contain custom-scrollbar"
                   >
                   <AnimatePresence mode="wait">
                     {selectedDilemma ? (

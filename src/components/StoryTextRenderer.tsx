@@ -70,7 +70,7 @@ interface StoryTextRendererProps {
   content: React.ReactNode;
   activeNoteId: string | null;
   activeInstanceId?: string | null;
-  onClickNote: (event: React.MouseEvent, noteId: string, item: GlossaryEntry, type: "glossary" | "citation", instanceId?: string) => void;
+  onClickNote: (event: React.SyntheticEvent, noteId: string, item: GlossaryEntry, type: "glossary" | "citation", instanceId?: string) => void;
   accentColor?: string;
 }
 
@@ -138,9 +138,18 @@ export default function StoryTextRenderer({
                     key={`term-${sIdx}`}
                     data-note-id={matchEntry.id}
                     data-instance-id={instanceId}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Ver nota sobre ${matchEntry.term}`}
                     onClick={(e) => onClickNote(e, matchEntry.id, matchEntry, noteType, instanceId)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        onClickNote(e, matchEntry.id, matchEntry, noteType, instanceId);
+                      }
+                    }}
                     style={highlighterStyle}
-                    className="cursor-pointer transition-all duration-300 select-text inline px-1 pb-[1px] mx-[1px] bg-no-repeat"
+                    className="cursor-pointer transition-all duration-300 select-text inline px-1 pb-[1px] mx-[1px] bg-no-repeat outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded"
                   >
                     {matchedText}
                   </span>

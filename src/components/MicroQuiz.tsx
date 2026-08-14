@@ -79,6 +79,7 @@ const MicroQuiz: React.FC<{ quiz: MicroQuizData; accent: string }> = ({ quiz, ac
               key={i}
               onClick={() => !answered && setSelected(i)}
               disabled={answered}
+              aria-pressed={isSelected}
               className={`w-full text-left px-4 py-3 rounded-xl text-[15px] font-sans transition-all border ${
                 answered
                   ? "cursor-default"
@@ -131,6 +132,7 @@ const MicroQuiz: React.FC<{ quiz: MicroQuizData; accent: string }> = ({ quiz, ac
             className="overflow-hidden"
           >
             <div
+              aria-live="polite"
               className="px-5 py-4 border-t"
               style={{ borderColor: `color-mix(in oklch, ${cssVar} 22%, transparent)` }}
             >

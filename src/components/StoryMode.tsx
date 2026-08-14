@@ -221,7 +221,7 @@ useEffect(() => {
 }, [recomputeAllLines]);
 
 // Footnotes/Glossary Handlers
-const handleClickNote = (e: React.MouseEvent, noteId: string, item: GlossaryEntry, type: "glossary" | "citation", actId: string, actColor: string, instanceId?: string) => {
+const handleClickNote = (e: React.SyntheticEvent, noteId: string, item: GlossaryEntry, type: "glossary" | "citation", actId: string, actColor: string, instanceId?: string) => {
   e.preventDefault();
   e.stopPropagation();
   if (window.innerWidth < 1024) {
@@ -1228,7 +1228,7 @@ onClose={() => setDeepDiveData(null)}
         animate={{ y: 0 }}
         exit={{ y: "100%" }}
         transition={{ type: "spring", damping: 26, stiffness: 240 }}
-        className="relative w-full max-h-[75vh] overflow-y-auto bg-surface-container dark:bg-zinc-900 border-t border-surface-variant dark:border-zinc-800 p-6 rounded-t-3xl flex flex-col z-10 shadow-2xl text-left pointer-events-auto"
+        className="relative w-full max-h-[75vh] overflow-y-auto overscroll-y-contain bg-surface-container dark:bg-zinc-900 border-t border-surface-variant dark:border-zinc-800 p-6 rounded-t-3xl flex flex-col z-10 shadow-2xl text-left pointer-events-auto"
       >
         {/* Drag indicator */}
         <div className="w-12 h-1 rounded-full bg-zinc-350 dark:bg-zinc-800 mx-auto mb-4 shrink-0" />

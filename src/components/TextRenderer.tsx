@@ -161,6 +161,7 @@ function GlossaryCardContent({ entry, onClose }: { entry: GlossaryEntry; onClose
           </span>
           <button
             onClick={onClose}
+            aria-label="Cerrar nota de glosario"
             className="p-1 rounded-full hover:bg-surface-variant/50 text-on-surface-variant transition-colors cursor-pointer"
           >
             <X className="w-3.5 h-3.5" />

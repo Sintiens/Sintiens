@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { TIMELINE_DATA } from "../data/TIMELINE_DATA";
 import { CORE_NODES } from "../data/CORE_NODES";
 import { 
@@ -162,13 +162,17 @@ export default function TimelineExplorer({ onRedirectToConcept, activeTab, onNav
   }, [selectedMilestone]);
 
   // Flatten all milestones from groups and add track information
-  const allMilestones: MilestoneWithTrack[] = TIMELINE_DATA.flatMap((group: TimelineGroup) =>
-    group.milestones.map((milestone: TimelineMilestone) => ({
-      ...milestone,
-      trackId: group.id,
-      color: group.color
-    }))
-  ).sort((a, b) => a.year - b.year);
+  const allMilestones: MilestoneWithTrack[] = useMemo(
+    () =>
+      TIMELINE_DATA.flatMap((group: TimelineGroup) =>
+        group.milestones.map((milestone: TimelineMilestone) => ({
+          ...milestone,
+          trackId: group.id,
+          color: group.color
+        }))
+      ).sort((a, b) => a.year - b.year),
+    []
+  );
 
   // Toggle card expansion in parallel view
   const toggleExpand = (id: string) => {
@@ -1438,7 +1442,7 @@ export default function TimelineExplorer({ onRedirectToConcept, activeTab, onNav
             </div>
 
             {/* Split detailed sidepanel view */}
-            <div className="lg:col-span-5 border-t lg:border-t-0 lg:border-l border-zinc-200 dark:border-zinc-850 p-6 lg:p-8 flex flex-col justify-between bg-zinc-50/20 dark:bg-zinc-900/25 transition-colors duration-300 sticky top-24 self-start max-h-[85vh] overflow-y-auto custom-scrollbar">
+            <div className="lg:col-span-5 border-t lg:border-t-0 lg:border-l border-zinc-200 dark:border-zinc-850 p-6 lg:p-8 flex flex-col justify-between bg-zinc-50/20 dark:bg-zinc-900/25 transition-colors duration-300 sticky top-24 self-start max-h-[85vh] overflow-y-auto overscroll-y-contain custom-scrollbar">
               <AnimatePresence mode="wait">
                 
                 {isCompareMode ? (
@@ -1542,11 +1546,12 @@ export default function TimelineExplorer({ onRedirectToConcept, activeTab, onNav
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 220 }}
-              className="relative w-full max-h-[85vh] overflow-y-auto bg-zinc-50 dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800 p-6 flex flex-col z-10 shadow-2xl rounded-t-3xl custom-scrollbar"
+              className="relative w-full max-h-[85vh] overflow-y-auto overscroll-y-contain bg-zinc-50 dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800 p-6 flex flex-col z-10 shadow-2xl rounded-t-3xl custom-scrollbar"
             >
               <div className="w-12 h-1 rounded-full bg-zinc-300 dark:bg-zinc-800 mx-auto mb-5 shrink-0" />
               <button
                 onClick={() => setIsMobileDetailOpen(false)}
+                aria-label="Cerrar detalle"
                 className="absolute top-5 right-5 p-2 rounded-full bg-zinc-200/50 dark:bg-zinc-900/60 border border-zinc-300/40 dark:border-zinc-800 hover:bg-zinc-300/70 dark:hover:bg-zinc-800/80 text-zinc-500 hover:text-zinc-95 transition-all cursor-pointer"
               >
                 <X className="w-4 h-4" />

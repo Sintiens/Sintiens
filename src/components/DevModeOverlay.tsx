@@ -515,14 +515,8 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
   }, []);
 
   // Dynamic Coordinate Sync Engine (Responsive & Scroll-Aligned)
-  useEffect(() => {
-    if (!isActive) {
-      setResolvedCoords({});
-      return;
-    }
-
-    const recalculateCoords = () => {
-      if (!mainRef.current) return;
+  const recalculateCoords = () => {
+    if (!mainRef.current) return;
       const mainRect = mainRef.current.getBoundingClientRect();
       const nextCoords: Record<string, PinCoord> = {};
 
@@ -668,19 +662,29 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
       }
 
       setResolvedCoords(nextCoords);
-    };
+  };
+
+  const recalculateCoordsRef = useRef(recalculateCoords);
+  recalculateCoordsRef.current = recalculateCoords;
+
+  // Mount listeners/observer/interval ONCE per activation (not re-registered
+  // on every task/pin/tab state change, which caused flickering and rebuilds)
+  useEffect(() => {
+    if (!isActive) {
+      setResolvedCoords({});
+      return;
+    }
+
+    recalculateCoordsRef.current();
 
     // Native requestAnimationFrame throttle for 60fps buttery smooth performance
     const recalculateCoordsThrottled = () => {
       if (rafIdRef.current) return;
       rafIdRef.current = requestAnimationFrame(() => {
-        recalculateCoords();
+        recalculateCoordsRef.current();
         rafIdRef.current = null;
       });
     };
-
-    // Calculate immediately on effect trigger
-    recalculateCoords();
 
     // Listen to window resizing, scrolling (on any scrollable parent/sub-container), and polling
     window.addEventListener("resize", recalculateCoordsThrottled, { passive: true });
@@ -714,7 +718,13 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
         rafIdRef.current = null;
       }
     };
-  }, [isActive, tasks, activeTab, newPinCoords, newPinDims, newPinSelector, newPinRelative, sidebarWidth]);
+  }, [isActive]);
+
+  // Recalculate immediately when pin/task/tab state changes
+  useEffect(() => {
+    if (!isActive) return;
+    recalculateCoords();
+  }, [tasks, activeTab, newPinCoords, newPinDims, newPinSelector, newPinRelative, sidebarWidth, isActive]);
 
   // Auto-heal tasks missing or having invalid selectors by geometrically resolving them once the DOM is ready
   useEffect(() => {
