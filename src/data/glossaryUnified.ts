@@ -769,7 +769,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
       "Defendió el abolicionismo: las reformas bienestaristas perpetúan el sistema de uso animal."
     ],
     references: [
-      { id: "1", citation: "Regan, T. (1983). The Case for Animal Rights. University of California Press." }
+      { id: "1", citation: "Regan, T. (1983). The Case for Animal Rights. University of California Press." , url: "https://en.wikipedia.org/wiki/The_Case_for_Animal_Rights"}
     ],
     author: { name: "Tom Regan", era: "1938–2017", works: ["The Case for Animal Rights (1983)", "Empty Cages (2004)"] },
     relatedEntries: ["obra-case-animal-rights", "deontologia", "abolicionismo", "sujeto-de-una-vida", "derechos-animales"],
@@ -785,7 +785,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     shortDef: "Filósofo y jurista británico (1748–1832), fundador del utilitarismo clásico. En una nota célebre de 1789 planteó la pregunta que cambiaría la ética animal: 'La pregunta no es ¿pueden razonar?, ni ¿pueden hablar?, sino ¿pueden sufrir?'.",
     longDef: "Su 'An Introduction to the Principles of Morals and Legislation' (1789) estableció que el placer y el dolor son los únicos soberanos de la humanidad y que la capacidad de sufrir, no la racionalidad, es la base de la consideración moral. Su idea es el cimiento de toda la ética animal contemporánea.",
     references: [
-      { id: "1", citation: "Bentham, J. (1789). An Introduction to the Principles of Morals and Legislation. T. Payne and Son." }
+      { id: "1", citation: "Bentham, J. (1789). An Introduction to the Principles of Morals and Legislation. T. Payne and Son." , url: "https://en.wikipedia.org/wiki/An_Introduction_to_the_Principles_of_Morals_and_Legislation"}
     ],
     author: { name: "Jeremy Bentham", era: "1748–1832", works: ["An Introduction to the Principles of Morals and Legislation (1789)"] },
     relatedEntries: ["utilitarismo", "sintiencia", "singer"],
@@ -845,7 +845,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "etica",
     shortDef: "Jurista y filósofo estadounidense (1954–), teórico del abolicionismo jurídico. Sostiene que los animales tienen un derecho moral inviolable a no ser propiedad y que las reformas bienestaristas son un placebo que perpetúa el sistema de uso. Defiende el veganismo como línea de base moral.",
     references: [
-      { id: "1", citation: "Francione, G. L. (1996). Rain Without Thunder: The Ideology of the Animal Rights Movement. Temple University Press." },
+      { id: "1", citation: "Francione, G. L. (1996). Rain Without Thunder: The Ideology of the Animal Rights Movement. Temple University Press." , url: "https://www.google.com/books/edition/Rain_Without_Thunder"},
       { id: "2", citation: "Francione, G. L. (2000). Introduction to Animal Rights: Your Child or the Dog? Temple University Press." , url: "https://www.google.com/books/edition/Introduction_to_Animal_Rights"}
     ],
     author: { name: "Gary Francione", era: "1954–", works: ["Rain Without Thunder (1996)", "Introduction to Animal Rights (2000)"] },
@@ -861,7 +861,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "psicologia",
     shortDef: "Psicóloga social estadounidense (1961–). Bautizó el 'carnismo' en 'Why We Love Dogs, Eat Pigs, and Wear Cows' (2010) como el sistema de creencias invisible que nos enseña a clasificar arbitrariamente a unas especies como 'comestibles' y a otras como 'amadas'.",
     references: [
-      { id: "1", citation: "Joy, M. (2010). Why We Love Dogs, Eat Pigs, and Wear Cows: An Introduction to Carnism. Conari Press." }
+      { id: "1", citation: "Joy, M. (2010). Why We Love Dogs, Eat Pigs, and Wear Cows: An Introduction to Carnism. Conari Press." , url: "https://en.wikipedia.org/wiki/Carnism"}
     ],
     author: { name: "Melanie Joy", era: "1961–", works: ["Why We Love Dogs, Eat Pigs, and Wear Cows (2010)"] },
     relatedEntries: ["carnismo", "disonancia-cognitiva", "paradoja-carne"],
@@ -937,7 +937,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "etica",
     shortDef: "Psicólogo y filósofo británico (1945–). Acuñó el término 'especismo' en 1970 en un folleto impreso, concepto que más tarde fue popularizado por Peter Singer en 'Liberación Animal'. Defendió que la discriminación por especie es tan arbitraria como el racismo o el sexismo.",
     references: [
-      { id: "1", citation: "Ryder, R. D. (1970). Speciesism. (First coined in a printed leaflet)." }
+      { id: "1", citation: "Ryder, R. D. (1970). Speciesism. (First coined in a printed leaflet)." , url: "https://en.wikipedia.org/wiki/Speciesism"}
     ],
     author: { name: "Richard Ryder", era: "1945–", works: ["Speciesism (1970, folleto)", "Animal Revolution (1989)"] },
     relatedEntries: ["especismo", "singer", "obra-liberacion-animal"],
@@ -951,7 +951,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "etica",
     shortDef: "Filósofo empirista escocés (1711–1776). Formuló la 'ley de Hume' o guillotina de Hume, base de la 'falacia naturalista': no se puede deducir lo que 'debe ser' (ética) únicamente a partir de lo que 'es' (naturaleza). Por tanto, justificar el consumo animal porque 'los leones cazan' es un error lógico.",
     references: [
-      { id: "1", citation: "Hume, D. (1739). A Treatise of Human Nature (Book III, Part I, Section I)." }
+      { id: "1", citation: "Hume, D. (1739). A Treatise of Human Nature (Book III, Part I, Section I)." , url: "https://en.wikipedia.org/wiki/A_Treatise_of_Human_Nature"}
     ],
     author: { name: "David Hume", era: "1711–1776", works: ["A Treatise of Human Nature (1739)"] },
     relatedEntries: ["falacia-naturalista", "especismo"],
@@ -965,7 +965,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "psicologia",
     shortDef: "Psicólogo social estadounidense (1919–1989). Teorizó la 'disonancia cognitiva' en 1957: el malestar mental que surge cuando nuestras acciones contradicen nuestras creencias, y cómo el cerebro lo resuelve alterando las creencias o justificando las acciones.",
     references: [
-      { id: "1", citation: "Festinger, L. (1957). A Theory of Cognitive Dissonance. Stanford University Press." }
+      { id: "1", citation: "Festinger, L. (1957). A Theory of Cognitive Dissonance. Stanford University Press." , url: "https://en.wikipedia.org/wiki/A_Theory_of_Cognitive_Dissonance"}
     ],
     author: { name: "Leon Festinger", era: "1919–1989", works: ["A Theory of Cognitive Dissonance (1957)"] },
     relatedEntries: ["disonancia-cognitiva", "paradoja-carne"],
@@ -979,7 +979,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "psicologia",
     shortDef: "Psicólogo social investigador de la 'paradoja de la carne'. Sus estudios demostraron que, antes de consumir carne, las personas rebajan subconscientemente la inteligencia atribuida al animal que van a comer para aliviar su culpa (disonancia cognitiva en acción).",
     references: [
-      { id: "1", citation: "Loughnan, S., Haslam, N., & Bastian, B. (2010). The role of meat consumption in the denial of moral status and mind to meat animals. Appetite, 55(1), 156-159." }
+      { id: "1", citation: "Loughnan, S., Haslam, N., & Bastian, B. (2010). The role of meat consumption in the denial of moral status and mind to meat animals. Appetite, 55(1), 156-159." , url: "https://doi.org/10.1016/j.appet.2010.05.043"}
     ],
     author: { name: "Steve Loughnan", era: "fl. 2010", works: ["The role of meat consumption in the denial of moral status (2010)"] },
     relatedEntries: ["paradoja-carne", "disonancia-cognitiva", "bastian"]
@@ -1053,7 +1053,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "etica",
     shortDef: "Libro fundamental de Peter Singer (1975) que aplicó el utilitarismo clásico al sufrimiento de los animales no humanos, popularizó el concepto de 'especismo' (acuñado por Ryder) y es considerado el fundamento filosófico del movimiento animalista moderno.",
     references: [
-      { id: "1", citation: "Singer, P. (1975). Animal Liberation: A New Ethics for Our Treatment of Animals. HarperCollins." }
+      { id: "1", citation: "Singer, P. (1975). Animal Liberation: A New Ethics for Our Treatment of Animals. HarperCollins." , url: "https://en.wikipedia.org/wiki/Animal_Liberation_(book)"}
     ],
     relatedEntries: ["singer", "especismo", "utilitarismo", "ryder", "bentham"],
     relatedActs: ["acto-2"]
@@ -1066,7 +1066,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "etica",
     shortDef: "Libro de Tom Regan (1983) que fundó la teoría de los derechos animales desde una óptica deontológica. Introdujo el concepto de 'sujeto-de-una-vida' y defendió el abolicionismo frente a las reformas bienestaristas.",
     references: [
-      { id: "1", citation: "Regan, T. (1983). The Case for Animal Rights. University of California Press." }
+      { id: "1", citation: "Regan, T. (1983). The Case for Animal Rights. University of California Press." , url: "https://en.wikipedia.org/wiki/The_Case_for_Animal_Rights"}
     ],
     relatedEntries: ["regan", "abolicionismo", "sujeto-de-una-vida", "deontologia"]
   },
@@ -1078,7 +1078,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "psicologia",
     shortDef: "Libro de Carol J. Adams (1990) que vinculó el ecofeminismo con el antropocentrismo y teorizó el 'referente ausente': cómo el lenguaje comercial ('carne', 'filete') oculta al animal-víctima para desensibilizar al consumidor.",
     references: [
-      { id: "1", citation: "Adams, C. J. (1990). The Sexual Politics of Meat: A Feminist-Vegetarian Critical Theory. Continuum." }
+      { id: "1", citation: "Adams, C. J. (1990). The Sexual Politics of Meat: A Feminist-Vegetarian Critical Theory. Continuum." , url: "https://en.wikipedia.org/wiki/The_Sexual_Politics_of_Meat"}
     ],
     relatedEntries: ["adams", "referente-ausente", "carnismo"]
   },
@@ -1090,7 +1090,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "legal",
     shortDef: "Libro de Sue Donaldson y Will Kymlicka (2011) que propone una teoría política de los derechos animales: animales domésticos como 'ciudadanos', salvajes como 'naciones soberanas' y liminales como 'residentes'. Más allá de los derechos negativos.",
     references: [
-      { id: "1", citation: "Donaldson, S., & Kymlicka, W. (2011). Zoopolis: A Political Theory of Animal Rights. Oxford University Press." }
+      { id: "1", citation: "Donaldson, S., & Kymlicka, W. (2011). Zoopolis: A Political Theory of Animal Rights. Oxford University Press." , url: "https://en.wikipedia.org/wiki/Zoopolis"}
     ],
     relatedEntries: ["donaldson-kymlicka", "derechos-animales", "persona-no-humana"],
     relatedActs: ["acto-6"]
@@ -1103,7 +1103,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "ecologia",
     shortDef: "Libro de David Robinson Simon (2013) que analiza cómo la industria cárnica externaliza inmensos costes ambientales, sanitarios y morales, haciéndonos creer que la producción animal es 'barata' cuando su precio real lo paga la sociedad.",
     references: [
-      { id: "1", citation: "Simon, D. R. (2013). Meatonomics. Conari Press." }
+      { id: "1", citation: "Simon, D. R. (2013). Meatonomics. Conari Press." , url: "https://en.wikipedia.org/wiki/Meatonomics"}
     ],
     relatedEntries: ["david-robinson-simon", "ganaderia-industrial", "antropoceno"],
     relatedActs: ["acto-5"]
@@ -1116,7 +1116,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "etica",
     shortDef: "Libro de Jonathan Safran Foer (2009) que expone cómo el lenguaje culinario y el aislamiento arquitectónico de los mataderos están diseñados para desconectar al consumidor de la realidad del animal, narrando su propia transformación ética.",
     references: [
-      { id: "1", citation: "Foer, J. S. (2009). Eating Animals. Little, Brown and Company." }
+      { id: "1", citation: "Foer, J. S. (2009). Eating Animals. Little, Brown and Company." , url: "https://en.wikipedia.org/wiki/Eating_Animals"}
     ],
     relatedEntries: ["safran-foer", "referente-ausente", "disonancia-cognitiva"]
   },
@@ -1128,7 +1128,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "sintiencia",
     shortDef: "Libro de Jennifer Ackerman (2016) que documenta cómo aves como los cuervos de Nueva Caledonia fabrican herramientas complejas, hito cognitivo que redefinió nuestra comprensión de la inteligencia aviar.",
     references: [
-      { id: "1", citation: "Ackerman, J. (2016). The Genius of Birds. Penguin Press." }
+      { id: "1", citation: "Ackerman, J. (2016). The Genius of Birds. Penguin Press." , url: "https://www.google.com/books/edition/The_Genius_of_Birds"}
     ],
     relatedEntries: ["jennifer-ackerman", "etologia", "sintiencia"]
   },
@@ -1140,7 +1140,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "sintiencia",
     shortDef: "Obra de René Descartes (1637) donde, en su Parte V, defendió el mecanicismo: los animales son autómatas biológicos sin alma ni consciencia, cuyos gritos de dolor serían chirridos de engranajes. Sirvió como 'inmunización moral' para justificar la vivisección histórica.",
     references: [
-      { id: "1", citation: "Descartes, R. (1637). Discurso del método (Parte V)." }
+      { id: "1", citation: "Descartes, R. (1637). Discurso del método (Parte V)." , url: "https://es.wikipedia.org/wiki/Discurso_del_m%C3%A9todo"}
     ],
     relatedEntries: ["descartes", "mecanicismo-cartesiano", "viviseccion"]
   },
@@ -1152,7 +1152,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "sistemas_uso",
     shortDef: "Libro de Ruth Harrison (1964) que denunció por primera vez las condiciones de la ganadería industrial intensiva y provocó tal escándalo público que el Parlamento británico encargó el Informe Brambell (1965), origen de las 'Cinco Libertades'.",
     references: [
-      { id: "1", citation: "Harrison, R. (1964). Animal Machines: The New Factory Farming Industry. Vincent Stuart." }
+      { id: "1", citation: "Harrison, R. (1964). Animal Machines: The New Factory Farming Industry. Vincent Stuart." , url: "https://en.wikipedia.org/wiki/Animal_Machines"}
     ],
     relatedEntries: ["harrison", "informe-brambell", "cinco-libertades", "ganaderia-industrial"]
   },
@@ -1164,7 +1164,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "etica",
     shortDef: "Libro de Martha Nussbaum (2006) que extiende el 'enfoque de las capacidades' a tres fronteras de la justicia olvidadas por Rawls: los animales no humanos, las personas con discapacidad y la justicia global. Cada ser sintiente tiene derecho a prosperar.",
     references: [
-      { id: "1", citation: "Nussbaum, M. C. (2006). Frontiers of Justice: Species Membership. Harvard University Press." }
+      { id: "1", citation: "Nussbaum, M. C. (2006). Frontiers of Justice: Species Membership. Harvard University Press." , url: "https://en.wikipedia.org/wiki/Frontiers_of_Justice"}
     ],
     relatedEntries: ["nussbaum", "enfoque-capacidades", "derechos-animales"]
   },
@@ -1176,7 +1176,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     category: "legal",
     shortDef: "Libro de Steven Wise (2000) que sentó las bases jurídicas para reclamar derechos fundamentales (libertad corporal, Habeas Corpus) para grandes simios, abriendo la vía legal del reconocimiento de animales como 'personas no humanas'.",
     references: [
-      { id: "1", citation: "Wise, S. M. (2000). Rattling the Cage: Toward Legal Rights for Animals. Perseus Books." }
+      { id: "1", citation: "Wise, S. M. (2000). Rattling the Cage: Toward Legal Rights for Animals. Perseus Books." , url: "https://www.google.com/books/edition/Rattling_the_Cage"}
     ],
     relatedEntries: ["steven-wise", "habeas-corpus", "persona-no-humana"],
     relatedActs: ["acto-6"]
@@ -1195,7 +1195,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     shortDef: "Falacia que consiste en descalificar una propuesta atacando a quien la enuncia, en lugar de evaluar el contenido del argumento.",
     longDef: "La falacia ad hominem es una estrategia argumentativa falaz que rechaza o debilita una posición centrándose en características personales, identidad o circunstancias de quien la defiende, en lugar de discutir la validez del razonamiento. En debates sobre ética animal, se manifiesta al descalificar el veganismo por motivos de clase, etnia, género o apariencia del mensajero, sin abordar los argumentos sustantivos. La psicología cognitiva la relaciona con sesgos de rechazo y mecanismos de defensa identitaria.",
     references: [
-      { id: "1", citation: "Walton, D. (1998). Ad hominem arguments. University of Alabama Press." }
+      { id: "1", citation: "Walton, D. (1998). Ad hominem arguments. University of Alabama Press." , url: "https://en.wikipedia.org/wiki/Ad_hominem"}
     ],
     relatedEntries: ["falacia", "disonancia-cognitiva"],
     relatedNodes: ["disonancia-placer", "categorizacion-sociocultural"],
@@ -1211,7 +1211,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     shortDef: "Falacia que predice un encadenamiento de consecuencias extremas e inevitables a partir de una acción inicial, sin evidencia de la conexión causal entre cada paso.",
     longDef: "La falacia de pendiente resbaladiza asume que aceptar una medida (por ejemplo, regular la producción cárnica) conducirá inevitablemente a una cadena de prohibiciones (huevos, lácteos, mascotas, etc.) sin demostrar empíricamente cada eslabón. Es una técnica retórica basada en el miedo y la persuasión emocional, no en la argumentación racional. Filósofos del discurso subrayan que cada decisión política requiere su propio análisis de méritos, sin asumir conexiones necesarias entre ellas.",
     references: [
-      { id: "1", citation: "Walton, D. (2017). The slippery slope argument. In Oxford Handbook of Fallacies." }
+      { id: "1", citation: "Walton, D. (2017). The slippery slope argument. In Oxford Handbook of Fallacies." , url: "https://en.wikipedia.org/wiki/Slippery_slope"}
     ],
     relatedEntries: ["falacia", "falacia-ad-hominem"],
     relatedNodes: ["disonancia-placer"],

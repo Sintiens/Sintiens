@@ -74,7 +74,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
           {
             id: "1",
             citation: "White, L. (1962). Medieval Technology and Social Change. Oxford University Press."
-          },
+          , url: "https://en.wikipedia.org/wiki/Medieval_technology"},
           {
             id: "2",
             citation: "Langdon, J. (1986). Horses, Oxen and Technological Innovation: The Use of Draught Animals in English Farming from 1066 to 1500. Cambridge University Press.",
@@ -336,7 +336,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
           {
             id: "2",
             citation: "Ryder, R. D. (2000). Animal Revolution: Changing Attitudes towards Speciesism. Berg Publishers."
-          }
+          , url: "https://en.wikipedia.org/wiki/Richard_D._Ryder"}
         ],
         relatedNodeId: "legislacion-bienestar"
       },

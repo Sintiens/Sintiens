@@ -141,7 +141,7 @@ export const CORE_NODES: NodeDetail[] = [
       {
         id: "2",
         citation: "Regan, T. (1983). The Case for Animal Rights. University of California Press."
-      }
+      , url: "https://en.wikipedia.org/wiki/The_Case_for_Animal_Rights"}
     ]
   },
 
@@ -189,7 +189,7 @@ export const CORE_NODES: NodeDetail[] = [
       {
         id: "2",
         citation: "Adams, C. J. (1990). The Sexual Politics of Meat: A Feminist-Vegetarian Critical Theory. Continuum."
-      }
+      , url: "https://en.wikipedia.org/wiki/The_Sexual_Politics_of_Meat"}
     ]
   },
   {
@@ -353,7 +353,7 @@ export const CORE_NODES: NodeDetail[] = [
       {
         id: "2",
         citation: "IPCC. (2019). Special Report on Climate Change and Land. Intergovernmental Panel on Climate Change."
-      }
+      , url: "https://www.ipcc.ch/srccl/"}
     ]
   },
 

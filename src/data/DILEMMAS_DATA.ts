@@ -98,7 +98,7 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
       {
         id: "3",
         citation: "Poore, J., & Nemecek, T. (2018). Reducing food's environmental impacts. Science, 360(6392)."
-      }
+      , url: "https://doi.org/10.1126/science.aaq0216"}
     ]
   },
   {
@@ -138,7 +138,7 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
       {
         id: "1",
         citation: "Chittka, L. (2022). The Mind of a Bee. Princeton University Press."
-      },
+      , url: "https://en.wikipedia.org/wiki/The_Mind_of_a_Bee"},
       {
         id: "2",
         citation: "Gibbons, M., et al. (2022). Can insects feel pain? Advances in Insect Physiology, 63, 155-229."
@@ -252,11 +252,11 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
       {
         id: "1",
         citation: "Regan, T. (1983). The Case for Animal Rights. University of California Press."
-      },
+      , url: "https://en.wikipedia.org/wiki/The_Case_for_Animal_Rights"},
       {
         id: "2",
         citation: "McMahan, J. (2008). Eating animals the nice way. Daedalus, 137(1)."
-      },
+      , url: "https://doi.org/10.1162/daed.2008.137.1.66"},
       {
         id: "3",
         citation: "Poore, J. & Nemecek, T. (2018). Reducing food's environmental impacts."
@@ -347,7 +347,7 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
     coexistenceImpact: "Refleja el dilema sobre prácticas emergentes como la entomofagia masiva. ¿Debemos aplicar normativas de bienestar a insectos? Dado lo incierto, ¿cómo convivir con la duda científica? Esto exige revaluar normas alimentarias según nuevos hallazgos. ¿Tratamos a los insectos como simples recursos o planteamos límites prudentes mientras la ciencia avanza?",
     references: [
       { id: "1", citation: "Andrews, K. et al. (2024). The New York Declaration on Animal Consciousness." , url: "https://nyudeclaration.org/"},
-      { id: "2", citation: "Birch, J. (2017). Animal sentience and the precautionary principle. Animal Sentience, 2(16)." }
+      { id: "2", citation: "Birch, J. (2017). Animal sentience and the precautionary principle. Animal Sentience, 2(16)." , url: "https://doi.org/10.51291/2377-7478.1016"}
     ],
     openQuestion: "¿En la duda, deberíamos asumir que los insectos pueden sufrir y actuar en consecuencia? ¿Qué norma ética aplicar mientras la ciencia avanza?"
   },
@@ -362,7 +362,7 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
     coexistenceImpact: "El reconocimiento casi unánime de la sintiencia animal ya influye en políticas (leyes de bienestar, restricción de prácticas crueles). Si muchos animales son sintientes como afirma la ciencia, ¿debemos revisar conductas cotidianas (alimentación, vestimenta, entretenimiento)? ¿Estamos preparados para integrar este consenso en nuestra convivencia diaria?",
     references: [
       { id: "1", citation: "Low, P. et al. (2012). The Cambridge Declaration on Consciousness." , url: "https://fcmconference.org/img/CambridgeDeclarationOnConsciousness.pdf"},
-      { id: "2", citation: "Andrews, K. et al. (2024). The New York Declaration on Animal Consciousness." },
+      { id: "2", citation: "Andrews, K. et al. (2024). The New York Declaration on Animal Consciousness." , url: "https://nyudeclaration.org/"},
       { id: "3", citation: "Declaration of Montreal on Animal Exploitation. (2022)." }
     ],
     openQuestion: "¿Cómo deberíamos cambiar prácticas humanas a la luz de este consenso científico sobre la conciencia animal?"
@@ -377,7 +377,7 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
     philosophicalDeconstruction: "Este consenso refleja un acuerdo científico-farmacológico: la B12 no es intrínseca de plantas, pero sí producible por bacterias cultivadas industrialmente. Éticamente, si la salud humana puede preservarse sin sacrificar animales (mediante suplementos económicos), el fundamento práctico de muchas objeciones dietéticas desaparece. Cierra el dilema moral sobre si abstenerse de carne se «paga» con riesgo sanitario: la respuesta objetiva es no, gracias al consenso nutricional y biotecnológico [1, 2].",
     coexistenceImpact: "Apoya que la elección vegana es compatible con la salud. Impulsa cambios sociales: más productos fortificados, políticas de nutrición pública, reducción del estigma ético por «deficiencia de B12». ¿Qué otros mitos dietéticos necesitan claridad científica? ¿Puede la gente confiar plenamente en que el consenso nutricional admite estilos de vida sin consumo animal?",
     references: [
-      { id: "1", citation: "Melina, V. et al. (2016). Position of the Academy of Nutrition and Dietetics: Vegetarian Diets. Journal of the Academy of Nutrition and Dietetics, 116(12), 1970-1980." },
+      { id: "1", citation: "Melina, V. et al. (2016). Position of the Academy of Nutrition and Dietetics: Vegetarian Diets. Journal of the Academy of Nutrition and Dietetics, 116(12), 1970-1980." , url: "https://doi.org/10.1016/j.jand.2016.09.025"},
       { id: "2", citation: "Rizzo, G. et al. (2023). Vitamin B12 in vegan diets. Critical Reviews in Food Science and Nutrition, 63(29), 9805-9816." }
     ],
     openQuestion: "Dado este consenso nutricional, ¿qué otras creencias sobre dietas requieren revisarse éticamente?"
@@ -392,7 +392,7 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
     philosophicalDeconstruction: "Este consenso termodinámico resuena con argumentos éticos utilitaristas sobre recursos limitados: si la tierra disponible puede alimentar a más humanos con dietas vegetales, perseguir una vía menos eficiente puede verse como desperdicio de bienes globales (justicia distributiva). Filósofos ambientales señalan que reducir la ineficiencia alimentaria es un deber moral hacia la sostenibilidad. Al reconocer el consenso científico, el dilema moral básico sobre cómo usar el planeta recibe respuesta: la ciencia abrumadora indica que priorizar cultivos directos favorece el bienestar colectivo [1, 2].",
     coexistenceImpact: "Refuerza políticas públicas de fomento de dietas vegetales. Cierra argumentos de que «necesitamos más ganado». Para la convivencia social, ¿estamos dispuestos a cambiar la producción alimentaria por razones de eficiencia? ¿Sería éticamente inconsistente ignorar pruebas científicas que muestran que podemos alimentar mejor al mundo con recursos más directamente?",
     references: [
-      { id: "1", citation: "Poore, J. & Nemecek, T. (2018). Reducing food's environmental impacts through producers and consumers. Science, 360(6392), 987-992." },
+      { id: "1", citation: "Poore, J. & Nemecek, T. (2018). Reducing food's environmental impacts through producers and consumers. Science, 360(6392), 987-992." , url: "https://doi.org/10.1126/science.aaq0216"},
       { id: "2", citation: "Ritchie, H. (2020). Food production is responsible for one-quarter of the world's greenhouse gas emissions. Our World in Data." , url: "https://ourworldindata.org/food-emissions"}
     ],
     openQuestion: "¿Estamos dispuestos a reorientar la producción alimentaria global basándonos en este consenso termodinámico?"
@@ -469,7 +469,7 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
     philosophicalDeconstruction: "Ético y filosóficamente, surge la pregunta del estatuto moral del embrión quimérico. Algunos filósofos (Singer, Regan) argumentarían que si un embrión desarrolla un nivel de consciencia similar al humano, debería considerarse como sujeto moral equivalente a un humano. Aravena alerta que este campo impone límites no establecidos: introducir células humanas en animales extiende los límites de lo éticamente aceptable. En la discusión, Bhan et al. (2010) proponen un enfoque utilitario: sopesar los beneficios potenciales (vacunas, trasplantes) frente a los temores culturales, recordando que la prohibición absoluta podría impedir curas vitales. En última instancia, la cuestión filosófica es definir si el embrión quimera merece un estatus similar al de seres humanos o queda en un espacio intermedio; muchos eticistas concluyen que se requiere un marco ético específico (p. ej., no sobrepasar cierto porcentaje de contribución humana en el cerebro) para resolverlo con criterio.",
     coexistenceImpact: "Este escenario radical plantea cómo acompañar el avance científico manteniendo valores éticos. Una propuesta es la regulación: por ejemplo, si un embrión quimérico llega a cierto estadio o proporción humana crítica, se debería interrumpir su gestación por respeto a su dignidad emergente. Otro enfoque es la transparencia y el diálogo público sobre estos experimentos. La pregunta final es si es posible convivir con esta tecnología creando límites claros: ¿qué características debería tener un embrión quimérico para que la sociedad le reconozca derechos propios? En consecuencia, se invita a la reflexión sobre si la posibilidad de salvar vidas humanas justifica el riesgo de crear entes híbridos éticamente problemáticos.",
     references: [
-      { id: "1", citation: "Aravena, M. (2025). Desafíos ético-legales de la experimentación con quimeras humano-animales. Revista de Bioética y Derecho, 31, 53-69."},
+      { id: "1", citation: "Aravena, M. (2025). Desafíos ético-legales de la experimentación con quimeras humano-animales. Revista de Bioética y Derecho, 31, 53-69.", url: "https://revistes.ub.edu/index.php/RBD/article/view/50112"},
       { id: "2", citation: "Bhan, A., Singer, P. A., & Daar, A. S. (2010). Human–animal chimeras for vaccine development: An endangered species or opportunity for the developing world? BMC International Health and Human Rights, 10(8).", url: "https://doi.org/10.1186/1472-698X-10-8"}
     ],
     openQuestion: "¿Cuáles límites éticos debemos trazar en la investigación con quimeras para que los beneficios médicos no comprometan la dignidad de especies sintientes?"
@@ -484,7 +484,7 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
     philosophicalDeconstruction: "Ético y filosóficamente, se debate cuál es el estatus moral de los embriones y fetos. Algunos filósofos defienden el principio de precaución: si no estamos seguros de la presencia de sensaciones, merece la pena minimizar cualquier posible sufrimiento administrando analgésicos o evitando procedimientos innecesarios. Otros argumentan que, si no hay evidencia clara de conciencia fetal, no hay obligación moral equiparable a la de un ser nacido. En la práctica, muchos bioéticos toman una posición intermedia: conceden mayor consideración conforme avanza la gestación y la capacidad neural del feto. Este enfoque va en línea con directrices éticas que requieren tratamientos más estrictos (anestesia, limitaciones en experimentación) en fetos tardíos, intentando respetar su posible desarrollo sintiente sin paralizar la investigación científica necesaria.",
     coexistenceImpact: "Finalmente, este dilema incita a preguntarse cómo operan los principios de prudencia en la convivencia práctica. En la ganadería y la investigación, la cuestión es: ¿qué nivel de precaución adoptamos? Algunos proponen protocolos donde, llegado cierto umbral de desarrollo neural, se suspendan procedimientos y se administre analgesia; otros piden investigación adicional para delimitar mejor la sintiencia fetal. El interrogante socrático resultante es si debemos tratar a todo embrión animal como sujeto potencial de dolor o asumir un umbral mínimo: ¿qué criterio usar para decidir en qué momento moralizar las intervenciones sobre fetos, y cómo garantizar que las decisiones reflejen un equilibrio entre progreso y respeto a la vida?",
     references: [
-      { id: "1", citation: "Aravena, M. (2025). Desafíos ético-legales de la experimentación con quimeras humano-animales. Revista de Bioética y Derecho, 31, 53-69."},
+      { id: "1", citation: "Aravena, M. (2025). Desafíos ético-legales de la experimentación con quimeras humano-animales. Revista de Bioética y Derecho, 31, 53-69.", url: "https://revistes.ub.edu/index.php/RBD/article/view/50112"},
       { id: "2", citation: "European Union (2010). Directive 2010/63/EU on the protection of animals used for scientific purposes.", url: "https://eur-lex.europa.eu/eli/dir/2010/63" }
     ],
     openQuestion: "¿Hasta qué etapa gestacional debe considerarse la posibilidad de sensación fetal al planificar intervenciones en animales?"
@@ -544,7 +544,7 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
     philosophicalDeconstruction: "Desde un punto de vista filosófico, recurrir a ataques personales en lugar de razones es considerado un comportamiento irracional y poco ético en el debate público. Filósofos del argumento han indicado que esta táctica favorece la polarización y evita la negociación de ideas: en lugar de enfrentar la cuestión moral en sí, se centra la atención en el estatus social o características personales de quienes expone. Esto contraviene los ideales de diálogo racional y justo que proponen pensadores como Habermas, quienes sostienen que el discurso debe evaluar ideas por sus méritos, no por el origen de quien las propone. En síntesis, la falacia ad hominem actúa como una distracción impropia: el valor de un argumento, incluyendo los sobre bienestar animal, debe juzgarse por su contenido, no por quien lo defiende.",
     coexistenceImpact: "Reconocer y evitar esta falacia favorece una convivencia discursiva más madura, en la que se evalúan ideas y no identidades. La pregunta final es cómo podemos estructurar debates que estén a salvo de ataques personales, de modo que permitan a veganos y no veganos entenderse mejor. En otras palabras: ¿de qué serviría rechazar un argumento sólo por el origen de quien lo plantea, si la verdad de fondo podría permanecer? Este cuestionamiento socrático invita a centrarse en las propuestas reales para avanzar en temas de cohabitación entre personas y animales.",
     references: [
-      { id: "1", citation: "Walton, D. (1998). Ad hominem arguments. University of Alabama Press."},
+      { id: "1", citation: "Walton, D. (1998). Ad hominem arguments. University of Alabama Press.", url: "https://en.wikipedia.org/wiki/Ad_hominem"},
       { id: "2", citation: "Logically Fallacious (2023). Ad Hominem (Abusive). Archieboy Holdings.", url: "https://www.logicallyfallacious.com/logicalfallacies/Ad-Hominem-Abusive" }
     ],
     openQuestion: "¿Cómo puede mejorarse el debate público sobre bienestar animal si evaluamos los argumentos independientemente de quién los plantea?"
