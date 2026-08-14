@@ -17,13 +17,19 @@ unescape*.cjs
 test-browser*.cjs
 check_tools*.cjs
 old_story_mode.txt
+old_handleScroll.txt
 storymode_*.txt
 recovery_*.json
 stash_output.txt
 user_request_*.txt
 last_write_*.txt
 diff.patch
-fix_*.py
+diff.txt
+PRUEBA.txt
+metadata.json
+mpv54382-DESIGN.md
+scratch/
+todo.json
 .tool_log/
 .antigravity/
 
