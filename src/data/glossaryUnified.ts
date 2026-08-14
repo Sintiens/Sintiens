@@ -358,7 +358,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     type: "concepto",
     category: "psicologia",
     shortDef: "Fenómeno lingüístico propuesto por Carol J. Adams donde el lenguaje comercial oculta al animal vivo. Al renombrar el cadáver del animal como 'carne', 'chuleta', 'filete' o 'salchicha', el lenguaje elimina al animal sintiente de nuestra empatía cotidiana.",
-    relatedEntries: ["adams", "carnismo", "disonancia-cognitiva", "categorizacion-sociocultural"],
+    relatedEntries: ["adams", "carnismo", "disonancia-cognitiva"],
     relatedNodes: ["categorizacion-sociocultural"],
     relatedDilemmas: ["el-mito-de-la-carne-humanitaria"]
   },
@@ -614,7 +614,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     type: "concepto",
     category: "legal",
     shortDef: "Tratamiento legal y moral de un ser sintiente como una 'cosa' u objeto de propiedad intercambiable, al nivel de una mesa o un coche. Las recientes reformas de 'descosificación' los redefinen como seres vivos dotados de sensibilidad, abriendo la primera grieta jurídica en su estatus de mercancía.",
-    relatedEntries: ["persona-no-humana", "derechos-animales", "estatus-juridico"],
+    relatedEntries: ["persona-no-humana", "derechos-animales"],
     relatedNodes: ["estatus-juridico"],
     relatedDilemmas: ["el-argumento-del-contrato-social", "el-mito-de-la-carne-humanitaria"]
   },
@@ -644,7 +644,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     references: [
       { id: "1", citation: "Tuomisto, H. L., & Teixeira de Mattos, M. J. (2011). Environmental Impacts of Cultured Meat Production. Environmental Science & Technology, 45(14)." }
     ],
-    relatedEntries: ["veganismo", "consistencia-moral", "b12", "vias-transicion"],
+    relatedEntries: ["veganismo", "consistencia-moral", "b12"],
     relatedNodes: ["vias-transicion"],
     relatedDilemmas: ["granja-feliz-ecologia", "explotacion-industrial-clima"],
     relatedActs: ["acto-6"]
@@ -668,7 +668,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     type: "concepto",
     category: "sintiencia",
     shortDef: "Principio moral que establece que si existe una sospecha razonable de que una acción causa daño severo (como el dolor en insectos o bivalvos), y carecemos de un consenso absoluto, lo éticamente correcto es evitar esa acción de manera cautelar.",
-    relatedEntries: ["declaracion-nueva-york", "bivalvos-ostras"],
+    relatedEntries: ["declaracion-nueva-york"],
     relatedNodes: ["neuroanatomia-consciencia"],
     relatedDilemmas: ["bivalvos-ostras", "comer-insectos-harinas"]
   },
@@ -1261,7 +1261,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     references: [
       { id: "1", citation: "Mariscal-Lucero, S. et al. (2020). Cognitive and emotional indicators of pain in bulls during bullfighting. Animals, 10(11), 2118." }
     ],
-    relatedEntries: ["especismo", "tradicion", "bienestarismo"],
+    relatedEntries: ["especismo", "bienestarismo"],
     relatedNodes: ["historia-dominacion", "legislacion-bienestar", "otras-instrumentalizaciones"],
     relatedDilemmas: ["r2-tauromaquia-patrimonio", "tradicion-no-hace-correcto"]
   },
@@ -1277,7 +1277,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     references: [
       { id: "1", citation: "Aravena, M. (2025). Desafíos ético-legales de la experimentación con quimeras humano-animales. Revista de Bioética y Derecho, 31, 53-69." }
     ],
-    relatedEntries: ["sintiencia", "declaracion-cambridge", "vias-transicion"],
+    relatedEntries: ["sintiencia", "declaracion-cambridge"],
     relatedNodes: ["vias-transicion", "neuroanatomia-consciencia"],
     relatedDilemmas: ["r2-quimeras-humanas"]
   },
@@ -1293,7 +1293,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     references: [
       { id: "1", citation: "Dennis, C. J. (2002). Engineering animals through transgenesis: issues and perspectives for animal welfare. ILAR Journal, 43(3), 236-239." }
     ],
-    relatedEntries: ["sintiencia", "vias-transicion", "agricultura-celular"],
+    relatedEntries: ["sintiencia", "agricultura-celular"],
     relatedNodes: ["vias-transicion", "sistemas-alimentacion"],
     relatedDilemmas: ["r2-animales-modificados-geneticamente", "r2-quimeras-humanas"]
   },
@@ -1309,7 +1309,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     references: [
       { id: "1", citation: "Roy, H. E. et al. (2023). Curbing the major and growing threats from invasive alien species. Science, 380(6643), 462-467." }
     ],
-    relatedEntries: ["ecologismo", "individualismo", "bienestarismo"],
+    relatedEntries: ["bienestarismo"],
     relatedNodes: ["crisis-ambiental", "huella-ecologica"],
     relatedDilemmas: ["r2-especies-invasoras", "r2-ecologismo-animalismo"]
   },
@@ -1429,8 +1429,8 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
       "Las decisiones individuales de consumo operan dentro de sistemas de subsidios, marketing y disponibilidad que las condicionan.",
       "El concepto de 'externalidad negativa' (coste no reflejado en el precio) es un ejemplo de cómo los sistemas ocultan el daño real."
     ],
-    relatedEntries: ["externalidad-negativa", "ganaderia-industrial", "especismo"],
-    relatedNodes: ["sistemas-uso", "ecologia"]
+    relatedEntries: ["ganaderia-industrial", "especismo"],
+    relatedNodes: ["sistemas-alimentacion", "crisis-ambiental"]
   },
   {
     id: "axioma-implicito",
@@ -1447,7 +1447,7 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
       "La deconstrucción socrática consiste precisamente en hacer explícitos estos axiomas para examinarlos a la luz de la evidencia."
     ],
     relatedEntries: ["especismo", "carnismo", "disonancia-cognitiva", "falacia-naturalista"],
-    relatedNodes: ["sesgos-cognitivos", "axiomas"]
+    relatedNodes: ["disonancia-placer", "marcos-eticos"]
   }
 ];
 

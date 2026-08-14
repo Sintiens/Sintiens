@@ -30,7 +30,7 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 import TextRenderer from "./TextRenderer";
 import { Button } from "./ui/Button";
-import TabNav, { TabType } from "./TabNav";
+import type { TabType } from "../types";
 
 // Track metadata for coloring and labels in parallel view
 const TRACK_META: Record<string, { label: string; icon: any; color: string; textClass: string; bgClass: string; borderClass: string; glowClass: string }> = {
@@ -309,35 +309,34 @@ export default function TimelineExplorer({ onRedirectToConcept, activeTab, onNav
     setSvgPaths(paths);
   };
 
-  // Re-calculate paths on hover, scroll, or resize
+  // Re-calculate paths on hover, expansion, search or layout changes.
+  // The resize listener is added/removed with a named function inside this
+  // effect so it is always cleaned up correctly (no listener leak), and
+  // recalculations on resize are debounced to avoid layout thrash.
   useEffect(() => {
-    calculateConnections();
-    calculateDotPositions();
-    
-    window.addEventListener("resize", () => {
+    const recalcBoth = () => {
       calculateConnections();
       calculateDotPositions();
-    });
-    document.addEventListener("transitionend", () => {
-      calculateConnections();
-      calculateDotPositions();
-    });
+    };
+
+    recalcBoth();
+
+    let resizeTimer: number | undefined;
+    const onResize = () => {
+      if (resizeTimer !== undefined) window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(recalcBoth, 150);
+    };
+    window.addEventListener("resize", onResize);
 
     // Multi-stage trigger to guarantee alignment after full React DOM mount
-    const timer1 = setTimeout(() => {
-      calculateConnections();
-      calculateDotPositions();
-    }, 100);
-    const timer2 = setTimeout(() => {
-      calculateConnections();
-      calculateDotPositions();
-    }, 600);
+    const timer1 = window.setTimeout(recalcBoth, 100);
+    const timer2 = window.setTimeout(recalcBoth, 600);
 
     return () => {
-      window.removeEventListener("resize", calculateConnections);
-      document.removeEventListener("transitionend", calculateConnections);
-      clearTimeout(timer1);
-      clearTimeout(timer2);
+      window.removeEventListener("resize", onResize);
+      if (resizeTimer !== undefined) window.clearTimeout(resizeTimer);
+      window.clearTimeout(timer1);
+      window.clearTimeout(timer2);
     };
   }, [hoveredMilestoneId, expandedMilestones, searchQuery, layoutView]);
 

@@ -30,7 +30,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import TabNav, { TabType } from "./TabNav";
+import type { TabType } from "../types";
 
 interface AIAnalysisResult {
   argumentSummary: string;
@@ -198,6 +198,16 @@ export default function AiValidator({
   const [copied, setCopied] = useState(false);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      abortControllerRef.current?.abort();
+    };
+  }, []);
 
   /* ── Persistir historial ── */
   useEffect(() => {
@@ -254,6 +264,11 @@ export default function AiValidator({
       const finalVal = (textToSend || userInput).trim();
       if (!finalVal) return;
 
+      abortControllerRef.current?.abort();
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+      const timeoutId = window.setTimeout(() => controller.abort(), 60_000);
+
       setLoading(true);
       setError(null);
       setAnalysis(null);
@@ -269,6 +284,7 @@ export default function AiValidator({
             mode: selectedMode,
             context: "sintiens AI Validator",
           }),
+          signal: controller.signal,
         });
 
         if (!response.ok) {
@@ -281,6 +297,8 @@ export default function AiValidator({
         if (data.error) {
           throw new Error(data.error);
         }
+
+        if (!isMountedRef.current) return;
 
         setAnalysis(data);
 
@@ -299,10 +317,24 @@ export default function AiValidator({
           return [entry, ...deduped].slice(0, 12);
         });
       } catch (err: any) {
-        console.error(err);
-        setError(err?.message || "Algo salió mal procesando el análisis.");
+        if (err?.name === "AbortError") {
+          if (isMountedRef.current) {
+            setError("El análisis se canceló o tardó demasiado. Inténtalo de nuevo.");
+          }
+        } else {
+          console.error(err);
+          if (isMountedRef.current) {
+            setError(err?.message || "Algo salió mal procesando el análisis.");
+          }
+        }
       } finally {
-        setLoading(false);
+        window.clearTimeout(timeoutId);
+        if (abortControllerRef.current === controller) {
+          abortControllerRef.current = null;
+        }
+        if (isMountedRef.current) {
+          setLoading(false);
+        }
       }
     },
     [userInput]

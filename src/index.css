@@ -41,9 +41,9 @@
   --color-accent: var(--accent);
   --color-link: var(--link);
 
-  --color-purple-650: var(--color-purple-650);
-  --color-purple-750: var(--color-purple-750);
-  --color-indigo-550: var(--color-indigo-550);
+  --color-purple-650: oklch(35% 0.06 155);
+  --color-purple-750: oklch(28% 0.05 155);
+  --color-indigo-550: oklch(45% 0.07 155);
 
   --radius-sm: 0.125rem;
   --radius-md: 0.25rem; /* Softened as per DESIGN.md */
@@ -371,6 +371,26 @@ html:not(.dark) .glass-enhance::before {
 
 .animate-wobble-slow {
   animation: wobble-slow 22s ease-in-out infinite;
+}
+
+/* Respect users who prefer reduced motion: freeze glow animations
+   (CSS keyframes + SMIL morphs inside AmbientGlow) to avoid constant
+   re-rasterization of blurred areas on every frame. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-wobble-slow,
+  .animate-float-1,
+  .animate-float-2,
+  .animate-float-3,
+  .animate-float-4,
+  .animate-float-5,
+  .animate-float-6,
+  .animate-rotate-slow {
+    animation: none !important;
+  }
+  .animate-wobble-slow svg animate,
+  .ambient-glow svg animate {
+    animation: none !important;
+  }
 }
 
 @keyframes pulse-ring {

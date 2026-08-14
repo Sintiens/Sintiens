@@ -50,11 +50,6 @@ function escapeRegExp(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-function buildPatternRegex(entry: GlossaryEntry): RegExp {
-  const escaped = entry.patterns.map(escapeRegExp);
-  return new RegExp(`(?<=^|[^a-zA-ZáéíóúÁÉÍÓÚñÑ])(${escaped.join("|")})(?=$|[^a-zA-ZáéíóúÁÉÍÓÚñÑ])`, "i");
-}
-
 function extractSnippet(text: string, pattern: string, radius = 90): string {
   const idx = text.toLowerCase().indexOf(pattern.toLowerCase());
   if (idx === -1) return text.slice(0, radius * 2);
@@ -68,7 +63,6 @@ function extractSnippet(text: string, pattern: string, radius = 90): string {
 function scanText(
   text: string,
   entry: GlossaryEntry,
-  regex: RegExp,
   locationId: string,
   locationType: AppearanceLocation,
   title: string,
@@ -78,7 +72,7 @@ function scanText(
   if (!text) return [];
   const results: Appearance[] = [];
   const lowerText = text.toLowerCase();
-  entry.patterns.forEach((pat) => {
+  for (const pat of entry.patterns) {
     const patLower = pat.toLowerCase();
     let idx = lowerText.indexOf(patLower);
     while (idx !== -1) {
@@ -94,22 +88,12 @@ function scanText(
           snippet: extractSnippet(text, pat),
           field
         });
-        return;
+        break;
       }
       idx = lowerText.indexOf(patLower, idx + 1);
     }
-  });
-  void regex;
+  }
   return results;
-}
-
-function coOccurInAppearances(appearances: Appearance[]): Record<string, number> {
-  const byLocation: Record<string, Set<string>> = {};
-  appearances.forEach((a) => {
-    if (!byLocation[a.locationId]) byLocation[a.locationId] = new Set();
-    byLocation[a.locationId]!.add(`${a.locationType}:${a.locationId}`);
-  });
-  return {};
 }
 
 export function buildGlossaryIndex(): GlossaryIndex {
@@ -119,8 +103,6 @@ export function buildGlossaryIndex(): GlossaryIndex {
   });
 
   GLOSSARY_UNIFIED.forEach((entry) => {
-    const regex = buildPatternRegex(entry);
-
     CORE_NODES.forEach((node) => {
       const fields: { text: string; field: string }[] = [
         { text: node.longDesc, field: "Definición" },
@@ -128,11 +110,11 @@ export function buildGlossaryIndex(): GlossaryIndex {
         ...node.scientificFacts.map((f, i) => ({ text: f, field: `Evidencia ${i + 1}` }))
       ];
       fields.forEach(({ text, field }) => {
-        const apps = scanText(text, entry, regex, node.id, "nodo", node.title, node.category, field);
+        const apps = scanText(text, entry, node.id, "nodo", node.title, node.category, field);
         index[entry.id]!.appearances.push(...apps);
       });
       (node.references || []).forEach((ref) => {
-        const apps = scanText(ref.citation, entry, regex, node.id, "referencia", node.title, node.category, `Ref [${ref.id}]`);
+        const apps = scanText(ref.citation, entry, node.id, "referencia", node.title, node.category, `Ref [${ref.id}]`);
         index[entry.id]!.appearances.push(...apps);
       });
     });
@@ -145,11 +127,11 @@ export function buildGlossaryIndex(): GlossaryIndex {
         { text: dilemma.coexistenceImpact, field: "Impacto coexistencia" }
       ];
       fields.forEach(({ text, field }) => {
-        const apps = scanText(text, entry, regex, dilemma.id, "dilema", dilemma.title, dilemma.category, field);
+        const apps = scanText(text, entry, dilemma.id, "dilema", dilemma.title, dilemma.category, field);
         index[entry.id]!.appearances.push(...apps);
       });
       (dilemma.references || []).forEach((ref) => {
-        const apps = scanText(ref.citation, entry, regex, dilemma.id, "referencia", dilemma.title, dilemma.category, `Ref [${ref.id}]`);
+        const apps = scanText(ref.citation, entry, dilemma.id, "referencia", dilemma.title, dilemma.category, `Ref [${ref.id}]`);
         index[entry.id]!.appearances.push(...apps);
       });
     });
@@ -181,14 +163,29 @@ export function buildGlossaryIndex(): GlossaryIndex {
     index[entry.id]!.count = index[entry.id]!.appearances.length;
   });
 
+  // One pass: map each location to the set of terms that appear there
+  const termsByLocation = new Map<string, Set<string>>();
+  GLOSSARY_UNIFIED.forEach((entry) => {
+    index[entry.id]!.appearances.forEach((a) => {
+      const key = `${a.locationType}:${a.locationId}`;
+      let set = termsByLocation.get(key);
+      if (!set) {
+        set = new Set();
+        termsByLocation.set(key, set);
+      }
+      set.add(entry.id);
+    });
+  });
+
+  // For each appearance of a term, count every other term sharing the location
   GLOSSARY_UNIFIED.forEach((entry) => {
     const coOccur: Record<string, number> = {};
     index[entry.id]!.appearances.forEach((a) => {
-      GLOSSARY_UNIFIED.forEach((other) => {
-        if (other.id === entry.id) return;
-        if (index[other.id]!.appearances.some((oa) => oa.locationId === a.locationId && oa.locationType === a.locationType)) {
-          coOccur[other.id] = (coOccur[other.id] || 0) + 1;
-        }
+      const others = termsByLocation.get(`${a.locationType}:${a.locationId}`);
+      if (!others) return;
+      others.forEach((otherId) => {
+        if (otherId === entry.id) return;
+        coOccur[otherId] = (coOccur[otherId] || 0) + 1;
       });
     });
     index[entry.id]!.coOccurrences = coOccur;

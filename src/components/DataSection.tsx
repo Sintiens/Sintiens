@@ -5,7 +5,7 @@ import MeatConsumptionChart from "./charts/MeatConsumptionChart";
 import DeforestationChart from "./charts/DeforestationChart";
 import ChickenGrowthVisualizer from "./charts/ChickenGrowthVisualizer";
 import CageSpaceVisualizer from "./charts/CageSpaceVisualizer";
-import { TabType } from "./TabNav";
+import type { TabType } from "../types";
 interface DataSectionProps {
   activeTab: TabType;
   onNavigate: (tab: TabType) => void;

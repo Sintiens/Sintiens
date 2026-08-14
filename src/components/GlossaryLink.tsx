@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
-import { X, ArrowRight, ArrowUpRight, HelpCircle, Activity, Globe, Scale, BookOpen, Brain, Layers, ScrollText, Sparkles } from "lucide-react";
-import { GlossaryEntry, GLOSSARY_CATEGORIES } from "../data/glossaryUnified";
+import { X, ArrowRight, ArrowUpRight, HelpCircle, Activity, Globe, Scale, BookOpen, Layers, ScrollText, Sparkles } from "lucide-react";
+import { GlossaryEntry } from "../data/glossaryUnified";
 import { CORE_NODES } from "../data/CORE_NODES";
 import { DILEMMAS_DATA } from "../data/DILEMMAS_DATA";
 
@@ -235,6 +235,3 @@ export default function GlossaryLink({ entry, children, noPopup, isActive, onAct
     </span>
   );
 }
-
-void GLOSSARY_CATEGORIES;
-void Brain;

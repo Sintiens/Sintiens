@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Sun, Moon } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -7,7 +7,7 @@ import {
   getSubSectionsForTab,
   hasSubNav,
 } from "../data/sections";
-import type { TabType } from "./TabNav";
+import type { TabType } from "../types";
 
 const PRELOAD_MAP: Record<string, () => Promise<any>> = {
   historia_narrativa: () => import("./StoryMode"),

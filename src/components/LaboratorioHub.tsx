@@ -1,7 +1,6 @@
-import { useRef, useEffect } from "react";
 import { motion } from "motion/react";
 import { FlaskConical, Calculator, BrainCircuit, ChevronDown, Activity, Layers } from "lucide-react";
-import TabNav, { TabType } from "./TabNav";
+import type { TabType } from "../types";
 
 interface LaboratorioHubProps {
   activeTab: TabType;
@@ -11,25 +10,6 @@ interface LaboratorioHubProps {
 }
 
 export default function LaboratorioHub({ activeTab, onNavigate, theme, onToggleTheme }: LaboratorioHubProps) {
-  const navRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (navRef.current) {
-        const rect = navRef.current.getBoundingClientRect();
-        // If the top of the nav container hits the top of the viewport
-        window.dispatchEvent(new CustomEvent('toggle-min-nav', { detail: rect.top <= 0 }));
-      }
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    // Call once on mount
-    handleScroll();
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.dispatchEvent(new CustomEvent('toggle-min-nav', { detail: false }));
-    };
-  }, []);
-
   return (
     <motion.div
       key="laboratorio_hub"
@@ -106,7 +86,7 @@ export default function LaboratorioHub({ activeTab, onNavigate, theme, onToggleT
 
           </div>
           
-          <div ref={navRef} className="w-full relative z-[100] px-6 lg:px-16 max-w-7xl mx-auto -mt-16 lg:-mt-24 mb-16">
+          <div className="w-full relative z-[100] px-6 lg:px-16 max-w-7xl mx-auto -mt-16 lg:-mt-24 mb-16">
             <div className="flex justify-center">
               <div className="pointer-events-auto">
                 {/* TabNav is now global in App.tsx */}

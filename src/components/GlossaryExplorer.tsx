@@ -45,7 +45,7 @@ import { CORE_NODES } from "../data/CORE_NODES";
 import { DILEMMAS_DATA } from "../data/DILEMMAS_DATA";
 import { Button } from "./ui/Button";
 import GlossaryGraph from "./GlossaryGraph";
-import TabNav, { TabType } from "./TabNav";
+import type { TabType } from "../types";
 
 // Build a lookup map of term names → entry IDs for inline link detection.
 // Longest names are matched first so multi-word terms ("Liberación Animal")
@@ -150,25 +150,6 @@ function getAppearanceTarget(appearance: Appearance): { tab: string; label: stri
 }
 
 export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId, activeTab, onNavigate, theme, onToggleTheme }: GlossaryExplorerProps) {
-  const navRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (navRef.current) {
-        const rect = navRef.current.getBoundingClientRect();
-        // If the top of the nav container hits the top of the viewport
-        window.dispatchEvent(new CustomEvent('toggle-min-nav', { detail: rect.top <= 0 }));
-      }
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    // Call once on mount
-    handleScroll();
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.dispatchEvent(new CustomEvent('toggle-min-nav', { detail: false }));
-    };
-  }, []);
-
   const [viewMode, setViewMode] = useState<ViewMode>("lista");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState<GlossaryType | "all">("all");
@@ -1011,7 +992,7 @@ export default function GlossaryExplorer({ initialEntryId, onClearInitialEntryId
           </motion.div>
         </div>
 
-        <div ref={navRef} className="w-full relative z-[100] px-6 lg:px-16 max-w-7xl mx-auto pb-8 lg:pb-12">
+        <div className="w-full relative z-[100] px-6 lg:px-16 max-w-7xl mx-auto pb-8 lg:pb-12">
           <div className="flex justify-center">
             <div className="pointer-events-auto">
               {/* TabNav is now global in App.tsx */}

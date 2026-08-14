@@ -70,42 +70,14 @@ interface StoryTextRendererProps {
   content: React.ReactNode;
   activeNoteId: string | null;
   activeInstanceId?: string | null;
-  onHoverNote?: (event: React.MouseEvent, noteId: string, item: GlossaryEntry, type: "glossary" | "citation") => void;
-  onLeaveNote?: () => void;
   onClickNote: (event: React.MouseEvent, noteId: string, item: GlossaryEntry, type: "glossary" | "citation", instanceId?: string) => void;
   accentColor?: string;
 }
-
-const getAccentHoverClass = (accent: string) => {
-  switch (accent) {
-    case "ch1": return "hover:text-ch1";
-    case "ch2": return "hover:text-ch2";
-    case "ch3": return "hover:text-ch3";
-    case "ch4": return "hover:text-ch4";
-    case "ch5": return "hover:text-ch5";
-    case "ch6": return "hover:text-ch6";
-    default: return "hover:text-primary";
-  }
-};
-
-const getAccentTextColorClass = (accent: string) => {
-  switch (accent) {
-    case "ch1": return "text-ch1";
-    case "ch2": return "text-ch2";
-    case "ch3": return "text-ch3";
-    case "ch4": return "text-ch4";
-    case "ch5": return "text-ch5";
-    case "ch6": return "text-ch6";
-    default: return "text-primary";
-  }
-};
 
 export default function StoryTextRenderer({
   content,
   activeNoteId,
   activeInstanceId,
-  onHoverNote,
-  onLeaveNote,
   onClickNote,
   accentColor,
 }: StoryTextRendererProps) {
@@ -159,11 +131,6 @@ export default function StoryTextRenderer({
                       backgroundPosition: '0 0',
                     };
 
-                const hoverClass = getAccentHoverClass(accent);
-                const activeTextClass = getAccentTextColorClass(accent);
-                void hoverClass;
-                void activeTextClass;
-
                 const noteType: "glossary" | "citation" = matchEntry.type === "cita" ? "citation" : "glossary";
 
                 return (
@@ -203,9 +170,6 @@ export default function StoryTextRenderer({
 
     return node;
   };
-
-  void onHoverNote;
-  void onLeaveNote;
 
   return <>{processNode(content)}</>;
 }

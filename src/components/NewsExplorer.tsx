@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { 
   Newspaper, 
@@ -17,7 +17,7 @@ import {
   MapPin
 } from "lucide-react";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine } from "recharts";
-import TabNav, { TabType } from "./TabNav";
+import type { TabType } from "../types";
 import { NEWS_DATA, NewsItem } from "../data/newsData";
 
 interface NewsExplorerProps {
@@ -78,25 +78,6 @@ const CustomTooltip = ({ active, payload }: any) => {
 };
 
 export default function NewsExplorer({ activeTab, onNavigate, theme, onToggleTheme }: NewsExplorerProps) {
-  const navRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (navRef.current) {
-        const rect = navRef.current.getBoundingClientRect();
-        // If the top of the nav container hits the top of the viewport
-        window.dispatchEvent(new CustomEvent('toggle-min-nav', { detail: rect.top <= 0 }));
-      }
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    // Call once on mount
-    handleScroll();
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.dispatchEvent(new CustomEvent('toggle-min-nav', { detail: false }));
-    };
-  }, []);
-
   // State for filters
   const [selectedRegion, setSelectedRegion] = useState<"todos" | "españa" | "mundo">("todos");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -394,7 +375,7 @@ export default function NewsExplorer({ activeTab, onNavigate, theme, onToggleThe
       </div>
 
       {/* Tabs navigation panel */}
-      <div ref={navRef} className="w-full relative z-[100] px-6 lg:px-16 max-w-7xl mx-auto pb-8">
+      <div className="w-full relative z-[100] px-6 lg:px-16 max-w-7xl mx-auto pb-8">
         <div className="flex justify-center">
           <div className="pointer-events-auto">
             {/* TabNav is now global in App.tsx */}

@@ -345,13 +345,16 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId }: Glossa
     return () => resizeObserver.disconnect();
   }, []);
 
-  // Physics simulation
+  // Physics simulation (paused when the tab/page is hidden or the graph
+  // is scrolled out of view, to avoid burning CPU at 60fps indefinitely)
   useEffect(() => {
     if (nodes.length === 0) return;
 
-    let animationFrameId: number;
+    let animationFrameId: number | null = null;
+    let running = true;
 
     const step = () => {
+      if (!running) return;
       setNodes((currentNodes) => {
         const nextNodes = currentNodes.map((n) => ({ ...n }));
         const isMobile = dimensions.width < 768;
@@ -456,8 +459,48 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId }: Glossa
       animationFrameId = requestAnimationFrame(step);
     };
 
+    const start = () => {
+      if (running || animationFrameId !== null) return;
+      running = true;
+      animationFrameId = requestAnimationFrame(step);
+    };
+
+    const stop = () => {
+      running = false;
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      }
+    };
+
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        stop();
+      } else {
+        start();
+      }
+    };
+
     animationFrameId = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(animationFrameId);
+
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) {
+        start();
+      } else {
+        stop();
+      }
+    });
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    return () => {
+      stop();
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
   }, [links, draggedNode, dimensions, groupBy]);
 
   // Canvas render

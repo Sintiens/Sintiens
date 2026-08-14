@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef, Suspense, lazy } from "react";
+import { useState, useEffect, useRef, Suspense, lazy, useCallback } from "react";
 import React from "react";
 import { motion, AnimatePresence } from "motion/react";
 import SintiensLogo from "./components/SintiensLogo";
-import TabNav, { TabType } from "./components/TabNav";
+import type { TabType } from "./types";
 import MiniTabNav from "./components/MiniTabNav";
 import { isSameCategory } from "./data/sections";
 import type { NodeDetail } from "./types";
@@ -22,7 +22,19 @@ const DevModeOverlay = lazy(() => import("./components/DevModeOverlay"));
 const DevErrorBoundary = lazy(() => import("./components/DevErrorBoundary"));
 
 function LazyTabWrapper({ children, fallback }: { children: React.ReactNode; fallback?: React.ReactNode }) {
-  return <Suspense fallback={fallback || null}>{children}</Suspense>;
+  return (
+    <Suspense
+      fallback={
+        fallback || (
+          <div className="w-full flex items-center justify-center py-32">
+            <div className="w-8 h-8 rounded-full border-2 border-outline-variant border-t-primary animate-spin" role="status" aria-label="Cargando sección" />
+          </div>
+        )
+      }
+    >
+      {children}
+    </Suspense>
+  );
 }
 
 // Mapeo bidireccional entre IDs de pestaña y paths de URL.
@@ -53,7 +65,6 @@ export default function App() {
     getTabFromPath(window.location.pathname)
   );
   const [passedArgument, setPassedArgument] = useState<string | null>(null);
-  const [redirectNodeId, setRedirectNodeId] = useState<string | null>(null);
   const [redirectEntryId, setRedirectEntryId] = useState<string | null>(null);
   const [theme, setTheme] = useState<"dark" | "light">(
     () => {
@@ -152,10 +163,15 @@ export default function App() {
   const [glossaryData, setGlossaryData] = useState<{ GLOSSARY_BY_ID: Record<string, GlossaryEntry>; GLOSSARY_UNIFIED: GlossaryEntry[] } | null>(null);
 
   useEffect(() => {
-    import("./data/CORE_NODES").then(m => setCoreNodes(m.CORE_NODES));
-    import("./data/glossaryUnified").then(m => setGlossaryData({ GLOSSARY_BY_ID: m.GLOSSARY_BY_ID, GLOSSARY_UNIFIED: m.GLOSSARY_UNIFIED }));
+    import("./data/CORE_NODES")
+      .then(m => setCoreNodes(m.CORE_NODES))
+      .catch(err => console.error("Failed to load CORE_NODES:", err));
+    import("./data/glossaryUnified")
+      .then(m => setGlossaryData({ GLOSSARY_BY_ID: m.GLOSSARY_BY_ID, GLOSSARY_UNIFIED: m.GLOSSARY_UNIFIED }))
+      .catch(err => console.error("Failed to load glossary data:", err));
   }, []);
 
+  const dilemmaExpandTimerRef = useRef<number | null>(null);
   useEffect(() => {
     if (!coreNodes || !glossaryData) return;
     
@@ -172,18 +188,25 @@ export default function App() {
         if (relatedGlossaryEntry) {
           setRedirectEntryId(relatedGlossaryEntry.id);
         }
-        setRedirectNodeId(targetId);
         navFnRef.current("grafo");
       } else {
         navFnRef.current("dialectica");
-        setTimeout(() => {
+        if (dilemmaExpandTimerRef.current !== null) {
+          window.clearTimeout(dilemmaExpandTimerRef.current);
+        }
+        dilemmaExpandTimerRef.current = window.setTimeout(() => {
           window.dispatchEvent(new CustomEvent("expand-dilemma", { detail: targetId }));
         }, 80);
       }
     };
 
     window.addEventListener("navigate-to-item", handleNavigate);
-    return () => window.removeEventListener("navigate-to-item", handleNavigate);
+    return () => {
+      window.removeEventListener("navigate-to-item", handleNavigate);
+      if (dilemmaExpandTimerRef.current !== null) {
+        window.clearTimeout(dilemmaExpandTimerRef.current);
+      }
+    };
   }, [coreNodes, glossaryData]);
 
   useEffect(() => {
@@ -213,9 +236,23 @@ export default function App() {
   };
 
   const handleRedirectToConcept = (nodeId: string) => {
-    setRedirectNodeId(nodeId);
+    const node = coreNodes?.find((n) => n.id === nodeId);
+    const relatedGlossaryEntry = node && glossaryData?.GLOSSARY_UNIFIED.find((entry) =>
+      (entry.relatedNodes || []).includes(nodeId)
+    );
+    const fallbackEntry = node && glossaryData?.GLOSSARY_UNIFIED.find((entry) =>
+      entry.term.toLowerCase() === node.title.toLowerCase()
+    );
+    const entry = relatedGlossaryEntry ?? fallbackEntry;
+    if (entry) {
+      setRedirectEntryId(entry.id);
+    }
     navigateToTab("grafo");
   };
+
+  const handleClearRedirectEntryId = useCallback(() => {
+    setRedirectEntryId(null);
+  }, []);
 
   const handleNavigate = (tab: TabType) => {
     navigateToTab(tab);
@@ -276,7 +313,7 @@ export default function App() {
                 <LazyTabWrapper>
                   <GlossaryExplorer
                     initialEntryId={redirectEntryId}
-                    onClearInitialEntryId={() => setRedirectEntryId(null)}
+                    onClearInitialEntryId={handleClearRedirectEntryId}
                     {...sharedProps}
                   />
                 </LazyTabWrapper>

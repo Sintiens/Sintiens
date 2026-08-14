@@ -1,4 +1,4 @@
-import type { TabType } from "../components/TabNav";
+import type { TabType } from "../types";
 
 export type CategoryId = "argumento" | "glosario" | "laboratorio" | "noticias";
 

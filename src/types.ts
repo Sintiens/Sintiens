@@ -1,5 +1,7 @@
 export type ConsensusType = "CONSENSO" | "ESCENARIO_GRIS" | "DILEMA" | "FALACIA";
 
+export type TabType = "historia_narrativa" | "grafo" | "cronologia" | "dialectica" | "calculadora" | "validador" | "datos" | "noticias" | "laboratorio_hub";
+
 export interface ReferenceDetail {
   id: string; // e.g. "1", "2"
   citation: string; // Full APA citation

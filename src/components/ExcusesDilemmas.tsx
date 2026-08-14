@@ -35,7 +35,7 @@ import type { DilemmaDetail as DilemmaDetailType } from "../types";
 import { GLOSSARY_UNIFIED, GLOSSARY_CATEGORIES } from "../data/glossaryUnified";
 import TextRenderer from "./TextRenderer";
 import { Button } from "./ui/Button";
-import TabNav, { TabType } from "./TabNav";
+import type { TabType } from "../types";
 
 /* ──────────────────────────────────────────────────────────────────────────
  *  Dialéctica · Socrática — rediseño completo

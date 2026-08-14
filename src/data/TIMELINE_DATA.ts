@@ -34,7 +34,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
             url: "https://doi.org/10.1073/pnas.0801317105"
           }
         ],
-        relatedNodeId: "animal-herramienta"
+        relatedNodeId: "historia-dominacion"
       },
       {
         id: "infraestructura-romana",
@@ -57,7 +57,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
             citation: "Toynbee, J. M. C. (1973). Animals in Roman Life and Art. Cornell University Press."
           }
         ],
-        relatedNodeId: "animal-herramienta"
+        relatedNodeId: "historia-dominacion"
       },
       {
         id: "traccion-medieval",
@@ -81,7 +81,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
             url: "https://doi.org/10.1017/CBO9780511522337"
           }
         ],
-        relatedNodeId: "animal-herramienta"
+        relatedNodeId: "historia-dominacion"
       },
       {
         id: "chicago-stock-yards",
@@ -104,7 +104,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
             citation: "Ford, H. (1922). My Life and Work. Garden City Publishing Co."
           }
         ],
-        relatedNodeId: "domesticacion-industrial"
+        relatedNodeId: "sistemas-alimentacion"
       },
       {
         id: "macrogranjas-mediados-siglo",
@@ -132,7 +132,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
             url: "https://doi.org/10.1016/S0140-6736(17)32345-0"
           }
         ],
-        relatedNodeId: "domesticacion-industrial"
+        relatedNodeId: "sistemas-alimentacion"
       },
       {
         id: "agricultura-celular-era",
@@ -157,7 +157,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
             url: "https://doi.org/10.1021/es200130u"
           }
         ],
-        relatedNodeId: "suplementacion-progreso"
+        relatedNodeId: "vias-transicion"
       }
     ]
   },
@@ -188,7 +188,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
             citation: "Plutarco. (c. 100 d.C.). Moralia: De esu carnium (Sobre el comer carne)."
           }
         ],
-        relatedNodeId: "axiomas-morales"
+        relatedNodeId: "marcos-eticos"
       },
       {
         id: "cartesianismo-maquina",
@@ -212,7 +212,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
             url: "https://doi.org/10.2307/2220217"
           }
         ],
-        relatedNodeId: "el-argumento-del-antropocentrismo-cartesiano"
+        relatedNodeId: "neurobiologia-dolor"
       },
       {
         id: "bentham-sufrimiento",
@@ -235,7 +235,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
             citation: "Singer, P. (2011). Practical Ethics (3rd ed.). Cambridge University Press."
           }
         ],
-        relatedNodeId: "axiomas-morales"
+        relatedNodeId: "marcos-eticos"
       },
       {
         id: "singer-regan-auge",
@@ -258,7 +258,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
             citation: "Regan, T. (1983). The Case for Animal Rights. University of California Press."
           }
         ],
-        relatedNodeId: "utilitarismo-singer"
+        relatedNodeId: "marcos-eticos"
       },
       {
         id: "declaracion-cambridge",
@@ -283,7 +283,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
             url: "https://www.lse.ac.uk/News/News-Assets/PDFs/2021/Sentience-Review.pdf"
           }
         ],
-        relatedNodeId: "dolor-fisico"
+        relatedNodeId: "neurobiologia-dolor"
       },
       {
         id: "declaracion-montreal",
@@ -307,7 +307,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
             citation: "Nussbaum, M. C. (2023). Justice for Animals: Our Collective Responsibility. Simon & Schuster."
           }
         ],
-        relatedNodeId: "enfoque-capacidades-nussbaum"
+        relatedNodeId: "marcos-eticos"
       }
     ]
   },
@@ -338,7 +338,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
             citation: "Ryder, R. D. (2000). Animal Revolution: Changing Attitudes towards Speciesism. Berg Publishers."
           }
         ],
-        relatedNodeId: "el-brambell-report"
+        relatedNodeId: "legislacion-bienestar"
       },
       {
         id: "informe-brambell-ley",
@@ -362,7 +362,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
             url: "https://doi.org/10.3390/ani6030021"
           }
         ],
-        relatedNodeId: "el-brambell-report"
+        relatedNodeId: "legislacion-bienestar"
       },
       {
         id: "tratado-lisboa",
@@ -386,7 +386,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
             citation: "Radford, M. (2001). Animal Welfare Law in Britain: Regulation and Responsibility. Oxford University Press."
           }
         ],
-        relatedNodeId: "el-argumento-del-contrato-social"
+        relatedNodeId: "estatus-juridico"
       },
       {
         id: "reforma-codigo-civil-es",
@@ -410,7 +410,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
             citation: "Francione, G. L. (1995). Animals, Property, and the Law. Temple University Press."
           }
         ],
-        relatedNodeId: "el-argumento-del-contrato-social"
+        relatedNodeId: "estatus-juridico"
       },
       {
         id: "end-the-cage-age-initiative",
@@ -434,7 +434,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
             citation: "Grandin, T. (2015). Improving Animal Welfare: A Practical Approach. CABI."
           }
         ],
-        relatedNodeId: "el-argumento-del-bienestarismo-industrial"
+        relatedNodeId: "legislacion-bienestar"
       }
     ]
   },
@@ -466,7 +466,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
             citation: "Wrangham, R. (2009). Catching Fire: How Cooking Made Us Human. Basic Books."
           }
         ],
-        relatedNodeId: "evolucion-dieta"
+        relatedNodeId: "vias-transicion"
       },
       {
         id: "mutacion-lactasa",
@@ -491,7 +491,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
             url: "https://doi.org/10.1098/rstb.2010.0268"
           }
         ],
-        relatedNodeId: "evolucion-dieta"
+        relatedNodeId: "vias-transicion"
       },
       {
         id: "watson-veganismo-origen",
@@ -514,7 +514,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
             citation: "Vegan Society. (2020). History of the Vegan Society: Looking back at over 75 years."
           }
         ],
-        relatedNodeId: "suplementacion-progreso"
+        relatedNodeId: "vias-transicion"
       },
       {
         id: "sintesis-b12",
@@ -539,7 +539,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
             url: "https://doi.org/10.3181/0703-MR-67"
           }
         ],
-        relatedNodeId: "suplementacion-progreso"
+        relatedNodeId: "vias-transicion"
       },
       {
         id: "consenso-nutricional-and",
@@ -563,7 +563,7 @@ export const TIMELINE_DATA: TimelineGroup[] = [
             citation: "Springmann, M., et al. (2016). Analysis and valuation of the health and climate change co-benefits of dietary change. Proceedings of the National Academy of Sciences, 113(15), 4146-4151."
           }
         ],
-        relatedNodeId: "evolucion-dieta"
+        relatedNodeId: "vias-transicion"
       }
     ]
   }

@@ -28,7 +28,7 @@ import {
   FoodCategory, 
   DietProfile 
 } from "../data/foodImpactData";
-import { TabType } from "./TabNav";
+import type { TabType } from "../types";
 
 interface ImpactCalculatorProps {
   activeTab: TabType;

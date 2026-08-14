@@ -12,7 +12,7 @@ import SideNoteCard from "./SideNoteCard";
 import ReadingUtilities from "./ReadingUtilities";
 import { BlockEnrichments } from "./InlineEnrichments";
 import MicroQuiz from "./MicroQuiz";
-import TabNav, { TabType } from "./TabNav";
+import type { TabType } from "../types";
 import { GlossaryEntry } from "../data/glossaryUnified";
 
 const AmbientGlow = ({
@@ -81,25 +81,6 @@ return (
 };
 
 export default function StoryMode({ activeTab, onNavigate, theme, onToggleTheme }: { activeTab: TabType; onNavigate: (tab: TabType) => void; theme: "dark" | "light"; onToggleTheme: () => void }) {
-const navRef = useRef<HTMLDivElement>(null);
-
-useEffect(() => {
-  const handleScroll = () => {
-    if (navRef.current) {
-      const rect = navRef.current.getBoundingClientRect();
-      // If the top of the nav container hits the top of the viewport
-      window.dispatchEvent(new CustomEvent('toggle-min-nav', { detail: rect.top <= 0 }));
-    }
-  };
-  window.addEventListener('scroll', handleScroll, { passive: true });
-  // Call once on mount
-  handleScroll();
-  return () => {
-    window.removeEventListener('scroll', handleScroll);
-    window.dispatchEvent(new CustomEvent('toggle-min-nav', { detail: false }));
-  };
-}, []);
-
 const [activeChapter, setActiveChapter] = useState<string | null>(null);
 const [flashChapter, setFlashChapter] = useState<string | null>(null);
 
@@ -240,14 +221,6 @@ useEffect(() => {
 }, [recomputeAllLines]);
 
 // Footnotes/Glossary Handlers
-const handleHoverNote = (e: React.MouseEvent, noteId: string, item: GlossaryEntry, type: "glossary" | "citation", actId: string) => {
-  // Hover triggers disabled as per user request (click-only now)
-};
-
-const handleLeaveNote = () => {
-  // Do nothing
-};
-
 const handleClickNote = (e: React.MouseEvent, noteId: string, item: GlossaryEntry, type: "glossary" | "citation", actId: string, actColor: string, instanceId?: string) => {
   e.preventDefault();
   e.stopPropagation();
@@ -263,8 +236,6 @@ const handleClickNote = (e: React.MouseEvent, noteId: string, item: GlossaryEntr
 
       const relativeX = wordRect.right - gridRect.left;
       const relativeY = wordRect.top - gridRect.top + (wordRect.height / 2);
-
-      console.log('[StoryMode] handleClickNote', { actId, noteId, relativeX, relativeY });
 
       setActiveNotesByAct(prev => {
         const current = prev[actId];
@@ -690,7 +661,7 @@ marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
 </motion.div>
 </div>
 
-<div ref={navRef} className="w-full relative z-[100] px-6 lg:px-16 max-w-7xl mx-auto pt-8 lg:pt-12">
+<div className="w-full relative z-[100] px-6 lg:px-16 max-w-7xl mx-auto pt-8 lg:pt-12">
   <div className="flex justify-center">
     <div className="pointer-events-auto">
       {/* TabNav is now global in App.tsx */}
@@ -967,8 +938,6 @@ const isFlashing = flashChapter === act0.id;
                     content={block.content}
                     activeNoteId={activeNotesByAct[act0.id]?.id || null}
                     activeInstanceId={activeNotesByAct[act0.id]?.instanceId || null}
-                    onHoverNote={(e, id, item, type) => handleHoverNote(e, id, item, type, act0.id)}
-                    onLeaveNote={handleLeaveNote}
                     onClickNote={(e, id, item, type, instId) => handleClickNote(e, id, item, type, act0.id, act0.textColor, instId)}
                     accentColor="primary"
                   />
@@ -1090,8 +1059,6 @@ return (
                 content={block.content}
                 activeNoteId={activeNotesByAct[act.id]?.id || null}
                 activeInstanceId={activeNotesByAct[act.id]?.instanceId || null}
-                onHoverNote={(e, id, item, type) => handleHoverNote(e, id, item, type, act.id)}
-                onLeaveNote={handleLeaveNote}
                 onClickNote={(e, id, item, type, instId) => handleClickNote(e, id, item, type, act.id, act.textColor, instId)}
                 accentColor={act.textColor.replace("text-", "")}
               />
