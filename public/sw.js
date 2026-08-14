@@ -8,6 +8,7 @@ const DYNAMIC_CACHE_NAME = 'sintiens-dynamic-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
+  '/manifest.json',
   '/favicon.ico',
   '/favicon-32x32.png',
   '/favicon-16x16.png',
@@ -18,6 +19,9 @@ const STATIC_ASSETS = [
   '/apple-touch-icon-dark.png',
   '/logo-mark.svg',
   '/logo-mark-dark.svg',
+  '/icon-192x192.png',
+  '/icon-512x512.png',
+  '/icon-512-maskable.png',
 ];
 
 // Install event - cache static assets

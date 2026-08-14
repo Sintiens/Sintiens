@@ -109,6 +109,15 @@ function getAiClient() {
 
 app.use(express.json({ limit: "10kb" }));
 
+// Basic security headers for all responses
+app.use((req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.setHeader("X-Frame-Options", "SAMEORIGIN");
+  res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  next();
+});
+
 // Stable ESM/CJS relative path resolution for the local database
 let tasksDirectory = process.cwd();
 try {
