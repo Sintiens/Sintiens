@@ -629,7 +629,9 @@ export default memo(function AiValidator({
               </div>
               <div className="space-y-2 max-h-[320px] overflow-y-auto custom-scrollbar pr-1">
                 {history.map((entry) => {
-                  const m = ANALYSIS_MODES.find((x) => x.id === entry.mode)!;
+                  // Entradas legacy o malformadas: se omiten en vez de romper el render
+                  const m = ANALYSIS_MODES.find((x) => x.id === entry.mode);
+                  if (!m || !entry.result || !entry.result.scientificAccuracy) return null;
                   const Icon = m.icon;
                   return (
                     <div

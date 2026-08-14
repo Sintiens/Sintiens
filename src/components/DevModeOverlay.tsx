@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
+import type { TabType } from "../types";
 import { 
   Settings, 
   Plus, 
@@ -140,7 +141,7 @@ const getUniqueSelector = (el: HTMLElement, root: HTMLElement | null = null): st
 
 interface DevModeOverlayProps {
   activeTab: string;
-  setActiveTab: (tab: any) => void;
+  setActiveTab: (tab: TabType) => void;
 }
 
 export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverlayProps) {
@@ -1501,8 +1502,9 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
   // 11. Focus on a task pin (scrolling and highlighting)
   const handleFocusTask = (task: DevTask) => {
     // 1. Switch to appropriate tab if it's general or visual
-    if (task.tab !== "general" && task.tab !== activeTab) {
-      setActiveTab(task.tab);
+    const VALID_TABS: TabType[] = ["historia_narrativa", "grafo", "cronologia", "dialectica", "calculadora", "validador", "datos", "noticias", "laboratorio_hub"];
+    if (task.tab !== "general" && task.tab !== activeTab && VALID_TABS.includes(task.tab as TabType)) {
+      setActiveTab(task.tab as TabType);
     }
 
     // Close sidebar on mobile

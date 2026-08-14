@@ -1237,7 +1237,7 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
       {/* Mobile modal */}
       <AnimatePresence>
         {isMobileDetailOpen && selectedEntry && (
-          <div className="lg:hidden fixed inset-0 z-[100] flex items-end justify-center">
+          <div  role="dialog" aria-modal="true" aria-label="Detalle de glosario" className="lg:hidden fixed inset-0 z-[100] flex items-end justify-center">
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setIsMobileDetailOpen(false)}

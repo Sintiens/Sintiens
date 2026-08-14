@@ -348,7 +348,7 @@ export default React.memo(function TimelineExplorer({ onRedirectToConcept }: Tim
   const activeGroup = TIMELINE_DATA.find((g) => g.id === activeTimelineId)!;
 
   // Search filter applied to milestones
-  const filteredMilestones = allMilestones.filter((milestone) => {
+  const filteredMilestones = useMemo(() => allMilestones.filter((milestone) => {
     if (!milestone) return false;
     const groupMeta = TRACK_META[milestone.trackId];
     const q = (searchQuery || "").toLowerCase();
@@ -374,7 +374,7 @@ export default React.memo(function TimelineExplorer({ onRedirectToConcept }: Tim
     }
     
     return matchesSearch;
-  });
+  }), [allMilestones, searchQuery, layoutView, activeTimelineId, isCompareMode]);
 
   const getTimelineColorClasses = (id: string) => {
     switch (id) {
@@ -1533,7 +1533,7 @@ export default React.memo(function TimelineExplorer({ onRedirectToConcept }: Tim
       {/* Mobile Drawer Detail Overlay (detallado mode) */}
       <AnimatePresence>
         {isMobileDetailOpen && selectedMilestone && layoutView === "detallado" && !isCompareMode && (
-          <div className="lg:hidden fixed inset-0 z-50 flex items-end justify-center pointer-events-auto">
+          <div role="dialog" aria-modal="true" aria-label="Detalle de hito" className="lg:hidden fixed inset-0 z-50 flex items-end justify-center pointer-events-auto">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

@@ -82,7 +82,7 @@ export default memo(function NewsExplorer() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [highlightedCardId, setHighlightedCardId] = useState<string | null>(null);
 
-  const handlePointClickDirect = (clickedData: any) => {
+  const handlePointClickDirect = (clickedData: { id?: string } | null | undefined) => {
     if (clickedData && clickedData.id && clickedData.id !== "baseline") {
       const item = NEWS_DATA.find((n) => n.id === clickedData.id);
       if (item) {

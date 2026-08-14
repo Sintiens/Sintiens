@@ -13,71 +13,7 @@ import ReadingUtilities from "./ReadingUtilities";
 import { BlockEnrichments } from "./InlineEnrichments";
 import MicroQuiz from "./MicroQuiz";
 import { GlossaryEntry } from "../data/glossaryUnified";
-
-const AmbientGlow = ({
-colorClass,
-className = "",
-opacity = 0.05,
-paused = false,
-style = {}
-}: {
-colorClass: string;
-className?: string;
-opacity?: number;
-paused?: boolean;
-style?: React.CSSProperties;
-}) => {
-const textClass = colorClass.startsWith('bg-')
-  ? colorClass.replace('bg-', 'text-')
-  : colorClass;
-
-// When paused, freeze all animations and drop the SMIL <animate> on the path.
-// Blur is also reduced (24/32 vs 35/48) to cut paint cost roughly in half,
-// while still looking organic thanks to the SVG shape.
-const animationStyle = paused ? { animationPlayState: "paused" as const } : {};
-
-return (
-<div
-  className={`absolute pointer-events-none select-none z-0 overflow-visible ${className}`}
-  style={{ ...style, ...animationStyle }}
->
-  {/* Centered Elongated Container for organic wobbly drift */}
-  <div
-    className={`absolute top-1/2 left-1/2 w-[145%] h-[65%] aspect-[2.2/1] filter blur-[24px] sm:blur-[32px] ${textClass} animate-wobble-slow transition-colors duration-[600ms] ease-in-out`}
-    style={{
-      opacity: opacity,
-      ...animationStyle,
-    }}
-  >
-    <svg
-      viewBox="0 0 200 200"
-      xmlns="http://www.w3.org/2000/svg"
-      className="w-full h-full"
-    >
-      {/* Single Amorphous Path - Extremely smooth gradient transition via blur */}
-      <path
-        fill="currentColor"
-        d="M30,75 C70,15 130,25 175,55 C195,85 165,135 145,165 C105,195 55,175 35,135 C15,95 10,80 30,75 Z"
-      >
-        {!paused && (
-          <animate
-            attributeName="d"
-            dur="28s"
-            repeatCount="indefinite"
-            values="
-              M30,75 C70,15 130,25 175,55 C195,85 165,135 145,165 C105,195 55,175 35,135 C15,95 10,80 30,75 Z;
-              M55,35 C115,5 155,45 165,95 C175,155 115,175 75,155 C35,135 15,95 25,65 C35,35 15,35 55,35 Z;
-              M55,25 C115,5 145,55 155,105 C165,165 105,165 65,175 C25,185 35,115 35,75 C35,35 25,40 55,25 Z;
-              M30,75 C70,15 130,25 175,55 C195,85 165,135 145,165 C105,195 55,175 35,135 C15,95 10,80 30,75 Z
-            "
-          />
-        )}
-      </path>
-    </svg>
-  </div>
-</div>
-);
-};
+import AmbientGlow from "./ui/AmbientGlow";
 
 export default React.memo(function StoryMode() {
 const [activeChapter, setActiveChapter] = useState<string | null>(null);
@@ -665,22 +601,22 @@ marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
         }}
       >
         <div className="absolute top-[0px] left-[-5vw] w-[500px] h-[500px] animate-float-1">
-          <AmbientGlow colorClass="bg-ch1" className="w-full h-full" opacity={0.3} />
+          <AmbientGlow soft colorClass="bg-ch1" className="w-full h-full" opacity={0.3} />
         </div>
         <div className="absolute top-[20px] right-[-5vw] w-[600px] h-[600px] animate-float-2">
-          <AmbientGlow colorClass="bg-ch4" className="w-full h-full" opacity={0.25} />
+          <AmbientGlow soft colorClass="bg-ch4" className="w-full h-full" opacity={0.25} />
         </div>
         <div className="absolute top-[40%] left-[8vw] w-[450px] h-[450px] animate-float-3">
-          <AmbientGlow colorClass="bg-ch5" className="w-full h-full" opacity={0.3} />
+          <AmbientGlow soft colorClass="bg-ch5" className="w-full h-full" opacity={0.3} />
         </div>
         <div className="absolute top-[-20px] right-[10vw] w-[500px] h-[500px] animate-float-4">
-          <AmbientGlow colorClass="bg-ch2" className="w-full h-full" opacity={0.3} />
+          <AmbientGlow soft colorClass="bg-ch2" className="w-full h-full" opacity={0.3} />
         </div>
         <div className="absolute bottom-[20px] left-[20vw] w-[400px] h-[400px] animate-float-5">
-          <AmbientGlow colorClass="bg-ch3" className="w-full h-full" opacity={0.3} />
+          <AmbientGlow soft colorClass="bg-ch3" className="w-full h-full" opacity={0.3} />
         </div>
         <div className="absolute top-[30%] right-[25vw] w-[450px] h-[450px] animate-float-6">
-          <AmbientGlow colorClass="bg-ch6" className="w-full h-full" opacity={0.3} />
+          <AmbientGlow soft colorClass="bg-ch6" className="w-full h-full" opacity={0.3} />
         </div>
       </div>
 
@@ -743,7 +679,7 @@ marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
             className="group relative w-full h-full text-left p-5 sm:p-6 rounded-2xl border border-outline-variant/25 bg-surface-container/30 hover:bg-surface-container/60 hover:border-outline-variant/50 transition-all duration-500 flex flex-col justify-between gap-4 cursor-pointer overflow-hidden"
           >
             {/* Ambient glow per act on hover */}
-            <AmbientGlow
+            <AmbientGlow soft
               colorClass={act.colorName}
               className="w-[160%] h-[240px] sm:h-[280px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 pointer-events-none"
               opacity={0.22}
@@ -819,9 +755,9 @@ const isActive = activeChapter === act0.id;
         </span>
       </div>
 
-      <AmbientGlow colorClass={act0.colorName} className={`animate-float-1 w-[900px] h-[700px] top-[-10%] left-[-20%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.2} paused={!isActive} />
-      <AmbientGlow colorClass={act0.colorName} className={`animate-float-3 w-[700px] h-[600px] bottom-[5%] right-[-15%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.15} paused={!isActive} />
-      <AmbientGlow colorClass={act0.colorName} className={`animate-float-5 w-[500px] h-[500px] top-[30%] left-[30%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.12} paused={!isActive} />
+      <AmbientGlow soft colorClass={act0.colorName} className={`animate-float-1 w-[900px] h-[700px] top-[-10%] left-[-20%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.2} paused={!isActive} />
+      <AmbientGlow soft colorClass={act0.colorName} className={`animate-float-3 w-[700px] h-[600px] bottom-[5%] right-[-15%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.15} paused={!isActive} />
+      <AmbientGlow soft colorClass={act0.colorName} className={`animate-float-5 w-[500px] h-[500px] top-[30%] left-[30%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.12} paused={!isActive} />
 
       {/* Title (normal flow) + slim sticky chip + blocks */}
       <div className="relative w-full">
@@ -929,10 +865,10 @@ return (
 </span>
 </div>
 
-<AmbientGlow colorClass={act.colorName} className={`animate-float-${(index % 6) + 1} w-[900px] h-[700px] top-[-10%] left-[-20%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.25} paused={!isActive} />
-<AmbientGlow colorClass={act.colorName} className={`animate-float-${((index + 1) % 6) + 1} w-[950px] h-[700px] bottom-[5%] right-[-15%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.25} paused={!isActive} />
-<AmbientGlow colorClass={act.colorName} className={`animate-float-${((index + 2) % 6) + 1} w-[650px] h-[550px] top-[20%] left-[25%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.18} paused={!isActive} />
-<AmbientGlow colorClass={act.colorName} className={`animate-float-${((index + 3) % 6) + 1} w-[700px] h-[600px] top-[40%] right-[-8%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.18} paused={!isActive} />
+<AmbientGlow soft colorClass={act.colorName} className={`animate-float-${(index % 6) + 1} w-[900px] h-[700px] top-[-10%] left-[-20%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.25} paused={!isActive} />
+<AmbientGlow soft colorClass={act.colorName} className={`animate-float-${((index + 1) % 6) + 1} w-[950px] h-[700px] bottom-[5%] right-[-15%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.25} paused={!isActive} />
+<AmbientGlow soft colorClass={act.colorName} className={`animate-float-${((index + 2) % 6) + 1} w-[650px] h-[550px] top-[20%] left-[25%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.18} paused={!isActive} />
+<AmbientGlow soft colorClass={act.colorName} className={`animate-float-${((index + 3) % 6) + 1} w-[700px] h-[600px] top-[40%] right-[-8%] transition-opacity duration-1000 ${isActive ? 'opacity-100' : 'opacity-20'}`} opacity={0.18} paused={!isActive} />
 
 {/* Title (normal flow) + slim sticky chip + blocks */}
 <div className="relative w-full">
@@ -1171,7 +1107,7 @@ onClose={() => setDeepDiveData(null)}
 <AnimatePresence>
 {mobileNote && (
   createPortal(
-    <div className="fixed inset-0 z-[100] flex items-end justify-center pointer-events-auto select-none">
+    <div  role="dialog" aria-modal="true" aria-label="Nota de glosario" className="fixed inset-0 z-[100] flex items-end justify-center pointer-events-auto select-none">
       {/* Dark glass backdrop */}
       <motion.div
         initial={{ opacity: 0 }}

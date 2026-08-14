@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, memo } from "react";
+import type { ReactNode } from "react";
 import { 
   Plus, 
   Minus, 
@@ -451,6 +452,9 @@ export default memo(function ImpactCalculator() {
       <AnimatePresence>
         {showInfo && (
           <motion.div 
+            role="dialog"
+            aria-modal="true"
+            aria-label="Información sobre la metodología"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -528,7 +532,17 @@ export default memo(function ImpactCalculator() {
   );
 });
 
-function MetricCard({ icon, colorClass, title, value, unit, delay, equivalence }: any) {
+interface MetricCardProps {
+  icon: ReactNode;
+  colorClass: string;
+  title: string;
+  value: string;
+  unit: string;
+  delay?: number;
+  equivalence?: string;
+}
+
+function MetricCard({ icon, colorClass, title, value, unit, delay, equivalence }: MetricCardProps) {
   const bgClasses = {
     "ch1": "bg-ch1/10 border-ch1/20",
     "ch2": "bg-ch2/10 border-ch2/20",

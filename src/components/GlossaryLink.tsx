@@ -227,7 +227,7 @@ export default function GlossaryLink({ entry, children, noPopup, isActive, onAct
         !noPopup &&
         isOpen &&
         createPortal(
-          <div className="fixed inset-0 z-[100] flex items-end justify-center select-none pointer-events-auto">
+          <div role="dialog" aria-modal="true" aria-label={`Nota sobre ${entry.term}`} className="fixed inset-0 z-[100] flex items-end justify-center select-none pointer-events-auto">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

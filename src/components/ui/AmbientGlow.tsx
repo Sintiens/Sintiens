@@ -16,12 +16,15 @@ export default function AmbientGlow({
   opacity = 0.05,
   style,
   paused,
+  soft = false,
 }: {
   colorClass: string;
   className?: string;
   opacity?: number;
   style?: React.CSSProperties;
   paused?: boolean;
+  /** Softer variant (24/32px blur) used by StoryMode act glows */
+  soft?: boolean;
 }) {
   const color = COLOR_MAP[colorClass] || "var(--ch1)";
   const rootRef = useRef<HTMLDivElement>(null);
@@ -42,10 +45,16 @@ export default function AmbientGlow({
   const isPaused = paused || !inView;
 
   return (
-    <div ref={rootRef} className={`absolute pointer-events-none select-none z-0 overflow-visible ${className}`} style={style}>
+    <div
+      ref={rootRef}
+      className={`absolute pointer-events-none select-none z-0 overflow-visible ${className}`}
+      style={{ ...style, animationPlayState: isPaused ? "paused" : undefined }}
+    >
       <div
-        className="absolute top-1/2 left-1/2 w-[145%] h-[65%] aspect-[2.2/1] filter blur-[35px] sm:blur-[48px] animate-wobble-slow transition-colors duration-[600ms] ease-in-out"
-        style={{ opacity, color }}
+        className={`absolute top-1/2 left-1/2 w-[145%] h-[65%] aspect-[2.2/1] ${
+          soft ? "blur-[24px] sm:blur-[32px]" : "blur-[35px] sm:blur-[48px]"
+        } animate-wobble-slow transition-colors duration-[600ms] ease-in-out`}
+        style={{ opacity, color, animationPlayState: isPaused ? "paused" : undefined }}
       >
         <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
           <path

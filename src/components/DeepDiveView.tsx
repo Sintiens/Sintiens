@@ -92,6 +92,9 @@ export default function DeepDiveView({ actNum, actColor, data, onClose }: DeepDi
       exit={{ opacity: 0, y: 50 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] as const }}
       className="fixed inset-0 z-50 flex justify-center bg-background/95 backdrop-blur-sm overflow-y-auto"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Archivo de profundización"
     >
       <div className="w-full max-w-7xl min-h-screen flex flex-col lg:flex-row relative">
         <button 
