@@ -20,6 +20,15 @@ import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tool
 import type { TabType } from "../types";
 import { NEWS_DATA, NewsItem } from "../data/newsData";
 
+// Safe hostname extraction for favicon URLs (never throws on bad data)
+const getDomain = (url: string): string => {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return "";
+  }
+};
+
 interface NewsExplorerProps {
   activeTab: TabType;
   onNavigate: (tab: TabType) => void;
@@ -332,8 +341,10 @@ export default function NewsExplorer({ activeTab, onNavigate, theme, onToggleThe
             >
               <span className="-ml-px w-8 h-8 rounded-full bg-white dark:bg-zinc-800 border border-outline-variant/30 flex items-center justify-center shrink-0 shadow-sm overflow-hidden z-10">
                 <img 
-                  src={`https://www.google.com/s2/favicons?sz=64&domain=${new URL(item.url).hostname}`} 
+                  src={`https://www.google.com/s2/favicons?sz=64&domain=${getDomain(item.url)}`} 
                   alt={item.source}
+                  loading="lazy"
+                  decoding="async"
                   className="w-4.5 h-4.5 object-contain transition-transform duration-300 group-hover:scale-110"
                   onError={(e) => {
                     (e.currentTarget as HTMLImageElement).src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2'/%3E%3Cpath d='M18 14h-8'/%3E%3Cpath d='M15 18h-5'/%3E%3Cpath d='M10 6h8v4h-8V6Z'/%3E%3C/svg%3E";

@@ -1,10 +1,11 @@
-import React, { useState, useRef, useEffect, useCallback, useLayoutEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback, useLayoutEffect, useMemo } from "react";
 import { X, ArrowRight, ArrowUpRight, BookOpen, ExternalLink, HelpCircle, Activity, Globe, Scale, Layers, ScrollText, Sparkles } from "lucide-react";
 import { ReferenceDetail } from "../types";
 import { GLOSSARY_UNIFIED, GlossaryEntry } from "../data/glossaryUnified";
 import { CORE_NODES } from "../data/CORE_NODES";
 import { DILEMMAS_DATA } from "../data/DILEMMAS_DATA";
 import GlossaryLink from "./GlossaryLink";
+import { buildGlossaryRegex } from "../utils/glossaryPatterns";
 
 const CATEGORY_COLOR_VAR: Record<string, string> = {
   sintiencia: "var(--ch1)",
@@ -83,10 +84,6 @@ function ReferenceTooltip({ refDetail, children }: ReferenceTooltipProps) {
   );
 }
 
-function escapeRegExp(string: string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
 const patternList: { pattern: string; entry: GlossaryEntry }[] = [];
 GLOSSARY_UNIFIED.forEach((entry) => {
   entry.patterns.forEach((pat) => {
@@ -95,11 +92,7 @@ GLOSSARY_UNIFIED.forEach((entry) => {
 });
 patternList.sort((a, b) => b.pattern.length - a.pattern.length);
 
-const escapedPatterns = patternList.map((p) => escapeRegExp(p.pattern)).join("|");
-const glossaryRegex = new RegExp(
-  `(?<=^|[^a-zA-ZáéíóúÁÉÍÓÚñÑ])(${escapedPatterns})(?=$|[^a-zA-ZáéíóúÁÉÍÓÚñÑ])`,
-  "gi"
-);
+const glossaryRegex = buildGlossaryRegex(patternList.map((p) => p.pattern));
 
 interface TextRendererProps {
   text: string;
@@ -314,9 +307,9 @@ export default function TextRenderer({ text, references }: TextRendererProps) {
     };
   }, [activeEntry, activeElement, drawLine]);
 
-  if (!text) return null;
+  const citationParts = useMemo(() => text.split(/(\[[0-9,\s]+\])/g), [text]);
 
-  const citationParts = text.split(/(\[[0-9,\s]+\])/g);
+  if (!text) return null;
 
   if (!citationParts || citationParts.length === 0) return <span>{text}</span>;
 

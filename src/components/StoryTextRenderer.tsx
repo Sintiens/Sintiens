@@ -1,5 +1,6 @@
 import React from "react";
 import { GLOSSARY_UNIFIED, GlossaryEntry, GLOSSARY_BY_ID } from "../data/glossaryUnified";
+import { buildGlossaryRegex } from "../utils/glossaryPatterns";
 
 export interface StoryTooltipItem {
   id: string;
@@ -41,16 +42,7 @@ function buildStoryPatternList(): { pattern: string; entry: GlossaryEntry }[] {
 }
 
 const patternList = buildStoryPatternList();
-
-function escapeRegExp(string: string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-const escapedPatterns = patternList.map((p) => escapeRegExp(p.pattern)).join("|");
-const glossaryRegex = new RegExp(
-  `(?<=^|[^a-zA-ZáéíóúÁÉÍÓÚñÑ¿?])(${escapedPatterns})(?=$|[^a-zA-ZáéíóúÁÉÍÓÚñÑ¿?])`,
-  "gi"
-);
+const glossaryRegex = buildGlossaryRegex(patternList.map((p) => p.pattern), "¿?");
 
 export function getStoryEntry(id: string): GlossaryEntry | undefined {
   return GLOSSARY_BY_ID[id];

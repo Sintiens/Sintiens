@@ -184,7 +184,9 @@ export default function GlossaryLink({ entry, children, noPopup, isActive, onAct
     <span ref={containerRef} className="relative inline-block" data-glossary-word>
       <button
         onClick={handleLinkClick}
-          className={`cursor-pointer transition-all duration-300 select-text rounded-md inline px-1.5 py-[2px] mx-[1px] border outline-none ${
+        aria-expanded={isOpenActive}
+        aria-haspopup="dialog"
+        className={`cursor-pointer transition-all duration-300 select-text rounded-md inline px-1.5 py-[2px] mx-[1px] border outline-none ${
           isOpenActive
             ? "bg-primary/15 dark:bg-primary/25 text-primary border-primary/40 shadow-sm shadow-primary/10"
             : "bg-surface-container/60 hover:bg-primary/10 text-on-surface hover:text-primary border-outline-variant/15 hover:border-primary/30"
@@ -196,6 +198,8 @@ export default function GlossaryLink({ entry, children, noPopup, isActive, onAct
       <AnimatePresence>
         {showPopupDesktop && (
           <motion.div
+            role="dialog"
+            aria-label={`Nota sobre ${entry.term}`}
             initial={{ opacity: 0, y: 8, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.96 }}

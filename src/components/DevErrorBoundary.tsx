@@ -53,7 +53,7 @@ export default class DevErrorBoundary extends React.Component<Props, State> {
 
           <button
             onClick={() => {
-              (this as any).setState({ hasError: false, error: null });
+              this.setState({ hasError: false, error: null });
               window.location.reload();
             }}
             className="w-full bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-950 font-bold text-[10px] py-2 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95"
@@ -65,6 +65,6 @@ export default class DevErrorBoundary extends React.Component<Props, State> {
       );
     }
 
-    return (this as any).props.children;
+    return this.props.children;
   }
 }
