@@ -68,8 +68,12 @@ export default function App() {
   const [redirectEntryId, setRedirectEntryId] = useState<string | null>(null);
   const [theme, setTheme] = useState<"dark" | "light">(
     () => {
-      const saved = localStorage.getItem("theme");
-      if (saved === "light" || saved === "dark") return saved;
+      try {
+        const saved = localStorage.getItem("theme");
+        if (saved === "light" || saved === "dark") return saved;
+      } catch {
+        /* almacenamiento no disponible: silencioso */
+      }
       return "dark";
     }
   );
@@ -87,7 +91,11 @@ export default function App() {
     } else {
       document.documentElement.classList.remove("dark");
     }
-    localStorage.setItem("theme", theme);
+    try {
+      localStorage.setItem("theme", theme);
+    } catch {
+      /* almacenamiento no disponible: silencioso */
+    }
   }, [theme]);
 
   const navigateToTab = (tab: TabType) => {

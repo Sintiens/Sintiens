@@ -11,6 +11,9 @@
   --color-surface: var(--surface);
   --color-surface-dim: var(--surface-dim);
   --color-surface-container: var(--surface-container);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container-lowest: var(--surface-container-lowest);
+  --color-surface-variant: var(--surface-variant);
   --color-on-surface: var(--on-surface);
   --color-on-surface-variant: var(--on-surface-variant);
   
@@ -45,6 +48,25 @@
   --color-purple-750: oklch(28% 0.05 155);
   --color-indigo-550: oklch(45% 0.07 155);
 
+  /* Custom zinc shades used across components (interpolated from the
+     default zinc scale, which only ships 50..950 in steps of 100) */
+  --color-zinc-105: #f6f6f7;
+  --color-zinc-150: #ececee;
+  --color-zinc-250: #dcdce0;
+  --color-zinc-350: #bcbcc2;
+  --color-zinc-355: #aeaeb5;
+  --color-zinc-450: #898992;
+  --color-zinc-455: #7d7d86;
+  --color-zinc-505: #6a6a73;
+  --color-zinc-550: #62626b;
+  --color-zinc-555: #5f5f68;
+  --color-zinc-650: #48484f;
+  --color-zinc-655: #45454c;
+  --color-zinc-750: #333338;
+  --color-zinc-805: #202024;
+  --color-zinc-850: #1f1f23;
+  --color-zinc-955: #101013;
+
   --radius-sm: 0.125rem;
   --radius-md: 0.25rem; /* Softened as per DESIGN.md */
   --radius-lg: 0.5rem;
@@ -60,6 +82,9 @@
   --surface: oklch(99% 0.001 160);
   --surface-dim: oklch(96% 0.002 160);
   --surface-container: oklch(98% 0.001 160);
+  --surface-container-low: oklch(97.5% 0.001 160);
+  --surface-container-lowest: oklch(99.5% 0.001 160);
+  --surface-variant: oklch(92% 0.002 160);
   
   --on-surface: oklch(15% 0.015 160);
   --on-surface-variant: oklch(45% 0.02 160);
@@ -99,6 +124,9 @@
   --surface: oklch(18% 0.002 160);
   --surface-dim: oklch(12% 0.001 160);
   --surface-container: oklch(20% 0.002 160);
+  --surface-container-low: oklch(19% 0.002 160);
+  --surface-container-lowest: oklch(17% 0.001 160);
+  --surface-variant: oklch(28% 0.002 160);
   
   --on-surface: oklch(90% 0.005 160);
   --on-surface-variant: oklch(70% 0.01 160);

@@ -299,8 +299,8 @@ export const NEWS_DATA: NewsItem[] = [
   },
   {
     id: "es-ley-lobo-supremo-2026",
-    title: "El Tribunal Supremo dictamina que la caza del lobo solo es legal como último recurso",
-    summary: "El 12 de febrero de 2026, el Tribunal Supremo de España emitió una sentencia que restringe severamente las extracciones letales del lobo ibérico. El fallo establece que las comunidades autónomas solo pueden autorizar su caza cuando sea la única medida viable y tras acreditarse el fracaso de medidas de prevención razonables, reafirmando los límites estrictos de protección europea.",
+    title: "El TSJA anula el programa de control del lobo de Asturias que autorizaba cazar 53 ejemplares",
+    summary: "El 12 de febrero de 2026, el Tribunal Superior de Justicia de Asturias (TSJA) anuló el programa de control del lobo ibérico 2025-2026, que autorizaba la caza de 53 ejemplares. El fallo restringe severamente las extracciones letales, estableciendo que solo pueden autorizarse como último recurso y tras acreditarse el fracaso de medidas de prevención razonables, reafirmando los límites estrictos de protección europea.",
     date: "2026-02-12",
     region: "españa",
     category: "ley",
@@ -321,7 +321,7 @@ export const NEWS_DATA: NewsItem[] = [
   },
   {
     id: "world-ley-farrowing-crates-2025",
-    title: "El Reino Unido announces plans para prohibir las jaulas de parición de cerdas",
+    title: "El Reino Unido anuncia planes para prohibir las jaulas de parición de cerdas",
     summary: "El 22 de diciembre de 2025, el Gobierno británico presentó la Estrategia de Bienestar Animal para Inglaterra, detallando su compromiso de consultar y legislar para eliminar progresivamente el confinamiento de cerdas en jaulas de parición (farrowing crates). La medida busca transformar la ganadería porcina intensiva, aunque ONGs advierten de la necesidad de impedir importaciones de carne de cerdos criados bajo estándares inferiores.",
     date: "2025-12-22",
     region: "mundo",
@@ -443,8 +443,8 @@ export const NEWS_DATA: NewsItem[] = [
   {
     id: "es-ley-premio-tauromaquia-2024",
     title: "El Ministerio de Cultura de España suprime el Premio Nacional de Tauromaquia",
-    summary: "El 3 de mayo de 2024, el ministro de Cultura, Ernest Urtasun, inició los trámites para cancelar de forma definitiva el Premio Nacional de Tauromaquia. La decisión se justificó por coherencia con la evolución social y el rechazo al maltrato animal en espectáculos públicos, provocando una enérgica respuesta de los sectores taurinos y la creación de galardones alternativos en autonomías gobernadas por el PP y Vox.",
-    date: "2024-05-03",
+    summary: "El 6 de septiembre de 2024, el Ministerio de Cultura suprimió oficialmente el Premio Nacional de Tauromaquia, con un respaldo del 90% en la consulta ciudadana. La decisión, iniciada en mayo por el ministro Ernest Urtasun, se justificó por coherencia con la evolución social y el rechazo al maltrato animal en espectáculos públicos, provocando una enérgica respuesta de los sectores taurinos y la creación de galardones alternativos en autonomías gobernadas por el PP y Vox.",
+    date: "2024-09-06",
     region: "españa",
     category: "ley",
     impact: "positivo",
@@ -454,7 +454,7 @@ export const NEWS_DATA: NewsItem[] = [
   {
     id: "world-consumo-meat-decline-germany-2024",
     title: "El consumo de carne en Alemania desciende a un mínimo histórico",
-    summary: "El 4 de abril de 2024, el Centro Federal de Información Agrícola de Alemania reportó que el consumo per cápita de carne cayó en 2023 a 51,6 kg, el level más bajo desde que hay registros en 1991. Este descenso refleja un giro cultural hacia dietas flexitarianas y vegetales debido a preocupaciones ambientales y éticas de los consumidores sobre el bienestar de los animales en sistemas industriales.",
+    summary: "El 4 de abril de 2024, el Centro Federal de Información Agrícola de Alemania reportó que el consumo per cápita de carne cayó en 2023 a 51,6 kg, el nivel más bajo desde que hay registros en 1991. Este descenso refleja un giro cultural hacia dietas flexitarianas y vegetales debido a preocupaciones ambientales y éticas de los consumidores sobre el bienestar de los animales en sistemas industriales.",
     date: "2024-04-04",
     region: "mundo",
     category: "consumo",

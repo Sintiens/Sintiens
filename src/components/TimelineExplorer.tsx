@@ -1552,7 +1552,7 @@ export default function TimelineExplorer({ onRedirectToConcept, activeTab, onNav
               <button
                 onClick={() => setIsMobileDetailOpen(false)}
                 aria-label="Cerrar detalle"
-                className="absolute top-5 right-5 p-2 rounded-full bg-zinc-200/50 dark:bg-zinc-900/60 border border-zinc-300/40 dark:border-zinc-800 hover:bg-zinc-300/70 dark:hover:bg-zinc-800/80 text-zinc-500 hover:text-zinc-95 transition-all cursor-pointer"
+                className="absolute top-5 right-5 p-2 rounded-full bg-zinc-200/50 dark:bg-zinc-900/60 border border-zinc-300/40 dark:border-zinc-800 hover:bg-zinc-300/70 dark:hover:bg-zinc-800/80 text-zinc-500 hover:text-zinc-950 transition-all cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>

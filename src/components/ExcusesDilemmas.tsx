@@ -271,10 +271,18 @@ export default function ExcusesDilemmas({ onAnalyzeTrigger, activeTab, onNavigat
 
   /* ── Persistencia ── */
   useEffect(() => {
-    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+    try {
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+    } catch {
+      /* almacenamiento no disponible: silencioso */
+    }
   }, [favorites]);
   useEffect(() => {
-    localStorage.setItem(VISITED_KEY, JSON.stringify(visited));
+    try {
+      localStorage.setItem(VISITED_KEY, JSON.stringify(visited));
+    } catch {
+      /* almacenamiento no disponible: silencioso */
+    }
   }, [visited]);
 
   /* ── Reset bibliografía al cambiar de tesis ── */

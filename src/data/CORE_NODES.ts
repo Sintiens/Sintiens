@@ -267,7 +267,7 @@ export const CORE_NODES: NodeDetail[] = [
     category: "sistemas_uso",
     title: "Otros Ejes de Instrumentalización",
     shortDesc: "La vivisección biomédica, vestimenta y la explotación como entretenimiento.",
-    longDesc: "El antropocentrismo se ramifica más allá del plato. Institucionalmente, encerramos y experimentamos en millones de animales al año para investigación biomédica y cosmética (donde el limitado paradigma ético de las '3R' rara vez se cuestiona de fondo) [1]. Arrancamos la piel a visones, ovejas y vacas para confeccionar vestimenta [2]. Y en la cima de lo absurdo, financiamos zoológicos, tauromaquia y espectáculos que reducen la vida de un individuo cognitivamente brillante a un chiste o a una tragedia de entretenimiento temporal [3].",
+    longDesc: "El antropocentrismo se ramifica más allá del plato. Institucionalmente, encerramos y experimentamos en millones de animales al año para investigación biomédica y cosmética (donde el limitado paradigma ético de las '3R' rara vez se cuestiona de fondo) [1]. Arrancamos la piel a visones, ovejas y vacas para confeccionar vestimenta [2]. Y en la cima de lo absurdo, financiamos zoológicos, tauromaquia y espectáculos que reducen la vida de un individuo cognitivamente brillante a un chiste o a una tragedia de entretenimiento temporal.",
     scientificFacts: [
       "Gran parte de la experimentación en modelos animales fracasa (más del 90%) a la hora de extrapolarse a ensayos clínicos humanos debido a diferencias genéticas insalvables [1].",
       "La producción de cuero no es un mero 'subproducto' de la carne, sino un co-producto altamente rentable que subvenciona el matadero [2]."
