@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { 
   Settings, 
@@ -1678,7 +1678,7 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
     };
   };
 
-  const semantic = parseSemanticQuery(searchQuery);
+  const semantic = useMemo(() => parseSemanticQuery(searchQuery), [searchQuery]);
 
   // Determinación de filtros activos (los semánticos tienen prioridad sobre el dropdown)
   const activePriorityFilter = semantic.priority || (filterPriority !== "all" ? filterPriority : null);
@@ -1687,7 +1687,8 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
   const activeCategoryFilter = semantic.category || (filterCategory !== "all" ? filterCategory : null);
 
   // Filtrado y cálculo de relevancia (scoring) de tareas
-  const scoredTasks = tasks.map(task => {
+  const scoredTasks = useMemo(
+    () => tasks.map(task => {
     if (!task) {
       return { task: null, matches: false, score: 0 };
     }
@@ -1771,32 +1772,38 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
 
     // Si pasó los filtros y no hay palabras clave de texto libre
     return { task, matches: true, score: 1 };
-  });
+  }),
+  [tasks, activePriorityFilter, activeStatusFilter, activeTabFilter, activeCategoryFilter, semantic]
+);
 
-  const filteredTasks = scoredTasks
-    .filter(item => item && item.matches && item.task)
-    .sort((a, b) => {
-      // 1. Completed tasks (status === "done") go to the very bottom
-      const isDoneA = a.task?.status === "done";
-      const isDoneB = b.task?.status === "done";
-      if (isDoneA !== isDoneB) {
-        return isDoneA ? 1 : -1;
-      }
-      // 2. Sort by search relevance score
-      if (b.score !== a.score) {
-        return b.score - a.score;
-      }
-      // 3. Sort by creation date descending (newest first)
-      const timeA = a.task?.createdAt ? new Date(a.task.createdAt).getTime() : 0;
-      const timeB = b.task?.createdAt ? new Date(b.task.createdAt).getTime() : 0;
-      return timeB - timeA;
-    })
-    .map(item => item.task as DevTask);
+  const filteredTasks = useMemo(
+    () =>
+      scoredTasks
+        .filter(item => item && item.matches && item.task)
+        .sort((a, b) => {
+          // 1. Completed tasks (status === "done") go to the very bottom
+          const isDoneA = a.task?.status === "done";
+          const isDoneB = b.task?.status === "done";
+          if (isDoneA !== isDoneB) {
+            return isDoneA ? 1 : -1;
+          }
+          // 2. Sort by search relevance score
+          if (b.score !== a.score) {
+            return b.score - a.score;
+          }
+          // 3. Sort by creation date descending (newest first)
+          const timeA = a.task?.createdAt ? new Date(a.task.createdAt).getTime() : 0;
+          const timeB = b.task?.createdAt ? new Date(b.task.createdAt).getTime() : 0;
+          return timeB - timeA;
+        })
+        .map(item => item.task as DevTask),
+    [scoredTasks]
+  );
 
   // Count metrics
-  const todoCount = tasks.filter(t => t && t.status === "todo").length;
-  const inProgressCount = tasks.filter(t => t && t.status === "in-progress").length;
-  const doneCount = tasks.filter(t => t && t.status === "done").length;
+  const todoCount = useMemo(() => tasks.filter(t => t && t.status === "todo").length, [tasks]);
+  const inProgressCount = useMemo(() => tasks.filter(t => t && t.status === "in-progress").length, [tasks]);
+  const doneCount = useMemo(() => tasks.filter(t => t && t.status === "done").length, [tasks]);
 
   // Render tab badge helper
   function getTabLabel(tabName: string) {

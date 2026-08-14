@@ -1,4 +1,4 @@
-import {StrictMode} from 'react';
+import {StrictMode, useEffect} from 'react';
 import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
@@ -14,7 +14,7 @@ const removeLoader = () => {
     loader.remove();
   }
 };
-setTimeout(removeLoader, 50);
+setTimeout(removeLoader, 5000);
 
 // Global error handler — if React throws during render, hide the loader
 // and surface the error in the console.
@@ -27,8 +27,18 @@ window.addEventListener('unhandledrejection', (e) => {
   removeLoader();
 });
 
+// Remove the loader after React's first committed paint so the user never
+// sees a flash of loader -> blank while the app hydrates.
+function RemoveLoader() {
+  useEffect(() => {
+    removeLoader();
+  }, []);
+  return null;
+}
+
 createRoot(root).render(
   <StrictMode>
+    <RemoveLoader />
     <App />
   </StrictMode>,
 );

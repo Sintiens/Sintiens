@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 const COLOR_MAP: Record<string, string> = {
   "bg-ch1": "var(--ch1)",
@@ -24,9 +24,25 @@ export default function AmbientGlow({
   paused?: boolean;
 }) {
   const color = COLOR_MAP[colorClass] || "var(--ch1)";
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(true);
+
+  // Auto-pause the SMIL morph when the glow is scrolled out of view
+  // (the blur + path animation is the most expensive paint in the app)
+  useEffect(() => {
+    const el = rootRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver((entries) => {
+      setInView(entries.some((e) => e.isIntersecting));
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  const isPaused = paused || !inView;
 
   return (
-    <div className={`absolute pointer-events-none select-none z-0 overflow-visible ${className}`} style={style}>
+    <div ref={rootRef} className={`absolute pointer-events-none select-none z-0 overflow-visible ${className}`} style={style}>
       <div
         className="absolute top-1/2 left-1/2 w-[145%] h-[65%] aspect-[2.2/1] filter blur-[35px] sm:blur-[48px] animate-wobble-slow transition-colors duration-[600ms] ease-in-out"
         style={{ opacity, color }}
@@ -36,17 +52,19 @@ export default function AmbientGlow({
             fill="currentColor"
             d="M30,75 C70,15 130,25 175,55 C195,85 165,135 145,165 C105,195 55,175 35,135 C15,95 10,80 30,75 Z"
           >
-            <animate
-              attributeName="d"
-              dur="28s"
-              repeatCount="indefinite"
-              values="
-                M30,75 C70,15 130,25 175,55 C195,85 165,135 145,165 C105,195 55,175 35,135 C15,95 10,80 30,75 Z;
-                M55,35 C115,5 155,45 165,95 C175,155 115,175 75,155 C35,135 15,95 25,65 C35,35 15,35 55,35 Z;
-                M55,25 C115,5 145,55 155,105 C165,165 105,165 65,175 C25,185 35,115 35,75 C35,35 25,40 55,25 Z;
-                M30,75 C70,15 130,25 175,55 C195,85 165,135 145,165 C105,195 55,175 35,135 C15,95 10,80 30,75 Z
-              "
-            />
+            {!isPaused && (
+              <animate
+                attributeName="d"
+                dur="28s"
+                repeatCount="indefinite"
+                values="
+                  M30,75 C70,15 130,25 175,55 C195,85 165,135 145,165 C105,195 55,175 35,135 C15,95 10,80 30,75 Z;
+                  M55,35 C115,5 155,45 165,95 C175,155 115,175 75,155 C35,135 15,95 25,65 C35,35 15,35 55,35 Z;
+                  M55,25 C115,5 145,55 155,105 C165,165 105,165 65,175 C25,185 35,115 35,75 C35,35 25,40 55,25 Z;
+                  M30,75 C70,15 130,25 175,55 C195,85 165,135 145,165 C105,195 55,175 35,135 C15,95 10,80 30,75 Z
+                "
+              />
+            )}
           </path>
         </svg>
       </div>
