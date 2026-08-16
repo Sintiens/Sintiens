@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://sintiens-app.onrender.com/sitemap.xml
+Sitemap: https://sintiens.onrender.com/sitemap.xml

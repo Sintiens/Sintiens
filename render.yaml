@@ -3,6 +3,7 @@ services:
     name: sintiens-app
     runtime: node
     plan: free
+    healthCheckPath: /api/ping
     buildCommand: npm run build
     startCommand: node dist/server.cjs
     envVars:
