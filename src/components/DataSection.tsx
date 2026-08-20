@@ -1,239 +1,278 @@
-import { memo } from "react";
+import { memo, useState, useEffect } from "react";
 import { motion } from "motion/react";
-import { Database, Info, Compass, Eye, LineChart } from "lucide-react";
-import AnimalsSlaughteredChart from "./charts/AnimalsSlaughteredChart";
-import MeatConsumptionChart from "./charts/MeatConsumptionChart";
-import DeforestationChart from "./charts/DeforestationChart";
-import ChickenGrowthVisualizer from "./charts/ChickenGrowthVisualizer";
-import CageSpaceVisualizer from "./charts/CageSpaceVisualizer";
+import {
+  Database,
+  Eye,
+  Flame,
+  Globe2,
+  Pill,
+  Table,
+  Zap
+} from "lucide-react";
+import LiveSlaughterTicker from "./cifras/LiveSlaughterTicker";
+import SlaughterTimeSeriesChart from "./cifras/SlaughterTimeSeriesChart";
+import BroilerAnatomyVisualizer from "./cifras/BroilerAnatomyVisualizer";
+import MultiSpeciesConfinementVisualizer from "./cifras/MultiSpeciesConfinementVisualizer";
+import MammalBiomassVisualizer from "./cifras/MammalBiomassVisualizer";
+import SupplyChainEmissionsChart from "./cifras/SupplyChainEmissionsChart";
+import DeforestationDriversVisualizer from "./cifras/DeforestationDriversVisualizer";
+import LandAndTrophicFlowVisualizer from "./cifras/LandAndTrophicFlowVisualizer";
+import AntibioticsPublicHealthVisualizer from "./cifras/AntibioticsPublicHealthVisualizer";
+import FoodEnvironmentalMatrix from "./cifras/FoodEnvironmentalMatrix";
+
+interface ModuleNav {
+  id: string;
+  label: string;
+  icon: any;
+  exhibits: string;
+}
+
+const MODULE_NAVS: ModuleNav[] = [
+  { id: "slaughter_scale", label: "I. Sacrificio & Escala", icon: Flame, exhibits: "Exhibits I & II" },
+  { id: "anatomy_confinement", label: "II. Biología & Confinamiento", icon: Eye, exhibits: "Exhibits III & IV" },
+  { id: "climate_ecology", label: "III. Clima & Biodiversidad", icon: Globe2, exhibits: "Exhibits V & VI" },
+  { id: "trophic_thermodynamics", label: "IV. Termodinámica & Suelo", icon: Zap, exhibits: "Exhibit VII" },
+  { id: "public_health", label: "V. Antibióticos & Pandemias", icon: Pill, exhibits: "Exhibit VIII" },
+  { id: "food_matrix", label: "VI. Matriz Ambiental", icon: Table, exhibits: "Exhibit IX" }
+];
+
 export default memo(function DataSection() {
+  const [activeNav, setActiveNav] = useState<string>("slaughter_scale");
+
+  // ScrollSpy with IntersectionObserver
+  useEffect(() => {
+    const observerCallback: IntersectionObserverCallback = (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.3) {
+          setActiveNav(entry.target.id);
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, {
+      root: null,
+      rootMargin: "-20% 0px -60% 0px",
+      threshold: [0.3]
+    });
+
+    MODULE_NAVS.forEach((mod) => {
+      const el = document.getElementById(mod.id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const scrollToModule = (id: string) => {
+    setActiveNav(id);
+    const element = document.getElementById(id);
+    if (element) {
+      const yOffset = -132;
+      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    }
+  };
+
   return (
-    <div id="data-section-view" className="space-y-16 w-full relative text-left">
+    <motion.div
+      key="cifras_view"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] as const }}
+      className="space-y-16 w-full max-w-[1280px] mx-auto px-4 md:px-6 lg:px-8 py-8 text-left"
+    >
+      {/* SECTION 0: Academic Hero & Meta Stats Banner */}
+      <div className="text-center space-y-6 pt-4 pb-8 border-b border-outline-variant/20 dark:border-zinc-800 relative">
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 dark:bg-emerald-500/10 border border-primary/20 dark:border-emerald-500/20 rounded-full text-xs font-mono font-bold text-primary dark:text-emerald-400">
+          <Database className="w-3.5 h-3.5" />
+          <span>REPOSITORIO DE EVIDENCIA EMPÍRICA Y BIOFÍSICA · ACCESO ABIERTO</span>
+        </div>
 
-      {/* SECTION 0: Hero & Hook */}
-      <div 
-        id="hero"
-        className="-mt-12 lg:-mt-20 flex flex-col items-center relative bg-transparent w-full"
-        style={{
-          width: "calc(100vw - var(--scrollbar-width, 0px))",
-          marginLeft: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
-          marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
-        }}
-      >
+        <h1 className="text-3xl sm:text-5xl md:text-6xl font-heading font-black tracking-tight text-on-surface">
+          La Anatomía Cuantitativa de la Explotación Animal
+        </h1>
 
-        <div className="w-full flex flex-col lg:justify-center items-center text-center relative h-[550px] min-h-[550px] lg:h-[600px] lg:min-h-[600px] pt-16 lg:pt-28 pb-20 lg:pb-24 px-6 lg:px-16 border-b border-outline-variant/20">
-          <motion.div layoutId="global-crosshairs" className="absolute inset-0 pointer-events-none select-none z-0">
-            <div className="absolute top-[25px] left-[20px] w-6 h-6 flex items-center justify-center">
-              <div className="absolute w-4 h-[2px] bg-primary/30" /><div className="absolute w-[2px] h-4 bg-primary/30" />
-            </div>
-            <div className="absolute top-[25px] right-[20px] w-6 h-6 flex items-center justify-center">
-              <div className="absolute w-4 h-[2px] bg-primary/30" /><div className="absolute w-[2px] h-4 bg-primary/30" />
-            </div>
-            <div className="absolute bottom-[25px] left-[20px] w-6 h-6 flex items-center justify-center">
-              <div className="absolute w-4 h-[2px] bg-primary/30" /><div className="absolute w-[2px] h-4 bg-primary/30" />
-            </div>
-            <div className="absolute bottom-[25px] right-[20px] w-6 h-6 flex items-center justify-center">
-              <div className="absolute w-4 h-[2px] bg-primary/30" /><div className="absolute w-[2px] h-4 bg-primary/30" />
-            </div>
-          </motion.div>
+        <p className="text-sm sm:text-base md:text-lg font-sans text-on-surface-variant max-w-3xl mx-auto leading-relaxed">
+          Base de datos interactiva respaldada por más de 50.000 explotaciones comerciales y metaanálisis en <span className="text-on-surface font-semibold">Science</span>, <span className="text-on-surface font-semibold">Nature</span>, <span className="text-on-surface font-semibold">PNAS</span>, la <span className="text-on-surface font-semibold">FAO</span> y la <span className="text-on-surface font-semibold">EFSA</span>.
+        </p>
 
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden" style={{ zIndex: 0 }}>
-            <LineChart
-              className="text-zinc-900 dark:text-zinc-100 blur"
-              style={{
-                width: "clamp(144px, 45vw, 540px)",
-                height: "clamp(144px, 45vw, 540px)",
-                opacity: 0.12,
-                strokeWidth: 1.5,
-              }}
-            />
+        {/* Global Key Figures Bar — glass sutil */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-4xl mx-auto pt-4 text-left">
+          <div className="p-4 glass-enhance rounded-xl border border-outline-variant/15 space-y-1 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-red-600 dark:text-red-400 font-semibold block">
+              Sacrificio Anual
+            </span>
+            <span className="text-2xl font-mono font-bold text-on-surface">
+              &gt;80.000 M
+            </span>
+            <span className="text-[10px] font-mono text-on-surface-variant/60 block">
+              Animales terrestres / año
+            </span>
           </div>
 
-          <div className="flex-1 lg:flex-none flex flex-col justify-center items-center w-full">
-            {/* Title and Subtitle Section */}
-            <div className="space-y-2 lg:space-y-4 max-w-3xl w-full text-center relative z-10 mt-12 lg:mt-20">
-              <span className="text-[10px] font-mono font-bold text-primary select-none tracking-[0.25em] uppercase block opacity-60">
-                [ CIFRAS ]
-              </span>
-              <h1 className="text-[clamp(42px,8.5vw,80px)] font-bold tracking-tight font-heading leading-[1.05] text-on-background select-none">
-                Cifras
-              </h1>
-              <p className="max-w-2xl mx-auto pt-1 font-serif italic font-light text-on-surface-variant/70 leading-relaxed text-[14px] sm:text-[16px] md:text-[18px] lg:text-[19px] text-center tracking-normal select-none">
-                Cifras y gráficos de nuestra relación con los animales. Lo que el relato cuenta, aquí se ve.
-              </p>
-              <div className="flex items-center justify-center gap-6 pt-2">
-                <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
-                  <LineChart className="w-3.5 h-3.5" />
-                  5 GRÁFICOS
-                </span>
-                <span className="w-px h-4 bg-outline-variant/50" />
-                <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
-                  <Database className="w-3.5 h-3.5" />
-                  1957—2021
-                </span>
-                <span className="w-px h-4 bg-outline-variant/50" />
-                <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
-                  <Compass className="w-3.5 h-3.5" />
-                  4 ÁMBITOS
-                </span>
-              </div>
-            </div>
+          <div className="p-4 glass-enhance rounded-xl border border-outline-variant/15 space-y-1 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-primary font-semibold block">
+              Biomasa Mamífera
+            </span>
+            <span className="text-2xl font-mono font-bold text-on-surface">
+              62% Ganado
+            </span>
+            <span className="text-[10px] font-mono text-on-surface-variant/60 block">
+              Vs 4% mamíferos silvestres
+            </span>
           </div>
 
+          <div className="p-4 glass-enhance rounded-xl border border-outline-variant/15 space-y-1 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-amber-600 dark:text-amber-400 font-semibold block">
+              Uso de Tierra
+            </span>
+            <span className="text-2xl font-mono font-bold text-on-surface">
+              77% Suelo
+            </span>
+            <span className="text-[10px] font-mono text-on-surface-variant/60 block">
+              Para 18% de calorías
+            </span>
+          </div>
+
+          <div className="p-4 glass-enhance rounded-xl border border-outline-variant/15 space-y-1 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-blue-600 dark:text-blue-400 font-semibold block">
+              Antibióticos
+            </span>
+            <span className="text-2xl font-mono font-bold text-on-surface">
+              73% Global
+            </span>
+            <span className="text-[10px] font-mono text-on-surface-variant/60 block">
+              Administrado a granjas
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Source Card */}
-      <div className="glass-enhance border border-outline-variant/30 rounded-2xl p-8 grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
-        <div className="md:col-span-8 space-y-4">
-          <h4 className="text-technical-sm text-primary flex items-center gap-2 font-mono">
-            <Database className="w-4 h-4" />
-            DATOS CIENTÍFICOS Y METADATOS
-          </h4>
-          <p className="text-body-md text-on-surface-variant leading-relaxed">
-            Esta sección visualiza datos crudos procedentes de bases de datos públicas para entender 
-            la escala del sacrificio animal, el crecimiento insostenible del consumo y la destrucción ecológica asociada.
-          </p>
+      {/* STICKY FLOATING NAVIGATION — glass unificada, offset para MiniTabNav */}
+      <div className="sticky top-[88px] z-20 py-3 glass-enhance border-y border-outline-variant/15 -mx-4 md:-mx-6 lg:-mx-8 px-4 md:px-6 lg:px-8 before:content-[''] before:absolute before:inset-0 before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar max-w-[1280px] mx-auto">
+          {MODULE_NAVS.map((mod) => {
+            const Icon = mod.icon;
+            const isActive = activeNav === mod.id;
+            return (
+              <button
+                key={mod.id}
+                type="button"
+                onClick={() => scrollToModule(mod.id)}
+                className={`px-3.5 py-2 rounded-full text-xs font-mono font-bold transition-all shrink-0 flex items-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${
+                  isActive
+                    ? "bg-primary text-on-primary shadow-sm ring-1 ring-primary/20"
+                    : "glass-enhance border border-outline-variant/20 text-on-surface-variant hover:text-on-surface hover:border-outline-variant/40 before:content-[''] before:absolute before:inset-0 before:rounded-full before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative"
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                <span>{mod.label}</span>
+              </button>
+            );
+          })}
         </div>
-        <div className="md:col-span-4 flex flex-col justify-center bg-surface-dim/40 p-5 rounded-xl border border-outline-variant/20">
-          <span className="text-[10px] font-mono text-on-surface-variant/60 uppercase tracking-widest block mb-2 flex items-center gap-1.5">
-            <Info className="w-3 h-3" /> Fuente de Datos
+      </div>
+
+      {/* ========================================================================= */}
+      {/* MODULE I: ESCALA Y SACRIFICIO EN VIVO */}
+      {/* ========================================================================= */}
+      <section id="slaughter_scale" className="space-y-8 scroll-mt-[132px]">
+        <div className="space-y-1 border-l-2 border-red-500/60 pl-4">
+          <span className="text-xs font-mono uppercase tracking-widest text-red-600 dark:text-red-400 font-bold">
+            Módulo I · Dinámica Cuantitativa de Sacrificio
           </span>
-          <a
-            href="https://ourworldindata.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-link hover:text-link/80 font-medium text-sm transition-colors font-mono"
-          >
-            Our World in Data (Universidad de Oxford)
-          </a>
-          <p className="text-xs text-on-surface-variant/60 mt-2 font-light leading-relaxed">
-            Gráficos basados en informes globales sobre bienestar animal, agricultura y emisiones de gases de efecto invernadero.
-          </p>
+          <h2 className="text-2xl sm:text-3xl font-heading font-bold text-on-surface">
+            La Magnitud Temporal del Matadero
+          </h2>
         </div>
-      </div>
 
-      {/* Exhibit Gallery - Staggered & Asymmetric Museum Layout */}
-      <div className="space-y-24 relative z-10 px-3 md:px-0">
+        <LiveSlaughterTicker />
+        <SlaughterTimeSeriesChart />
+      </section>
 
-        {/* EXHIBIT I: Chicken Growth */}
-        <section id="exhibit-chicken-growth" className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start border-t border-outline-variant/20 pt-12">
-          <div className="lg:col-span-7 space-y-4">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono bg-primary/10 text-primary px-2.5 py-1 rounded-md font-bold">EXHIBIT I</span>
-              <span className="text-[10px] font-mono text-on-surface-variant/60 uppercase tracking-widest">Biología evolutiva</span>
-            </div>
-            <h4 className="text-3xl font-heading font-bold text-on-surface">Domesticación Extrema e Ingeniería Genética</h4>
-            <p className="text-[14.5px] leading-relaxed text-on-surface-variant font-light">
-              La selección genética del pollo de engorde es el ejemplo más gráfico de cómo se moldea la biología animal. Al priorizar el crecimiento muscular por encima de la salud circulatoria y ósea, el mercado ha creado seres cuyos cuerpos colapsan bajo su propio peso.
-            </p>
-          </div>
-          <div className="lg:col-span-5 lg:pt-6">
-            <div className="p-4 rounded-xl bg-surface-dim/30 border border-outline-variant/15 flex gap-3 items-start">
-              <Compass className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <span className="text-[11px] font-mono font-bold text-on-surface uppercase block">Análisis Científico</span>
-                <p className="text-xs text-on-surface-variant leading-relaxed">
-                  Investigaciones de la Universidad de Saskatchewan demuestran que, si no fueran sacrificados a los 40 días, la tasa de mortalidad por fallo cardíaco congénito (ascitis) en pollos modernos superaría el 80% antes de llegar a la madurez.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="lg:col-span-12 mt-2">
-            <ChickenGrowthVisualizer />
-          </div>
-        </section>
+      {/* ========================================================================= */}
+      {/* MODULE II: BIOLOGÍA Y CONFINAMIENTO EXTREMO */}
+      {/* ========================================================================= */}
+      <section id="anatomy_confinement" className="space-y-8 scroll-mt-[132px]">
+        <div className="space-y-1 border-l-2 border-amber-500/60 pl-4">
+          <span className="text-xs font-mono uppercase tracking-widest text-amber-600 dark:text-amber-400 font-bold">
+            Módulo II · Zootecnia y Arquitectura del Confinamiento
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-heading font-bold text-on-surface">
+            Cuerpos Manipulados y Espacios Reducidos
+          </h2>
+        </div>
 
-        {/* EXHIBIT II: Cage Confinement */}
-        <section id="exhibit-cage-space" className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start border-t border-outline-variant/20 pt-12">
-          <div className="lg:col-span-4 lg:order-last space-y-4">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono bg-primary/10 text-primary px-2.5 py-1 rounded-md font-bold">EXHIBIT II</span>
-              <span className="text-[10px] font-mono text-on-surface-variant/60 uppercase tracking-widest">Sistemas de confinamiento</span>
-            </div>
-            <h4 className="text-2xl font-heading font-bold text-on-surface">El Espacio Vital y el Hacinamiento Industrial</h4>
-            <p className="text-[13.5px] leading-relaxed text-on-surface-variant font-light">
-              Las gallinas ponedoras criadas en baterías pasan su vida en jaulas de alambre. Al no poder realizar comportamientos esenciales como abrir las alas o darse baños de polvo, sufren atrofia muscular severa y osteoporosis crónica por falta de movimiento.
-            </p>
-          </div>
-          <div className="lg:col-span-8">
-            <CageSpaceVisualizer />
-          </div>
-        </section>
+        <BroilerAnatomyVisualizer />
+        <MultiSpeciesConfinementVisualizer />
+      </section>
 
-        {/* EXHIBIT III: Animals Slaughtered */}
-        <section id="exhibit-slaughtered" className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start border-t border-outline-variant/20 pt-12">
-          <div className="lg:col-span-4 space-y-4">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono bg-primary/10 text-primary px-2.5 py-1 rounded-md font-bold">EXHIBIT III</span>
-              <span className="text-[10px] font-mono text-on-surface-variant/60 uppercase tracking-widest">Escala global</span>
-            </div>
-            <h4 className="text-2xl font-heading font-bold text-on-surface">La Escala del Sacrificio</h4>
-            <p className="text-[13.5px] leading-relaxed text-on-surface-variant font-light">
-              Más de 74.000 millones de animales terrestres son sacrificados cada año para el consumo humano. La inmensa mayoría de este volumen está representado por aves domésticas, criadas en sistemas hiperconcentrados que optimizan la velocidad de procesado por encima del sufrimiento individual.
-            </p>
-            <div className="p-4 rounded-xl bg-surface-dim/30 border border-outline-variant/15 flex gap-3 items-start">
-              <Eye className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <span className="text-[11px] font-mono font-bold text-on-surface uppercase block">Perspectiva numérica</span>
-                <p className="text-xs text-on-surface-variant leading-relaxed">
-                  Si representáramos cada animal terrestre sacrificado en un año como un segundo de tiempo, tardaríamos más de <strong>2.300 años</strong> de reproducción ininterrumpida en contarlos todos.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="lg:col-span-8">
-            <AnimalsSlaughteredChart />
-          </div>
-        </section>
+      {/* ========================================================================= */}
+      {/* MODULE III: CLIMA, SUELO Y BIODIVERSIDAD */}
+      {/* ========================================================================= */}
+      <section id="climate_ecology" className="space-y-8 scroll-mt-[132px]">
+        <div className="space-y-1 border-l-2 border-emerald-500/60 pl-4">
+          <span className="text-xs font-mono uppercase tracking-widest text-emerald-600 dark:text-emerald-400 font-bold">
+            Módulo III · Huella Ecológica y Extinción de Biomasa
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-heading font-bold text-on-surface">
+            Colapso de Ecosistemas y Ciclo de Vida
+          </h2>
+        </div>
 
-        {/* EXHIBIT IV: Meat Consumption & Thermodynamics */}
-        <section id="exhibit-consumption" className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start border-t border-outline-variant/20 pt-12">
-          <div className="lg:col-span-4 lg:order-last space-y-4">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono bg-primary/10 text-primary px-2.5 py-1 rounded-md font-bold">EXHIBIT IV</span>
-              <span className="text-[10px] font-mono text-on-surface-variant/60 uppercase tracking-widest">Termodinámica alimentaria</span>
-            </div>
-            <h4 className="text-2xl font-heading font-bold text-on-surface">Crecimiento del Consumo e Ineficiencia Energética</h4>
-            <p className="text-[13.5px] leading-relaxed text-on-surface-variant font-light">
-              El consumo per cápita se ha multiplicado exponencialmente, sobre todo en economías de rápido crecimiento. Nutrirnos a través de animales es energéticamente ineficiente: la mayor parte del pienso que consume el ganado se disipa en su propio metabolismo básico en lugar de transformarse en masa muscular.
-            </p>
-            <div className="p-4 rounded-xl bg-surface-dim/30 border border-outline-variant/15 flex gap-3 items-start">
-              <Compass className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <span className="text-[11px] font-mono font-bold text-on-surface uppercase block">Pérdida trófica</span>
-                <p className="text-xs text-on-surface-variant leading-relaxed">
-                  Por cada 100 kcal de soja cultivada para el ganado bovino, solo se recuperan 2-3 kcal. El 97% restante se disipa termodinámicamente. Esto nos obliga a deforestar y cultivar vastas áreas de tierra solo para alimentar intermediarios.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="lg:col-span-8">
-            <MeatConsumptionChart />
-          </div>
-        </section>
+        <MammalBiomassVisualizer />
+        <SupplyChainEmissionsChart />
+        <DeforestationDriversVisualizer />
+      </section>
 
-        {/* EXHIBIT V: Deforestation */}
-        <section id="exhibit-deforestation" className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start border-t border-outline-variant/20 pt-12 pb-12">
-          <div className="lg:col-span-4 space-y-4">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono bg-primary/10 text-primary px-2.5 py-1 rounded-md font-bold">EXHIBIT V</span>
-              <span className="text-[10px] font-mono text-on-surface-variant/60 uppercase tracking-widest">Externalidades ecológicas</span>
-            </div>
-            <h4 className="text-2xl font-heading font-bold text-on-surface">Motores de la Deforestación y Pérdida de Biodiversidad</h4>
-            <p className="text-[13.5px] leading-relaxed text-on-surface-variant font-light">
-              La ganadería vacuna extensiva y los monocultivos de soja (destinados a piensos) son los principales responsables de la tala y quema de bosques tropicales. La destrucción de la selva amazónica no responde a la alimentación humana directa, sino a sostener una cabaña ganadera global insostenible.
-            </p>
-          </div>
-          <div className="lg:col-span-8">
-            <DeforestationChart />
-          </div>
-        </section>
+      {/* ========================================================================= */}
+      {/* MODULE IV: TERMODINÁMICA Y PÉRDIDA TRÓFICA */}
+      {/* ========================================================================= */}
+      <section id="trophic_thermodynamics" className="space-y-8 scroll-mt-[132px]">
+        <div className="space-y-1 border-l-2 border-primary/60 pl-4">
+          <span className="text-xs font-mono uppercase tracking-widest text-primary dark:text-emerald-400 font-bold">
+            Módulo IV · Balance Termodinámico y Suelo
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-heading font-bold text-on-surface">
+            La Ineficiencia Metabólica de la Pirámide Trófica
+          </h2>
+        </div>
 
-      </div>
+        <LandAndTrophicFlowVisualizer />
+      </section>
 
-      {/* Espaciador final para scroll */}
-      <div className="h-32" />
-    </div>
+      {/* ========================================================================= */}
+      {/* MODULE V: SALUD PÚBLICA Y PANDEMIAS */}
+      {/* ========================================================================= */}
+      <section id="public_health" className="space-y-8 scroll-mt-[132px]">
+        <div className="space-y-1 border-l-2 border-blue-500/60 pl-4">
+          <span className="text-xs font-mono uppercase tracking-widest text-blue-600 dark:text-blue-400 font-bold">
+            Módulo V · Bioseguridad y Resistencia Antimicrobiana
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-heading font-bold text-on-surface">
+            El Coste Oculto para la Salud Humana
+          </h2>
+        </div>
+
+        <AntibioticsPublicHealthVisualizer />
+      </section>
+
+      {/* ========================================================================= */}
+      {/* MODULE VI: MATRIZ AMBIENTAL DE ALIMENTOS */}
+      {/* ========================================================================= */}
+      <section id="food_matrix" className="space-y-8 scroll-mt-[132px]">
+        <div className="space-y-1 border-l-2 border-purple-500/60 pl-4">
+          <span className="text-xs font-mono uppercase tracking-widest text-purple-600 dark:text-purple-400 font-bold">
+            Módulo VI · Matriz Comparativa y Simulador Dietético
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-heading font-bold text-on-surface">
+            Evaluación Multidimensional de Alimentos
+          </h2>
+        </div>
+
+        <FoodEnvironmentalMatrix />
+      </section>
+    </motion.div>
   );
 });

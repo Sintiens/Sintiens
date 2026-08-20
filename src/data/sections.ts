@@ -41,6 +41,11 @@ export const CATEGORIES: Category[] = [
     defaultTabId: "laboratorio_hub",
     subSections: [
       { tabId: "laboratorio_hub", label: "Inicio", path: "/laboratorio" },
+      { tabId: "velo_rawls", label: "Velo de Rawls", path: "/laboratorio/velo-rawls" },
+      { tabId: "termodinamica", label: "Termodinámica", path: "/laboratorio/termodinamica" },
+      { tabId: "neurobiologia", label: "Neurobiología", path: "/laboratorio/neurobiologia" },
+      { tabId: "nutricion", label: "Nutrición", path: "/laboratorio/nutricion" },
+      { tabId: "welfarewashing", label: "Welfarewashing", path: "/laboratorio/welfarewashing" },
       { tabId: "calculadora", label: "Impacto", path: "/laboratorio/impacto" },
       { tabId: "validador", label: "Descomponer", path: "/laboratorio/descomponer" },
     ],

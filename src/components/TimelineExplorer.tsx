@@ -692,7 +692,7 @@ export default React.memo(function TimelineExplorer({ onRedirectToConcept }: Tim
         }}
       >
         <div className="w-full flex flex-col lg:justify-center items-center text-center relative h-[550px] min-h-[550px] lg:h-[600px] lg:min-h-[600px] pt-16 lg:pt-28 pb-20 lg:pb-24 px-6 lg:px-16 border-b border-outline-variant/20">
-          <motion.div layoutId="global-crosshairs" className="absolute inset-0 pointer-events-none select-none z-0">
+          <div className="absolute inset-0 pointer-events-none select-none z-0">
             <div className="absolute top-[25px] left-[20px] w-6 h-6 flex items-center justify-center">
               <div className="absolute w-4 h-[2px] bg-primary/30" /><div className="absolute w-[2px] h-4 bg-primary/30" />
             </div>
@@ -705,7 +705,7 @@ export default React.memo(function TimelineExplorer({ onRedirectToConcept }: Tim
             <div className="absolute bottom-[25px] right-[20px] w-6 h-6 flex items-center justify-center">
               <div className="absolute w-4 h-[2px] bg-primary/30" /><div className="absolute w-[2px] h-4 bg-primary/30" />
             </div>
-          </motion.div>
+          </div>
 
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden" style={{ zIndex: 0 }}>
             <Clock
@@ -713,17 +713,14 @@ export default React.memo(function TimelineExplorer({ onRedirectToConcept }: Tim
               style={{
                 width: "clamp(144px, 45vw, 540px)",
                 height: "clamp(144px, 45vw, 540px)",
-                opacity: 0.08,
-                strokeWidth: 1,
+                opacity: 0.10,
+                strokeWidth: 1.2,
               }}
             />
           </div>
 
           <div className="flex-1 lg:flex-none flex flex-col justify-center items-center w-full">
             <div className="space-y-2 lg:space-y-4 max-w-3xl w-full text-center relative z-10 mt-12 lg:mt-20">
-              <span className="text-[10px] font-mono font-bold text-primary select-none tracking-[0.25em] uppercase block opacity-60">
-                [ HISTORIA ]
-              </span>
               <h1 className="text-[clamp(42px,8.5vw,80px)] font-bold tracking-tight font-heading leading-[1.05] text-on-background select-none">
                 Cronología<span className="text-secondary/60 font-light block mt-2 text-[clamp(24px,4vw,40px)]">Línea Temporal</span>
               </h1>
@@ -735,8 +732,8 @@ export default React.memo(function TimelineExplorer({ onRedirectToConcept }: Tim
         </div>
       </div>
 
-      {/* 🌟 LAYOUT VIEWS SELECTOR TOGGLE AND COMPARISON MODE (Unified Bar) 🌟 */}
-      <div className="glass-enhance border border-outline-variant/30 rounded-2xl p-4 flex flex-col lg:flex-row gap-4 items-center justify-between relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
+      {/* 🌟 LAYOUT VIEWS SELECTOR (glass unificada) 🌟 */}
+      <div className="glass-enhance border border-outline-variant/20 rounded-2xl p-4 flex flex-col lg:flex-row gap-4 items-center justify-between relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
         
         {/* Layout View Toggler */}
         <div className="flex bg-surface-dim/40 p-1 rounded-xl border border-outline-variant/20">
@@ -816,8 +813,9 @@ export default React.memo(function TimelineExplorer({ onRedirectToConcept }: Tim
             {/* 🔘 PERSPECTIVE FILTER PILLS BAR 🔘 */}
             <div className="flex gap-2 overflow-x-auto pr-4 pb-3 border-b border-zinc-200/50 dark:border-zinc-900/40 custom-scrollbar select-none">
               <button
+                type="button"
                 onClick={() => setMobileActiveTrack("todos")}
-                className={`px-4 py-2 rounded-full text-xs font-mono font-bold tracking-tight whitespace-nowrap transition-all cursor-pointer border ${
+                className={`px-4 py-2 rounded-full text-xs font-mono font-bold tracking-tight whitespace-nowrap transition-all cursor-pointer border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${
                   mobileActiveTrack === "todos"
                     ? "bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 border-transparent shadow-md"
                     : "bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-550 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-850"
@@ -833,8 +831,9 @@ export default React.memo(function TimelineExplorer({ onRedirectToConcept }: Tim
                 return (
                   <button
                     key={trackKey}
+                    type="button"
                     onClick={() => setMobileActiveTrack(trackKey)}
-                    className={`px-4 py-2 rounded-full text-xs font-mono font-bold tracking-tight whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer border ${
+                    className={`px-4 py-2 rounded-full text-xs font-mono font-bold tracking-tight whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${
                       isSelected
                         ? `${
                             trackKey === "usos" ? "bg-sky-500 text-white border-transparent shadow-md" :
@@ -863,7 +862,6 @@ export default React.memo(function TimelineExplorer({ onRedirectToConcept }: Tim
               <svg 
                 ref={svgRef}
                 className="absolute inset-0 w-full h-full pointer-events-none z-0 hidden lg:block"
-                style={{ mixBlendMode: "difference" }}
               >
                 <defs>
                   <linearGradient id="skyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -902,17 +900,17 @@ export default React.memo(function TimelineExplorer({ onRedirectToConcept }: Tim
                       stroke={c.color === "sky" ? "#0284c7" : c.color === "purple" ? "#8b5cf6" : c.color === "emerald" ? "#10b981" : "#d97706"}
                       strokeWidth="1.5"
                       strokeDasharray="4 2"
-                      className="opacity-80 animate-[dash_10s_linear_infinite]"
-                      initial={{ pathLength: 0 }}
-                      animate={{ pathLength: 1 }}
-                      transition={{ duration: 0.35 }}
+                      className="opacity-80"
+                      initial={{ pathLength: 0, pathOffset: 0 }}
+                      animate={{ pathLength: 1, pathOffset: [0, 1] }}
+                      transition={{ pathLength: { duration: 0.35, ease: [0.22, 1, 0.36, 1] as const }, pathOffset: { duration: 2, repeat: Infinity, ease: "linear" as const } }}
                     />
                   </g>
                 ))}
               </svg>
 
               {/* 📍 STICKY NAVIGATION MINIMAP 📍 */}
-              <div className="hidden lg:block lg:col-span-3 sticky top-24 self-start bg-zinc-50/50 dark:bg-zinc-900/10 backdrop-blur-md p-6 rounded-3xl border border-zinc-200 dark:border-zinc-900/60 transition-colors duration-300">
+              <div className="hidden lg:block lg:col-span-3 sticky top-24 self-start bg-zinc-50/50 dark:bg-zinc-900/10 backdrop-blur-md p-6 rounded-2xl border border-zinc-200 dark:border-zinc-900/60 transition-colors duration-300">
                 <span className="text-[10px] font-mono font-black tracking-widest text-zinc-455 dark:text-zinc-500 uppercase block mb-4">
                   ÍNDICE CRONOLÓGICO
                 </span>
@@ -1302,7 +1300,7 @@ export default React.memo(function TimelineExplorer({ onRedirectToConcept }: Tim
           )}
 
           {/* Original Split detailed view layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch w-full min-h-[620px] border border-zinc-200 dark:border-zinc-850 rounded-3xl bg-white/40 dark:bg-zinc-900/10 backdrop-blur-md overflow-hidden transition-all duration-300">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch w-full min-h-[620px] border border-zinc-200 dark:border-zinc-850 rounded-2xl bg-white/40 dark:bg-zinc-900/10 backdrop-blur-md overflow-hidden transition-all duration-300">
             
             {/* Timeline scroll vertical feed */}
             <div className="lg:col-span-7 p-6 bg-zinc-50/50 dark:bg-zinc-950/30 relative min-h-[480px] lg:min-h-[580px] transition-colors duration-300 flex flex-col justify-between space-y-6">
@@ -1541,11 +1539,11 @@ export default React.memo(function TimelineExplorer({ onRedirectToConcept }: Tim
               onClick={() => setIsMobileDetailOpen(false)}
               className="absolute inset-0 bg-black/60 dark:bg-black/85 backdrop-blur-xs cursor-pointer"
             />
-            <motion.div
+              <motion.div
               initial={{ y: "100%", borderTopLeftRadius: 30, borderTopRightRadius: 30 }}
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 220 }}
+              transition={{ type: "spring", damping: 32, stiffness: 380 }}
               className="relative w-full max-h-[85vh] overflow-y-auto overscroll-y-contain bg-zinc-50 dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800 p-6 flex flex-col z-10 shadow-2xl rounded-t-3xl custom-scrollbar"
             >
               <div className="w-12 h-1 rounded-full bg-zinc-300 dark:bg-zinc-800 mx-auto mb-5 shrink-0" />

@@ -87,6 +87,37 @@ export default function AmbientGlow({
  * The parent App div must have position: relative (already set).
  */
 export function GlobalGlows() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    setIsMobile(mq.matches);
+    const h = () => setIsMobile(mq.matches);
+    mq.addEventListener("change", h);
+    return () => mq.removeEventListener("change", h);
+  }, []);
+  // En móvil: 3 blobs para reducir overdraw GPU (blur 48px es el paint más caro)
+  if (isMobile) {
+    return (
+      <div
+        className="absolute inset-x-0 top-0 h-[85vh] pointer-events-none overflow-hidden z-0"
+        style={{
+          width: "calc(100vw - var(--scrollbar-width, 0px))",
+          left: "50%",
+          transform: "translateX(-50%)",
+        }}
+      >
+        <div className="absolute top-[-2%] left-[-5vw] w-[520px] h-[520px] animate-float-1">
+          <AmbientGlow colorClass="bg-ch4" className="w-full h-full" opacity={0.26} />
+        </div>
+        <div className="absolute top-[28%] right-[-8vw] w-[560px] h-[560px] animate-float-2">
+          <AmbientGlow colorClass="bg-ch1" className="w-full h-full" opacity={0.26} />
+        </div>
+        <div className="absolute top-[10%] left-[18vw] w-[460px] h-[460px] animate-float-3">
+          <AmbientGlow colorClass="bg-ch2" className="w-full h-full" opacity={0.20} />
+        </div>
+      </div>
+    );
+  }
   return (
     <div
       className="absolute inset-x-0 top-0 h-screen pointer-events-none overflow-hidden z-0"

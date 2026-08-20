@@ -25,7 +25,6 @@ import {
   BarChart3,
   LayoutGrid,
   List as ListIcon,
-  Trophy,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { DILEMMAS_DATA } from "../data/DILEMMAS_DATA";
@@ -35,19 +34,20 @@ import type { DilemmaDetail as DilemmaDetailType } from "../types";
 import { GLOSSARY_UNIFIED, GLOSSARY_CATEGORIES } from "../data/glossaryUnified";
 import TextRenderer from "./TextRenderer";
 import { Button } from "./ui/Button";
+import SocraticTrainer from "./SocraticTrainer";
+import { SOCRATIC_DIALOGUES } from "../data/socraticDialoguesData";
 
 /* ──────────────────────────────────────────────────────────────────────────
- *  Dialéctica · Socrática — rediseño completo
- *  Lista de tesis + panel lateral fijo (desktop) / hoja modal (móvil).
- *  Favoritos y progreso persistentes, enlaces cruzados, dashboard de visión
- *  general y resaltado de búsqueda.
+ *  Dialéctica · Socrática
+ *  Lista de tesis + panel lateral fijo (desktop) / hoja modal (móvil)
+ *  + Entrenador de Diálogo Socrático interactivo.
  * ────────────────────────────────────────────────────────────────────────── */
 
 interface ExcusesDilemmasProps {
   onAnalyzeTrigger: (excuseText: string) => void;
 }
 
-/* ── Persistencia: mismas claves kebab-case y patrón lazy + writer de la base ── */
+/* ── Persistencia ── */
 const FAVORITES_KEY = "sintiens-dilemma-favoritos";
 const VISITED_KEY = "sintiens-dilemma-visitados";
 
@@ -64,24 +64,25 @@ function loadStored<T>(key: string, fallback: T): T {
 
 /* ── Animación ── */
 const cardVariants = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 18 },
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, delay: 0.06 * i, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
+    transition: { duration: 0.32, delay: 0.05 * i, ease: [0.22, 1, 0.36, 1] as const },
   }),
+  exit: { opacity: 0, y: 8, transition: { duration: 0.18, ease: "easeOut" as const } },
 };
 
 const headerVariants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.12 } },
+  visible: { transition: { staggerChildren: 0.08 } },
 };
 const childVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
+  hidden: { opacity: 0, y: 18 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.32, ease: [0.22, 1, 0.36, 1] as const } },
 };
 
-/* ── Catálogos de filtros (mantienen etiquetas existentes) ── */
+/* ── Catálogos de filtros ── */
 const CATEGORY_OPTIONS: { id: string; label: string; icon: React.ReactNode; color: string }[] = [
   { id: "all", label: "Todas", icon: null, color: "var(--on-surface-variant)" },
   { id: "sintiencia", label: "Sintiencia", icon: <Activity className="w-3.5 h-3.5" />, color: "var(--ch1)" },
@@ -154,11 +155,11 @@ function getConsensusSolidColor(consensus: ConsensusType): string {
     case "CONSENSO":
       return "var(--link)";
     case "DILEMA":
-      return "oklch(70% 0.16 75)"; // amber
+      return "oklch(70% 0.16 75)";
     case "ESCENARIO_GRIS":
-      return "oklch(65% 0.15 300)"; // purple
+      return "oklch(65% 0.15 300)";
     case "FALACIA":
-      return "oklch(62% 0.18 25)"; // red
+      return "oklch(62% 0.18 25)";
     default:
       return "var(--outline)";
   }
@@ -179,67 +180,59 @@ function getCategoryIconByString(cat: string) {
   }
 }
 
-/* ── Resaltado de búsqueda (réplica del patrón del Glosario) ── */
-function highlight(text: string, query: string): React.ReactNode {
-  if (!query.trim()) return text;
-  const safe = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const parts = text.split(new RegExp(`(${safe})`, "gi"));
-  return parts.map((p, i) =>
-    p.toLowerCase() === query.toLowerCase() ? (
-      <mark key={i} className="bg-primary/20 text-on-surface rounded px-0.5">{p}</mark>
-    ) : (
-      <React.Fragment key={i}>{p}</React.Fragment>
-    )
-  );
-}
-
-/* ── Normaliza citas para detectar referencias compartidas entre tesis ── */
-function normalizeCitation(c: string): string {
-  return c
-    .toLowerCase()
-    .replace(/\s+/g, " ")
-    .replace(/[.,;:()"']/g, "")
-    .trim()
-    .slice(0, 60);
-}
-
-/* ──────────────────────────────────────────────────────────────────────────
- *  Utilidades de enlaces cruzados (memoizadas a nivel módulo por id)
- * ────────────────────────────────────────────────────────────────────────── */
-
-const RELATED_GLOSSARY_CACHE = new Map<string, typeof GLOSSARY_UNIFIED>();
-
 function getRelatedGlossary(dilemmaId: string) {
-  const cached = RELATED_GLOSSARY_CACHE.get(dilemmaId);
-  if (cached) return cached;
-  const result = GLOSSARY_UNIFIED.filter((e) => (e.relatedDilemmas || []).includes(dilemmaId));
-  RELATED_GLOSSARY_CACHE.set(dilemmaId, result);
-  return result;
+  return GLOSSARY_UNIFIED.filter((g) => g.relatedDilemmas && g.relatedDilemmas.includes(dilemmaId));
 }
 
-function getRelatedDilemmas(dilemma: DilemmaDetailType): DilemmaDetailType[] {
-  const sharedRefs = new Set((dilemma.references || []).map((r) => normalizeCitation(r.citation)));
-  return DILEMMAS_DATA.filter((d) => d.id !== dilemma.id)
-    .map((d) => {
-      let score = 0;
-      if (d.category === dilemma.category) score += 2;
-      if (d.consensus === dilemma.consensus) score += 1;
-      const overlap = (d.references || []).filter((r) => sharedRefs.has(normalizeCitation(r.citation))).length;
-      if (overlap > 0) score += overlap;
-      return { d, score };
-    })
-    .filter((x) => x.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 4)
-    .map((x) => x.d);
+function getRelatedDilemmas(currentDilemma: DilemmaDetailType): DilemmaDetailType[] {
+  const result: DilemmaDetailType[] = [];
+  const addIfNew = (d: DilemmaDetailType | undefined) => {
+    if (d && d.id !== currentDilemma.id && !result.some((r) => r.id === d.id)) {
+      result.push(d);
+    }
+  };
+
+  const sameCategory = DILEMMAS_DATA.filter(
+    (d) => d.id !== currentDilemma.id && d.category === currentDilemma.category
+  );
+  sameCategory.slice(0, 2).forEach(addIfNew);
+
+  if (result.length < 3) {
+    const sameConsensus = DILEMMAS_DATA.filter(
+      (d) => d.id !== currentDilemma.id && d.consensus === currentDilemma.consensus
+    );
+    sameConsensus.slice(0, 3 - result.length).forEach(addIfNew);
+  }
+
+  return result.slice(0, 3);
 }
 
 function getRelatedNodes(dilemmaId: string): string[] {
-  const seen = new Set<string>();
-  getRelatedGlossary(dilemmaId).forEach((g) => {
-    (g.relatedNodes || []).forEach((n) => seen.add(n));
+  const nodeIds: string[] = [];
+  GLOSSARY_UNIFIED.forEach((entry) => {
+    if (entry.relatedDilemmas && entry.relatedDilemmas.includes(dilemmaId)) {
+      if (entry.relatedNodes) {
+        entry.relatedNodes.forEach((nid) => {
+          if (!nodeIds.includes(nid)) nodeIds.push(nid);
+        });
+      }
+    }
   });
-  return Array.from(seen).slice(0, 6);
+  return nodeIds.slice(0, 3);
+}
+
+function highlight(text: string, query: string): React.ReactNode {
+  if (!query.trim()) return text;
+  const parts = text.split(new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi"));
+  return parts.map((part, i) =>
+    part.toLowerCase() === query.toLowerCase() ? (
+      <mark key={i} className="bg-primary/20 text-primary font-semibold rounded-xs px-0.5">
+        {part}
+      </mark>
+    ) : (
+      part
+    )
+  );
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
@@ -250,13 +243,14 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedConsensus, setSelectedConsensus] = useState<string>("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<"general" | "lista">("general");
+  const [viewMode, setViewMode] = useState<"general" | "lista" | "entrenador">("general");
+  const [selectedSocraticId, setSelectedSocraticId] = useState<string | undefined>(undefined);
   const [isBibliographyOpen, setIsBibliographyOpen] = useState(false);
   const [isMobileDetailOpen, setIsMobileDetailOpen] = useState(false);
   const [favorites, setFavorites] = useState<string[]>(() => loadStored<string[]>(FAVORITES_KEY, []));
   const [visited, setVisited] = useState<string[]>(() => loadStored<string[]>(VISITED_KEY, []));
 
-  // Historial interno de navegación entre tesis (back/forward)
+  // Historial interno de navegación entre tesis
   const [history, setHistory] = useState<string[]>([]);
   const [forwardStack, setForwardStack] = useState<string[]>([]);
 
@@ -269,14 +263,15 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
     try {
       localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
     } catch {
-      /* almacenamiento no disponible: silencioso */
+      /* almacenamiento no disponible */
     }
   }, [favorites]);
+
   useEffect(() => {
     try {
       localStorage.setItem(VISITED_KEY, JSON.stringify(visited));
     } catch {
-      /* almacenamiento no disponible: silencioso */
+      /* almacenamiento no disponible */
     }
   }, [visited]);
 
@@ -293,7 +288,7 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
     }
   }, [selectedId]);
 
-  /* ── Atajos de teclado: `/` foco búsqueda, `Esc` cierra modal móvil ── */
+  /* ── Atajos de teclado ── */
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "/" && document.activeElement !== searchInputRef.current) {
@@ -312,7 +307,7 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
     return () => window.removeEventListener("keydown", handler);
   }, [isMobileDetailOpen]);
 
-  /* ── Bloquear scroll del body cuando el modal móvil está abierto ── */
+  /* ── Bloquear scroll del body en modal móvil ── */
   useEffect(() => {
     if (isMobileDetailOpen) {
       const prev = document.body.style.overflow;
@@ -324,7 +319,7 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
     return;
   }, [isMobileDetailOpen]);
 
-  /* ── Listener inter-pestana: abrir una tesis desde fuera ── */
+  /* ── Listener inter-pestaña: abrir una tesis desde fuera ── */
   useEffect(() => {
     const handleExpand = (e: Event) => {
       const id = (e as CustomEvent<string>).detail;
@@ -345,7 +340,7 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* ── Selección de tesis (gestiona historial y marca visitado) ── */
+  /* ── Selección de tesis ── */
   const selectDilemma = (id: string) => {
     setSelectedId((prev) => {
       if (prev && prev !== id) setHistory((h) => [prev, ...h].slice(0, 50));
@@ -365,6 +360,7 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
       return prevId ?? null;
     });
   };
+
   const goForward = () => {
     if (forwardStack.length === 0) return;
     setSelectedId((prev: string | null): string | null => {
@@ -377,6 +373,23 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
 
   const toggleFavorite = (id: string) => {
     setFavorites((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]));
+  };
+
+  const handleLaunchSocratic = (dilemmaId?: string) => {
+    if (dilemmaId) {
+      const match = SOCRATIC_DIALOGUES.find((d) => d.dilemmaId === dilemmaId || d.id === dilemmaId);
+      if (match) {
+        setSelectedSocraticId(match.id);
+      }
+    }
+    setViewMode("entrenador");
+  };
+
+  const handleOpenDilemmaCatalog = (dilemmaId?: string) => {
+    setViewMode("lista");
+    if (dilemmaId) {
+      setSelectedId(dilemmaId);
+    }
   };
 
   /* ── Filtrado ── */
@@ -413,10 +426,9 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
       animate="visible"
       className="-mt-12 lg:-mt-20 space-y-10 w-full relative"
     >
-
       {/* ───────────── HERO ───────────── */}
       <div className="w-full flex flex-col lg:justify-center items-center text-center relative h-[550px] min-h-[550px] lg:h-[600px] lg:min-h-[600px] pt-16 lg:pt-28 pb-20 lg:pb-24 px-6 lg:px-16 border-b border-outline-variant/20">
-        {/* Esquinas tipo crosshair (técnico) */}
+        {/* Esquinas tipo crosshair */}
         {[
           "top-6 left-6",
           "top-6 right-6",
@@ -443,14 +455,11 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
         </div>
 
         <motion.div variants={headerVariants} className="relative z-10 space-y-6 max-w-3xl">
-          <motion.span variants={childVariants} className="text-[10px] font-mono font-bold text-primary select-none tracking-[0.25em] uppercase block opacity-60">
-            [ TESIS ]
-          </motion.span>
           <motion.h1 variants={childVariants} className="text-[clamp(42px,8.5vw,80px)] font-bold tracking-tight font-heading leading-[1.05] text-on-background select-none">
             Crítica<span className="text-secondary/60 font-light block mt-2 text-[clamp(24px,4vw,40px)]">Dialéctica Socrática</span>
           </motion.h1>
           <motion.p variants={childVariants} className="max-w-2xl mx-auto pt-1 font-serif italic font-light text-on-surface-variant/70 leading-relaxed text-[14px] sm:text-[16px] md:text-[18px] lg:text-[19px] text-center tracking-normal select-none">
-            Análisis crítico de las justificaciones antropocéntricas a través del tamiz de la evidencia científica y la consistencia ética.
+            Análisis crítico de las justificaciones antropocéntricas a través del tamiz de la evidencia científica, consistencia ética y entrenamiento socrático.
           </motion.p>
           <motion.div variants={childVariants} className="flex items-center justify-center gap-6 pt-2">
             <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
@@ -471,16 +480,12 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
         </motion.div>
       </div>
 
-      {/* ───────────── NAVEGACIÓN DE PESTAÑAS ───────────── */}
-      <div className="w-full py-4 relative z-10">
-        
-      </div>
-
       {/* ───────────── TOGGLE DE VISTAS ───────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl mx-auto relative z-10">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 max-w-4xl mx-auto relative z-10 px-4 sm:px-0">
         {([
           { id: "general", label: "Visión General", description: "Distribución de consenso, categorías y progreso.", icon: <LayoutGrid className="w-4 h-4" /> },
           { id: "lista", label: "Explorar Tesis", description: "Filtra y deconstruye cada justificación popular.", icon: <ListIcon className="w-4 h-4" /> },
+          { id: "entrenador", label: "Entrenador Socrático", description: "Práctica interactiva de mayéutica y refutación guiada.", icon: <Brain className="w-4 h-4" /> },
         ] as { id: typeof viewMode; label: string; description: string; icon: React.ReactNode }[]).map((v) => (
           <button
             key={v.id}
@@ -490,7 +495,7 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
               before:content-[''] before:absolute before:inset-0 before:rounded-[inherit]
               before:bg-surface-dim/20 dark:before:bg-surface-dim/10
               before:backdrop-blur-md before:z-[-1] before:pointer-events-none
-              ${viewMode === v.id ? "border-primary/60 bg-primary/5" : "border-outline-variant/30 hover:border-outline-variant/60"}`}
+              ${viewMode === v.id ? "border-primary/60 bg-primary/5 shadow-xs" : "border-outline-variant/30 hover:border-outline-variant/60"}`}
           >
             <div className="flex items-center gap-2 mb-2">
               <span className={viewMode === v.id ? "text-primary" : "text-on-surface-variant"}>{v.icon}</span>
@@ -514,7 +519,7 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -16 }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] as const }}
-            className="grid grid-cols-1 lg:grid-cols-2 gap-6 relative z-10"
+            className="grid grid-cols-1 lg:grid-cols-2 gap-6 relative z-10 max-w-5xl mx-auto px-4 sm:px-0"
           >
             {/* Distribución de consenso */}
             <div className="glass-enhance border border-outline-variant/30 rounded-2xl p-6 space-y-5 relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
@@ -538,7 +543,7 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
                         setSelectedCategory("all");
                         setViewMode("lista");
                       }}
-                      className="block w-full text-left group"
+                      className="block w-full text-left group cursor-pointer"
                     >
                       <div className="flex items-center justify-between mb-1.5 group-hover:translate-x-0.5 transition-transform">
                         <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant group-hover:text-on-surface flex items-center gap-1.5">
@@ -548,13 +553,13 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
                         <span className="text-[10px] font-mono font-bold text-on-surface">{count}</span>
                       </div>
                       <div className="h-2 rounded-full bg-surface-dim/60 overflow-hidden">
-<motion.div
-                           initial={{ width: 0 }}
-                           animate={{ width: `${pct}%` }}
-                           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] as const, delay: 0.1 }}
-                           className="h-full rounded-full group-hover:brightness-110 transition-all"
-                           style={{ backgroundColor: color }}
-                         />
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${pct}%` }}
+                          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] as const, delay: 0.1 }}
+                          className="h-full rounded-full group-hover:brightness-110 transition-all"
+                          style={{ backgroundColor: color }}
+                        />
                       </div>
                     </button>
                   );
@@ -562,151 +567,117 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
               </div>
             </div>
 
-            {/* Categorías */}
-            <div className="glass-enhance border border-outline-variant/30 rounded-2xl p-6 space-y-5 relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
-              <h3 className="text-technical-sm text-primary font-bold flex items-center gap-2">
-                <Layers className="w-4 h-4" />
-                Por Categoría
-              </h3>
-              <div className="grid grid-cols-2 gap-3">
-                {CATEGORY_OPTIONS.filter((c) => c.id !== "all").map((cat) => {
-                  const count = stats.categoryCounts[cat.id] || 0;
-                  return (
-                    <button
-                      key={cat.id}
-                      onClick={() => {
-                        setSelectedCategory(cat.id);
-                        setSelectedConsensus("all");
-                        setViewMode("lista");
-                      }}
-                      className="flex items-center justify-between p-3 rounded-lg border border-outline-variant/20 hover:border-primary/40 hover:bg-surface-dim/30 transition-all text-left group"
-                    >
-                      <span className="flex items-center gap-2 min-w-0">
-                        <span style={{ color: cat.color }}>{cat.icon}</span>
-                        <span className="text-[11px] font-medium text-on-surface truncate">{cat.label}</span>
-                      </span>
-                      <span className="text-[10px] font-mono font-bold text-on-surface-variant group-hover:text-primary shrink-0">{count}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Progreso de exploración */}
-            <div className="glass-enhance border border-outline-variant/30 rounded-2xl p-6 space-y-5 relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
-              <div className="flex items-center justify-between">
-                <h3 className="text-technical-sm text-primary font-bold flex items-center gap-2">
-                  <Trophy className="w-4 h-4" />
-                  Progreso de Exploración
-                </h3>
-                <span className="text-[10px] font-mono text-on-surface-variant/40">
-                  {visited.length}/{stats.total}
-                </span>
-              </div>
+            {/* Distribución por Categoría */}
+            <div className="glass-enhance border border-outline-variant/30 rounded-2xl p-6 space-y-5 relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none flex flex-col justify-between">
               <div>
-                <div className="h-3 rounded-full bg-surface-dim/60 overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${stats.total > 0 ? (visited.length / stats.total) * 100 : 0}%` }}
-                    transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                    className="h-full rounded-full bg-primary"
-                  />
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-technical-sm text-primary font-bold flex items-center gap-2">
+                    <Layers className="w-4 h-4" />
+                    Categorías Dialécticas
+                  </h3>
+                  <span className="text-[10px] font-mono text-on-surface-variant/40">{CATEGORY_OPTIONS.length - 1} EJES</span>
                 </div>
-                <p className="text-[11px] text-on-surface-variant/70 mt-3 leading-relaxed">
-                  {visited.length === stats.total
-                    ? "Has deconstruido todas las tesis del catálogo dialéctico."
-                    : `Te faltan ${stats.total - visited.length} tesis por analizar críticamente.`}
-                </p>
-              </div>
-            </div>
-
-            {/* Favoritos */}
-            <div className="glass-enhance border border-outline-variant/30 rounded-2xl p-6 space-y-5 relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
-              <h3 className="text-technical-sm text-primary font-bold flex items-center gap-2">
-                <Heart className="w-4 h-4" />
-                Tesis Favoritas
-              </h3>
-              {favorites.length === 0 ? (
-                <p className="text-[11px] text-on-surface-variant/60 leading-relaxed py-4">
-                  Aún no has marcado ninguna tesis como favorita. Pulsa el corazón en cualquier análisis para guardarla aquí.
-                </p>
-              ) : (
-                <div className="space-y-2">
-                  {favorites.slice(0, 5).map((id) => {
-                    const d = DILEMMAS_DATA.find((x) => x.id === id);
-                    if (!d) return null;
+                <div className="grid grid-cols-2 gap-3">
+                  {CATEGORY_OPTIONS.filter((c) => c.id !== "all").map((cat) => {
+                    const count = stats.categoryCounts[cat.id] || 0;
                     return (
                       <button
-                        key={id}
+                        key={cat.id}
                         onClick={() => {
-                          selectDilemma(id);
+                          setSelectedCategory(cat.id);
+                          setSelectedConsensus("all");
                           setViewMode("lista");
                         }}
-                        className="w-full flex items-center gap-3 p-2.5 rounded-lg border border-outline-variant/20 hover:border-primary/40 hover:bg-surface-dim/30 transition-all text-left group"
+                        className="p-3.5 rounded-xl border border-outline-variant/20 hover:border-primary/50 hover:bg-surface-dim/30 transition-all text-left group cursor-pointer space-y-1"
                       >
-                        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: getCategoryColor(d.category) }} />
-                        <span className="text-[12px] text-on-surface group-hover:text-primary truncate flex-1">{d.title}</span>
-                        <span className={`text-[9px] font-mono uppercase tracking-widest shrink-0 px-1.5 py-0.5 rounded-sm border ${getConsensusColor(d.consensus)}`}>
-                          {getConsensusLabel(d.consensus)}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span style={{ color: cat.color }}>{cat.icon}</span>
+                          <span className="text-xs font-bold text-on-surface group-hover:text-primary transition-colors">
+                            {cat.label}
+                          </span>
+                        </div>
+                        <div className="text-[10px] font-mono text-on-surface-variant/60">
+                          {count} justificaciones
+                        </div>
                       </button>
                     );
                   })}
                 </div>
-              )}
+              </div>
+
+              <div className="pt-4 border-t border-outline-variant/15 flex items-center justify-between">
+                <span className="text-xs font-mono text-on-surface-variant/70">
+                  ¿Quieres entrenar tus respuestas en un diálogo guiado?
+                </span>
+                <Button variant="secondary" onClick={() => setViewMode("entrenador")} className="gap-2">
+                  <Brain className="w-3.5 h-3.5" /> Ir al Entrenador
+                </Button>
+              </div>
             </div>
           </motion.div>
-        ) : (
+        ) : viewMode === "entrenador" ? (
           /* ════════════════════════════════════════════════════════════════
-           *  VISTA LISTA (búsqueda + filtros + detalle)
+           *  ENTRENADOR SOCRÁTICO
            * ════════════════════════════════════════════════════════════════ */
           <motion.div
-            key="list-view"
+            key="socratic-view"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="space-y-6 relative z-10"
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] as const }}
+            className="relative z-10 px-4 sm:px-0"
           >
-            {/* ── Barra de búsqueda + filtros (pegajosa) ── */}
-            <div className="glass-enhance border border-outline-variant/30 rounded-2xl p-3 lg:p-4 space-y-3 sticky top-3 z-30 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/40 dark:before:bg-surface-dim/20 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
+            <SocraticTrainer
+              initialDialogueId={selectedSocraticId}
+              onOpenDilemmaCatalog={handleOpenDilemmaCatalog}
+            />
+          </motion.div>
+        ) : (
+          /* ════════════════════════════════════════════════════════════════
+           *  EXPLORADOR DE TESIS (lista + detalle)
+           * ════════════════════════════════════════════════════════════════ */
+          <motion.div
+            key="lista-view"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] as const }}
+            className="space-y-6 relative z-10 max-w-7xl mx-auto px-4 sm:px-0"
+          >
+            {/* ── Barra de controles (búsqueda + filtros) ── */}
+            <div className="glass-enhance border border-outline-variant/30 rounded-2xl p-4 sm:p-5 space-y-4 relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
+              {/* Input de búsqueda */}
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant/40 pointer-events-none" />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant/40" />
                 <input
                   ref={searchInputRef}
-                  type="text"
+                  type="search"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Buscar justificación popular..."
-                  aria-label="Buscar justificaciones populares"
-                  className="w-full bg-surface-dim/30 border border-outline-variant/30 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 rounded-lg px-11 py-2.5 text-sm outline-none transition-all placeholder:text-on-surface-variant/40"
+                  placeholder="Buscar por tesis, falacia, argumento o concepto (ej. 'leones', 'b12', 'plantas')..."
+                  className="w-full pl-10 pr-10 py-2.5 bg-surface-dim/40 border border-outline-variant/30 rounded-xl text-xs sm:text-sm text-on-surface placeholder:text-on-surface-variant/40 focus:outline-hidden focus:border-primary transition-all"
                 />
-                {!searchQuery && (
-                  <kbd className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none px-1.5 py-0.5 rounded border border-outline-variant/30 bg-surface-dim/40 text-[10px] font-mono text-on-surface-variant/60 select-none">
-                    /
-                  </kbd>
-                )}
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery("")}
-                    aria-label="Limpiar búsqueda"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-surface-dim text-on-surface-variant hover:text-on-surface transition-all"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant/40 hover:text-on-surface p-1"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 )}
               </div>
 
-              <div className="flex flex-wrap items-center gap-3">
+              {/* Filtros horizontales */}
+              <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-outline-variant/15">
                 {/* Categorías */}
                 <div className="flex gap-1 flex-wrap items-center">
-                  <span className="text-[9px] font-mono uppercase tracking-widest text-on-surface-variant/30 mr-1 select-none">Ámbito</span>
+                  <span className="text-[9px] font-mono uppercase tracking-widest text-on-surface-variant/30 mr-1 select-none">Eje</span>
                   {CATEGORY_OPTIONS.map((opt) => (
                     <button
                       key={opt.id}
                       onClick={() => setSelectedCategory(opt.id)}
                       aria-pressed={selectedCategory === opt.id}
-                      className={`text-[10px] font-mono uppercase tracking-tighter px-2.5 py-1 rounded-md border transition-all flex items-center gap-1.5 ${
+                      className={`text-[10px] font-mono uppercase tracking-tighter px-2.5 py-1 rounded-md border transition-all flex items-center gap-1.5 cursor-pointer ${
                         selectedCategory === opt.id
                           ? "border-primary/60 text-on-surface"
                           : "border-outline-variant/30 text-on-surface-variant hover:border-outline-variant"
@@ -732,7 +703,7 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
                         key={opt.id}
                         onClick={() => setSelectedConsensus(opt.id)}
                         aria-pressed={isActive}
-                        className={`text-[10px] font-mono uppercase tracking-tighter px-2.5 py-1 rounded-md border transition-all flex items-center gap-1.5 ${
+                        className={`text-[10px] font-mono uppercase tracking-tighter px-2.5 py-1 rounded-md border transition-all flex items-center gap-1.5 cursor-pointer ${
                           isActive
                             ? "border-primary/60 text-on-surface"
                             : "border-outline-variant/30 text-on-surface-variant hover:border-outline-variant"
@@ -754,7 +725,7 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
               </div>
             </div>
 
-            {/* ── Layout principal: lista + panel lateral (bug original arreglado) ── */}
+            {/* Layout principal: lista + panel lateral */}
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_460px] gap-8">
               {/* LISTA */}
               <div className="space-y-3">
@@ -771,7 +742,7 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
                     </p>
                   </motion.div>
                 ) : (
-                  <AnimatePresence mode="popLayout">
+                  <AnimatePresence mode="popLayout" initial={false}>
                     {filteredDilemmas.map((dilemma, index) => {
                       const isSelected = selectedId === dilemma.id;
                       const isFav = favorites.includes(dilemma.id);
@@ -784,6 +755,7 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
                           variants={cardVariants}
                           initial="hidden"
                           animate="visible"
+                          exit="exit"
                           custom={index}
                         >
                           <div
@@ -860,42 +832,43 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
                     ref={detailScrollRef}
                     className="relative z-10 max-h-[calc(100vh-12rem)] overflow-y-auto overscroll-y-contain custom-scrollbar"
                   >
-                  <AnimatePresence mode="wait">
-                    {selectedDilemma ? (
-                      <motion.div
-                        key={selectedDilemma.id}
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } }}
-                        exit={{ opacity: 0, y: -8 }}
-                      >
-                        <DilemmaDetail
-                          dilemma={selectedDilemma}
-                          onAnalyze={onAnalyzeTrigger}
-                          isBibliographyOpen={isBibliographyOpen}
-                          setIsBibliographyOpen={setIsBibliographyOpen}
-                          isFavorite={favorites.includes(selectedDilemma.id)}
-                          onToggleFavorite={() => toggleFavorite(selectedDilemma.id)}
-                          onSelectDilemma={selectDilemma}
-                          onNavigateGlossary={(id) => window.dispatchEvent(new CustomEvent("navigate-to-glossary", { detail: id }))}
-                          onNavigateNode={(id) => window.dispatchEvent(new CustomEvent("navigate-to-item", { detail: id }))}
-                          history={history}
-                          forwardStack={forwardStack}
-                          onGoBack={goBack}
-                          onGoForward={goForward}
-                        />
-                      </motion.div>
-                    ) : (
-                      <div className="p-10 h-[440px] flex flex-col items-center justify-center text-center text-on-surface-variant/40 space-y-6">
-                        <Compass className="w-12 h-12 stroke-[0.5px] animate-rotate-slow" />
-                        <div className="space-y-2">
-                          <p className="text-technical-xs uppercase tracking-[0.2em]">Selecciona una tesis</p>
-                          <p className="text-xs max-w-[220px] mx-auto leading-relaxed">
-                            Haz clic en una tarjeta para desplegar el análisis dialéctico y científico.
-                          </p>
+                    <AnimatePresence mode="wait">
+                      {selectedDilemma ? (
+                        <motion.div
+                          key={selectedDilemma.id}
+                          initial={{ opacity: 0, y: 12 }}
+                          animate={{ opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } }}
+                          exit={{ opacity: 0, y: -8 }}
+                        >
+                          <DilemmaDetail
+                            dilemma={selectedDilemma}
+                            onAnalyze={onAnalyzeTrigger}
+                            onLaunchSocratic={handleLaunchSocratic}
+                            isBibliographyOpen={isBibliographyOpen}
+                            setIsBibliographyOpen={setIsBibliographyOpen}
+                            isFavorite={favorites.includes(selectedDilemma.id)}
+                            onToggleFavorite={() => toggleFavorite(selectedDilemma.id)}
+                            onSelectDilemma={selectDilemma}
+                            onNavigateGlossary={(id) => window.dispatchEvent(new CustomEvent("navigate-to-glossary", { detail: id }))}
+                            onNavigateNode={(id) => window.dispatchEvent(new CustomEvent("navigate-to-item", { detail: id }))}
+                            history={history}
+                            forwardStack={forwardStack}
+                            onGoBack={goBack}
+                            onGoForward={goForward}
+                          />
+                        </motion.div>
+                      ) : (
+                        <div className="p-10 h-[440px] flex flex-col items-center justify-center text-center text-on-surface-variant/40 space-y-6">
+                          <Compass className="w-12 h-12 stroke-[0.5px] animate-rotate-slow" />
+                          <div className="space-y-2">
+                            <p className="text-technical-xs uppercase tracking-[0.2em]">Selecciona una tesis</p>
+                            <p className="text-xs max-w-[220px] mx-auto leading-relaxed">
+                              Haz clic en una tarjeta para desplegar el análisis dialéctico y científico.
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </AnimatePresence>
+                      )}
+                    </AnimatePresence>
                   </div>
                 </div>
               </div>
@@ -927,28 +900,29 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
                 <span className="absolute top-1.5 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-outline-variant/60" />
                 <button
                   onClick={() => setIsMobileDetailOpen(false)}
-                  className="ml-auto mr-4 mt-1 p-1.5 rounded-full hover:bg-surface-dim transition-colors"
+                  className="ml-auto mr-4 mt-1 p-1.5 rounded-full hover:bg-surface-dim transition-colors cursor-pointer"
                   aria-label="Cerrar"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
               <div className="overflow-y-auto custom-scrollbar">
-              <DilemmaDetail
-                dilemma={selectedDilemma}
-                onAnalyze={onAnalyzeTrigger}
-                isBibliographyOpen={isBibliographyOpen}
-                setIsBibliographyOpen={setIsBibliographyOpen}
-                isFavorite={favorites.includes(selectedDilemma.id)}
-                onToggleFavorite={() => toggleFavorite(selectedDilemma.id)}
-                onSelectDilemma={selectDilemma}
-                onNavigateGlossary={(id) => window.dispatchEvent(new CustomEvent("navigate-to-glossary", { detail: id }))}
-                onNavigateNode={(id) => window.dispatchEvent(new CustomEvent("navigate-to-item", { detail: id }))}
-                history={history}
-                forwardStack={forwardStack}
-                onGoBack={goBack}
-                onGoForward={goForward}
-              />
+                <DilemmaDetail
+                  dilemma={selectedDilemma}
+                  onAnalyze={onAnalyzeTrigger}
+                  onLaunchSocratic={handleLaunchSocratic}
+                  isBibliographyOpen={isBibliographyOpen}
+                  setIsBibliographyOpen={setIsBibliographyOpen}
+                  isFavorite={favorites.includes(selectedDilemma.id)}
+                  onToggleFavorite={() => toggleFavorite(selectedDilemma.id)}
+                  onSelectDilemma={selectDilemma}
+                  onNavigateGlossary={(id) => window.dispatchEvent(new CustomEvent("navigate-to-glossary", { detail: id }))}
+                  onNavigateNode={(id) => window.dispatchEvent(new CustomEvent("navigate-to-item", { detail: id }))}
+                  history={history}
+                  forwardStack={forwardStack}
+                  onGoBack={goBack}
+                  onGoForward={goForward}
+                />
               </div>
             </motion.div>
           </div>
@@ -964,6 +938,7 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
 interface DilemmaDetailProps {
   dilemma: DilemmaDetailType;
   onAnalyze: (excuse: string) => void;
+  onLaunchSocratic?: (dilemmaId: string) => void;
   isBibliographyOpen: boolean;
   setIsBibliographyOpen: (v: boolean) => void;
   isFavorite: boolean;
@@ -980,6 +955,7 @@ interface DilemmaDetailProps {
 function DilemmaDetail({
   dilemma,
   onAnalyze,
+  onLaunchSocratic,
   isBibliographyOpen,
   setIsBibliographyOpen,
   isFavorite,
@@ -998,6 +974,7 @@ function DilemmaDetail({
   const relatedGlossary = useMemo(() => getRelatedGlossary(dilemma.id), [dilemma.id]);
   const relatedDilemmas = useMemo(() => getRelatedDilemmas(dilemma), [dilemma]);
   const relatedNodeIds = useMemo(() => getRelatedNodes(dilemma.id), [dilemma.id]);
+  const hasSocraticDialogue = SOCRATIC_DIALOGUES.some((d) => d.dilemmaId === dilemma.id || d.id === dilemma.id);
 
   return (
     <div className="flex flex-col gap-6 p-6 lg:p-7">
@@ -1009,7 +986,7 @@ function DilemmaDetail({
             onClick={onGoBack}
             disabled={history.length === 0}
             aria-label="Tesis anterior"
-            className="p-1.5 rounded-md text-on-surface-variant/60 hover:text-primary hover:bg-surface-dim/50 disabled:opacity-25 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-all"
+            className="p-1.5 rounded-md text-on-surface-variant/60 hover:text-primary hover:bg-surface-dim/50 disabled:opacity-25 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-all cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
           </button>
@@ -1017,7 +994,7 @@ function DilemmaDetail({
             onClick={onGoForward}
             disabled={forwardStack.length === 0}
             aria-label="Tesis siguiente"
-            className="p-1.5 rounded-md text-on-surface-variant/60 hover:text-primary hover:bg-surface-dim/50 disabled:opacity-25 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-all"
+            className="p-1.5 rounded-md text-on-surface-variant/60 hover:text-primary hover:bg-surface-dim/50 disabled:opacity-25 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-all cursor-pointer"
           >
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
@@ -1028,7 +1005,7 @@ function DilemmaDetail({
             onClick={onToggleFavorite}
             aria-pressed={isFavorite}
             aria-label={isFavorite ? "Quitar de favoritos" : "Añadir a favoritos"}
-            className={`ml-auto p-1.5 rounded-md transition-all ${isFavorite ? "text-red-500" : "text-on-surface-variant/50 hover:text-on-surface-variant"}`}
+            className={`ml-auto p-1.5 rounded-md transition-all cursor-pointer ${isFavorite ? "text-red-500" : "text-on-surface-variant/50 hover:text-on-surface-variant"}`}
           >
             <Heart className={`w-4 h-4 ${isFavorite ? "fill-current" : ""}`} />
           </button>
@@ -1118,7 +1095,7 @@ function DilemmaDetail({
                     key={g.id}
                     onClick={() => onNavigateGlossary(g.id)}
                     aria-label={`Ir al glosario: ${g.term}`}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-dim/25 border border-outline-variant/25 hover:border-primary/50 hover:bg-surface-dim/45 transition-all text-[11px] group"
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-dim/25 border border-outline-variant/25 hover:border-primary/50 hover:bg-surface-dim/45 transition-all text-[11px] group cursor-pointer"
                   >
                     <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: `var(--${GLOSSARY_CATEGORIES.find((c) => c.id === g.category)?.color || "ch1"})` }} />
                     <span className="text-on-surface group-hover:text-primary transition-colors">{g.term}</span>
@@ -1142,7 +1119,7 @@ function DilemmaDetail({
                     key={d.id}
                     onClick={() => onSelectDilemma(d.id)}
                     aria-label={`Abrir tesis vinculada: ${d.title}`}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-dim/25 border border-outline-variant/25 hover:border-primary/50 hover:bg-surface-dim/45 transition-all text-[11px] group"
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-dim/25 border border-outline-variant/25 hover:border-primary/50 hover:bg-surface-dim/45 transition-all text-[11px] group cursor-pointer"
                   >
                     <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getCategoryColor(d.category) }} />
                     <span className="text-on-surface group-hover:text-primary transition-colors">{d.title}</span>
@@ -1168,7 +1145,7 @@ function DilemmaDetail({
                       key={id}
                       onClick={() => onNavigateNode(id)}
                       aria-label={`Ir al nodo del sistema: ${node.title}`}
-                      className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-dim/25 border border-outline-variant/25 hover:border-primary/50 hover:bg-surface-dim/45 transition-all text-[11px] group"
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-dim/25 border border-outline-variant/25 hover:border-primary/50 hover:bg-surface-dim/45 transition-all text-[11px] group cursor-pointer"
                     >
                       <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getCategoryColor(node.category) }} />
                       <span className="text-on-surface group-hover:text-primary transition-colors">{node.title}</span>
@@ -1188,7 +1165,7 @@ function DilemmaDetail({
           <button
             onClick={() => setIsBibliographyOpen(!isBibliographyOpen)}
             aria-expanded={isBibliographyOpen}
-            className="flex items-center justify-between w-full py-3 border-t border-outline-variant/30 text-technical-xs text-on-surface-variant hover:text-primary transition-all group"
+            className="flex items-center justify-between w-full py-3 border-t border-outline-variant/30 text-technical-xs text-on-surface-variant hover:text-primary transition-all group cursor-pointer"
           >
             <span className="flex items-center gap-2">
               <BookOpen className="w-4 h-4 opacity-50 group-hover:opacity-100" />
@@ -1223,11 +1200,23 @@ function DilemmaDetail({
         </div>
       )}
 
-      {/* ── CTA Analizar con IA ── */}
-      <Button variant="primary" className="w-full gap-2 shadow-lg" onClick={() => onAnalyze(dilemma.popularStatement)}>
-        <Sparkles className="w-4 h-4" />
-        Analizar con IA de Sintiens
-      </Button>
+      {/* ── Botones de acción ── */}
+      <div className="flex flex-col sm:flex-row gap-2.5 pt-2">
+        {hasSocraticDialogue && (
+          <Button
+            variant="secondary"
+            className="flex-1 gap-2 border-primary/40 text-primary hover:bg-primary/10"
+            onClick={() => onLaunchSocratic?.(dilemma.id)}
+          >
+            <Brain className="w-4 h-4" />
+            Entrenar Diálogo Socrático
+          </Button>
+        )}
+        <Button variant="primary" className="flex-1 gap-2 shadow-lg" onClick={() => onAnalyze(dilemma.popularStatement)}>
+          <Sparkles className="w-4 h-4" />
+          Analizar con IA
+        </Button>
+      </div>
     </div>
   );
 }

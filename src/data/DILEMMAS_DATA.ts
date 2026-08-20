@@ -578,5 +578,35 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
       { id: "2", citation: "Stanford Encyclopedia of Philosophy (2017). Fallacies (Walton, D.).", url: "https://plato.stanford.edu/entries/fallacies/" }
     ],
     openQuestion: "¿En qué medida nuestras propias generalizaciones basadas en experiencias individuales moldean injustamente cómo valoramos el comportamiento de industrias enteras?"
+  },
+  {
+    id: "sexado-in-ovo",
+    category: "sistemas_uso",
+    title: "Sexado in-ovo: ¿la biotecnología resuelve el sacrificio de pollitos machos?",
+    popularStatement: "«El sexado in-ovo ya detecta el sexo del embrión dentro del huevo antes de nacer: ¿es el fin del sacrificio masivo de pollitos machos, o la industria solo ha encontrado una forma más aséptica de descartar vidas?»",
+    consensus: "ESCENARIO_GRIS",
+    scientificDeconstruction: "En la industria avícola de puesta, la mitad de los huevos fértiles producen pollitos machos, inútiles para la producción de huevos y económicamente inviables para la carne: cada año se sacrifican miles de millones de pollitos recién nacidos en todo el mundo, normalmente por maceración o gasificación [1]. El sexado in-ovo analiza el embrión dentro del huevo entre los días 9 y 14 de incubación mediante espectroscopía óptica (p. ej. espectroscopía Raman o espectroscopía de infrarrojo cercano) o análisis de ADN a partir de micro-muestras, permitiendo retirar los huevos machos antes de la eclosión [1]. Sistemas comerciales como SelEggt alcanzan una precisión superior al 99% en la identificación del sexo y descartan los huevos machos en fase embrionaria [2]. Esta tecnología está siendo impulsada por legislación: Alemania prohibió el sacrificio de pollitos machos a partir de 2022 y Francia a partir de 2023, forzando a la industria a adoptar alternativas [1].",
+    philosophicalDeconstruction: "La tecnología plantea una paradoja moral: elimina el sufrimiento de cientos de millones de pollitos ya nacidos, pero convierte la vida animal en un input de producción aún más perfectamente gestionado, donde el macho es descartado como defecto de fábrica en estado embrionario [1]. Quienes defienden el bienestarismo ven un progreso tangible y mensurable; quienes sostienen posturas abolicionistas argumentan que optimizar el descarte no cuestiona el sistema que define a los animales como mercancía, solo perfecciona su gestión [2]. Además, la evidencia sobre la sintiencia embrionaria temprana sigue siendo limitada, lo que convierte el umbral del día 9 en una decisión política tanto como científica: ¿qué confiere estatus moral a un embrión, y cuándo exactamente?",
+    coexistenceImpact: "El sexado in-ovo demuestra que la legislación puede forzar cambios tecnológicos reales en favor de los animales, un precedente de cómo la sociedad civil y el derecho pueden moldear la industria [1]. Pero la coexistencia futura exigirá decidir si estas soluciones son el destino final o una estación intermedia: la misma capacidad de análisis que hoy descarta huevos machos podría mañana usarse para seleccionar rasgos de mayor sufrimiento silencioso. La pregunta socrática queda abierta: ¿cuando la tecnología nos permite evitar el sufrimiento sin coste, seguimos justificando el resto del sistema de explotación?",
+    references: [
+      { id: "1", citation: "Krautwald-Junghanns, M.-E., Cramer, K., Fischer, B., et al. (2018). Current approaches to avoid the culling of day-old male chicks in the layer industry, with special reference to spectroscopic methods. Poultry Science, 97(3), 749-757.", url: "https://doi.org/10.3382/ps/pex389" },
+      { id: "2", citation: "HatchTech Group (2026). SelEggt In-Ovo Sexing: early DNA-based sex determination from day 9 of incubation.", url: "https://www.respeggt.com/" }
+    ],
+    openQuestion: "¿El sexado in-ovo elimina un sufrimiento real o solo vuelve invisible un descarte que el sistema sigue considerando inevitable?"
+  },
+  {
+    id: "ia-bienestar-animal",
+    category: "sistemas_uso",
+    title: "Inteligencia artificial en favor del bienestar animal",
+    popularStatement: "«La tecnología se usa para producir más barato; ¿puede la IA ponerse también al servicio de medir y proteger el bienestar de los animales?»",
+    consensus: "CONSENSO",
+    scientificDeconstruction: "La inteligencia artificial y el aprendizaje automático ya se aplican de forma demostrada al monitoreo del bienestar animal [1]. Modelos de deep learning entrenados con miles de vocalizaciones identifican automáticamente llamadas de angustia en pollos de granja, un 'indicador iceberg' del bienestar que antes dependía de anotación manual lenta y costosa [2]. En paralelo, sensores conectados, big data y visión por computadora permiten detectar de forma continua y no invasiva signos de dolor, estrés y enfermedad en ganadería de precisión: cojeras, problemas respiratorios y comportamientos anómalos son reconocidos antes de que los humanos los perciban [1]. La misma tecnología acústica se emplea en conservación y santuarios para monitorizar fauna silvestre sin interferir en su comportamiento [1].",
+    philosophicalDeconstruction: "La IA es una herramienta moralmente neutra cuyo signo ético depende de quien la despliegue. En la ganadería de precisión, el monitoreo puede mejorar el bienestar de los animales existentes —un avance bienestarista real— o convertirse en un sistema de vigilancia que optimiza la productividad sin cuestionar el marco de explotación [1]. Para los animales que ya existen en las granjas, cada capacidad de detectar dolor evitable se traduce en sufrimiento evitado, lo que concede a estas tecnologías un valor utilitario inmediato; pero la pregunta de fondo sigue siendo si perfeccionar el cuidado dentro del sistema es un paso hacia su superación o una forma de hacerlo moralmente más cómodo de sostener [2].",
+    coexistenceImpact: "La IA abre una vía concreta de reconciliación entre industria y ética: etiquetas de bienestar verificadas por monitoreo algorítmico independiente, auditorías continuas frente a inspecciones puntuales y una transparencia que hoy no existe en la cadena de suministro [1]. Para la convivencia futura, la cuestión no es si la tecnología puede medir el sufrimiento —ya puede— sino quién controla esos datos y con qué incentivos: ¿un modelo de negocio que cobra por certificar bienestar, o una infraestructura pública que garantice que los animales no paguen el coste de nuestra desatención?",
+    references: [
+      { id: "1", citation: "Neethirajan, S. (2020). The role of sensors, big data and machine learning in modern animal farming. Sensing and Bio-Sensing Research, 29, 100367.", url: "https://doi.org/10.1016/j.sbsr.2020.100367" },
+      { id: "2", citation: "Mao, A., Giraudet, C. S. E., Liu, K., et al. (2022). Automated identification of chicken distress vocalizations using deep learning models. Journal of the Royal Society Interface, 19(191), 20210921.", url: "https://doi.org/10.1098/rsif.2021.0921" }
+    ],
+    openQuestion: "Si la IA ya es capaz de leer el sufrimiento de los animales en tiempo real, ¿qué nos impide —a nosotros como sociedad— dejar de causarlo?"
   }
 ];

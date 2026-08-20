@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Lightbulb, HelpCircle, Quote, Sparkles, KeyRound, ChevronDown } from "lucide-react";
+import { Lightbulb, HelpCircle, Sparkles, KeyRound, ChevronDown } from "lucide-react";
 import type { TopicBlockData } from "../types/story";
 
 const getAccentVar = (accent: string) =>
@@ -172,48 +172,50 @@ export const ReflectionPrompt: React.FC<{
   );
 };
 
-// ─── Container: "Notas de lectura" ──────────────────────────────────────────
+// ─── Shared item builder ────────────────────────────────────────────────────
+// Every note type maps to a labeled item so the reader always sees a clear
+// word ("Idea clave", "Piénsalo así", ...) instead of cryptic icons.
 
-export const BlockEnrichments: React.FC<{
-  block: TopicBlockData;
-  accent: string;
-}> = ({ block, accent }) => {
-  const [open, setOpen] = useState(false);
-  const accentText = getAccentTextClass(accent);
-  const cssVar = getAccentVar(accent);
+export interface EnrichmentItem {
+  key: string;
+  label: string;
+  node: React.ReactNode;
+}
 
-  const items: { key: string; node: React.ReactNode; previewIcon: React.ReactNode }[] = [];
+export function buildEnrichmentItems(block: TopicBlockData, accent: string): EnrichmentItem[] {
+  const items: EnrichmentItem[] = [];
   if (block.keyIdea) {
     items.push({
       key: "key",
+      label: "Idea clave",
       node: <KeyIdeaBox text={block.keyIdea} accent={accent} />,
-      previewIcon: <KeyRound className="w-3.5 h-3.5" strokeWidth={1.8} />,
     });
   }
   if (block.pullQuote) {
     items.push({
       key: "quote",
+      label: "Frase clave",
       node: <PullQuote text={block.pullQuote} accent={accent} />,
-      previewIcon: <Quote className="w-3.5 h-3.5" strokeWidth={1.6} />,
     });
   }
   if (block.analogy) {
     items.push({
       key: "ana",
+      label: "Piénsalo así",
       node: <AnalogyBox text={block.analogy.text} accent={accent} />,
-      previewIcon: <Lightbulb className="w-3.5 h-3.5" strokeWidth={1.7} />,
     });
   }
   if (block.didYouKnow) {
     items.push({
       key: "dyk",
+      label: "¿Sabías que?",
       node: <DidYouKnowBox text={block.didYouKnow} accent={accent} />,
-      previewIcon: <Sparkles className="w-3.5 h-3.5" strokeWidth={1.7} />,
     });
   }
   if (block.reflectionQuestion) {
     items.push({
       key: "ref",
+      label: "Pausa y reflexiona",
       node: (
         <ReflectionPrompt
           question={block.reflectionQuestion.question}
@@ -221,21 +223,36 @@ export const BlockEnrichments: React.FC<{
           accent={accent}
         />
       ),
-      previewIcon: <HelpCircle className="w-3.5 h-3.5" strokeWidth={1.7} />,
     });
   }
+  return items;
+}
+
+// ─── Mobile: notes inline after the block, partially open ──────────────────
+// Key idea + pull quote are always visible; the rest sit behind a labeled
+// "Ver más" toggle so the page stays short without hiding good content.
+
+export const BlockEnrichments: React.FC<{
+  block: TopicBlockData;
+  accent: string;
+  alwaysVisible?: boolean;
+}> = ({ block, accent, alwaysVisible }) => {
+  const [showMore, setShowMore] = useState(false);
+  const accentText = getAccentTextClass(accent);
+  const cssVar = getAccentVar(accent);
+  const items = buildEnrichmentItems(block, accent);
 
   if (items.length === 0) return null;
 
+  const alwaysOpenKeys = new Set(["key", "quote"]);
+  const openItems = items.filter((it) => alwaysOpenKeys.has(it.key));
+  const hiddenItems = items.filter((it) => !alwaysOpenKeys.has(it.key));
+
   return (
-    <div
-      className="relative my-3 rounded-xl overflow-hidden"
-      style={{ border: `1px solid color-mix(in oklch, ${cssVar} 24%, transparent)` }}
-    >
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="w-full text-left px-4 py-3 flex items-center gap-2.5 cursor-pointer transition-colors hover:bg-surface-container-low/40"
-        aria-expanded={open}
+    <div className={`${alwaysVisible ? "" : "lg:hidden"} my-4 rounded-xl overflow-hidden`} style={{ border: `1px solid color-mix(in oklch, ${cssVar} 24%, transparent)` }}>
+      <div
+        className="w-full px-4 py-3 flex items-center gap-2.5"
+        style={{ backgroundColor: `color-mix(in oklch, ${cssVar} 7%, transparent)` }}
       >
         <span className={`shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-lg ${accentText}`} style={{ backgroundColor: `color-mix(in oklch, ${cssVar} 12%, transparent)` }}>
           <Sparkles className="w-3.5 h-3.5" strokeWidth={1.8} />
@@ -243,43 +260,145 @@ export const BlockEnrichments: React.FC<{
         <span className={`text-[11px] font-mono tracking-widest uppercase ${accentText} opacity-90 flex-1`}>
           Notas de lectura
         </span>
-        {/* Preview icons — a glance at what's inside, without opening */}
-        <span className={`hidden sm:flex items-center gap-1.5 ${accentText} opacity-60 mr-1`}>
-          {items.slice(0, 4).map((it) => (
-            <React.Fragment key={it.key}>{it.previewIcon}</React.Fragment>
-          ))}
-        </span>
         <span className={`shrink-0 text-[10px] font-mono ${accentText} opacity-70`}>
-          {items.length}
+          {items.length} {items.length === 1 ? "nota" : "notas"}
         </span>
-        <ChevronDown
-          className={`shrink-0 w-4 h-4 ${accentText} opacity-70 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
-          strokeWidth={2}
-        />
-      </button>
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-            className="overflow-hidden"
-          >
-            <div className="px-4 pb-3.5 pt-1">
-              <motion.div
-                variants={containerV}
-                initial="hidden"
-                animate="visible"
-              >
-                {items.map((it) => (
-                  <React.Fragment key={it.key}>{it.node}</React.Fragment>
-                ))}
-              </motion.div>
-            </div>
-          </motion.div>
+      </div>
+      <div className="px-3 pb-1">
+        <motion.div variants={containerV} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-40px" }}>
+          {openItems.map((it) => (
+            <React.Fragment key={it.key}>{it.node}</React.Fragment>
+          ))}
+        </motion.div>
+
+        {hiddenItems.length > 0 && (
+          <div className="pb-1">
+            <button
+              onClick={() => setShowMore((v) => !v)}
+              aria-expanded={showMore}
+              className={`w-full text-left px-4 py-2.5 mt-1 flex items-center gap-2.5 cursor-pointer transition-colors hover:bg-surface-container-low/40 rounded-lg ${accentText} opacity-80`}
+            >
+              <ChevronDown
+                className={`shrink-0 w-3.5 h-3.5 opacity-70 transition-transform duration-300 ${showMore ? "rotate-180" : ""}`}
+                strokeWidth={2}
+              />
+              <span className="text-[11px] font-mono tracking-widest uppercase">
+                {showMore ? "Ocultar" : `Ver más (${hiddenItems.length})`}
+              </span>
+            </button>
+            <AnimatePresence initial={false}>
+              {showMore && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                  className="overflow-hidden"
+                >
+                  <motion.div variants={containerV} initial="hidden" animate="visible">
+                    {hiddenItems.map((it) => (
+                      <React.Fragment key={it.key}>{it.node}</React.Fragment>
+                    ))}
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         )}
-      </AnimatePresence>
+      </div>
+    </div>
+  );
+};
+
+// ─── Desktop: notes rail synced to the block being read ────────────────────
+// While the reader is at the act title (no active block) it shows a clickable
+// mini-index of the act's blocks; once reading, it shows that block's notes.
+
+export const RailNotes: React.FC<{
+  blocks: TopicBlockData[];
+  activeBlockId: string;
+  accent: string;
+  readingMin?: number;
+  onNavigate: (blockId: string) => void;
+}> = ({ blocks, activeBlockId, accent, readingMin, onNavigate }) => {
+  const accentText = getAccentTextClass(accent);
+  const cssVar = getAccentVar(accent);
+  const block = blocks.find((b) => b.id === activeBlockId) ?? null;
+  const items = block ? buildEnrichmentItems(block, accent) : [];
+
+  if (blocks.length === 0) return null;
+
+  const showToc = !block;
+  const counter = showToc
+    ? `${blocks.length} ${blocks.length === 1 ? "bloque" : "bloques"}${readingMin ? ` · ~${readingMin} min` : ""}`
+    : `${items.length} ${items.length === 1 ? "nota" : "notas"}${readingMin ? ` · ~${readingMin} min` : ""}`;
+
+  return (
+    <div
+      className="rounded-2xl overflow-hidden backdrop-blur-md"
+      style={{
+        border: `1px solid color-mix(in oklch, ${cssVar} 24%, transparent)`,
+        background: `color-mix(in oklch, var(--surface-container-low) 55%, transparent)`,
+      }}
+    >
+      <div
+        className="w-full px-4 py-3 flex items-center gap-2.5"
+        style={{ backgroundColor: `color-mix(in oklch, ${cssVar} 7%, transparent)` }}
+      >
+        <span className={`shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-lg ${accentText}`} style={{ backgroundColor: `color-mix(in oklch, ${cssVar} 12%, transparent)` }}>
+          <Sparkles className="w-3.5 h-3.5" strokeWidth={1.8} />
+        </span>
+        <span className={`text-[11px] font-mono tracking-widest uppercase ${accentText} opacity-90 flex-1`}>
+          Notas de lectura
+        </span>
+        <span className={`shrink-0 text-[10px] font-mono ${accentText} opacity-70 text-right`}>
+          {counter}
+        </span>
+      </div>
+      <div className="px-3 pb-2 max-h-[calc(100vh-7rem)] overflow-y-auto overscroll-y-contain custom-scrollbar">
+        <AnimatePresence mode="wait" initial={false}>
+          {showToc ? (
+            <motion.div
+              key="toc"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+            >
+              <p className={`text-[10px] font-mono tracking-widest uppercase ${accentText} opacity-70 block mb-2 mt-1`}>
+                En este acto
+              </p>
+              <div className="flex flex-col gap-1">
+                {blocks.map((b, i) => (
+                  <button
+                    key={b.id}
+                    onClick={() => onNavigate(b.id)}
+                    className="group flex items-start gap-2.5 text-left px-3 py-2 rounded-lg hover:bg-surface-container-low/70 transition-colors cursor-pointer"
+                  >
+                    <span className={`font-mono text-[10px] font-bold ${accentText} opacity-70 mt-[2px] shrink-0`}>
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span className="font-sans text-[13px] leading-snug text-on-surface/80 group-hover:text-on-surface transition-colors">
+                      {b.title}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key={block!.id}
+              variants={containerV}
+              initial="hidden"
+              animate="visible"
+            >
+              {items.map((it) => (
+                <React.Fragment key={it.key}>{it.node}</React.Fragment>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 };

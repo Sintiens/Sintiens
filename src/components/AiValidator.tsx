@@ -406,12 +406,6 @@ export default memo(function AiValidator({
           variants={{ visible: { transition: { staggerChildren: 0.12 } } }}
           className="relative z-10 space-y-6 max-w-3xl"
         >
-          <motion.span
-            variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-            className="text-[10px] font-mono font-bold text-primary select-none tracking-[0.25em] uppercase block opacity-60"
-          >
-            [ IA ]
-          </motion.span>
           <motion.h1
             variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
             className="text-[clamp(42px,8.5vw,80px)] font-bold tracking-tight font-heading leading-[1.05] text-on-background select-none"

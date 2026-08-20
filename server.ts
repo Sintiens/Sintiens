@@ -241,14 +241,14 @@ app.post("/api/dev/tasks", async (req, res) => {
     return res.status(403).json({ error: "No permitido en producción" });
   }
   try {
-    const { title, description, tab, x, y, w, h, selector, rx, ry, rw, rh, priority, status, category } = req.body;
+    const { title, description, tab, x, y, w, h, selector, rx, ry, rw, rh, priority, status, category, kind, effort, impact, aiSummary, aiScore, aiTags, parentId, origin, archived } = req.body;
     if (!title || typeof title !== "string" || !title.trim()) {
       return res.status(400).json({ error: "El título de la tarea es obligatorio." });
     }
 
     const newTask = await dbMutex.run(async (): Promise<any> => {
       const tasks = await readTasks();
-      const createdTask = {
+      const createdTask: any = {
         id: Math.random().toString(36).substring(2, 9) + Date.now().toString(36),
         title: title.trim(),
         description: (description || "").trim(),
@@ -266,7 +266,16 @@ app.post("/api/dev/tasks", async (req, res) => {
         status: status || "todo",
         category: category || "otros",
         createdAt: new Date().toISOString(),
+        kind: kind === "idea" || kind === "task" ? kind : "task",
+        origin: origin === "chat" || origin === "devmode" || origin === "import" ? origin : undefined,
+        archived: archived === true ? true : undefined,
       };
+      if (effort === "xs" || effort === "s" || effort === "m" || effort === "l" || effort === "xl") createdTask.effort = effort;
+      if (typeof impact === "number" && impact >= 1 && impact <= 5) createdTask.impact = impact;
+      if (typeof aiSummary === "string" && aiSummary.trim()) createdTask.aiSummary = aiSummary.trim().slice(0, 2000);
+      if (typeof aiScore === "number" && !isNaN(aiScore)) createdTask.aiScore = Math.max(0, Math.min(100, Math.round(aiScore)));
+      if (Array.isArray(aiTags)) createdTask.aiTags = aiTags.filter((t: any) => typeof t === "string" && t.trim()).map((t: string) => t.trim().slice(0, 40)).slice(0, 8);
+      if (typeof parentId === "string" && parentId.trim()) createdTask.parentId = parentId.trim();
 
       tasks.push(createdTask);
       const success = await writeTasks(tasks);
@@ -326,7 +335,7 @@ app.put("/api/dev/tasks/:id", async (req, res) => {
   }
 
   try {
-    const { title, description, priority, status, selector, rx, ry, rw, rh, category } = req.body;
+    const { title, description, priority, status, selector, rx, ry, rw, rh, category, kind, effort, impact, aiSummary, aiScore, aiTags, parentId, origin, archived } = req.body;
 
     const updated = await dbMutex.run(async (): Promise<any | null> => {
       const tasks = await readTasks();
@@ -335,7 +344,7 @@ app.put("/api/dev/tasks/:id", async (req, res) => {
         return null;
       }
 
-      const updatedTask = {
+      const updatedTask: any = {
         ...tasks[taskIndex],
         title: title !== undefined ? title.trim() : tasks[taskIndex].title,
         description: description !== undefined ? description.trim() : tasks[taskIndex].description,
@@ -348,6 +357,16 @@ app.put("/api/dev/tasks/:id", async (req, res) => {
         rh: rh !== undefined ? rh : tasks[taskIndex].rh,
         category: category !== undefined ? category : tasks[taskIndex].category,
       };
+      if (kind !== undefined) updatedTask.kind = kind === "idea" || kind === "task" ? kind : tasks[taskIndex].kind || "task";
+      if (effort !== undefined) updatedTask.effort = (effort === "xs" || effort === "s" || effort === "m" || effort === "l" || effort === "xl") ? effort : tasks[taskIndex].effort;
+      if (impact !== undefined) updatedTask.impact = (typeof impact === "number" && impact >= 1 && impact <= 5) ? impact : tasks[taskIndex].impact;
+      if (aiSummary !== undefined) updatedTask.aiSummary = typeof aiSummary === "string" && aiSummary.trim() ? aiSummary.trim().slice(0, 2000) : undefined;
+      if (aiScore !== undefined) updatedTask.aiScore = typeof aiScore === "number" && !isNaN(aiScore) ? Math.max(0, Math.min(100, Math.round(aiScore))) : tasks[taskIndex].aiScore;
+      if (aiTags !== undefined) updatedTask.aiTags = Array.isArray(aiTags) ? aiTags.filter((t: any) => typeof t === "string" && t.trim()).map((t: string) => t.trim().slice(0, 40)).slice(0, 8) : tasks[taskIndex].aiTags;
+      if (parentId !== undefined) updatedTask.parentId = typeof parentId === "string" && parentId.trim() ? parentId.trim() : undefined;
+      if (origin !== undefined) updatedTask.origin = (origin === "chat" || origin === "devmode" || origin === "import") ? origin : tasks[taskIndex].origin;
+      if (archived !== undefined) updatedTask.archived = archived === true ? true : undefined;
+      if (archived === false) delete updatedTask.archived;
 
       tasks[taskIndex] = updatedTask;
       const success = await writeTasks(tasks);

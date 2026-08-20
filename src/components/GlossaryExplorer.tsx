@@ -22,13 +22,19 @@ import {
   Hash,
   ExternalLink,
   TrendingUp,
-  Layers
+  Layers,
+  Dices,
+  Link2,
+  Check,
+  ChevronDown,
+  ShieldAlert
 } from "lucide-react";
 import {
   GLOSSARY_UNIFIED,
   GlossaryEntry,
   GlossaryType,
   GlossaryCategory,
+  GlossaryCritique,
   GLOSSARY_CATEGORIES,
   GLOSSARY_TYPES
 } from "../data/glossaryUnified";
@@ -67,6 +73,75 @@ const TERM_LINK_PATTERN = new RegExp(
 type ViewMode = "lista" | "grafo" | "nube";
 type SortMode = "az" | "citado" | "conectado";
 type ListGroup = "az" | "categoria" | "tipo";
+
+interface ReadingRoute {
+  id: string;
+  label: string;
+  description: string;
+  icon: React.ReactNode;
+  steps: { entryId: string; note: string }[];
+}
+
+const READING_ROUTES: ReadingRoute[] = [
+  {
+    id: "etica",
+    label: "Ética pura",
+    description: "Del prejuicio de base al criterio moral",
+    icon: <Scale className="w-4 h-4" />,
+    steps: [
+      { entryId: "especismo", note: "El prejuicio de base que atraviesa todo el sistema" },
+      { entryId: "casos-marginales", note: "La prueba lógica que desmonta la barrera de la inteligencia" },
+      { entryId: "utilitarismo", note: "Bentham y Singer: el sufrimiento como criterio" },
+      { entryId: "abolicionismo", note: "Regan y el sujeto-de-una-vida" },
+      { entryId: "consistencia-moral", note: "Del argumento a tu plato" }
+    ]
+  },
+  {
+    id: "ciencia",
+    label: "Ciencia",
+    description: "La neurobiología del sufrimiento",
+    icon: <Beaker className="w-4 h-4" />,
+    steps: [
+      { entryId: "sintiencia", note: "La capacidad que abre la puerta moral" },
+      { entryId: "nocicepcion", note: "Dolor físico frente a experiencia consciente" },
+      { entryId: "dolor-vs-nocicepcion", note: "El matiz que cambia el debate" },
+      { entryId: "declaracion-cambridge", note: "El consenso neurocientífico" },
+      { entryId: "etologia", note: "La vida interior de los animales" }
+    ]
+  },
+  {
+    id: "ecologia",
+    label: "Ecología",
+    description: "El coste planetario del plato",
+    icon: <Globe className="w-4 h-4" />,
+    steps: [
+      { entryId: "ganaderia-industrial", note: "El motor invisible del sistema" },
+      { entryId: "termodinamica", note: "Por qué es ineficiente comer animales" },
+      { entryId: "metano", note: "El gas que calienta el planeta" },
+      { entryId: "deforestacion", note: "El coste en selva de cada kilo" },
+      { entryId: "huella-hidrica", note: "El agua que se esconde en la carne" }
+    ]
+  },
+  {
+    id: "derecho",
+    label: "Derecho",
+    description: "De la propiedad al estatus jurídico",
+    icon: <ScrollText className="w-4 h-4" />,
+    steps: [
+      { entryId: "cosificacion", note: "El estatus de propiedad como raíz del problema" },
+      { entryId: "habeas-corpus", note: "Animales como titulares de derechos" },
+      { entryId: "persona-no-humana", note: "El siguiente paso jurídico" },
+      { entryId: "derechos-animales", note: "La teoría que lo sustenta" },
+      { entryId: "declaracion-montreal", note: "El documento que abre la vía" }
+    ]
+  }
+];
+
+const routeStepTerm = (route: ReadingRoute, stepIdx: number): GlossaryEntry | undefined => {
+  const step = route.steps[stepIdx];
+  if (!step) return undefined;
+  return GLOSSARY_UNIFIED.find((e) => e.id === step.entryId);
+};
 
 interface GlossaryExplorerProps {
   initialEntryId?: string | null;
@@ -144,6 +219,138 @@ function getAppearanceTarget(appearance: Appearance): { tab: string; label: stri
   }
 }
 
+const DETAIL_SECTION_TITLE = "text-technical-xs text-primary flex items-center gap-2 font-bold";
+
+// Renders "[N]" markers inside critique rebuttals as subtle superscripts.
+function renderCritiqueCitations(text: string): React.ReactNode {
+  const parts = text.split(/(\[[0-9,\s]+\])/g);
+  return parts.map((seg, i) => {
+    const m = seg.match(/^\[([0-9,\s]+)\]$/);
+    if (m) {
+      return (
+        <sup
+          key={i}
+          className="text-[0.62em] font-mono font-semibold text-on-surface-variant/50 select-none"
+        >
+          {m[1]!.split(",").map((n) => n.trim()).join(" ")}
+        </sup>
+      );
+    }
+    return <React.Fragment key={i}>{seg}</React.Fragment>;
+  });
+}
+
+function CritiqueSection({ critiques }: { critiques: GlossaryCritique[] }) {
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
+  return (
+    <div className="space-y-3">
+      <h4 className={DETAIL_SECTION_TITLE}>
+        <ShieldAlert className="w-4 h-4" />
+        Críticas frecuentes
+      </h4>
+      <div className="space-y-2">
+        {critiques.map((c, i) => {
+          const isOpen = openIdx === i;
+          return (
+            <div key={i} className="border border-outline-variant/20 rounded-xl overflow-hidden">
+              <button
+                onClick={() => setOpenIdx(isOpen ? null : i)}
+                aria-expanded={isOpen}
+                className="w-full text-left px-3 py-2.5 flex items-center gap-2 hover:bg-surface-dim/30 transition-colors"
+              >
+                <span className="text-[10px] font-mono text-on-surface-variant/50 shrink-0">{i + 1}.</span>
+                <span className="text-[12px] text-on-surface font-medium flex-1 leading-snug">{c.criticism}</span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 shrink-0 text-on-surface-variant/50 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+              {isOpen && (
+                <div className="px-3 pb-3.5 pl-9">
+                  <p
+                    className="text-[12px] leading-relaxed text-on-surface-variant/85 border-l-2 pl-3"
+                    style={{ borderColor: "color-mix(in oklch, var(--primary) 40%, transparent)" }}
+                  >
+                    {renderCritiqueCitations(c.rebuttal)}
+                  </p>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function AppearancesSection({
+  appearances,
+  onNavigate
+}: {
+  appearances: Appearance[];
+  onNavigate: (app: Appearance) => void;
+}) {
+  const [showAll, setShowAll] = useState(false);
+  const visible = showAll ? appearances : appearances.slice(0, 4);
+  return (
+    <div className="space-y-3">
+      <h4 className={`${DETAIL_SECTION_TITLE} justify-between`}>
+        <span className="flex items-center gap-2">
+          <Hash className="w-4 h-4" />
+          Aparece en
+        </span>
+        <span className="text-[10px] font-mono text-on-surface-variant/60 font-normal">{appearances.length} lugares</span>
+      </h4>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        {visible.map((app, i) => {
+          const target = getAppearanceTarget(app);
+          const isExternal = target !== null;
+          return (
+            <button
+              key={`${app.locationId}-${app.field}-${i}`}
+              onClick={() => onNavigate(app)}
+              disabled={!isExternal}
+              className={`w-full text-left p-3 border border-outline-variant/15 rounded-lg transition-all group ${
+                isExternal ? "hover:border-primary/40 hover:bg-surface-dim/30 cursor-pointer" : "cursor-default opacity-70"
+              }`}
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex-1 min-w-0 space-y-1">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span
+                      className="text-[9px] font-mono uppercase tracking-widest px-1.5 py-0.5 rounded-sm"
+                      style={{
+                        backgroundColor: app.category ? `color-mix(in oklch, var(--${CATEGORY_COLOR_CLASS[app.category]}) 12%, transparent)` : "transparent",
+                        color: app.category ? `var(--${CATEGORY_COLOR_CLASS[app.category]})` : "var(--on-surface-variant)"
+                      }}
+                    >
+                      {app.locationType}
+                    </span>
+                    <span className="text-[9px] font-mono text-on-surface-variant/50">{app.field}</span>
+                  </div>
+                  <p className="text-[12px] text-on-surface font-medium leading-snug line-clamp-2">{app.title}</p>
+                </div>
+                {isExternal && (
+                  <ArrowUpRight className="w-3 h-3 text-primary/40 group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0 mt-0.5" />
+                )}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+      {appearances.length > 4 && (
+        <button
+          onClick={() => setShowAll((v) => !v)}
+          aria-expanded={showAll}
+          className="text-[10px] font-mono uppercase tracking-widest text-primary/80 hover:text-primary flex items-center gap-1 transition-all"
+        >
+          {showAll ? "Ver menos" : `Ver los ${appearances.length} lugares`}
+          <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${showAll ? "rotate-180" : ""}`} />
+        </button>
+      )}
+    </div>
+  );
+}
+
 export default React.memo(function GlossaryExplorer({ initialEntryId, onClearInitialEntryId, onNavigate }: GlossaryExplorerProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("lista");
   const [searchQuery, setSearchQuery] = useState("");
@@ -160,7 +367,9 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
   const prevEntryIdRef = useRef<string | null>(null);
   const loadedFromHashRef = useRef<boolean>(false);
   const listItemRefs = useRef<Record<string, HTMLButtonElement | null>>({});
-  const [, setHighlightedIndex] = useState(0);
+  const azSectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [activeItemId, setActiveItemId] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const index = useMemo(() => getGlossaryIndex(), []);
@@ -278,6 +487,7 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
       if (e.key === "/" && document.activeElement !== searchInputRef.current) {
         e.preventDefault();
         searchInputRef.current?.focus();
+        searchInputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       } else if (e.key === "Escape") {
         if (document.activeElement === searchInputRef.current) {
           searchInputRef.current?.blur();
@@ -315,15 +525,38 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
     return list;
   }, [searchQuery, selectedType, selectedCategory, sortMode, index]);
 
+  const routeForEntry = useMemo(() => {
+    if (!selectedEntry) return null;
+    for (const route of READING_ROUTES) {
+      const stepIdx = route.steps.findIndex((s) => s.entryId === selectedEntry.id);
+      if (stepIdx >= 0) return { route, stepIdx };
+    }
+    return null;
+  }, [selectedEntry]);
+
+  // Cloud entries: the 12 most central by default, or the filtered list
+  // (top 24 by centrality) when search/filters are active.
+  const cloudEntries = useMemo(() => {
+    const hasActive = searchQuery.trim() !== "" || selectedType !== "all" || selectedCategory !== "all";
+    if (!hasActive) return mostCentral;
+    return [...filteredEntries]
+      .sort((a, b) => (index[b.id]?.centrality || 0) - (index[a.id]?.centrality || 0))
+      .slice(0, 24);
+  }, [mostCentral, filteredEntries, index, searchQuery, selectedType, selectedCategory]);
+
   useEffect(() => {
-    setHighlightedIndex(0);
+    setActiveItemId(null);
+  }, [viewMode]);
+
+  useEffect(() => {
+    setActiveItemId(null);
   }, [searchQuery, selectedType, selectedCategory, sortMode]);
 
   const groupedAz = useMemo(() => {
     const groups: Record<string, GlossaryEntry[]> = {};
     filteredEntries.forEach((e) => {
       const letter = (e.term[0] ?? "").toUpperCase();
-      const key = /[A-ZÑ]/.test(letter) ? letter : "#";
+      const key = /[A-ZÀ-ÚÑ]/.test(letter) ? letter : "#";
       if (!groups[key]) groups[key] = [];
       groups[key].push(e);
     });
@@ -360,6 +593,7 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
       return entry;
     });
     setForwardStack([]);
+    setActiveItemId(entry.id);
     if (window.innerWidth < 1024) setIsMobileDetailOpen(true);
   };
 
@@ -425,14 +659,102 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
     }
   };
 
+  const handleRandom = () => {
+    const pool = filteredEntries.length > 0 ? filteredEntries : GLOSSARY_UNIFIED;
+    if (pool.length === 0) return;
+    const entry = pool[Math.floor(Math.random() * pool.length)]!;
+    handleSelectEntry(entry);
+  };
+
+  const handleCopyLink = async (entry: GlossaryEntry) => {
+    const url = `${window.location.origin}${window.location.pathname}#glosario-${entry.id}`;
+    let ok = false;
+    try {
+      await navigator.clipboard.writeText(url);
+      ok = true;
+    } catch {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = url;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        ok = true;
+      } catch {
+        ok = false;
+      }
+    }
+    if (ok) {
+      setCopiedId(entry.id);
+      window.setTimeout(() => setCopiedId((c) => (c === entry.id ? null : c)), 1600);
+    }
+  };
+
+  const handleRouteStart = (route: ReadingRoute) => {
+    const entry = routeStepTerm(route, 0);
+    if (entry) handleSelectEntry(entry);
+  };
+
+  const hasActiveFilters =
+    searchQuery.trim() !== "" ||
+    selectedType !== "all" ||
+    selectedCategory !== "all";
+
+  const clearAllFilters = () => {
+    setSearchQuery("");
+    setSelectedType("all");
+    setSelectedCategory("all");
+    setSortMode("az");
+    setListGroup("az");
+    setActiveItemId(null);
+  };
+
+  const scrollToLetter = (letter: string) => {
+    const el = azSectionRefs.current[letter];
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  // Keyboard navigation over the flattened list (arrows move, Enter opens).
+  useEffect(() => {
+    const onListKeys = (e: KeyboardEvent) => {
+      if (viewMode !== "lista" || filteredEntries.length === 0) return;
+      const t = document.activeElement;
+      if (t instanceof HTMLElement && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
+      if (e.key !== "ArrowDown" && e.key !== "ArrowUp" && e.key !== "Enter") return;
+
+      const idx = filteredEntries.findIndex((en) => en.id === activeItemId);
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        const dir = e.key === "ArrowDown" ? 1 : -1;
+        const next = idx < 0 ? 0 : Math.min(Math.max(idx + dir, 0), filteredEntries.length - 1);
+        const entry = filteredEntries[next];
+        if (!entry) return;
+        setActiveItemId(entry.id);
+        const itemEl = listItemRefs.current[entry.id];
+        itemEl?.focus({ preventScroll: true });
+        requestAnimationFrame(() => {
+          itemEl?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        });
+      } else if (e.key === "Enter" && idx >= 0) {
+        e.preventDefault();
+        const entry = filteredEntries[idx];
+        if (entry) handleSelectEntry(entry);
+      }
+    };
+    window.addEventListener("keydown", onListKeys);
+    return () => window.removeEventListener("keydown", onListKeys);
+  }, [viewMode, filteredEntries, activeItemId, handleSelectEntry]);
+
   const renderEntryDetail = (entry: GlossaryEntry) => {
     const catColor = `var(--${CATEGORY_COLOR_CLASS[entry.category]})`;
     const appearances = getAppearances(entry.id);
     const coOccurrences = getCoOccurrences(entry.id).slice(0, 12);
     const centrality = getCentrality(entry.id);
     const refs = entry.references || [];
-
-    const sectionTitleClass = "text-technical-xs text-primary flex items-center gap-2 font-bold";
 
     // Renders text turning any mention of another glossary term into a clickable link.
     // The current term is excluded (no self-links).
@@ -485,6 +807,40 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
                 ? `${history.length} · ${forwardStack.length}`
                 : "inicio"}
             </span>
+            <div className="ml-auto flex items-center gap-1.5">
+              <button
+                onClick={() => {
+                  setViewMode("grafo");
+                  setActiveItemId(entry.id);
+                }}
+                aria-label="Explorar en Grafo Conceptual"
+                title="Explorar en Grafo Conceptual"
+                className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-mono uppercase tracking-wider text-primary bg-primary/10 hover:bg-primary hover:text-on-primary border border-primary/20 transition-all cursor-pointer"
+              >
+                <Network className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Ver en Grafo</span>
+              </button>
+              <button
+                onClick={handleRandom}
+                aria-label="Concepto aleatorio"
+                title="Concepto aleatorio"
+                className="p-1.5 rounded-md text-on-surface-variant/60 hover:text-primary hover:bg-surface-dim/50 transition-all"
+              >
+                <Dices className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => handleCopyLink(entry)}
+                aria-label="Copiar enlace del término"
+                title="Copiar enlace"
+                className="p-1.5 rounded-md text-on-surface-variant/60 hover:text-primary hover:bg-surface-dim/50 transition-all"
+              >
+                {copiedId === entry.id ? (
+                  <Check className="w-3.5 h-3.5 text-primary" />
+                ) : (
+                  <Link2 className="w-3.5 h-3.5" />
+                )}
+              </button>
+            </div>
           </div>
 
           <div className="flex items-center gap-2 flex-wrap mb-3">
@@ -499,7 +855,6 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
               {TYPE_ICON[entry.type]}
               {TYPE_LABEL[entry.type]}
             </span>
-            <span className="text-[10px] font-mono text-on-surface-variant/40 ml-auto">{entry.id.toUpperCase()}</span>
           </div>
           <h2 className="text-display-md text-on-surface border-l-4 pl-4 py-1 leading-tight" style={{ borderColor: catColor }}>
             {entry.term}
@@ -532,7 +887,7 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
           <div className="p-5 border border-outline-variant/15 rounded-lg bg-surface-dim/20 backdrop-blur-sm">
             <div className="flex items-center gap-2 mb-3">
               <User className="w-4 h-4 text-primary" />
-              <h4 className={sectionTitleClass}>Ficha de autor</h4>
+              <h4 className={DETAIL_SECTION_TITLE}>Ficha de autor</h4>
             </div>
             <div className="space-y-2 text-body-sm text-on-surface-variant">
               {entry.author.era && (
@@ -564,73 +919,15 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
           </div>
         )}
 
-        {/* Stats bar — compact */}
-        <div className="flex items-center gap-4 text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/40 px-1">
-          <span className="flex items-center gap-1.5">
-            <TrendingUp className="w-3 h-3" />
-            Centralidad: {typeof centrality === 'number' ? centrality.toFixed(2) : centrality}
-          </span>
-          <span className="text-outline-variant/40">·</span>
-          <span className="flex items-center gap-1.5">
-            <Hash className="w-3 h-3" />
-            {appearances.length} apariciones
-          </span>
-        </div>
-
-        {/* Aparece en — 2-col grid */}
+        {/* Aparece en — collapsible */}
         {appearances.length > 0 && (
-          <div className="space-y-3">
-            <h4 className={`${sectionTitleClass} justify-between`}>
-              <span className="flex items-center gap-2">
-                <Hash className="w-4 h-4" />
-                Aparece en
-              </span>
-              <span className="text-[10px] font-mono text-on-surface-variant/60 font-normal">{appearances.length} lugares</span>
-            </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {appearances.map((app, i) => {
-                const target = getAppearanceTarget(app);
-                const isExternal = target !== null;
-                return (
-                  <button
-                    key={`${app.locationId}-${app.field}-${i}`}
-                    onClick={() => handleNavigateAppearance(app)}
-                    disabled={!isExternal}
-                    className={`w-full text-left p-3 border border-outline-variant/15 rounded-lg transition-all group ${
-                      isExternal ? "hover:border-primary/40 hover:bg-surface-dim/30 cursor-pointer" : "cursor-default opacity-70"
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0 space-y-1">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span
-                            className="text-[9px] font-mono uppercase tracking-widest px-1.5 py-0.5 rounded-sm"
-                            style={{
-                              backgroundColor: app.category ? `color-mix(in oklch, var(--${CATEGORY_COLOR_CLASS[app.category]}) 12%, transparent)` : "transparent",
-                              color: app.category ? `var(--${CATEGORY_COLOR_CLASS[app.category]})` : "var(--on-surface-variant)"
-                            }}
-                          >
-                            {app.locationType}
-                          </span>
-                          <span className="text-[9px] font-mono text-on-surface-variant/50">{app.field}</span>
-                        </div>
-                        <p className="text-[12px] text-on-surface font-medium leading-snug line-clamp-2">{app.title}</p>
-                      </div>
-                      {isExternal && (
-                        <ArrowUpRight className="w-3 h-3 text-primary/40 group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0 mt-0.5" />
-                      )}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          <AppearancesSection appearances={appearances} onNavigate={handleNavigateAppearance} />
         )}
 
         {/* Conecta con — unified: related terms + system nodes + dilemmas */}
         {(entry.relatedEntries?.length || entry.relatedNodes?.length || entry.relatedDilemmas?.length || coOccurrences.length) ? (
           <div className="space-y-3">
-            <h4 className={sectionTitleClass}>
+            <h4 className={DETAIL_SECTION_TITLE}>
               <Network className="w-4 h-4" />
               Conecta con
             </h4>
@@ -707,10 +1004,15 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
           </div>
         ) : null}
 
+        {/* Críticas frecuentes — accordion */}
+        {entry.commonCritiques && entry.commonCritiques.length > 0 && (
+          <CritiqueSection critiques={entry.commonCritiques} />
+        )}
+
         {/* References — always visible, compact */}
         {refs.length > 0 && (
           <div className="space-y-3">
-            <h4 className={sectionTitleClass}>
+            <h4 className={DETAIL_SECTION_TITLE}>
               <BookMarked className="w-4 h-4" />
               Referencias
             </h4>
@@ -735,13 +1037,59 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
             </ol>
           </div>
         )}
+
+        {/* Next step in reading route */}
+        {routeForEntry && routeForEntry.stepIdx < routeForEntry.route.steps.length - 1 && (
+          (() => {
+            const nextIdx = routeForEntry.stepIdx + 1;
+            const nextStep = routeForEntry.route.steps[nextIdx];
+            const nextTerm = nextStep ? routeStepTerm(routeForEntry.route, nextIdx) : undefined;
+            if (!nextStep || !nextTerm) return null;
+            return (
+              <div className="p-4 border border-primary/25 bg-primary/[0.04] rounded-xl">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-[9px] font-mono uppercase tracking-widest text-primary">
+                      Siguiente en «{routeForEntry.route.label}» · paso {routeForEntry.stepIdx + 1}/{routeForEntry.route.steps.length}
+                    </p>
+                    <p className="text-body-sm font-medium mt-1">
+                      {nextTerm.term}
+                      <span className="text-on-surface-variant/70 font-normal"> — {nextStep.note}</span>
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleSelectEntry(nextTerm)}
+                    aria-label={`Continuar la ruta: ${nextTerm.term}`}
+                    className="shrink-0 p-2 rounded-lg border border-primary/30 text-primary hover:bg-primary/10 transition-all"
+                  >
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            );
+          })()
+        )}
+
+        {/* Footer meta — subtle */}
+        <div className="flex items-center gap-4 text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/40 px-1 border-t border-outline-variant/15 pt-3">
+          <span className="flex items-center gap-1.5">
+            <TrendingUp className="w-3 h-3" />
+            Centralidad {typeof centrality === "number" ? centrality.toFixed(2) : centrality}
+          </span>
+          <span className="text-outline-variant/40">·</span>
+          <span className="flex items-center gap-1.5">
+            <Hash className="w-3 h-3" />
+            {appearances.length} apariciones
+          </span>
+        </div>
       </div>
     );
   };
 
-  const renderListItem = (entry: GlossaryEntry, idx: number) => {
+  const renderListItem = (entry: GlossaryEntry) => {
     const isSelected = selectedEntry?.id === entry.id;
     const isFlashing = flashEntryId === entry.id;
+    const isActive = activeItemId === entry.id;
     const catColor = `var(--${CATEGORY_COLOR_CLASS[entry.category]})`;
     const count = index[entry.id]?.count || 0;
     const centrality = getCentrality(entry.id);
@@ -750,13 +1098,14 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
         key={entry.id}
         ref={(el) => { listItemRefs.current[entry.id] = el; }}
         onClick={() => handleSelectEntry(entry)}
-        onMouseEnter={() => setHighlightedIndex(idx)}
-        className={`group w-full text-left p-4 border-l-2 rounded-r-md transition-all duration-300 ${
+        className={`group w-full text-left p-4 border-l-2 rounded-r-md transition-all duration-300 hover:shadow-sm ${
           isSelected
             ? "bg-surface-dim/40 border-l-transparent"
-            : "bg-transparent hover:bg-surface-dim/20 border-l-transparent hover:translate-x-0.5"
+            : isActive
+              ? "bg-surface-dim/30 border-l-transparent ring-1 ring-primary/40"
+              : "bg-transparent hover:bg-surface-dim/20 border-l-transparent hover:translate-x-0.5"
         } ${isFlashing ? "animate-pulse-ring" : ""}`}
-        style={isSelected ? { borderLeftColor: catColor, backgroundColor: `color-mix(in oklch, ${catColor} 6%, transparent)` } : undefined}
+        style={isSelected || isActive ? { borderLeftColor: catColor, backgroundColor: `color-mix(in oklch, ${catColor} 6%, transparent)` } : undefined}
       >
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0 space-y-1.5">
@@ -795,9 +1144,18 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
   const renderList = () => {
     if (filteredEntries.length === 0) {
       return (
-        <div className="py-16 text-center text-on-surface-variant/50 space-y-2">
+        <div className="py-16 text-center text-on-surface-variant/50 space-y-4">
           <Search className="w-8 h-8 mx-auto opacity-40" />
           <p className="text-body-sm">Sin resultados para "{searchQuery}"</p>
+          {hasActiveFilters && (
+            <button
+              onClick={clearAllFilters}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-outline-variant/30 text-[10px] font-mono uppercase tracking-widest text-on-surface-variant hover:text-primary hover:border-primary/40 transition-all"
+            >
+              <X className="w-3 h-3" />
+              Quitar filtros
+            </button>
+          )}
         </div>
       );
     }
@@ -813,7 +1171,7 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
                 <span className="text-on-surface-variant/40">({entries.length})</span>
               </h5>
               <div className="space-y-1">
-                {entries.map((e, i) => renderListItem(e, i))}
+                {entries.map((e) => renderListItem(e))}
               </div>
             </div>
           ))}
@@ -832,7 +1190,7 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
                 <span className="text-on-surface-variant/40">({entries.length})</span>
               </h5>
               <div className="space-y-1">
-                {entries.map((e, i) => renderListItem(e, i))}
+                {entries.map((e) => renderListItem(e))}
               </div>
             </div>
           ))}
@@ -842,14 +1200,26 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
 
     return (
       <div className="space-y-6">
+        <div className="flex flex-wrap gap-1.5 py-2 -mx-1 px-1 overflow-x-auto no-scrollbar">
+          {groupedAz.map(({ letter }) => (
+            <button
+              key={letter}
+              onClick={() => scrollToLetter(letter)}
+              aria-label={`Ir a la letra ${letter}`}
+              className="w-8 h-8 shrink-0 rounded-lg text-[11px] font-mono font-bold text-on-surface-variant hover:text-primary hover:bg-surface-dim/50 transition-all border border-transparent hover:border-primary/30"
+            >
+              {letter}
+            </button>
+          ))}
+        </div>
         {groupedAz.map(({ letter, entries }) => (
-          <div key={letter}>
-            <h5 className="text-[10px] font-mono uppercase tracking-widest mb-3 text-on-surface-variant/40 py-1">
+          <div key={letter} ref={(el) => { azSectionRefs.current[letter] = el; }}>
+            <h5 className="text-[10px] font-mono uppercase tracking-widest mb-3 text-on-surface-variant/40 py-1 scroll-mt-[180px]">
               {letter}
               <span className="ml-2 text-on-surface-variant/30">({entries.length})</span>
             </h5>
             <div className="space-y-1">
-              {entries.map((e, i) => renderListItem(e, i))}
+              {entries.map((e) => renderListItem(e))}
             </div>
           </div>
         ))}
@@ -858,18 +1228,36 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
   };
 
   const renderCloud = () => {
-    const maxCentral = Math.max(...mostCentral.map((e) => index[e.id]?.centrality || 0), 1);
+    const maxCentral = Math.max(...cloudEntries.map((e) => index[e.id]?.centrality || 0), 1);
     return (
       <div className="w-full h-full flex flex-col">
         <div className="flex items-baseline justify-between mb-4 shrink-0">
           <h3 className="text-technical-sm text-primary font-bold">Nube de términos</h3>
           <p className="text-[11px] text-on-surface-variant/70 hidden sm:block">
-            Tamaño = centralidad (apariciones + conexiones)
+            {hasActiveFilters
+              ? `${cloudEntries.length} términos filtrados`
+              : "Tamaño = centralidad (apariciones + conexiones)"}
           </p>
         </div>
         <div className="glass-enhance border border-outline-variant/20 rounded-2xl flex-1 relative z-10 overflow-hidden before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
+          {cloudEntries.length === 0 ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-on-surface-variant/50">
+              <Search className="w-8 h-8 opacity-40" />
+              <p className="text-body-sm">Sin resultados para "{searchQuery}"</p>
+              {hasActiveFilters && (
+                <button
+                  onClick={clearAllFilters}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-outline-variant/30 text-[10px] font-mono uppercase tracking-widest text-on-surface-variant hover:text-primary hover:border-primary/40 transition-all"
+                >
+                  <X className="w-3 h-3" />
+                  Quitar filtros
+                </button>
+              )}
+            </div>
+          ) : (
+          <>
           <div className="absolute inset-0 flex flex-wrap items-center justify-center gap-x-4 gap-y-3 p-8 lg:p-12 overflow-auto custom-scrollbar">
-            {mostCentral.map((entry) => {
+            {cloudEntries.map((entry) => {
               const centrality = index[entry.id]?.centrality || 0;
               const size = 0.9 + (centrality / maxCentral) * 1.8;
               const catColor = `var(--${CATEGORY_COLOR_CLASS[entry.category]})`;
@@ -879,7 +1267,7 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
                   onClick={() => handleSelectEntry(entry)}
                   style={{ fontSize: `${size}rem`, color: catColor }}
                   className="font-heading font-bold hover:scale-110 transition-transform duration-300 px-2 py-1 rounded hover:bg-surface-dim/40 leading-none"
-                  title={`${entry.term} · centralidad ${centrality}`}
+                  title={`${entry.term} · centralidad ${centrality} — ${entry.shortDef}`}
                 >
                   {entry.term}
                 </button>
@@ -894,6 +1282,8 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
               </span>
             ))}
           </div>
+          </>
+          )}
         </div>
       </div>
     );
@@ -901,11 +1291,11 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
 
   const headerVariants = {
     hidden: {},
-    visible: { transition: { staggerChildren: 0.12 } }
+    visible: { transition: { staggerChildren: 0.08 } }
   };
   const childVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const } }
+    hidden: { opacity: 0, y: 18 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.32, ease: [0.22, 1, 0.36, 1] as const } }
   };
 
   return (
@@ -920,8 +1310,8 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
         }}
       >
 
-        {/* HERO SECTION */}
-        <div className="h-[550px] min-h-[550px] lg:h-[600px] lg:min-h-[600px] w-full flex flex-col items-center justify-center text-center relative py-6 lg:py-8 px-6 lg:px-16">
+        {/* HERO SECTION — unificado con Laboratorio: border-b + icon blur 0.10 */}
+        <div className="h-[550px] min-h-[550px] lg:h-[600px] lg:min-h-[600px] w-full flex flex-col items-center justify-center text-center relative py-6 lg:py-8 px-6 lg:px-16 border-b border-outline-variant/15">
           {/* Crosshair corners */}
           <div className="absolute top-6 left-6 w-6 h-6 pointer-events-none select-none flex items-center justify-center">
             <div className="absolute w-4 h-[2px] bg-primary/30" />
@@ -940,15 +1330,15 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
             <div className="absolute w-[2px] h-4 bg-primary/30" />
           </div>
 
-          {/* Background book icon */}
+          {/* Background book icon — unificado: blur + 0.10 */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
             <BookOpen
-              className="text-zinc-900 dark:text-zinc-100"
+              className="text-zinc-900 dark:text-zinc-100 blur"
               style={{
                 width: "clamp(140px, 35vw, 400px)",
                 height: "clamp(140px, 35vw, 400px)",
-                opacity: 0.04,
-                strokeWidth: 0.5,
+                opacity: 0.10,
+                strokeWidth: 1.2,
               }}
             />
           </div>
@@ -960,10 +1350,6 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
             variants={headerVariants}
             className="relative z-10 space-y-6 max-w-3xl"
           >
-            <motion.span variants={childVariants} className="text-[10px] font-mono font-bold text-primary select-none tracking-[0.25em] uppercase block opacity-60">
-              [ DICCIONARIO VIVO ]
-            </motion.span>
-
             <motion.h1 variants={childVariants} className="text-display-lg text-on-background select-none">
               Glosario<span className="text-secondary/60 font-light"> · Sintiens</span>
             </motion.h1>
@@ -1046,43 +1432,92 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
           </button>
         ))}
       </div>
+      </div>
 
-      {/* ==================== SEARCH + FILTERS (hidden in grafo view) ==================== */}
+      {/* ==================== COMPACT PERMANENT SEARCH (all views) ==================== */}
+      <div className="relative max-w-xs mx-auto pb-4 z-20 sticky top-[76px]" role="search">
+        <div className="relative">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-on-surface-variant/40 pointer-events-none" />
+          <input
+            ref={searchInputRef}
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Buscar término…"
+            aria-label="Buscar en el glosario"
+            className="w-full bg-surface-dim/50 border border-outline-variant/25 focus:border-primary/50 rounded-full pl-9 pr-16 py-1.5 text-sm outline-none transition-all placeholder:text-on-surface-variant/40 backdrop-blur-md"
+          />
+          <kbd className="absolute right-9 top-1/2 -translate-y-1/2 pointer-events-none px-1.5 py-0.5 rounded border border-outline-variant/30 bg-surface-dim/40 text-[10px] font-mono text-on-surface-variant/60 select-none">
+            /
+          </kbd>
+          {searchQuery && (
+            <button
+                   type="button"
+                   onClick={() => setSearchQuery("")}
+                   aria-label="Limpiar búsqueda"
+                   className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-surface-dim text-on-surface-variant hover:text-on-surface transition-all"
+                 >
+                   <X className="w-3 h-3" />
+                 </button>
+          )}
+        </div>
+      </div>
+
+      {/* ==================== READING ROUTES (lista view) ==================== */}
+      {viewMode === "lista" && (
+        <div className="pb-6 flex gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:overflow-visible sm:snap-none sm:max-w-5xl sm:mx-auto">
+          {READING_ROUTES.map((route) => (
+            <button
+              key={route.id}
+              onClick={() => handleRouteStart(route)}
+              className="min-w-[260px] snap-start sm:min-w-0 glass-enhance border border-outline-variant/25 rounded-xl p-4 text-left relative z-10 transition-all cursor-pointer group hover:border-primary/40 shrink-0 sm:shrink
+                before:content-[''] before:absolute before:inset-0 before:rounded-[inherit]
+                before:bg-surface-dim/20 dark:before:bg-surface-dim/10
+                before:backdrop-blur-md before:z-[-1] before:pointer-events-none"
+            >
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="text-primary">{route.icon}</span>
+                <span className="text-[10px] font-mono uppercase tracking-widest font-bold text-on-surface">
+                  {route.label}
+                </span>
+              </div>
+              <p className="text-[11px] leading-snug text-on-surface-variant/80 mb-2">
+                {route.description}
+              </p>
+              <p className="text-[10px] text-on-surface-variant/50 leading-snug">
+                {route.steps.map((s, i) => {
+                  const t = routeStepTerm(route, i)?.term ?? "·";
+                  return (
+                    <span key={s.entryId}>
+                      {i > 0 && <span className="text-on-surface-variant/30"> → </span>}
+                      {t}
+                    </span>
+                  );
+                })}
+              </p>
+              <span className="inline-flex items-center gap-1 mt-2 text-[9px] font-mono uppercase tracking-widest text-primary opacity-70 group-hover:opacity-100 transition-opacity">
+                Empezar
+                <ArrowRight className="w-2.5 h-2.5" />
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* ==================== FILTERS (hidden in grafo view) ==================== */}
       {viewMode !== "grafo" && (
         <div
-          className="glass-enhance border border-outline-variant/30 rounded-2xl p-3 lg:p-4 space-y-3 sticky top-3 z-30 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/40 dark:before:bg-surface-dim/20 before:backdrop-blur-md before:z-[-1] before:pointer-events-none"
+          className="glass-enhance border border-outline-variant/20 rounded-2xl p-3 lg:p-4 sticky top-[132px] z-20 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none"
           style={{
             width: "calc(100vw - 96px - var(--scrollbar-width, 0px))",
             marginLeft: "calc(-50vw + 48px + var(--scrollbar-width, 0px) / 2 + 50%)"
           }}
         >
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant/40 pointer-events-none" />
-            <input
-              ref={searchInputRef}
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar…"
-              className="w-full bg-surface-dim/30 border border-outline-variant/30 focus:border-primary/60 rounded-lg px-11 py-2 text-sm outline-none transition-all"
-            />
-            <kbd className="absolute right-9 top-1/2 -translate-y-1/2 pointer-events-none px-1.5 py-0.5 rounded border border-outline-variant/30 bg-surface-dim/40 text-[10px] font-mono text-on-surface-variant/60 select-none">
-              /
-            </kbd>
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full hover:bg-surface-dim text-on-surface-variant hover:text-on-surface transition-all"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
-          </div>
-
           <div className="flex flex-wrap items-center gap-3">
             {/* Categories */}
             <div className="flex gap-1 flex-wrap">
               <button
+                type="button"
                 onClick={() => setSelectedCategory("all")}
                 className={`text-[10px] font-mono uppercase tracking-tighter px-2.5 py-0.5 rounded-md border transition-all ${
                   selectedCategory === "all"
@@ -1145,23 +1580,32 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
               </>
             )}
 
-            <span className="ml-auto text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/40">
-              {filteredEntries.length} resultados
-            </span>
+            <div className="ml-auto flex items-center gap-2">
+              <button
+                onClick={handleRandom}
+                title="Concepto aleatorio"
+                className="text-[10px] font-mono uppercase tracking-widest flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-outline-variant/30 text-on-surface-variant hover:text-primary hover:border-primary/40 transition-all"
+              >
+                <Dices className="w-3 h-3" />
+                Aleatorio
+              </button>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/40">
+                {filteredEntries.length} resultados
+              </span>
+            </div>
           </div>
         </div>
       )}
-      </div>
 
-      {/* ==================== VIEW CONTENT ==================== */}
-      <AnimatePresence mode="popLayout" initial={false}>
+      {/* ==================== VIEW CONTENT — mode wait para evitar flash scrollbar */}
+      <AnimatePresence mode="wait" initial={false}>
         {viewMode === "grafo" ? (
           <motion.div
             key="graph-view"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.18, ease: "easeOut" }}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] as const }}
             className="w-full"
             style={{
               width: "calc(100vw - var(--scrollbar-width, 0px))",
@@ -1170,15 +1614,20 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
               minHeight: "560px"
             }}
           >
-            <GlossaryGraph onSelectEntry={handleSelectEntry} selectedEntryId={selectedEntry?.id} />
+            <GlossaryGraph
+              onSelectEntry={handleSelectEntry}
+              selectedEntryId={selectedEntry?.id}
+              searchQuery={searchQuery}
+              onSearchQueryChange={setSearchQuery}
+            />
           </motion.div>
         ) : viewMode === "nube" ? (
           <motion.div
             key="cloud-view"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.18, ease: "easeOut" }}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] as const }}
             className="w-full px-3 md:px-8 lg:px-16"
             style={{
               width: "calc(100vw - var(--scrollbar-width, 0px))",
@@ -1192,10 +1641,10 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
         ) : (
           <motion.div
             key="list-view"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.18, ease: "easeOut" }}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] as const }}
             className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-8"
             style={{
               width: "calc(100vw - 96px - var(--scrollbar-width, 0px))",
@@ -1209,15 +1658,15 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
 
             {/* Detail */}
             <div className="hidden lg:block relative">
-              <div ref={cardScrollRef} className="sticky top-3 max-h-[calc(100vh-12px)] overflow-y-auto overscroll-y-contain custom-scrollbar glass-enhance border border-outline-variant/25 rounded-xl p-6 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
-                <AnimatePresence mode="popLayout" initial={false}>
+              <div ref={cardScrollRef} className="sticky top-[76px] max-h-[calc(100vh-88px)] overflow-y-auto overscroll-y-contain custom-scrollbar glass-enhance border border-outline-variant/20 rounded-xl p-6 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
+                <AnimatePresence mode="wait" initial={false}>
                   {selectedEntry ? (
                     <motion.div
                       key={selectedEntry.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.14, ease: "easeOut" }}
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] as const }}
                     >
                       {renderEntryDetail(selectedEntry)}
                     </motion.div>
@@ -1245,7 +1694,7 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
             />
             <motion.div
               initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
-              transition={{ type: "spring", damping: 30, stiffness: 300 }}
+              transition={{ type: "spring", damping: 32, stiffness: 380 }}
               className="relative w-full max-h-[92vh] overflow-y-auto overscroll-y-contain bg-background border-t border-outline-variant/30 p-8 rounded-t-xl z-10 custom-scrollbar shadow-2xl"
             >
               <button

@@ -49,10 +49,20 @@ function ReferenceTooltip({ refDetail, children }: ReferenceTooltipProps) {
   return (
     <span
       ref={containerRef}
-      className="relative inline-block select-none"
+      role="button"
+      tabIndex={0}
+      aria-label={`Evidencia ${refDetail.id}: ${refDetail.citation}`}
+      className="relative inline-block select-none cursor-pointer"
       onClick={(e) => {
         e.stopPropagation();
         setIsOpen(!isOpen);
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsOpen(!isOpen);
+        }
       }}
     >
       {children}
@@ -63,7 +73,7 @@ function ReferenceTooltip({ refDetail, children }: ReferenceTooltipProps) {
         onClick={(e) => e.stopPropagation()}
       >
         <span className="block text-[9px] font-mono uppercase tracking-wider text-cyan-400 font-bold mb-1">
-          Referencia [{refDetail.id}]
+          Evidencia {refDetail.id}
         </span>
         <span className="block text-[10.5px] leading-relaxed text-zinc-200 font-light font-sans select-text">
           {refDetail.citation}
@@ -322,19 +332,26 @@ export default function TextRenderer({ text, references }: TextRendererProps) {
             if (!references || references.length === 0) return <span key={idx}>{segment}</span>;
             const numbers = citationMatch[1]!.split(",").map((num) => num.trim());
             return (
-              <span key={idx} className="inline-flex gap-0.5 select-none">
+              <span key={idx} className="inline-flex gap-[1px] select-none">
                 {numbers.map((refId, nIdx) => {
                   const ref = references.find((r) => r.id === refId);
                   if (ref) {
                     return (
                       <ReferenceTooltip key={nIdx} refDetail={ref}>
-                        <sup className="text-cyan-500 dark:text-cyan-400 font-bold hover:text-cyan-600 dark:hover:text-cyan-300 transition-colors px-0.5 cursor-pointer select-none">
-                          [{refId}]
+                        <sup className="text-[0.58em] font-mono font-semibold leading-none text-on-surface-variant/55 hover:text-primary dark:hover:text-cyan-300 transition-colors px-[1px] cursor-pointer select-none">
+                          {refId}
                         </sup>
                       </ReferenceTooltip>
                     );
                   }
-                  return <sup key={nIdx}>[{refId}]</sup>;
+                  return (
+                    <sup
+                      key={nIdx}
+                      className="text-[0.58em] font-mono font-semibold leading-none text-on-surface-variant/35 px-[1px] select-none"
+                    >
+                      {refId}
+                    </sup>
+                  );
                 })}
               </span>
             );

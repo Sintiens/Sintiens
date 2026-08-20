@@ -43,6 +43,10 @@ export const actsData: ActData[] = [
           correctIndex: 1,
           revealFact: "La clave está en la experiencia subjetiva. Reaccionar a un estímulo —como hace un termostato, una bacteria o una planta— no implica sentir nada. La sintiencia empieza solo donde hay 'alguien' que experimenta lo que ocurre, no un mecanismo que responde."
         },
+        statCallouts: [
+          { value: "2012", label: "Declaración de Cambridge: mamíferos y aves comparten los sustratos neuronales de la consciencia", detail: "Firmada por neurocientíficos internacionales" },
+          { value: "2024", label: "Declaración de Nueva York: amplía el consenso a cefalópodos, decápodos e insectos", detail: "Basada en respuestas al dolor y aprendizaje complejo" }
+        ],
         deepDive: {
           id: "dd-sintiencia",
           label: "la neurobiología de la sintiencia",
@@ -104,7 +108,18 @@ export const actsData: ActData[] = [
         reflectionQuestion: {
           question: "Si el reflejo y el dolor son cosas distintas, ¿qué implica para cómo tratamos a quien sí siente la segunda?",
           prompt: "Pregúntate si justificamos el daño solo porque el otro no puede contárnoslo."
-        }
+        },
+        microQuiz: {
+          question: "Un cangrejo de playa renuncia a un refugio valioso para evitar descargas eléctricas. ¿Qué demuestra?",
+          options: ["Un reflejo automático sin conciencia", "Un comportamiento coherente con dolor consciente", "Un entrenamiento accidental del experimentador"],
+          correctIndex: 1,
+          revealFact: "Elwood y Adams (2015) mostraron que los cangrejos evitan el daño incluso renunciando a refugios valiosos: no es un mero reflejo, sino una decisión basada en una experiencia desagradable."
+        },
+        statCallouts: [
+          { value: "7", label: "Sistemas emocionales básicos que Jaak Panksepp identificó en todos los mamíferos", detail: "Búsqueda, ira, miedo, lujuria, cuidado, pánico y juego" },
+          { value: "2015", label: "Elwood y Adams: los cangrejos renuncian a refugios para evitar descargas", detail: "Respuestas coherentes con dolor, no mero reflejo" }
+        ],
+        exhibit: { id: "emotional-circuits", label: "los 5 circuitos emocionales subcorticales de Panksepp" }
       },
       {
         id: "una-vida-interior-asombrosa",
@@ -119,6 +134,12 @@ export const actsData: ActData[] = [
         reflectionQuestion: {
           question: "Si un ser recuerda, planifica y llora a sus muertos, ¿qué palabra usarías para describir lo que tiene?",
           prompt: "Más allá de 'instinto', intenta nombrarlo con honestidad."
+        },
+        microQuiz: {
+          question: "¿Qué demuestra un cuervo de Nueva Caledonia que fabrica herramientas y recuerda caras durante años?",
+          options: ["Instinto ciego, sin memoria", "Planificación, memoria y reconocimiento individual", "Un condicionamiento puramente reflejo"],
+          correctIndex: 1,
+          revealFact: "Fabricar herramientas a medida y recordar a personas concretas exige memoria, planificación y reconocimiento individual: una vida mental con pasado y futuro, no un 'presente perpetuo'."
         }
       }
     ]
@@ -156,9 +177,12 @@ export const actsData: ActData[] = [
           correctIndex: 1,
           revealFact: "Para Bentham y la ética moderna lo que cuenta es la capacidad de sufrir, no la inteligencia. Por eso protegemos a un bebé aunque no hable ni resuelva ecuaciones: no por su razonamiento, sino porque puede sufrir. Aplicar el mismo rasero a otros animales no es sentimentalismo, es coherencia."
         },
+        statCallouts: [
+          { value: "1789", label: "Bentham formula la pregunta moral: '¿pueden sufrir?'", detail: "Dos siglos antes de que la neurobiología la confirmara" }
+        ],
         deepDive: {
           id: "dd-sufrimiento",
-          label: "este concepto",
+          label: "el criterio moral de la sintiencia",
           nodes: [
           {
             id: "cartesianismo",
@@ -189,9 +213,19 @@ export const actsData: ActData[] = [
           question: "¿Puedes señalar una diferencia entre un perro y un cerdo que no sea la especie, y que justifique tratar a uno como familia y al otro como alimento?",
           prompt: "Si la inteligencia no basta y el cariño tampoco, ¿qué queda?"
         },
+        microQuiz: {
+          question: "¿Por qué resulta problemático el argumento de Carl Cohen (los derechos exigen agencia moral)?",
+          options: ["Excluiría también a bebés y personas con discapacidad cognitiva profunda", "Es demasiado radical para la filosofía moderna", "Ignora por completo la inteligencia animal"],
+          correctIndex: 0,
+          revealFact: "Es el 'problema de los casos marginales': si la agencia moral fuera el criterio, quedarían desprotegidos los humanos que no pueden razonar. Nadie acepta esa conclusión, por lo que la sintiencia —no la razón— es la base coherente."
+        },
+        statCallouts: [
+          { value: "1970", label: "Richard Ryder acuña el término 'especismo'", detail: "Peter Singer lo popularizaría en 'Liberación Animal' (1975)" }
+        ],
+        exhibit: { id: "speciesism-spectrum", label: "el espectro moral comparado: perro vs cerdo vs vaca vs pulpo" },
         deepDive: {
           id: "dd-especismo",
-          label: "este concepto",
+          label: "el argumento de los casos marginales",
           nodes: [
           {
             id: "casos_marginales",
@@ -231,6 +265,12 @@ export const actsData: ActData[] = [
         reflectionQuestion: {
           question: "Si estuvieras del lado del explotado, ¿qué pedirías: que tu jaula fuera más grande, o no estar en una jaula?",
           prompt: "Ponte en el lugar del otro, no en el del sistema."
+        },
+        microQuiz: {
+          question: "¿Cuál es la diferencia de fondo entre bienestarismo y abolicionismo?",
+          options: ["El abolicionismo pide dejar de usar animales; el bienestarismo, usarlos con menos sufrimiento", "El bienestarismo prohíbe la experimentación; el abolicionismo no", "Son exactamente lo mismo con distinto nombre"],
+          correctIndex: 0,
+          revealFact: "El bienestarismo busca jaulas 'más humanas' sin cuestionar la estructura; el abolicionismo (Regan, Francione) sostiene que el problema es el estatus de propiedad del animal: para ellos la jaula no debería existir."
         }
       }
     ]
@@ -262,9 +302,19 @@ export const actsData: ActData[] = [
           question: "¿Recuerdas la última vez que sentiste este choque? ¿Qué 'truco' usó tu mente para apagarlo?",
           prompt: "No es culpabilidad, es observación: nombra el truco, no el sentimiento."
         },
+        microQuiz: {
+          question: "¿Cómo resuelve el cerebro la 'paradoja de la carne'?",
+          options: ["Cambiando de hábitos automáticamente", "Con autoengaños mentales que reducen la disonancia", "Dejando de comer carne sin esfuerzo"],
+          correctIndex: 1,
+          revealFact: "Como cambiar hábitos es difícil, la mente despliega trucos automáticos (minimizar, compartimentar, distanciar el lenguaje) para poder seguir comiendo sin sentir culpa: cambia la creencia, no la acción."
+        },
+        statCallouts: [
+          { value: "1957", label: "Leon Festinger formaliza la disonancia cognitiva", detail: "Explica desde fumar hasta justificar elecciones costosas" }
+        ],
+        exhibit: { id: "meat-paradox", label: "los 4 mecanismos psicológicos de la Paradoja de la Carne" },
         deepDive: {
           id: "dd-paradoja-carne",
-          label: "este concepto",
+          label: "la disonancia cognitiva",
           nodes: [
           {
             id: "disonancia",
@@ -303,7 +353,17 @@ export const actsData: ActData[] = [
         reflectionQuestion: {
           question: "¿Qué palabra usas tú para no ver al animal? ¿Qué pasaría si la sustituyeras por su nombre durante una semana?",
           prompt: "El lenguaje no es neutral: prueba a nombrar y observa qué cambia por dentro."
-        }
+        },
+        microQuiz: {
+          question: "¿Cuál de estos NO es un mecanismo de autoengaño descrito en el bloque?",
+          options: ["Compartimentar a los animales en 'cajas' mentales", "Minimizar la inteligencia del animal", "Recordar el origen del alimento en cada comida"],
+          correctIndex: 2,
+          revealFact: "Los tres trucos son la compartimentalización, minimizar la inteligencia y la invisibilidad del proceso (lenguaje distanciador + mataderos sin ventanas). Recordar el origen sería justo lo contrario: devolver la mirada."
+        },
+        statCallouts: [
+          { value: "2001", label: "Melanie Joy acuña el término 'carnismo'", detail: "El sistema invisible de creencias que decide a qué animales comemos" },
+          { value: "2010", label: "Loughnan, Bastian y Haslam: comer carne reduce la atribución de capacidades mentales", detail: "Quienes comen carne tienden a negar dolor y conciencia a los animales de granja" }
+        ]
       }
     ]
   },
@@ -330,7 +390,18 @@ export const actsData: ActData[] = [
         reflectionQuestion: {
           question: "Si el cuerpo de un animal se rompe por el ritmo que le impusimos, ¿podemos seguir llamando 'natural' a este sistema?",
           prompt: "Lo 'natural' sería lo que el cuerpo del animal permite, no lo que el mercado exige."
-        }
+        },
+        microQuiz: {
+          question: "¿En cuántos días alcanza hoy un pollo de engorde el tamaño de mercado?",
+          options: ["Alrededor de 120 días", "Apenas 40 días", "Aproximadamente 10 días"],
+          correctIndex: 1,
+          revealFact: "En los años 50 tardaba meses; hoy alcanza el tamaño de mercado en unos 40 días. Sus huesos se rompen y sus corazones colapsan por no soportar su propio peso."
+        },
+        statCallouts: [
+          { value: "40 días", label: "Tiempo para alcanzar el tamaño de mercado un pollo de engorde moderno", detail: "En los años 50 tardaba meses" },
+          { value: "4×", label: "Más rápido que en 1950", detail: "A costa de huesos que se rompen y corazones que colapsan" }
+        ],
+        exhibit: { id: "chicken-growth", label: "el crecimiento del pollo de engorde (1957 → 2005)" }
       },
       {
         id: "la-ganaderia-industrial",
@@ -346,9 +417,16 @@ export const actsData: ActData[] = [
           question: "Si la solución al estrés del encierro es mutilar al animal, ¿estamos tratando el problema o silenciando su síntoma?",
           prompt: "El síntoma se ve; el problema, no. Esa es justamente la pregunta."
         },
+        microQuiz: {
+          question: "Ante el estrés del hacinamiento, ¿qué hizo la industria?",
+          options: ["Dar a los animales más espacio", "Mutilaciones rutinarias sin anestesia (picos, colas, dientes)", "Cambiar a sistemas extensivos al aire libre"],
+          correctIndex: 1,
+          revealFact: "En lugar de resolver la causa —el encierro— la industria mutila al animal para que soporte el hacinamiento: corta picos, colas y dientes, generalmente sin anestesia."
+        },
+        exhibit: { id: "cage-space", label: "el espacio vital de una gallina enjaulada" },
         deepDive: {
           id: "dd-ganaderia-industrial",
-          label: "este concepto",
+          label: "las granjas factor�a (CAFO)",
           nodes: [
           {
             id: "granjas_factoria",
@@ -387,7 +465,18 @@ export const actsData: ActData[] = [
         reflectionQuestion: {
           question: "Si te incomoda una sola de estas industrias, ¿qué tienen todas en común que las hace aceptables o inaceptables a la vez?",
           prompt: "Busca el principio que une, no el ejemplo que separa."
-        }
+        },
+        microQuiz: {
+          question: "¿Qué porcentaje de las enfermedades infecciosas emergentes son de origen animal?",
+          options: ["Cerca del 30%", "Aproximadamente el 70%", "El 100%"],
+          correctIndex: 1,
+          revealFact: "El IPBES (2020) estima que alrededor del 70% de las enfermedades infecciosas emergentes son de origen animal, y las granjas industriales son caldos de cultivo ideales."
+        },
+        statCallouts: [
+          { value: "70%", label: "De las enfermedades infecciosas emergentes son de origen animal", detail: "IPBES (2020): gripe aviar, SARS y COVID-19 lo muestran" },
+          { value: "3R", label: "Reemplazar, Reducir y Refinar: el código ético de la experimentación (1959)", detail: "Aun así, el número absoluto de animales usados sigue creciendo" }
+        ],
+        exhibit: { id: "lifespan-contrast", label: "la esperanza de vida natural vs edad de sacrificio en granja" }
       }
     ]
   },
@@ -415,9 +504,21 @@ export const actsData: ActData[] = [
           question: "Si el sistema pierde un 90% de energía en cada escalón, ¿por qué seguimos diseñando nuestra comida dando un rodeo por un animal?",
           prompt: "Piensa en términos de eficiencia, no de hábito."
         },
+        microQuiz: {
+          question: "Por cada 100 calorías de cultivos que damos a una vaca, ¿cuántas recuperamos en forma de carne?",
+          options: ["Unas 50", "Aproximadamente 2", "Casi 100"],
+          correctIndex: 1,
+          revealFact: "La vaca gasta la energía en mantenerse viva: respirar, moverse y generar calor. Solo recuperamos unas 2-3 calorías por cada 100: el sistema de producción de comida más ineficiente que existe."
+        },
+        statCallouts: [
+          { value: "100 → 2", label: "Calorías de cultivo que recuperamos de una vaca", detail: "El resto se pierde en metabolismo y mantenimiento vital" },
+          { value: "90%", label: "De la energía perdida en cada escalón de la cadena alimentaria", detail: "Ley del 10% de Lindeman" },
+          { value: "83%", label: "De la tierra agrícola global usada por productos animales", detail: "Aportan solo el 18% de las calorías (Poore & Nemecek, 2018)" }
+        ],
+        exhibit: { id: "meat-consumption", label: "el consumo global de carne y la ineficiencia energética" },
         deepDive: {
           id: "dd-ineficiencia",
-          label: "este concepto",
+          label: "la conversión alimentaria",
           nodes: [
           {
             id: "ratio_conversion",
@@ -443,7 +544,18 @@ export const actsData: ActData[] = [
         reflectionQuestion: {
           question: "Si el 80% de la tierra agrícola alimenta a animales y no a personas, ¿de quién es hambre el que dicen resolver?",
           prompt: "Sigue las calorías, no las leyendas: ¿quién recibe el 80%?"
-        }
+        },
+        microQuiz: {
+          question: "¿Cuánta tierra agrícola del mundo se destina a pastos y pienso animal?",
+          options: ["Alrededor del 20%", "Cerca del 80%", "El 45%"],
+          correctIndex: 1,
+          revealFact: "Usamos cerca del 80% de la tierra agrícola mundial para animales, que aportan solo el 18% de las calorías humanas. La ineficiencia devora territorio y deforesta selvas milenarias."
+        },
+        statCallouts: [
+          { value: "80%", label: "De la tierra agrícola mundial, para pastos y pienso animal", detail: "Causa número uno de deforestación en la Amazonía" },
+          { value: "75-80%", label: "De la soja mundial va a pienso animal, no a humanos", detail: "El filete, no el tofu, es el responsable de la deforestación" }
+        ],
+        exhibit: { id: "deforestation", label: "los motores de la deforestación amazónica" }
       },
       {
         id: "la-huella-hidrica",
@@ -458,7 +570,19 @@ export const actsData: ActData[] = [
         reflectionQuestion: {
           question: "Si el precio real del filete incluye agua, selva y metano, ¿por qué la etiqueta solo muestra euros?",
           prompt: "Las externalidades existen aunque no las imprima el supermercado."
-        }
+        },
+        microQuiz: {
+          question: "¿Cuánta agua cuesta producir 1 kg de carne de res?",
+          options: ["300 litros", "Unos 15.400 litros", "4.000 litros"],
+          correctIndex: 1,
+          revealFact: "15.400 litros por kilo de res, frente a 4.000 de un kilo de legumbres o 300 de la mayoría de vegetales (Mekonnen & Hoekstra, 2012)."
+        },
+        statCallouts: [
+          { value: "15.400 L", label: "De agua dulce para producir 1 kg de carne de res", detail: "Frente a 4.000 de legumbres o 300 de vegetales" },
+          { value: "×80", label: "Potencia de calentamiento del metano frente al CO₂ a 20 años", detail: "El digestivo de los rumiantes lo emite en masa" },
+          { value: "57%", label: "De las emisiones del sistema alimentario global vienen de productos animales", detail: "Poore & Nemecek (2018)" }
+        ],
+        exhibit: { id: "trophic-loss", label: "el desperdicio calórico y termodinámico por escalón trófico" }
       }
     ]
   },
@@ -486,9 +610,19 @@ export const actsData: ActData[] = [
           question: "Si la ley admite que el animal siente pero sigue permitiendo su mutilación masiva, ¿es coherente o es un parche para dormir la conciencia?",
           prompt: "Una ley puede reconocer y permitir a la vez: ahí está la pregunta."
         },
+        microQuiz: {
+          question: "¿Cómo trataban los códigos civiles de casi todos los países a los animales?",
+          options: ["Como seres sintientes con derechos", "Como 'bienes muebles', al mismo nivel legal que un coche", "Como propiedad exclusiva del Estado"],
+          correctIndex: 1,
+          revealFact: "Durante siglos los animales fueron 'bienes muebles'. Hoy Francia, Austria, Alemania, Suiza y Colombia, entre otros, los reconocen como seres sintientes: el primer paso para futuras protecciones reales."
+        },
+        statCallouts: [
+          { value: "2019", label: "Declaración de Toulon: juristas europeos piden dejar de tratar a los animales como 'cosas'", detail: "La contraparte jurídica de la Declaración de Cambridge" }
+        ],
+        exhibit: { id: "legal-status", label: "la evolución jurídica: de 'cosas' a 'seres sintientes'" },
         deepDive: {
           id: "dd-despertar-legal",
-          label: "este concepto",
+          label: "la descosificación legal",
           nodes: [
           {
             id: "descosificacion",
@@ -515,9 +649,19 @@ export const actsData: ActData[] = [
           question: "Si aceptamos que un chimpancé tiene interés en no estar en una jaula, ¿qué diferencia relevante justifica que sí esté en una?",
           prompt: "Si la respuesta es 'su especie', vuelve al concepto de especismo."
         },
+        microQuiz: {
+          question: "¿Qué herramienta legal se está usando para liberar a chimpancés y elefantes de zoológicos?",
+          options: ["El Habeas Corpus", "Un referéndum ciudadano", "Las leyes de propiedad animal"],
+          correctIndex: 0,
+          revealFact: "El Habeas Corpus, creado para liberar a humanos encarcelados injustamente, se usa ahora para reconocer a los animales como 'personas no humanas' con derecho a la libertad corporal."
+        },
+        statCallouts: [
+          { value: "2015", label: "La orangutana Sandra es reconocida 'persona no humana' en Argentina", detail: "Jueza Elena Liberatori" },
+          { value: "2016", label: "La chimpancé Cecilia es trasladada a un santuario en Brasil", detail: "Jueza María Alejandra Mauricio, Mendoza" }
+        ],
         deepDive: {
           id: "dd-habeas-corpus",
-          label: "este concepto",
+          label: "el habeas corpus animal",
           nodes: [
           {
             id: "habeas_corpus",
@@ -563,7 +707,17 @@ export const actsData: ActData[] = [
         reflectionQuestion: {
           question: "Si mañana tuvieras el mismo producto sin animal de por medio, ¿qué excusa ética te quedaría para seguir prefiriendo el que sí lo tiene?",
           prompt: "Cuando la tecnología disuelve la necesidad, lo que queda es preferencia. Pregunta honesta."
-        }
+        },
+        microQuiz: {
+          question: "¿Qué es la agricultura celular (carne cultivada)?",
+          options: ["Una imitación vegetal con sabor artificial", "Carne 100% real cultivada de células, sin criar ni matar animales", "Carne de laboratorio hecha a partir de algas"],
+          correctIndex: 1,
+          revealFact: "Se toma una pequeña biopsia de un animal vivo y las células se multiplican en tanques con nutrientes: carne real, producida sin criar, encerrar ni matar, con ~90% menos de tierra y agua."
+        },
+        statCallouts: [
+          { value: "90%", label: "Menos tierra y agua que la ganadería tradicional", detail: "Carne 100% real, sin criar, encerrar ni matar" },
+          { value: "3", label: "Rutas tecnológicas ya reales", detail: "Carne cultivada, fermentación de precisión y alternativas vegetales" }
+        ]
       }
     ]
   }

@@ -9,8 +9,8 @@ import {
   GLOSSARY_TYPES
 } from "../data/glossaryUnified";
 import { getGlossaryIndex, getCoOccurrences } from "../utils/buildGlossaryIndex";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 import {
-  Search,
   X,
   Plus,
   Minus,
@@ -48,6 +48,8 @@ interface GraphLink {
 interface GlossaryGraphProps {
   onSelectEntry: (entry: GlossaryEntry) => void;
   selectedEntryId?: string;
+  searchQuery: string;
+  onSearchQueryChange: (query: string) => void;
 }
 
 type GroupMode = "categoria" | "tipo" | "libre";
@@ -112,15 +114,15 @@ function fuzzyScore(query: string, target: string): number {
   return 0;
 }
 
-export default function GlossaryGraph({ onSelectEntry, selectedEntryId }: GlossaryGraphProps) {
+export default function GlossaryGraph({ onSelectEntry, selectedEntryId, searchQuery, onSearchQueryChange }: GlossaryGraphProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const [nodes, setNodes] = useState<GraphNode[]>([]);
   const [links, setLinks] = useState<GraphLink[]>([]);
   const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null);
   const [draggedNode, setDraggedNode] = useState<GraphNode | null>(null);
+  const draggedNodeRef = useRef<GraphNode | null>(null);
   const [isPanning, setIsPanning] = useState(false);
   const panLastRef = useRef<{ x: number; y: number } | null>(null);
   const [dimensions, setDimensions] = useState({ width: 600, height: 500 });
@@ -131,9 +133,6 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId }: Glossa
   const [panX, setPanX] = useState(0);
   const [panY, setPanY] = useState(0);
 
-  // New: search
-  const [searchQuery, setSearchQuery] = useState("");
-
   // New: view options
   const [showAllLabels, setShowAllLabels] = useState(false);
   const [focusMode, setFocusMode] = useState(false);
@@ -143,6 +142,7 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId }: Glossa
   const [typeFilters, setTypeFilters] = useState<Set<GlossaryType>>(new Set());
   const [groupBy, setGroupBy] = useState<GroupMode>("categoria");
   const [filtersDrawerOpen, setFiltersDrawerOpen] = useState(false);
+  const filtersTrapRef = useFocusTrap(filtersDrawerOpen);
 
   // New: side detail panel
   const [detailNodeId, setDetailNodeId] = useState<string | null>(null);
@@ -340,6 +340,11 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId }: Glossa
     return () => resizeObserver.disconnect();
   }, []);
 
+  // Keep dragged ref in sync
+  useEffect(() => {
+    draggedNodeRef.current = draggedNode;
+  }, [draggedNode]);
+
   // Physics simulation (paused when the tab/page is hidden or the graph
   // is scrolled out of view, to avoid burning CPU at 60fps indefinitely)
   useEffect(() => {
@@ -369,11 +374,12 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId }: Glossa
               const force = (repulsionRadius - dist) * 0.02;
               const fx = (dx / dist) * force;
               const fy = (dy / dist) * force;
-              if (draggedNode?.id !== nodeA.id) {
+              const dragId = draggedNodeRef.current?.id;
+              if (dragId !== nodeA.id) {
                 nodeA.vx -= fx;
                 nodeA.vy -= fy;
               }
-              if (draggedNode?.id !== nodeB.id) {
+              if (dragId !== nodeB.id) {
                 nodeB.vx += fx;
                 nodeB.vy += fy;
               }
@@ -382,10 +388,11 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId }: Glossa
               const overlap = minDist - dist;
               const px = (dx / dist) * overlap * 0.5;
               const py = (dy / dist) * overlap * 0.5;
-              if (draggedNode?.id === nodeA.id) {
+              const dragId = draggedNodeRef.current?.id;
+              if (dragId === nodeA.id) {
                 nodeB.x += px * 2;
                 nodeB.y += py * 2;
-              } else if (draggedNode?.id === nodeB.id) {
+              } else if (dragId === nodeB.id) {
                 nodeA.x -= px * 2;
                 nodeA.y -= py * 2;
               } else {
@@ -409,11 +416,12 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId }: Glossa
             const force = (dist - targetDist) * 0.015 * link.weight * 0.3;
             const fx = (dx / dist) * force;
             const fy = (dy / dist) * force;
-            if (draggedNode?.id !== sourceNode.id) {
+            const dragId2 = draggedNodeRef.current?.id;
+            if (dragId2 !== sourceNode.id) {
               sourceNode.vx += fx;
               sourceNode.vy += fy;
             }
-            if (draggedNode?.id !== targetNode.id) {
+            if (dragId2 !== targetNode.id) {
               targetNode.vx -= fx;
               targetNode.vy -= fy;
             }
@@ -435,7 +443,7 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId }: Glossa
           node.vy += dy * 0.006;
           node.vx *= 0.78;
           node.vy *= 0.78;
-          if (draggedNode?.id !== node.id) {
+          if (draggedNodeRef.current?.id !== node.id) {
             node.x += node.vx;
             node.y += node.vy;
           }
@@ -489,14 +497,14 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId }: Glossa
       observer.observe(containerRef.current);
     }
 
-    document.addEventListener("visibilitychange", onVisibilityChange);
+      document.addEventListener("visibilitychange", onVisibilityChange);
 
     return () => {
       stop();
       observer.disconnect();
       document.removeEventListener("visibilitychange", onVisibilityChange);
     };
-  }, [links, draggedNode, dimensions, groupBy]);
+  }, [links, dimensions, groupBy]);
 
   // Canvas render
   useEffect(() => {
@@ -817,6 +825,7 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId }: Glossa
   };
 
   const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
+    // preventDefault is handled by native listener below (passive: false)
     e.preventDefault();
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -831,14 +840,36 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId }: Glossa
     setZoom(newZoom);
   };
 
+  // Attach native wheel listener with passive:false so preventDefault works
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const onWheelNative = (e: WheelEvent) => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      const delta = -e.deltaY * 0.001;
+      setZoom((prev) => {
+        const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, prev * (1 + delta)));
+        const ratio = newZoom / prev;
+        setPanX((p) => mouseX - (mouseX - p) * ratio);
+        setPanY((p) => mouseY - (mouseY - p) * ratio);
+        return newZoom;
+      });
+    };
+    canvas.addEventListener("wheel", onWheelNative, { passive: false });
+    return () => canvas.removeEventListener("wheel", onWheelNative);
+  }, []);
+
   // Zoom controls
   const zoomIn = () => {
     const newZoom = Math.min(MAX_ZOOM, zoom + ZOOM_STEP);
     const cx = dimensions.width / 2;
     const cy = dimensions.height / 2;
     const ratio = newZoom / zoom;
-    setPanX((p) => cx - (cx - p) * ratio);
-    setPanY((p) => cy - (cy - p) * ratio);
+    setPanX((p) => Math.max(-dimensions.width, Math.min(dimensions.width, cx - (cx - p) * ratio)));
+    setPanY((p) => Math.max(-dimensions.height, Math.min(dimensions.height, cy - (cy - p) * ratio)));
     setZoom(newZoom);
   };
   const zoomOut = () => {
@@ -846,8 +877,8 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId }: Glossa
     const cx = dimensions.width / 2;
     const cy = dimensions.height / 2;
     const ratio = newZoom / zoom;
-    setPanX((p) => cx - (cx - p) * ratio);
-    setPanY((p) => cy - (cy - p) * ratio);
+    setPanX((p) => Math.max(-dimensions.width, Math.min(dimensions.width, cx - (cx - p) * ratio)));
+    setPanY((p) => Math.max(-dimensions.height, Math.min(dimensions.height, cy - (cy - p) * ratio)));
     setZoom(newZoom);
   };
   const resetView = () => {
@@ -866,11 +897,8 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId }: Glossa
         }
         return;
       }
-      if (e.key === "/") {
-        e.preventDefault();
-        searchInputRef.current?.focus();
-      } else if (e.key === "Escape") {
-        setSearchQuery("");
+      if (e.key === "Escape") {
+        onSearchQueryChange("");
         setDetailNodeId(null);
         setSelectedNodeInternal(null);
         setHistory([]);
@@ -913,33 +941,12 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId }: Glossa
             </span>
           </div>
 
-          {/* Search */}
-          <div className="glass-enhance rounded-md relative before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-on-surface-variant/50 pointer-events-none" />
-            <input
-              ref={searchInputRef}
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar… (/ para enfocar)"
-              className="bg-transparent outline-none pl-8 pr-8 py-1.5 text-[11px] w-44 placeholder:text-on-surface-variant/40 text-on-surface"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-surface-dim text-on-surface-variant hover:text-on-surface"
-                aria-label="Limpiar búsqueda"
-              >
-                <X className="w-3 h-3" />
-              </button>
-            )}
-          </div>
-
           {/* Zoom controls */}
           <div className="glass-enhance rounded-md flex items-center before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative">
             <button
+              type="button"
               onClick={zoomOut}
-              className="p-1.5 hover:text-primary text-on-surface-variant transition-colors"
+              className="p-1.5 hover:text-primary text-on-surface-variant transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 rounded"
               aria-label="Zoom out"
               title="Zoom -"
             >
@@ -949,8 +956,9 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId }: Glossa
               {Math.round(zoom * 100)}%
             </span>
             <button
+              type="button"
               onClick={zoomIn}
-              className="p-1.5 hover:text-primary text-on-surface-variant transition-colors"
+              className="p-1.5 hover:text-primary text-on-surface-variant transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 rounded"
               aria-label="Zoom in"
               title="Zoom +"
             >
@@ -958,8 +966,9 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId }: Glossa
             </button>
             <div className="w-px h-4 bg-outline-variant/30 mx-0.5" />
             <button
+              type="button"
               onClick={resetView}
-              className="p-1.5 hover:text-primary text-on-surface-variant transition-colors"
+              className="p-1.5 hover:text-primary text-on-surface-variant transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 rounded"
               aria-label="Reset view"
               title="Reset"
             >
@@ -969,8 +978,9 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId }: Glossa
 
           {/* Toggle labels */}
           <button
+            type="button"
             onClick={() => setShowAllLabels((p) => !p)}
-            className={`glass-enhance rounded-md p-1.5 transition-colors before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative ${
+            className={`glass-enhance rounded-md p-1.5 transition-colors before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${
               showAllLabels ? "text-primary" : "text-on-surface-variant hover:text-primary"
             }`}
             aria-label="Mostrar etiquetas"
@@ -981,8 +991,9 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId }: Glossa
 
           {/* Focus mode */}
           <button
+            type="button"
             onClick={() => setFocusMode((p) => !p)}
-            className={`glass-enhance rounded-md p-1.5 transition-colors before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative ${
+            className={`glass-enhance rounded-md p-1.5 transition-colors before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${
               focusMode ? "text-primary" : "text-on-surface-variant hover:text-primary"
             }`}
             aria-label="Modo foco"
@@ -993,8 +1004,9 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId }: Glossa
 
           {/* Filters drawer toggle */}
           <button
+            type="button"
             onClick={() => setFiltersDrawerOpen(true)}
-            className="glass-enhance rounded-md px-2.5 py-1.5 flex items-center gap-1.5 text-on-surface-variant hover:text-primary transition-colors before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative"
+            className="glass-enhance rounded-md px-2.5 py-1.5 flex items-center gap-1.5 text-on-surface-variant hover:text-primary transition-colors before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
             aria-label="Abrir filtros"
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
@@ -1088,12 +1100,16 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId }: Glossa
               className="absolute inset-0 z-40 bg-black/30 backdrop-blur-sm"
             />
             <motion.div
+              ref={filtersTrapRef as any}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Filtros del grafo"
               key="filters-drawer"
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute top-0 right-0 bottom-0 z-50 w-80 max-w-[85vw] glass-enhance border-l border-outline-variant/30 p-5 overflow-y-auto overscroll-y-contain custom-scrollbar before:content-[''] before:absolute before:inset-0 before:bg-surface-dim/40 dark:before:bg-surface-dim/20 before:backdrop-blur-xl before:z-[-1] before:pointer-events-none"
+              className="absolute top-0 right-0 bottom-0 z-50 w-80 max-w-[85vw] glass-enhance border-l border-outline-variant/30 p-5 overflow-y-auto overscroll-y-contain custom-scrollbar before:content-[''] before:absolute before:inset-0 before:bg-surface-dim/40 dark:before:bg-surface-dim/20 before:backdrop-blur-md before:z-[-1] before:pointer-events-none"
             >
               <div className="flex items-center justify-between mb-5">
                 <h3 className="text-[11px] font-mono uppercase tracking-widest text-primary font-bold">

@@ -348,8 +348,8 @@ const handleScroll = () => {
         const { actId, entry, actRect, textRect, headerRect, titleRect, lastBlockRect, blockRects } = data;
         const { container, stickyHeader, chipInner, fixedBar, fillEl, blocks } = entry;
 
-        // Update mask
-        if (headerRect) {
+        // Update mask — solo si el act está activo o cerca (evita repaint de 6 acts por frame)
+        if (headerRect && (actId === newActive || Math.abs(actRect.top) < window.innerHeight * 1.2)) {
           const relativeBottom = headerRect.bottom - textRect.top;
           if (relativeBottom <= 0) {
             container.style.webkitMaskImage = "";
@@ -358,8 +358,13 @@ const handleScroll = () => {
             const fadeStart = relativeBottom - 15;
             const fadeEnd = relativeBottom + 35;
             const maskVal = `linear-gradient(to bottom, transparent ${fadeStart}px, black ${fadeEnd}px)`;
-            container.style.webkitMaskImage = maskVal;
-            container.style.maskImage = maskVal;
+            // Evita escritura si no cambió
+            const prevMask = (container as any)._prevMask as string | undefined;
+            if (prevMask !== maskVal) {
+              (container as any)._prevMask = maskVal;
+              container.style.webkitMaskImage = maskVal;
+              container.style.maskImage = maskVal;
+            }
           }
         }
 
@@ -463,11 +468,11 @@ const handleScrollTo = (id: string) => {
 };
 
 const chapterVariants = {
-hidden: { opacity: 0, y: 40 },
+hidden: { opacity: 0, y: 24 },
 visible: { 
 opacity: 1, 
 y: 0, 
-transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] as const } 
+transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as const } 
 }
 };
 
@@ -1062,10 +1067,10 @@ return (
               style={{
                 top: `${Math.max(20, activeNote.y - 80)}px`,
               }}
-              initial={{ opacity: 0, x: 24, scale: 0.96 }}
+              initial={{ opacity: 0, x: 18, scale: 0.98 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: 12, scale: 0.97 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+              exit={{ opacity: 0, x: 8, scale: 0.98 }}
+              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] as const, delay: 0.08 }}
             >
               <SideNoteCard
                 item={activeNote.item}

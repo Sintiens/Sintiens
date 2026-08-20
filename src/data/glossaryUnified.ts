@@ -23,6 +23,11 @@ export interface GlossaryAuthor {
   portrait?: string;
 }
 
+export interface GlossaryCritique {
+  criticism: string;
+  rebuttal: string;
+}
+
 export interface GlossaryEntry {
   id: string;
   term: string;
@@ -40,6 +45,7 @@ export interface GlossaryEntry {
   relatedDilemmas?: string[];
   relatedActs?: string[];
   author?: GlossaryAuthor;
+  commonCritiques?: GlossaryCritique[];
 }
 
 export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
@@ -53,6 +59,16 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     type: "concepto",
     category: "sintiencia",
     shortDef: "Capacidad de un ser vivo de sentir de forma consciente y en primera persona cosas buenas y malas (dolor, placer, alegría, estrés, aburrimiento). Más allá de reaccionar mecánicamente: hay un 'alguien' experimentando.",
+    commonCritiques: [
+      {
+        criticism: "«La ciencia no puede probar que los animales sienten; es solo una suposición.»",
+        rebuttal: "Es el 'problema de las otras mentes' y se aplica por igual a otros seres humanos: tampoco podemos probar que otra persona sienta, y aun así actuamos como si lo hiciera porque comparte nuestra neurobiología. El mismo criterio se extiende a los vertebrados: estructuras cerebrales homólogas, respuestas hormonales al estrés, conductas de analgesia y un consenso formal de neurocientíficos (Cambridge 2012, Nueva York 2024). Exigir una prueba absoluta para el cerdo que no se exige para el vecino no es escepticismo, es un doble rasero."
+      },
+      {
+        criticism: "«Sienten, pero su sufrimiento importa menos porque no son humanos.»",
+        rebuttal: "Eso es exactamente el especismo: asignar distinto peso moral a intereses idénticos (evitar el dolor) solo por la etiqueta de especie. El sufrimiento de un cerdo confinado es la misma experiencia aversiva que la humana, procesada por circuitos análogos; lo que cambia es nuestra decisión de ignorarla."
+      }
+    ],
     longDef: "La sintiencia es la capacidad de tener experiencias subjetivas. Significa que el animal no es un simple mecanismo biológico, sino que tiene una perspectiva propia del mundo. Un ser sintiente es capaz de experimentar sensaciones positivas (placer, apego, comodidad) y negativas (dolor, miedo, frustración). Es la base única de la consideración moral: no importan ni la inteligencia ni la especie, sino si hay alguien que sufre.",
     keyFacts: [
       "Distingue la capacidad de sentir de la mera vida biológica: una bacteria está viva, pero no por ello es alguien.",
@@ -135,6 +151,12 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     type: "concepto",
     category: "etica",
     shortDef: "Discriminación moral hacia ciertos animales simplemente por no pertenecer a nuestra especie (antropocentrismo), o la distinción injustificada entre especies (proteger por ley a perros y gatos mientras se financia la matanza masiva de cerdos o vacas).",
+    commonCritiques: [
+      {
+        criticism: "«Es natural discriminar por especie; todos preferimos a los nuestros.»",
+        rebuttal: "El especismo no es una preferencia personal, es un prejuicio de categoría: asigna valor moral distinto a intereses idénticos solo por la especie. Históricamente, el mismo argumento de lo 'natural' sostuvo la esclavitud y la discriminación de género. Que un sesgo sea común y antiguo no lo hace ético; la neurobiología muestra que los intereses protegidos —no sufrir, no ser asesinado— son los mismos en todos los vertebrados [1]."
+      }
+    ],
     longDef: "Término acuñado en 1970 por el psicólogo Richard Ryder y popularizado por Peter Singer en 'Liberación Animal' (1975). Es un sesgo cognitivo y moral sistemático que discrimina a un individuo únicamente por no pertenecer a la especie humana. Se produce un conflicto injusto cuando sometemos los intereses fundamentales de los animales (vivir, no ser torturados) para satisfacer intereses periféricos humanos (placer gustativo, tradición).",
     keyFacts: [
       "Acuñado por Richard Ryder en 1970, popularizado por Singer en 'Liberación Animal' (1975).",
@@ -168,11 +190,20 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     type: "concepto",
     category: "etica",
     shortDef: "Teoría filosófica que defiende que la acción moralmente correcta es aquella que maximiza la felicidad y el bienestar general reduciendo todo lo posible el sufrimiento de cualquier ser capaz de sentir, sin importar su nivel de inteligencia.",
+    commonCritiques: [
+      {
+        criticism: "«Ninguna vida está libre de sufrimiento; comer plantas también mata.»",
+        rebuttal: "Es cierto que no existe una huella de sufrimiento cero, pero la ética no exige perfección: exige proporcionalidad. La ganadería mata al animal directamente y, por la ineficiencia del pienso, destruye entre 10 y 16 veces más vida vegetal —y fauna salvaje— que comer esos cultivos directamente [1]. Reducir el daño donde es evitable y medible no es hipocresía: es precisamente lo que el utilitarismo pide."
+      }
+    ],
     longDef: "El utilitarismo clásico de Jeremy Bentham revolucionó la ética al plantear que la verdadera pregunta no es '¿pueden razonar?' ni '¿pueden hablar?', sino '¿pueden sufrir?'. Este cambio de paradigma estableció la capacidad de sufrir como el único criterio moral válido. Su versión moderna aplicada a los animales fue desarrollada por Peter Singer.",
     relatedEntries: ["singer", "bentham", "deontologia", "bienestarismo", "abolicionismo"],
     relatedNodes: ["recorrido-historico-estatus"],
     relatedDilemmas: ["granja-feliz-ecologia", "conservacion-dehesas", "bivalvos-ostras", "bienestarismo-como-abolicionismo-fracaso"],
-    relatedActs: ["acto-2"]
+    relatedActs: ["acto-2"],
+    references: [
+      { id: "1", citation: "Poore, J., & Nemecek, T. (2018). Reducing food's environmental impacts through producers and consumers. Science, 360(6392).", url: "https://doi.org/10.1126/science.aaq0216" }
+    ]
   },
   {
     id: "deontologia",
@@ -246,6 +277,12 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     type: "concepto",
     category: "etica",
     shortDef: "Razonamiento lógico que desmonta el especismo: si excluimos a los animales de la consideración moral por su menor inteligencia, deberíamos excluir también a humanos con discapacidades cognitivas severas, bebés o personas en coma. Como nadie defiende eso, la inteligencia no puede ser el criterio moral válido: lo es la capacidad de sufrir.",
+    commonCritiques: [
+      {
+        criticism: "«Los animales no son personas: no razonan ni hablan.»",
+        rebuttal: "Ese criterio excluiría también a bebés, personas con discapacidad cognitiva severa y ancianos con demencia, que no razonan ni hablan y nadie considera lícito dañar. O bien aceptamos esas consecuencias absurdas para humanos —y rechazamos el criterio— o reconocemos que lo moralmente relevante no es la inteligencia, sino la capacidad de sufrir, compartida por todos los vertebrados."
+      }
+    ],
     relatedEntries: ["especismo", "utilitarismo", "singer"],
     relatedNodes: ["neuroanatomia-consciencia"],
     relatedDilemmas: ["el-argumento-del-contrato-social"]
@@ -283,6 +320,12 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     type: "concepto",
     category: "etica",
     shortDef: "Postura ética y modo de vida que busca excluir —en la medida de lo posible— toda forma de explotación y crueldad hacia los animales para alimentación, vestimenta, entretenimiento o experimentación. No es una dieta restrictiva, sino alinear las acciones cotidianas con el valor de no causar daño a seres sintientes cuando existen alternativas viables.",
+    commonCritiques: [
+      {
+        criticism: "«Ser vegano es caro y de élites; no todo el mundo puede permitírselo.»",
+        rebuttal: "La base de la alimentación vegana tradicional —legumbres, cereales, verduras de temporada— es estadísticamente más barata que la carne y el pescado. El coste alto se asocia a los productos ultraprocesados de imitación, que son opcionales. Y el 'en la medida de lo posible' de la definición existe precisamente para las personas en contextos de inseguridad alimentaria: el veganismo no es una competición de pureza, es una dirección."
+      }
+    ],
     relatedEntries: ["abolicionismo", "consistencia-moral", "carnismo", "agricultura-celular"],
     relatedNodes: ["consistencia-moral"],
     relatedDilemmas: ["granja-feliz-ecologia", "el-mito-de-la-carne-humanitaria"]
@@ -309,6 +352,12 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     type: "concepto",
     category: "psicologia",
     shortDef: "Malestar mental inconsciente que sentimos cuando nuestras acciones contradicen nuestros valores. Teorizada por Leon Festinger en 1957. En este contexto, describe la contradicción de considerarse amante de los animales mientras consumimos productos que requieren su confinamiento y sacrificio.",
+    commonCritiques: [
+      {
+        criticism: "«Decir que el carnivoro sufre 'disonancia' es un insulto disfrazado de psicología.»",
+        rebuttal: "La disonancia cognitiva no es un juicio moral, es un mecanismo documentado por Festinger: todos la experimentamos cuando una conducta contradice un valor. En el consumo de carne se manifiesta en patrones medidos —minimizar la mente del animal, distanciarse del origen del alimento, eufemismos como 'producto' o 'recurso'— que desaparecen cuando la gente ve de dónde viene la comida [1]. Señalar el mecanismo no es juzgar: es explicar por qué es tan incómodo mirar."
+      }
+    ],
     longDef: "Tensión psicológica teorizada por Leon Festinger (1957). Nuestro cerebro busca resolver esta incomodidad alterando creencias o justificando acciones. En el caso del consumo animal, la disonancia se resuelve mediante autoengaños: rebajar la inteligencia atribuida al animal, alejar físicamente los mataderos, o usar el lenguaje ('carne' en vez de 'cadáver').",
     keyFacts: [
       "Estudios muestran que antes de consumir carne, las personas rebajan subconscientemente la inteligencia atribuida al animal (Loughnan, 2010).",
@@ -374,6 +423,16 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     type: "concepto",
     category: "sistemas_uso",
     shortDef: "Sistema moderno de confinamiento masivo (CAFOs) que trata a los seres sintientes como máquinas industriales. Su objetivo es producir carne, huevos o leche al menor precio posible, sometiendo la salud física y mental del animal a la eficiencia mercantil.",
+    commonCritiques: [
+      {
+        criticism: "«Sin ganadería no habría comida suficiente para el mundo.»",
+        rebuttal: "Es exactamente al revés: la ganadería quema calorías. Se cultivan cereales y soja para alimentar animales y recuperar una fracción mínima (ley del 10% de Lindeman). Poore & Nemecek (2018) estiman que la alimentación animal usa el 83% de las tierras agrícolas del planeta y produce solo el 18% de las calorías [1]. Eliminar el intermediario animal liberaría tierra y alimentos para muchas más personas — por eso la ganadería es un lujo energético, no una necesidad nutricional."
+      },
+      {
+        criticism: "«La ganadería ecológica y de pasto no es industrial.»",
+        rebuttal: "Es cierto que existe, pero representa una fracción mínima del mercado: el 99% de los animales terrestres consumidos en Occidente proviene de macrogranjas. Y la ganadería extensiva no resuelve el problema de fondo: cada animal de pasto sigue siendo un ser sintiente sacrificado para un placer evitable, con una huella de carbono y de tierra por kilo mucho mayor que cualquier alimento vegetal."
+      }
+    ],
     longDef: "Conocidas técnicamente como Operaciones Concentradas de Alimentación Animal (CAFOs). Priorizan la eficiencia económica absoluta por encima del bienestar biológico del individuo. El 99% de los animales terrestres consumidos en el mundo occidental provienen de ellas.",
     keyFacts: [
       "El 99% de los animales terrestres consumidos en el mundo occidental provienen de granjas industriales hiper-intensificadas.",
@@ -637,6 +696,12 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     type: "concepto",
     category: "legal",
     shortDef: "Conjunto de tecnologías que permiten fabricar carne real, lácteos y huevos directamente cultivando células o mediante bacterias modificadas en tanques. Permite obtener alimento idéntico sin criar, enjaular ni matar animales. Aprobada ya por la FDA y Singapur.",
+    commonCritiques: [
+      {
+        criticism: "«La carne cultivada es artificial y ultraprocesada.»",
+        rebuttal: "El pienso que recibe el animal de granja también es industrial: formulaciones procesadas de soja, maíz, vitaminas y aditivos. Lo que hace 'natural' a un alimento no es su proceso, sino su composición — y la carne cultivada es tejido animal real, genéticamente idéntico. La objeción de 'artificial' rara vez se aplica con el mismo rigor a tecnologías alimentarias plenamente aceptadas como la pasteurización, la fermentación o la levadura del pan y la cerveza [1]."
+      }
+    ],
     keyFacts: [
       "Reduciría teóricamente la huella territorial en un 99% y las emisiones GEI hasta en un 96% frente a la carne bovina.",
       "Autoridades de seguridad alimentaria en Singapur y Estados Unidos (FDA) ya han evaluado y aprobado su venta comercial."
@@ -657,9 +722,18 @@ export const GLOSSARY_UNIFIED: GlossaryEntry[] = [
     type: "tecnico",
     category: "legal",
     shortDef: "Micronutriente esencial para el cerebro humano que no es producido por plantas ni por animales, sino por bacterias en el suelo. Hoy en día se produce de forma ultra limpia en laboratorios sin necesidad de explotar o sacrificar a ningún ser vivo.",
+    commonCritiques: [
+      {
+        criticism: "«La B12 de los veganos es artificial y química; la de la carne es natural.»",
+        rebuttal: "La B12 no la fabrican ni las plantas ni los animales: la producen bacterias del suelo. El ganado industrial tampoco la obtiene 'de forma natural': en las macrogranjas se administra B12 sintética en el pienso, porque el suelo y el agua de los establos no se la proporcionan. La molécula que llega al hígado del animal suplementado es idéntica a la del suplemento de laboratorio [1]. La única diferencia real es que la versión directa evita criar, confinar y sacrificar a un animal como intermediario."
+      }
+    ],
     relatedEntries: ["agricultura-celular", "veganismo"],
     relatedNodes: ["vias-transicion"],
-    relatedDilemmas: ["granja-feliz-ecologia"]
+    relatedDilemmas: ["granja-feliz-ecologia"],
+    references: [
+      { id: "1", citation: "MedlinePlus (NIH). Vitamin B12: MedlinePlus Medical Encyclopedia.", url: "https://medlineplus.gov/ency/article/002403.htm" }
+    ]
   },
   {
     id: "principio-precaucion",

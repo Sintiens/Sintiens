@@ -22,6 +22,17 @@ export interface MicroQuizData {
   correctIndex: number;
 }
 
+export interface StatCalloutData {
+  value: string;
+  label: string;
+  detail?: string;
+}
+
+export interface ExhibitData {
+  id: string;
+  label: string;
+}
+
 export interface TopicBlockData {
   id: string;
   title: string;
@@ -33,5 +44,7 @@ export interface TopicBlockData {
   pullQuote?: string;
   reflectionQuestion?: { question: string; prompt?: string };
   microQuiz?: MicroQuizData;
+  statCallouts?: StatCalloutData[];
+  exhibit?: ExhibitData;
   readingTimeMin?: number;
 }

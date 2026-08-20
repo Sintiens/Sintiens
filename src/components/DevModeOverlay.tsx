@@ -42,6 +42,16 @@ export interface DevTask {
   aiFeedback?: string;       // User feedback text for AI adjustment requests
   originalBranch?: string;   // The branch the user was on before previewing
   hasStashedChanges?: boolean; // Whether local changes were stashed before preview
+  // Inbox / Idea hierarchy fields (yo jerarquizo las ideas que me pasas por chat)
+  kind?: "idea" | "task";               // idea = fugaz sin pulir, task = accionable
+  effort?: "xs" | "s" | "m" | "l" | "xl"; // estimación de esfuerzo
+  impact?: 1 | 2 | 3 | 4 | 5;            // estimación de impacto 1-5
+  aiSummary?: string;                    // resumen/razón de priorización generado por IA
+  aiScore?: number;                      // score calculado (impact vs effort) para ordenar
+  aiTags?: string[];                     // etiquetas sugeridas por IA
+  parentId?: string;                     // id de épica/tarea padre para jerarquía
+  origin?: "chat" | "devmode" | "import"; // dónde se capturó
+  archived?: boolean;                    // archivado (oculto del board principal)
 }
 
 // Helper to determine if a pixel rectangle (in viewport client coords) is visible inside all scrollable DOM ancestors of an element
@@ -295,14 +305,22 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
   const [editStatus, setEditStatus] = useState<"todo" | "in-progress" | "done">("todo");
   const [editTab, setEditTab] = useState<string>("general");
   const [editCategory, setEditCategory] = useState<"visual" | "estetica" | "funcional" | "contenido" | "otros">("visual");
+  const [editKind, setEditKind] = useState<"idea" | "task">("task");
+  const [editEffort, setEditEffort] = useState<"xs" | "s" | "m" | "l" | "xl" | "">("");
+  const [editImpact, setEditImpact] = useState<1 | 2 | 3 | 4 | 5 | 0>(0);
+  const [editAiSummary, setEditAiSummary] = useState<string>("");
+  const [editArchived, setEditArchived] = useState<boolean>(false);
 
   // Sidebar Filter states
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterPriority, setFilterPriority] = useState<string>("all");
   const [filterTab, setFilterTab] = useState<string>("all");
   const [filterCategory, setFilterCategory] = useState<string>("all");
+  const [filterKind, setFilterKind] = useState<string>("all"); // all | idea | task
+  const [showArchived, setShowArchived] = useState<boolean>(false);
+  const [boardSort, setBoardSort] = useState<"ai" | "date" | "impact">("ai");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [hoveredFilter, setHoveredFilter] = useState<"estado" | "priority" | "tab" | "category" | null>(null);
+  const [hoveredFilter, setHoveredFilter] = useState<"estado" | "priority" | "tab" | "category" | "kind" | null>(null);
   const [hoveredEditFilter, setHoveredEditFilter] = useState<"estado" | "priority" | "tab" | "category" | null>(null);
 
   // Target ref to measure relative coordinates on main
@@ -1329,7 +1347,7 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
     e.preventDefault();
     if (!formTitle.trim()) return;
 
-    const payload = {
+    const payload: any = {
       title: formTitle.trim(),
       description: formDesc.trim(),
       tab: isCreatingGeneral ? "general" : formTab,
@@ -1344,7 +1362,9 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
       rh: isCreatingGeneral ? undefined : newPinRelative?.rh,
       priority: formPriority,
       status: "todo",
-      category: formCategory
+      category: formCategory,
+      kind: "task",
+      origin: "devmode"
     };
 
     try {
@@ -1473,7 +1493,12 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
           priority: editPriority,
           status: editStatus,
           tab: editTab,
-          category: editCategory
+          category: editCategory,
+          kind: editKind,
+          effort: editEffort || undefined,
+          impact: editImpact || undefined,
+          aiSummary: editAiSummary.trim() || undefined,
+          archived: editArchived || undefined
         })
       });
 
@@ -1496,6 +1521,11 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
     setEditStatus(task.status);
     setEditTab(task.tab);
     setEditCategory(task.category || "otros");
+    setEditKind((task.kind as any) || "task");
+    setEditEffort((task.effort as any) || "");
+    setEditImpact((task.impact as any) || 0);
+    setEditAiSummary(task.aiSummary || "");
+    setEditArchived(!!task.archived);
     setIsEditingTask(true);
   };
 
@@ -1638,12 +1668,35 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
   const activeStatusFilter = semantic.status || (filterStatus !== "all" ? filterStatus : null);
   const activeTabFilter = semantic.tab || (filterTab !== "all" ? filterTab : null);
   const activeCategoryFilter = semantic.category || (filterCategory !== "all" ? filterCategory : null);
+  const activeKindFilter = filterKind !== "all" ? filterKind : null;
+
+  // Helpers jerarquía
+  function calcAiScore(t: DevTask): number {
+    if (typeof t.aiScore === "number") return t.aiScore;
+    // fallback: impact*20 - effortPenalty + priorityBonus
+    const impact = t.impact || 3;
+    const effortMap: Record<string, number> = { xs: 0, s: 5, m: 15, l: 25, xl: 35 };
+    const effortPenalty = effortMap[t.effort || "m"] ?? 15;
+    const prioBonus: Record<string, number> = { high: 10, medium: 5, normal: 0, low: -5 };
+    return Math.max(0, Math.min(100, impact * 18 - effortPenalty + (prioBonus[t.priority]||0) + 30));
+  }
 
   // Filtrado y cálculo de relevancia (scoring) de tareas
   const scoredTasks = useMemo(
     () => tasks.map(task => {
     if (!task) {
       return { task: null, matches: false, score: 0 };
+    }
+    // 0. Archivado oculto por defecto
+    if (task.archived && !showArchived) {
+      return { task, matches: false, score: 0 };
+    }
+    if (!showArchived && filterKind === "all" && task.archived) {
+      return { task, matches: false, score: 0 };
+    }
+    // 0.5 Filtrar por kind
+    if (activeKindFilter && (task.kind || "task") !== activeKindFilter) {
+      return { task, matches: false, score: 0 };
     }
     // 1. Filtrar por prioridad si está activo
     if (activePriorityFilter && task.priority !== activePriorityFilter) {
@@ -1723,10 +1776,25 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
       return { task, matches: true, score };
     }
 
+    // Incluir aiSummary y tags en búsqueda libre
+    // También búsqueda por effort/impact/kind
+    const extraSearchable = `${task.aiSummary||""} ${task.aiTags?.join(" ")||""} ${task.effort||""} ${task.impact||""} ${task.kind||""}`.toLowerCase();
+    // se usará arriba si hay keywords, ampliamos matching
+    if (semantic.keywords.length > 0) {
+      // ya calculado score, pero añadimos bonus si aparece en campos IA
+      // (score ya reflejado, solo ampliamos chequeo)
+      const hasExtra = semantic.keywords.some(kw => extraSearchable.includes(kw));
+      if (hasExtra) {
+        // bonus pequeño si solo coincide en campos IA
+      }
+    }
+
     // Si pasó los filtros y no hay palabras clave de texto libre
-    return { task, matches: true, score: 1 };
+    // score base = aiScore para ordenar por jerarquía cuando no hay búsqueda
+    const baseScore = calcAiScore(task);
+    return { task, matches: true, score: baseScore };
   }),
-  [tasks, activePriorityFilter, activeStatusFilter, activeTabFilter, activeCategoryFilter, semantic]
+  [tasks, activePriorityFilter, activeStatusFilter, activeTabFilter, activeCategoryFilter, activeKindFilter, showArchived, semantic]
 );
 
   const filteredTasks = useMemo(
@@ -1734,15 +1802,26 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
       scoredTasks
         .filter(item => item && item.matches && item.task)
         .sort((a, b) => {
-          // 1. Completed tasks (status === "done") go to the very bottom
+          // 1. Completed tasks (status === "done") go to the very bottom unless boardSort === ai still respects?
           const isDoneA = a.task?.status === "done";
           const isDoneB = b.task?.status === "done";
           if (isDoneA !== isDoneB) {
             return isDoneA ? 1 : -1;
           }
-          // 2. Sort by search relevance score
-          if (b.score !== a.score) {
+          // 1.5 Si hay búsqueda activa, priorizar score de búsqueda
+          const hasSearch = semantic.keywords.length > 0 || activePriorityFilter || activeStatusFilter || activeTabFilter || activeCategoryFilter || activeKindFilter;
+          if (hasSearch && b.score !== a.score) {
             return b.score - a.score;
+          }
+          // 2. Orden por modo boardSort
+          if (boardSort === "ai") {
+            const sA = calcAiScore(a.task as DevTask);
+            const sB = calcAiScore(b.task as DevTask);
+            if (sB !== sA) return sB - sA;
+          } else if (boardSort === "impact") {
+            const iA = (a.task as DevTask).impact || 0;
+            const iB = (b.task as DevTask).impact || 0;
+            if (iB !== iA) return iB - iA;
           }
           // 3. Sort by creation date descending (newest first)
           const timeA = a.task?.createdAt ? new Date(a.task.createdAt).getTime() : 0;
@@ -1750,7 +1829,7 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
           return timeB - timeA;
         })
         .map(item => item.task as DevTask),
-    [scoredTasks]
+    [scoredTasks, boardSort, semantic, activePriorityFilter, activeStatusFilter, activeTabFilter, activeCategoryFilter, activeKindFilter]
   );
 
   // Count metrics
@@ -1818,6 +1897,11 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
     if (p === "normal") return "bg-zinc-500/10 text-zinc-600 dark:text-zinc-455 border-zinc-500/20";
     return "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/25";
   }
+  function getKindLabel(k?: string) { return k === "idea" ? "Idea" : "Tarea"; }
+  function getKindColor(k?: string) { return k === "idea" ? "bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/25" : "bg-zinc-500/10 text-zinc-600 dark:text-zinc-400 border-zinc-500/25"; }
+  function getEffortLabel(e?: string) { const m: Record<string,string> = { xs:"XS", s:"S", m:"M", l:"L", xl:"XL" }; return m[e||""] || "—"; }
+  function getEffortColor(e?: string) { if(e==="xs"||e==="s") return "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25"; if(e==="m") return "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/25"; if(e==="l"||e==="xl") return "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/25"; return "bg-zinc-500/10 text-zinc-500 border-zinc-500/20"; }
+  function getImpactDots(v?: number) { const n = v||0; return "●".repeat(n) + "○".repeat(5-n); }
 
   const renderTaskDetailContent = (task: DevTask) => {
     return (
@@ -2394,6 +2478,50 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
           />
         </div>
 
+        {/* Jerarquía: Tipo + Esfuerzo + Impacto */}
+        <div className="grid grid-cols-3 gap-2">
+          <div className="space-y-1">
+            <label className="text-[9px] font-mono text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-wider block">Tipo</label>
+            <select value={editKind} onChange={e=>setEditKind(e.target.value as any)} className="w-full bg-white dark:bg-zinc-950/60 border border-zinc-300 dark:border-zinc-800 rounded-xl px-2 py-1.5 text-xs text-zinc-700 dark:text-zinc-300">
+              <option value="task">Tarea</option>
+              <option value="idea">Idea</option>
+            </select>
+          </div>
+          <div className="space-y-1">
+            <label className="text-[9px] font-mono text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-wider block">Esfuerzo</label>
+            <select value={editEffort} onChange={e=>setEditEffort(e.target.value as any)} className="w-full bg-white dark:bg-zinc-950/60 border border-zinc-300 dark:border-zinc-800 rounded-xl px-2 py-1.5 text-xs text-zinc-700 dark:text-zinc-300">
+              <option value="">—</option>
+              <option value="xs">XS (min)</option>
+              <option value="s">S</option>
+              <option value="m">M</option>
+              <option value="l">L</option>
+              <option value="xl">XL (max)</option>
+            </select>
+          </div>
+          <div className="space-y-1">
+            <label className="text-[9px] font-mono text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-wider block">Impacto 1-5</label>
+            <select value={editImpact} onChange={e=>setEditImpact(Number(e.target.value) as any)} className="w-full bg-white dark:bg-zinc-950/60 border border-zinc-300 dark:border-zinc-800 rounded-xl px-2 py-1.5 text-xs text-zinc-700 dark:text-zinc-300">
+              <option value={0}>—</option>
+              <option value={1}>1 bajo</option>
+              <option value={2}>2</option>
+              <option value={3}>3 medio</option>
+              <option value={4}>4</option>
+              <option value={5}>5 alto</option>
+            </select>
+          </div>
+        </div>
+
+        {/* AI Summary */}
+        <div className="space-y-1">
+          <label className="text-[9px] font-mono text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-wider block flex items-center gap-1"><Sparkles className="w-3 h-3 text-purple-500" /> Resumen IA / Por qué prio (yo lo relleno)</label>
+          <textarea value={editAiSummary} onChange={e=>setEditAiSummary(e.target.value)} rows={2} placeholder="Ej: Quick win — alto impacto ético, esfuerzo bajo. Yo lo jerarquizo..." className="w-full bg-purple-50/50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-900 focus:border-purple-500 rounded-xl px-3 py-2 text-xs text-zinc-900 dark:text-white outline-none transition-all resize-none" />
+        </div>
+
+        <label className="flex items-center gap-2 text-[11px] font-mono text-zinc-600 dark:text-zinc-400 cursor-pointer select-none">
+          <input type="checkbox" checked={editArchived} onChange={e=>setEditArchived(e.target.checked)} className="w-3.5 h-3.5 rounded border-zinc-300" />
+          📦 Archivar (ocultar del board principal)
+        </label>
+
         {/* AI Preview Action Bar — shown for AI-tagged tasks inside the edit form */}
         {task.title.startsWith("[IA: Listo para verificar") && (
           <div className="space-y-2 pt-2 border-t border-purple-500/15">
@@ -2545,7 +2673,7 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
               />
               <Sparkles className={`w-3.5 h-3.5 absolute right-2.5 top-2 pointer-events-none transition-colors duration-300 ${(searchQuery || "").trim() !== "" ? "text-purple-500" : "text-zinc-400 dark:text-zinc-600"}`} />
             </div>
-            {(filterStatus !== "all" || filterPriority !== "all" || filterTab !== "all" || filterCategory !== "all" || (searchQuery || "").trim() !== "") && (
+            {(filterStatus !== "all" || filterPriority !== "all" || filterTab !== "all" || filterCategory !== "all" || filterKind !== "all" || (searchQuery || "").trim() !== "") && (
               <button
                 type="button"
                 onClick={() => {
@@ -2553,6 +2681,7 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
                   setFilterPriority("all");
                   setFilterTab("all");
                   setFilterCategory("all");
+                  setFilterKind("all");
                   setSearchQuery("");
                 }}
                 className="shrink-0 text-[9px] font-sans font-extrabold text-purple-600 dark:text-purple-400 hover:text-purple-750 dark:hover:text-purple-300 flex items-center gap-1 transition-all cursor-pointer bg-purple-500/10 hover:bg-purple-500/15 px-2.5 py-1.5 rounded-xl border border-purple-500/10 shadow-sm animate-fadeIn leading-none h-[28px]"
@@ -3157,6 +3286,29 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
               </div>
 
             </div>
+
+            {/* Segunda fila: Tipo + Orden + Archivados — jerarquía de ideas */}
+            <div className="flex items-center gap-1.5 pt-1.5 border-t border-zinc-200/40 dark:border-zinc-800/50">
+              {/* Kind Filter */}
+              <div className="flex items-center gap-1 flex-1">
+                <button type="button" onClick={()=>setFilterKind("all")} className={`px-2 py-1 rounded-lg text-[9px] font-mono font-bold border transition-all ${filterKind==="all"?"bg-zinc-900 text-white border-zinc-900 dark:bg-zinc-100 dark:text-zinc-900":"bg-white dark:bg-zinc-900 text-zinc-500 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300"}`}>Todas</button>
+                <button type="button" onClick={()=>setFilterKind(filterKind==="idea"?"all":"idea")} className={`px-2 py-1 rounded-lg text-[9px] font-mono font-bold border flex items-center gap-1 transition-all ${filterKind==="idea"?"bg-sky-500 text-white border-sky-500":"bg-white dark:bg-zinc-900 text-zinc-500 border-zinc-200 dark:border-zinc-800"}`}>💡 Ideas {(tasks.filter(t=> (t.kind||"task")==="idea" && !t.archived).length)}</button>
+                <button type="button" onClick={()=>setFilterKind(filterKind==="task"?"all":"task")} className={`px-2 py-1 rounded-lg text-[9px] font-mono font-bold border flex items-center gap-1 transition-all ${filterKind==="task"?"bg-zinc-700 text-white border-zinc-700 dark:bg-zinc-700":"bg-white dark:bg-zinc-900 text-zinc-500 border-zinc-200 dark:border-zinc-800"}`}>✅ Tareas {(tasks.filter(t=> (t.kind||"task")==="task" && !t.archived).length)}</button>
+              </div>
+              <div className="flex items-center gap-1 shrink-0">
+                <select value={boardSort} onChange={e=>setBoardSort(e.target.value as any)} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-2 py-1 text-[9px] font-mono font-bold text-zinc-600 dark:text-zinc-300">
+                  <option value="ai">🧠 IA score</option>
+                  <option value="impact">🔥 Impacto</option>
+                  <option value="date">🕒 Fecha</option>
+                </select>
+                <label className="flex items-center gap-1 text-[9px] font-mono text-zinc-500 cursor-pointer select-none">
+                  <input type="checkbox" checked={showArchived} onChange={e=>setShowArchived(e.target.checked)} className="w-3 h-3 rounded border-zinc-300" /> Archivados
+                </label>
+              </div>
+            </div>
+            {(tasks.filter(t=>t.archived).length>0 && !showArchived) && (
+              <div className="text-[9px] font-mono text-zinc-500 pt-1">📦 {tasks.filter(t=>t.archived).length} archivadas ocultas — activa "Archivados" para verlas</div>
+            )}
           </div>
         </div>
 
@@ -3187,7 +3339,7 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
                     e.preventDefault();
                     if (!formTitle.trim()) return;
                     
-                    const payload = {
+                    const payload: any = {
                       title: formTitle.trim(),
                       description: formDesc.trim(),
                       tab: newPinCoords ? formTab : "general",
@@ -3201,7 +3353,10 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
                       rw: newPinCoords ? newPinRelative?.rw : undefined,
                       rh: newPinCoords ? newPinRelative?.rh : undefined,
                       priority: formPriority,
-                      status: "todo"
+                      status: "todo",
+                      category: formCategory,
+                      kind: "task",
+                      origin: "devmode"
                     };
 
                     try {
@@ -3527,6 +3682,11 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
                                   <Sparkles className="w-2 h-2 animate-pulse" /> IA
                                 </span>
                               )}
+                              {task.archived && <span className="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 text-[7px] font-bold uppercase">📦 Arch</span>}
+                              {task.parentId && <span className="px-1 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20 text-[7px] font-mono font-bold">↳ sub</span>}
+                              <span className={`px-1.5 py-0.5 rounded text-[7px] font-bold border uppercase font-mono ${getKindColor(task.kind)}`}>
+                                {getKindLabel(task.kind)}
+                              </span>
                               <h4 className={`text-xs font-bold text-zinc-950 dark:text-white break-words ${isDone ? "line-through text-zinc-400 dark:text-zinc-600" : ""}`}>
                                 {task.title.replace(/\[IA: [^\]]+\]\s*/, "")}
                               </h4>
@@ -3539,7 +3699,17 @@ export default function DevModeOverlay({ activeTab, setActiveTab }: DevModeOverl
                               <span className={`px-1.5 py-0.5 rounded text-[8px] border font-bold font-mono uppercase ${getCategoryColor(task.category)}`}>
                                 {getCategoryLabel(task.category)}
                               </span>
+                              {task.effort && <span className={`px-1 py-0.5 rounded text-[7px] font-bold border font-mono ${getEffortColor(task.effort)}`}>⚡ {getEffortLabel(task.effort)}</span>}
+                              {task.impact && <span className="px-1 py-0.5 rounded text-[7px] font-bold border font-mono bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/20">🎯 {getImpactDots(task.impact)} {task.impact}/5</span>}
+                              {typeof task.aiScore === "number" && <span className="px-1 py-0.5 rounded text-[7px] font-bold border font-mono bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 border-indigo-500/20">🧠 {task.aiScore}</span>}
+                              {task.origin==="chat" && <span className="px-1 py-0.5 rounded text-[7px] font-mono bg-sky-500/10 text-sky-600 border border-sky-500/20">💬 chat</span>}
                             </div>
+                            {task.aiSummary && (
+                              <p className="text-[10px] text-purple-700 dark:text-purple-300 bg-purple-500/10 border border-purple-500/20 rounded-lg px-2 py-1 mt-1.5 leading-relaxed">🧠 {task.aiSummary}</p>
+                            )}
+                            {task.aiTags && task.aiTags.length>0 && (
+                              <div className="flex flex-wrap gap-1 mt-1">{task.aiTags.map((t,i)=>(<span key={i} className="px-1 py-0.5 rounded text-[7px] font-mono bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500">#{t}</span>))}</div>
+                            )}
                             {task.description && (
                               <p className={`text-[10px] text-zinc-650 dark:text-zinc-350 font-normal mt-1 leading-relaxed break-words ${isDone ? "line-through text-zinc-500 dark:text-zinc-600" : ""}`}>
                                 {task.description.length > 105 

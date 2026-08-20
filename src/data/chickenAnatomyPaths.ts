@@ -97,3 +97,30 @@ export const chickenPaths2005: AnatomicalPaths = {
     ascites: "M 56 102 C 72 108, 92 102, 102 92 C 92 116, 72 122, 56 112 Z" // Fluid sac in abdomen
   }
 };
+
+export const chickenPaths2025: AnatomicalPaths = {
+  // Ultra-massive, profound forward tilting, severely flattened stance.
+  body: "M 54 10 C 76 8, 88 20, 90 38 C 104 42, 130 48, 138 62 C 146 76, 142 94, 130 110 C 118 126, 88 136, 56 128 C 24 120, 4 90, 8 62 C 12 38, 32 18, 54 10 Z",
+  head: {
+    comb: "M 52 8 C 54 -4, 66 -4, 68 8 C 72 -4, 80 -4, 82 16",
+    wattle: "M 36 24 C 32 40, 46 42, 48 30 Z",
+    beak: "M 40 14 L 18 20 L 38 28 Z",
+    eye: { cx: 52, cy: 16, r: 2.4 }
+  },
+  wing: "M 72 46 C 100 52, 120 66, 116 92 C 110 112, 84 104, 72 72 Z",
+  // Massive +450% pectoral mass
+  breast: "M 10 62 C 12 90, 42 112, 68 106 C 80 86, 58 48, 32 44 C 20 42, 10 48, 10 62 Z",
+  skeleton: {
+    spine: "M 60 20 C 54 42, 76 62, 104 88",
+    femur: "M 80 90 L 68 108",
+    // Severe tibial dyschondroplasia and angular splay
+    tibia: "M 68 108 C 50 128, 56 148, 78 160",
+    metatarsus: "M 78 160 L 70 190",
+    digits: "M 70 190 L 52 198 M 70 190 L 82 200"
+  },
+  heart: {
+    main: "M 48 38 C 40 30, 28 30, 28 38 C 28 52, 48 68, 48 68 C 48 68, 68 52, 68 38 C 68 30, 56 30, 48 38 Z",
+    rv: "M 48 68 C 32 56, 22 44, 28 36 C 36 46, 44 58, 48 68 Z",
+    ascites: "M 52 106 C 72 114, 98 108, 110 96 C 98 124, 72 130, 52 118 Z"
+  }
+};

@@ -5,10 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
+    "build": "npm run validate:news && npm run generate:news && vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
+    "prebuild": "npm run validate:news && npm run generate:news",
     "preview": "vite preview",
     "clean": "rm -rf dist server.cjs",
     "lint": "tsc --noEmit",
+    "validate:news": "node scripts/validate-news.mjs",
+    "generate:rss": "node scripts/generate-rss.mjs",
+    "generate:sitemap": "node scripts/generate-sitemap.mjs",
+    "generate:news": "node scripts/generate-rss.mjs && node scripts/generate-sitemap.mjs",
     "favicons": "node scripts/generate-favicons.mjs",
     "pwa-assets": "node scripts/generate-pwa-assets.mjs"
   },
