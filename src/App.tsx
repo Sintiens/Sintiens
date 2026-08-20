@@ -8,6 +8,7 @@ import { isSameCategory } from "./data/sections";
 import type { NodeDetail } from "./types";
 import type { GlossaryEntry } from "./data/glossaryUnified";
 import { GlobalGlows } from "./components/ui/AmbientGlow";
+import { PAGE_SUB, PAGE_CAT } from "./styles/motionTokens";
 
 const StoryMode = lazy(() => import("./components/StoryMode"));
 const GlossaryExplorer = lazy(() => import("./components/GlossaryExplorer"));
@@ -21,19 +22,32 @@ const LaboratorioHub = lazy(() => import("./components/LaboratorioHub"));
 const DevModeOverlay = lazy(() => import("./components/DevModeOverlay"));
 const DevErrorBoundary = lazy(() => import("./components/DevErrorBoundary"));
 
+import AppErrorBoundary from "./components/AppErrorBoundary";
+
 function LazyTabWrapper({ children, fallback }: { children: React.ReactNode; fallback?: React.ReactNode }) {
   return (
-    <Suspense
-      fallback={
-        fallback || (
-          <div className="w-full flex items-center justify-center py-32">
-            <div className="w-8 h-8 rounded-full border-2 border-outline-variant border-t-primary animate-spin" role="status" aria-label="Cargando sección" />
-          </div>
-        )
-      }
-    >
-      {children}
-    </Suspense>
+    <AppErrorBoundary>
+      <Suspense
+        fallback={
+          fallback || (
+            <div className="w-full max-w-[1280px] mx-auto px-4 md:px-6 lg:px-8 py-12 space-y-4" aria-label="Cargando sección" role="status">
+              <div className="h-8 w-48 rounded-full bg-surface-dim/40 animate-pulse" />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-8">
+                {[0,1,2].map((i) => (
+                  <div key={i} className="glass-enhance rounded-2xl p-6 space-y-3 border border-outline-variant/15 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative animate-pulse">
+                    <div className="h-4 w-24 rounded-full bg-surface-dim/60" />
+                    <div className="h-6 w-full rounded-lg bg-surface-dim/40" />
+                    <div className="h-20 w-full rounded-xl bg-surface-dim/30" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        }
+      >
+        {children}
+      </Suspense>
+    </AppErrorBoundary>
   );
 }
 
@@ -42,22 +56,38 @@ function LazyTabWrapper({ children, fallback }: { children: React.ReactNode; fal
 // naveguen entre pestañas y las URLs sean compartibles.
 const TAB_PATHS: Record<TabType, string> = {
   historia_narrativa: "/",
-  grafo: "/grafo",
-  cronologia: "/cronologia",
-  dialectica: "/dialectica",
-  calculadora: "/calculadora",
-  validador: "/validador",
-  datos: "/datos",
+  grafo: "/glosario",
+  cronologia: "/argumento/cronologia",
+  dialectica: "/argumento/critica",
+  calculadora: "/laboratorio/impacto",
+  validador: "/laboratorio/descomponer",
+  datos: "/argumento/cifras",
   noticias: "/noticias",
   laboratorio_hub: "/laboratorio",
 };
-const PATH_TO_TAB: Record<string, TabType> = Object.fromEntries(
-  Object.entries(TAB_PATHS).map(([k, v]) => [v, k as TabType])
-);
+
+const EXTRA_PATH_MAP: Record<string, TabType> = {
+  "/grafo": "grafo",
+  "/cronologia": "cronologia",
+  "/dialectica": "dialectica",
+  "/calculadora": "calculadora",
+  "/validador": "validador",
+  "/datos": "datos",
+  "/argumento": "historia_narrativa",
+  "/argumento/relato": "historia_narrativa",
+};
+
+const PATH_TO_TAB: Record<string, TabType> = {
+  ...Object.fromEntries(
+    Object.entries(TAB_PATHS).map(([k, v]) => [v, k as TabType])
+  ),
+  ...EXTRA_PATH_MAP,
+};
 const DEFAULT_TAB: TabType = "historia_narrativa";
 
 function getTabFromPath(pathname: string): TabType {
-  return PATH_TO_TAB[pathname] ?? DEFAULT_TAB;
+  const cleanPath = pathname.replace(/\/+$/, "") || "/";
+  return PATH_TO_TAB[cleanPath] ?? DEFAULT_TAB;
 }
 
 export default function App() {
@@ -79,6 +109,7 @@ export default function App() {
   );
 
   const prevTabRef = useRef<TabType>(activeTab);
+  // Cálculo sincrónico — evita 1 frame de clasificación errónea
   const isSubTabNav = isSameCategory(prevTabRef.current, activeTab);
 
   useEffect(() => {
@@ -100,7 +131,22 @@ export default function App() {
 
   const navigateToTab = (tab: TabType) => {
     if (tab === activeTab) return;
-    window.history.pushState({ tab }, "", TAB_PATHS[tab]);
+    // Guardar filtros de noticias al salir para restaurarlos al volver
+    if (activeTab === "noticias") {
+      try {
+        const qsHash = window.location.search + window.location.hash;
+        if (qsHash) sessionStorage.setItem("sintiens_noticias_qs", qsHash);
+        else sessionStorage.removeItem("sintiens_noticias_qs");
+      } catch {}
+    }
+    let targetUrl = TAB_PATHS[tab];
+    if (tab === "noticias") {
+      try {
+        const saved = sessionStorage.getItem("sintiens_noticias_qs");
+        if (saved) targetUrl += saved;
+      } catch {}
+    }
+    window.history.pushState({ tab }, "", targetUrl);
     setActiveTab(tab);
   };
 
@@ -118,10 +164,15 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    const qs = window.location.search;
+    const hash = window.location.hash;
+    const base = TAB_PATHS[activeTab];
+    // Preservar query/hash solo para noticias (deep linking con ?id= o filtros)
+    const url = activeTab === "noticias" && (qs || hash) ? `${base}${qs}${hash}` : base;
     window.history.replaceState(
       { tab: activeTab },
       "",
-      TAB_PATHS[activeTab]
+      url
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -164,8 +215,10 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    // Sub-tabs: sin scroll brusco (conserva posición), cambio de categoría: smooth top
+    if (isSubTabNav) return;
     window.scrollTo({ top: 0, behavior: "auto" });
-  }, [activeTab]);
+  }, [activeTab, isSubTabNav]);
 
   const [coreNodes, setCoreNodes] = useState<NodeDetail[] | null>(null);
   const [glossaryData, setGlossaryData] = useState<{ GLOSSARY_BY_ID: Record<string, GlossaryEntry>; GLOSSARY_UNIFIED: GlossaryEntry[] } | null>(null);
@@ -281,29 +334,25 @@ export default function App() {
       {/* Global ambient glows: absolute at top of page, scroll away naturally */}
       <GlobalGlows />
       
-      {/* Global Tab Navigation - Absolute positioned below the title (hero section) for continuous transitions */}
+      {/* Global Tab Navigation — centrado con mismo sistema que main (1280 max-w) */}
       <div className="absolute top-[480px] lg:top-[530px] left-0 w-full z-[200] flex justify-center pointer-events-none">
-        <div className="w-full max-w-[1440px] px-3 md:px-8 lg:px-16 pointer-events-auto flex justify-center">
+        <div className="w-full max-w-[1280px] px-4 md:px-8 lg:px-8 pointer-events-auto flex justify-center">
           <MiniTabNav activeTab={activeTab} onNavigate={handleNavigate} theme={theme} onToggleTheme={handleToggleTheme} />
         </div>
       </div>
 
-      {/* Main Content */}
-      <main className="flex-1 max-w-[1440px] w-full mx-auto px-3 md:px-8 lg:px-16 py-12 lg:py-20 relative z-[1]">
+      {/* Main Content — noticias: ultra-densidad, gutters mínimos */}
+      <main className={`flex-1 w-full mx-auto py-12 lg:py-20 relative z-[1] ${activeTab === "noticias" ? "max-w-[1480px] px-2 sm:px-2 md:px-3 lg:px-3" : "max-w-[1280px] px-4 md:px-6 lg:px-8"}`}>
 
         <div className="min-h-[600px]">
-          <AnimatePresence mode="popLayout" initial={false}>
+          <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={activeTab}
-              initial={isSubTabNav ? { opacity: 0, y: 6 } : { opacity: 0, y: 12, scale: 0.98 }}
-              animate={isSubTabNav ? { opacity: 1, y: 0 } : { opacity: 1, y: 0, scale: 1 }}
-              exit={isSubTabNav ? { opacity: 0, y: -4 } : { opacity: 0, y: -8, scale: 0.99 }}
-              transition={
-                isSubTabNav
-                  ? { duration: 0.18, ease: "easeOut" }
-                  : { duration: 0.26, ease: [0.25, 1, 0.5, 1] as const }
-              }
-              className="w-full"
+              initial={isSubTabNav ? PAGE_SUB.initial : PAGE_CAT.initial}
+              animate={isSubTabNav ? PAGE_SUB.animate : PAGE_CAT.animate}
+              exit={isSubTabNav ? PAGE_SUB.exit : PAGE_CAT.exit}
+              transition={isSubTabNav ? PAGE_SUB.transition : PAGE_CAT.transition}
+              className="w-full will-change-transform"
             >
               {activeTab === "historia_narrativa" && (
                 <LazyTabWrapper>
@@ -371,8 +420,8 @@ export default function App() {
       </main>
 
       {/* Modern Academic Footer */}
-      <footer className="border-t border-outline-variant/30 py-16 bg-surface-dim/20 mt-32">
-        <div className="max-w-[1440px] mx-auto px-3 md:px-8 lg:px-16 flex flex-col md:flex-row items-center justify-between gap-6 text-on-surface-variant">
+      <footer className="border-t border-outline-variant/20 py-16 bg-surface-dim/20 mt-32">
+        <div className="max-w-[1280px] mx-auto px-4 md:px-8 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6 text-on-surface-variant">
           <div className="space-y-4">
              <div className="flex items-center gap-3">
                 <SintiensLogo className="w-5 h-7 shrink-0" />

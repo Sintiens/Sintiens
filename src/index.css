@@ -268,6 +268,15 @@ html:not(.dark) .glass-enhance::before {
   background: var(--primary);
 }
 
+/* Keep scrollability but hide scrollbars (horizontal docks on mobile) */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* Clean standard readable system font for the Developer Board and all its sub-elements */
 .dev-mode-ui, 
 .dev-mode-ui *,
@@ -383,9 +392,8 @@ html:not(.dark) .glass-enhance::before {
   animation: wobble-slow 22s ease-in-out infinite;
 }
 
-/* Respect users who prefer reduced motion: freeze glow animations
-   (CSS keyframes + SMIL morphs inside AmbientGlow) to avoid constant
-   re-rasterization of blurred areas on every frame. */
+/* Respect users who prefer reduced motion: freeze all animations
+    and let JS also short-circuit via useReducedMotion hook. */
 @media (prefers-reduced-motion: reduce) {
   .animate-wobble-slow,
   .animate-float-1,
@@ -394,8 +402,16 @@ html:not(.dark) .glass-enhance::before {
   .animate-float-4,
   .animate-float-5,
   .animate-float-6,
-  .animate-rotate-slow {
+  .animate-rotate-slow,
+  .animate-pulse-ring,
+  .animate-fadeIn {
     animation: none !important;
+    transition: none !important;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
@@ -422,6 +438,14 @@ html:not(.dark) .glass-enhance::before {
 /* Enforce controlled reading width for narrative text (600px - 700px) to enhance readability */
 .narrative-text-container {
   max-width: 680px;
+}
+
+/* Editorial lede: the first paragraph of each story block reads slightly larger,
+   giving the reader an entry point before the full-width paragraphs. */
+.narrative-block > .mb-2 p:first-child {
+  font-size: 1.15em;
+  font-weight: 500;
+  color: var(--on-surface);
 }
 
 /* Connection highlight animations for key concepts */
