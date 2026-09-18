@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, Suspense, lazy, useCallback } from "react";
 import React from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, MotionConfig } from "motion/react";
 import SintiensLogo from "./components/SintiensLogo";
 import type { TabType } from "./types";
 import MiniTabNav from "./components/MiniTabNav";
@@ -9,6 +9,8 @@ import type { NodeDetail } from "./types";
 import type { GlossaryEntry } from "./data/glossaryUnified";
 import { GlobalGlows } from "./components/ui/AmbientGlow";
 import { PAGE_SUB, PAGE_CAT } from "./styles/motionTokens";
+import { useReducedMotion } from "./hooks/useReducedMotion";
+import ThemeReveal from "./components/ThemeReveal";
 
 const StoryMode = lazy(() => import("./components/StoryMode"));
 const GlossaryExplorer = lazy(() => import("./components/GlossaryExplorer"));
@@ -19,32 +21,22 @@ const AiValidator = lazy(() => import("./components/AiValidator"));
 const DataSection = lazy(() => import("./components/DataSection"));
 const NewsExplorer = lazy(() => import("./components/NewsExplorer"));
 const LaboratorioHub = lazy(() => import("./components/LaboratorioHub"));
+const RawlsianMachine = lazy(() => import("./components/RawlsianMachine"));
+const ThermodynamicMatrix = lazy(() => import("./components/ThermodynamicMatrix"));
+const NeurobiologyViewer = lazy(() => import("./components/NeurobiologyViewer"));
+const NutriCompare = lazy(() => import("./components/NutriCompare"));
+const WelfarewashingScanner = lazy(() => import("./components/WelfarewashingScanner"));
 const DevModeOverlay = lazy(() => import("./components/DevModeOverlay"));
 const DevErrorBoundary = lazy(() => import("./components/DevErrorBoundary"));
 
 import AppErrorBoundary from "./components/AppErrorBoundary";
+import { PageSkeleton, HeroNavProvider } from "./components/ui/Shells";
+import TabSeo from "./components/TabSeo";
 
 function LazyTabWrapper({ children, fallback }: { children: React.ReactNode; fallback?: React.ReactNode }) {
   return (
     <AppErrorBoundary>
-      <Suspense
-        fallback={
-          fallback || (
-            <div className="w-full max-w-[1280px] mx-auto px-4 md:px-6 lg:px-8 py-12 space-y-4" aria-label="Cargando sección" role="status">
-              <div className="h-8 w-48 rounded-full bg-surface-dim/40 animate-pulse" />
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-8">
-                {[0,1,2].map((i) => (
-                  <div key={i} className="glass-enhance rounded-2xl p-6 space-y-3 border border-outline-variant/15 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative animate-pulse">
-                    <div className="h-4 w-24 rounded-full bg-surface-dim/60" />
-                    <div className="h-6 w-full rounded-lg bg-surface-dim/40" />
-                    <div className="h-20 w-full rounded-xl bg-surface-dim/30" />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )
-        }
-      >
+      <Suspense fallback={fallback || <PageSkeleton />}>
         {children}
       </Suspense>
     </AppErrorBoundary>
@@ -64,6 +56,11 @@ const TAB_PATHS: Record<TabType, string> = {
   datos: "/argumento/cifras",
   noticias: "/noticias",
   laboratorio_hub: "/laboratorio",
+  velo_rawls: "/laboratorio/velo-rawls",
+  termodinamica: "/laboratorio/termodinamica",
+  neurobiologia: "/laboratorio/neurobiologia",
+  nutricion: "/laboratorio/nutricion",
+  welfarewashing: "/laboratorio/welfarewashing",
 };
 
 const EXTRA_PATH_MAP: Record<string, TabType> = {
@@ -167,8 +164,8 @@ export default function App() {
     const qs = window.location.search;
     const hash = window.location.hash;
     const base = TAB_PATHS[activeTab];
-    // Preservar query/hash solo para noticias (deep linking con ?id= o filtros)
-    const url = activeTab === "noticias" && (qs || hash) ? `${base}${qs}${hash}` : base;
+    // Preservar query/hash: deep links de noticias (?id=) y de glosario (#glosario-<id>)
+    const url = qs || hash ? `${base}${qs}${hash}` : base;
     window.history.replaceState(
       { tab: activeTab },
       "",
@@ -178,10 +175,13 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    const isValidTab = (value: unknown): value is TabType =>
+      typeof value === "string" && (Object.values(TAB_PATHS) as string[]).includes(value);
     const onPopState = (e: PopStateEvent) => {
-      const tab =
-        (e.state?.tab as TabType | undefined) ??
-        getTabFromPath(window.location.pathname);
+      const fromState = e.state?.tab as unknown;
+      const tab = isValidTab(fromState)
+        ? fromState
+        : getTabFromPath(window.location.pathname);
       setActiveTab(tab);
     };
     window.addEventListener("popstate", onPopState);
@@ -316,14 +316,60 @@ export default function App() {
   }, []);
 
   const handleNavigate = useCallback((tab: TabType) => {
-    navigateToTab(tab);
-  }, [activeTab]);
-
-  const handleToggleTheme = useCallback(() => {
-    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+    navFnRef.current(tab);
   }, []);
 
+  const reduceMotion = useReducedMotion();
+  const [reveal, setReveal] = useState<{ rect: DOMRect; nextTheme: "dark" | "light" } | null>(null);
+
+  const handleToggleTheme = useCallback((rect?: DOMRect) => {
+    const next = theme === "dark" ? "light" : "dark";
+
+    // Respeta accesibilidad
+    if (reduceMotion) {
+      setTheme(next);
+      return;
+    }
+
+    // Intento con View Transitions API (Chrome/Edge) — onda expansiva nativa, coste nulo
+    const hasVT = typeof document !== "undefined" && "startViewTransition" in document;
+    if (hasVT && rect) {
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+      const maxR = Math.hypot(
+        Math.max(x, window.innerWidth - x),
+        Math.max(y, window.innerHeight - y)
+      );
+      document.documentElement.style.setProperty("--reveal-x", `${x}px`);
+      document.documentElement.style.setProperty("--reveal-y", `${y}px`);
+      document.documentElement.style.setProperty("--reveal-r", `${maxR}px`);
+      const vt = document.startViewTransition(() => {
+        setTheme(next);
+      });
+      // Limpieza por si el usuario cambia tamaño rápido
+      vt?.finished?.finally(() => {
+        // se deja --reveal-* para la próxima, no molesta
+      });
+      return;
+    }
+
+    // Fallback manual para Safari/Firefox — overlay con clip-path (1 div, GPU, 0.55s)
+    if (rect) {
+      setReveal({ rect, nextTheme: next });
+      return;
+    }
+
+    setTheme(next);
+  }, [theme, reduceMotion]);
+
+  const handleRevealDone = useCallback(() => {
+    if (!reveal) return;
+    setTheme(reveal.nextTheme);
+    setReveal(null);
+  }, [reveal]);
+
   return (
+    <MotionConfig reducedMotion="user">
     <div 
       style={{ 
         width: "calc(100% - var(--dev-sidebar-width, 0px))", 
@@ -331,18 +377,33 @@ export default function App() {
       }} 
       className="min-h-screen bg-background text-on-background font-sans selection:bg-primary selection:text-on-primary flex flex-col pb-0 transition-colors duration-500 relative"
     >
+      {/* Skip-link accesible */}
+      <a
+        href="#contenido"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[500] focus:px-4 focus:py-2 focus:rounded-full focus:bg-primary focus:text-on-primary focus:text-sm"
+      >
+        Saltar al contenido
+      </a>
+      {/* SEO por tab: title/description/canonical/OG dinámicos */}
+      <TabSeo tab={activeTab} />
+      {/* Reveal fallback (Safari/Firefox) — se monta solo durante la animación */}
+      {reveal && (
+        <ThemeReveal rect={reveal.rect} nextTheme={reveal.nextTheme} onDone={handleRevealDone} />
+      )}
       {/* Global ambient glows: absolute at top of page, scroll away naturally */}
       <GlobalGlows />
-      
-      {/* Global Tab Navigation — centrado con mismo sistema que main (1280 max-w) */}
-      <div className="absolute top-[480px] lg:top-[530px] left-0 w-full z-[200] flex justify-center pointer-events-none">
-        <div className="w-full max-w-[1280px] px-4 md:px-8 lg:px-8 pointer-events-auto flex justify-center">
-          <MiniTabNav activeTab={activeTab} onNavigate={handleNavigate} theme={theme} onToggleTheme={handleToggleTheme} />
-        </div>
-      </div>
+
+      {/* P1-1b: el nav nace en cada hero (HeroNavSlot sticky). */}
+      <HeroNavProvider
+        nav={
+          <nav aria-label="Navegación principal">
+            <MiniTabNav activeTab={activeTab} onNavigate={handleNavigate} theme={theme} onToggleTheme={handleToggleTheme} />
+          </nav>
+        }
+      >
 
       {/* Main Content — noticias: ultra-densidad, gutters mínimos */}
-      <main className={`flex-1 w-full mx-auto py-12 lg:py-20 relative z-[1] ${activeTab === "noticias" ? "max-w-[1480px] px-2 sm:px-2 md:px-3 lg:px-3" : "max-w-[1280px] px-4 md:px-6 lg:px-8"}`}>
+      <main id="contenido" className={`flex-1 w-full mx-auto py-12 lg:py-20 relative z-[1] ${activeTab === "noticias" ? "max-w-[1480px] px-2 sm:px-2 md:px-3 lg:px-3" : "max-w-[1280px] px-4 md:px-6 lg:px-8"}`}>
 
         <div className="min-h-[600px]">
           <AnimatePresence mode="wait" initial={false}>
@@ -359,19 +420,27 @@ export default function App() {
                   <StoryMode />
                 </LazyTabWrapper>
               )}
-              {activeTab === "grafo" && glossaryData && (
-                <LazyTabWrapper>
-                  <GlossaryExplorer
-                    initialEntryId={redirectEntryId}
-                    onClearInitialEntryId={handleClearRedirectEntryId}
-                    onNavigate={handleNavigate}
-                  />
-                </LazyTabWrapper>
+              {activeTab === "grafo" && (
+                glossaryData ? (
+                  <LazyTabWrapper>
+                    <GlossaryExplorer
+                      initialEntryId={redirectEntryId}
+                      onClearInitialEntryId={handleClearRedirectEntryId}
+                      onNavigate={handleNavigate}
+                    />
+                  </LazyTabWrapper>
+                ) : (
+                  <PageSkeleton label="Cargando glosario" />
+                )
               )}
-              {activeTab === "cronologia" && coreNodes && (
-                <LazyTabWrapper>
-                  <TimelineExplorer onRedirectToConcept={handleRedirectToConcept} />
-                </LazyTabWrapper>
+              {activeTab === "cronologia" && (
+                coreNodes ? (
+                  <LazyTabWrapper>
+                    <TimelineExplorer onRedirectToConcept={handleRedirectToConcept} />
+                  </LazyTabWrapper>
+                ) : (
+                  <PageSkeleton label="Cargando cronología" />
+                )
               )}
               {activeTab === "dialectica" && (
                 <LazyTabWrapper>
@@ -406,6 +475,31 @@ export default function App() {
                   <LaboratorioHub onNavigate={handleNavigate} />
                 </LazyTabWrapper>
               )}
+              {activeTab === "velo_rawls" && (
+                <LazyTabWrapper>
+                  <RawlsianMachine onNavigateToTab={(tab: string) => handleNavigate(tab as TabType)} />
+                </LazyTabWrapper>
+              )}
+              {activeTab === "termodinamica" && (
+                <LazyTabWrapper>
+                  <ThermodynamicMatrix onNavigateToTab={(tab: string) => handleNavigate(tab as TabType)} />
+                </LazyTabWrapper>
+              )}
+              {activeTab === "neurobiologia" && (
+                <LazyTabWrapper>
+                  <NeurobiologyViewer onNavigateToTab={(tab: string) => handleNavigate(tab as TabType)} />
+                </LazyTabWrapper>
+              )}
+              {activeTab === "nutricion" && (
+                <LazyTabWrapper>
+                  <NutriCompare onNavigateToTab={(tab: string) => handleNavigate(tab as TabType)} />
+                </LazyTabWrapper>
+              )}
+              {activeTab === "welfarewashing" && (
+                <LazyTabWrapper>
+                  <WelfarewashingScanner onNavigateToTab={(tab: string) => handleNavigate(tab as TabType)} />
+                </LazyTabWrapper>
+              )}
             </motion.div>
           </AnimatePresence>
         </div>
@@ -434,6 +528,8 @@ export default function App() {
         </div>
       </footer>
 
+      </HeroNavProvider>
     </div>
+    </MotionConfig>
   );
 }

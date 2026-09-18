@@ -336,7 +336,7 @@ export default function SocraticReflection() {
                               e.stopPropagation();
                               handleToggleCard(item.id);
                             }}
-                            className="w-full pt-4 border-t border-zinc-100 dark:border-zinc-800/50 text-[10px] font-bold font-mono tracking-widest text-zinc-500 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors flex items-center justify-between gap-2 cursor-pointer focus:outline-none uppercase"
+                            className="w-full pt-4 border-t border-zinc-100 dark:border-zinc-800/50 text-[10px] font-bold font-mono tracking-widest text-zinc-500 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors flex items-center justify-between gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded uppercase"
                           >
                             <span>Profundizar</span>
                             <ArrowRight className="w-4 h-4" />
@@ -362,7 +362,7 @@ export default function SocraticReflection() {
                               e.stopPropagation();
                               handleToggleCard(item.id);
                             }}
-                            className="w-full pt-6 border-t border-zinc-100 dark:border-zinc-800/50 text-[10px] font-bold font-mono tracking-widest text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors flex items-center justify-between cursor-pointer focus:outline-none uppercase"
+                            className="w-full pt-6 border-t border-zinc-100 dark:border-zinc-800/50 text-[10px] font-bold font-mono tracking-widest text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors flex items-center justify-between cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded uppercase"
                           >
                             <span>Cerrar Reflexión</span>
                             <ArrowRight className="w-4 h-4 rotate-180" />

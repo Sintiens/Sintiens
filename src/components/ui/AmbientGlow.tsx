@@ -87,6 +87,39 @@ export default function AmbientGlow({
  * The parent App div must have position: relative (already set).
  */
 export function GlobalGlows() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    setIsMobile(mq.matches);
+    const h = () => setIsMobile(mq.matches);
+    mq.addEventListener("change", h);
+    return () => mq.removeEventListener("change", h);
+  }, []);
+  // En móvil: 3 blobs para reducir overdraw GPU (blur 48px es el paint más caro)
+  if (isMobile) {
+    return (
+      <div
+        className="absolute inset-x-0 top-0 h-[85vh] pointer-events-none overflow-hidden z-0"
+        style={{
+          width: "calc(100vw - var(--scrollbar-width, 0px))",
+          left: "50%",
+          transform: "translateX(-50%)",
+          maskImage: "linear-gradient(to bottom, black 55%, transparent 100%)",
+          WebkitMaskImage: "linear-gradient(to bottom, black 55%, transparent 100%)",
+        }}
+      >
+        <div className="absolute top-[-2%] left-[-5vw] w-[520px] h-[520px] animate-float-1">
+          <AmbientGlow colorClass="bg-ch4" className="w-full h-full" opacity={0.26} />
+        </div>
+        <div className="absolute top-[28%] right-[-8vw] w-[560px] h-[560px] animate-float-2">
+          <AmbientGlow colorClass="bg-ch1" className="w-full h-full" opacity={0.26} />
+        </div>
+        <div className="absolute top-[10%] left-[18vw] w-[460px] h-[460px] animate-float-3">
+          <AmbientGlow colorClass="bg-ch2" className="w-full h-full" opacity={0.20} />
+        </div>
+      </div>
+    );
+  }
   return (
     <div
       className="absolute inset-x-0 top-0 h-screen pointer-events-none overflow-hidden z-0"
@@ -94,6 +127,8 @@ export function GlobalGlows() {
         width: "calc(100vw - var(--scrollbar-width, 0px))",
         left: "50%",
         transform: "translateX(-50%)",
+        maskImage: "linear-gradient(to bottom, black 55%, transparent 100%)",
+        WebkitMaskImage: "linear-gradient(to bottom, black 55%, transparent 100%)",
       }}
     >
       <div className="absolute top-[-5%] left-[-2vw] w-[600px] h-[600px] animate-float-1">
@@ -108,10 +143,10 @@ export function GlobalGlows() {
       <div className="absolute top-[-10%] right-[15vw] w-[550px] h-[550px] animate-float-4">
         <AmbientGlow colorClass="bg-ch5" className="w-full h-full" opacity={0.22} />
       </div>
-      <div className="absolute bottom-[20%] left-[10vw] w-[450px] h-[450px] animate-float-5">
+      <div className="absolute bottom-[32%] left-[10vw] w-[450px] h-[450px] animate-float-5">
         <AmbientGlow colorClass="bg-ch3" className="w-full h-full" opacity={0.28} />
       </div>
-      <div className="absolute bottom-[10%] right-[25vw] w-[480px] h-[480px] animate-float-6">
+      <div className="absolute bottom-[24%] right-[25vw] w-[480px] h-[480px] animate-float-6">
         <AmbientGlow colorClass="bg-ch6" className="w-full h-full" opacity={0.28} />
       </div>
     </div>

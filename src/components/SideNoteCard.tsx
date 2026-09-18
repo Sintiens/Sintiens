@@ -25,7 +25,7 @@ export default function SideNoteCard({ item, type, actColor, onClose }: SideNote
   return (
     <div
       data-side-note-card="true"
-      className="glass-enhance w-full xl:max-w-[340px] rounded-xl border border-outline-variant/35 dark:border-zinc-800/80 bg-surface-container-low/65 dark:bg-zinc-900/45 backdrop-blur-2xl p-4 md:p-5 shadow-[0_20px_50px_rgba(0,0,0,0.06)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.22)] relative z-10 transition-all select-text overflow-hidden"
+      className="glass-enhance w-full xl:max-w-[340px] rounded-xl border border-outline-variant/20 dark:border-zinc-800/60 bg-surface-container-low/65 dark:bg-zinc-900/45 backdrop-blur-md p-4 md:p-5 shadow-[0_12px_32px_rgba(0,0,0,0.06)] dark:shadow-[0_12px_32px_rgba(0,0,0,0.18)] relative z-10 transition-all select-text overflow-hidden"
     >
       {onClose && (
         <button

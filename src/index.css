@@ -462,6 +462,31 @@ html:not(.dark) .glass-enhance::before {
   background-color: rgba(179, 204, 190, 0.15) !important;
 }
 
+/* View Transitions API — reveal circular desde el botón de tema */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-new(root) {
+  clip-path: circle(0 at var(--reveal-x) var(--reveal-y));
+  animation: reveal-in 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes reveal-in {
+  to {
+    clip-path: circle(var(--reveal-r) at var(--reveal-x) var(--reveal-y));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+  ::view-transition-new(root) {
+    clip-path: none !important;
+  }
+}
+
 /* Generic fade-in used by dev tooling (DevModeOverlay, DevErrorBoundary) */
 @keyframes fadeIn {
   from { opacity: 0; }

@@ -10,13 +10,17 @@ const data = [
 
 export default function DeforestationChart() {
   return (
-    <div className="w-full h-80 bg-zinc-50 dark:bg-zinc-900/50 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800">
+    <div
+      role="img"
+      aria-label="Motores de la deforestación tropical en porcentaje: carne de vaca 41%, semillas oleaginosas 18%, silvicultura 13%, agricultura 13%, otros 15%."
+      className="w-full h-80 bg-zinc-50 dark:bg-zinc-900/50 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800"
+    >
       <h4 className="text-sm font-semibold mb-4 text-zinc-700 dark:text-zinc-300">Motores de la Deforestación Tropical (%)</h4>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} layout="vertical" margin={{ top: 10, right: 30, left: 40, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#525252" opacity={0.2} horizontal={true} vertical={false} />
-          <XAxis type="number" stroke="#888" fontSize={12} />
-          <YAxis dataKey="name" type="category" stroke="#888" fontSize={12} width={100} />
+          <XAxis type="number" stroke="#71717a" fontSize={12} />
+          <YAxis dataKey="name" type="category" stroke="#71717a" fontSize={12} width={100} />
           <Tooltip 
             cursor={{fill: 'transparent'}}
             contentStyle={{ backgroundColor: "#18181b", borderColor: "#3f3f46", borderRadius: "8px", color: "#f4f4f5" }}

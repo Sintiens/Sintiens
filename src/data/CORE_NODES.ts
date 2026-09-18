@@ -144,6 +144,29 @@ export const CORE_NODES: NodeDetail[] = [
       , url: "https://en.wikipedia.org/wiki/The_Case_for_Animal_Rights"}
     ]
   },
+  {
+    id: "casos-marginales",
+    category: "etica",
+    title: "El Argumento de los Casos Marginales",
+    shortDesc: "Si la inteligencia fuera el criterio moral, ¿qué pasaría con los humanos que no razonan?",
+    longDesc: "Cuando se propone la inteligencia como requisito para merecer consideración moral, surge una pregunta incómoda: ¿qué ocurre con los bebés, las personas con discapacidad cognitiva severa o quienes están en coma? Nadie defiende que sea lícito dañarlos, y sin embargo tampoco razonan ni hablan. Este argumento no equipara humanos y animales: muestra que el criterio de la inteligencia es inconsistente, porque lo aplicamos a unos y lo suspendemos para otros. Si la inteligencia no es lo que protege a esos humanos, ¿qué los protege? La respuesta más honesta apunta a otra capacidad, compartida por todos los vertebrados: la de sufrir [1][2].",
+    scientificFacts: [
+      "El argumento, formulado por Peter Singer y desarrollado por Tom Regan, es una prueba de consistencia lógica, no una afirmación empírica: no dice que humanos y animales sean iguales, sino que el criterio debe aplicarse por igual [1].",
+      "La neurobiología respalda el criterio alternativo: las estructuras que procesan el dolor consciente son homólogas en todos los vertebrados, incluidos humanos con capacidades cognitivas reducidas [2]."
+    ],
+    connections: ["especismo", "marcos-eticos", "neurobiologia-dolor"],
+    citation: "Singer, P. (1975). Animal Liberation.",
+    references: [
+      {
+        id: "1",
+        citation: "Singer, P. (1975). Animal Liberation. HarperCollins."
+      },
+      {
+        id: "2",
+        citation: "Regan, T. (1983). The Case for Animal Rights. University of California Press."
+      }
+    ]
+  },
 
   // III. PSICOLOGÍA HUMANA Y CONSISTENCIA SOCIAL
   {

@@ -3,11 +3,13 @@ import { motion, AnimatePresence } from "motion/react";
 import {
   CATEGORIES,
   getCategoryForTab,
+  getPathForTab,
   getSubSectionsForTab,
   hasSubNav,
 } from "../data/sections";
 import type { TabType } from "../types";
 import { SPRING_NAV, DUR, EASE_SUBTLE } from "../styles/motionTokens";
+import { useReducedMotion } from "../hooks/useReducedMotion";
 
 const PRELOAD_MAP: Record<string, () => Promise<any>> = {
   historia_narrativa: () => import("./StoryMode"),
@@ -19,6 +21,11 @@ const PRELOAD_MAP: Record<string, () => Promise<any>> = {
   calculadora: () => import("./ImpactCalculator"),
   validador: () => import("./AiValidator"),
   laboratorio_hub: () => import("./LaboratorioHub"),
+  velo_rawls: () => import("./RawlsianMachine"),
+  termodinamica: () => import("./ThermodynamicMatrix"),
+  neurobiologia: () => import("./NeurobiologyViewer"),
+  nutricion: () => import("./NutriCompare"),
+  welfarewashing: () => import("./WelfarewashingScanner"),
 };
 let preloadedTabs = new Set<string>();
 function preloadTab(tab: string) {
@@ -31,21 +38,22 @@ interface MiniTabNavProps {
   activeTab: TabType;
   onNavigate: (tab: TabType) => void;
   theme: "dark" | "light";
-  onToggleTheme: () => void;
+  onToggleTheme: (rect?: DOMRect) => void;
 }
 
 export default function MiniTabNav({ activeTab, onNavigate, theme, onToggleTheme }: MiniTabNavProps) {
   const activeCategory = getCategoryForTab(activeTab);
   const showSubNav = hasSubNav(activeTab);
   const subSections = getSubSectionsForTab(activeTab);
+  const shouldReduce = useReducedMotion();
 
   // Main Menu — glass consistente con sub, blur-md único (no 2xl)
   const dockContainer = "flex items-center gap-1 p-1 rounded-full bg-surface/80 dark:bg-surface-container/70 backdrop-blur-md border border-outline-variant/25 shadow-sm overflow-x-auto no-scrollbar max-w-full";
-  const dockItemBase = "relative shrink-0 whitespace-nowrap px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-[11px] uppercase font-mono tracking-widest transition-colors duration-300 select-none cursor-pointer z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40";
+  const dockItemBase = "relative shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 sm:py-2.5 rounded-full text-[11px] sm:text-xs uppercase font-mono tracking-widest transition-colors duration-300 select-none cursor-pointer z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40";
 
   // Submenu — más sutil, mismo sistema físico que main
   const subDockContainer = "flex items-center gap-0.5 p-1 rounded-full bg-surface-dim/45 dark:bg-surface-container/45 backdrop-blur-md border border-outline-variant/15 overflow-x-auto no-scrollbar max-w-full shadow-sm";
-  const subDockItemBase = "relative shrink-0 whitespace-nowrap px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full text-[9.5px] sm:text-[10px] uppercase font-mono tracking-widest transition-colors duration-300 select-none cursor-pointer z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40";
+  const subDockItemBase = "relative shrink-0 whitespace-nowrap px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-full text-[11px] uppercase font-mono tracking-widest transition-colors duration-300 select-none cursor-pointer z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40";
 
 
   return (
@@ -56,13 +64,18 @@ export default function MiniTabNav({ activeTab, onNavigate, theme, onToggleTheme
           {CATEGORIES.map((cat) => {
             const isActive = activeCategory === cat.id;
             return (
-              <button
+              <a
                 key={cat.id}
-                type="button"
-                onClick={() => onNavigate(cat.defaultTabId)}
+                href={getPathForTab(cat.defaultTabId)}
+                onClick={(e) => {
+                  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+                  e.preventDefault();
+                  onNavigate(cat.defaultTabId);
+                }}
                 onMouseEnter={() => preloadTab(cat.defaultTabId)}
+                onPointerDown={() => preloadTab(cat.defaultTabId)}
                 aria-current={isActive ? "page" : undefined}
-                className={`${dockItemBase} ${
+                className={`${dockItemBase} block ${
                   isActive ? "text-on-surface font-bold" : "text-on-surface-variant hover:text-on-surface"
                 }`}
               >
@@ -74,21 +87,59 @@ export default function MiniTabNav({ activeTab, onNavigate, theme, onToggleTheme
                   />
                 )}
                 <span className="relative z-10">{cat.label}</span>
-              </button>
+              </a>
             );
           })}
         </div>
 
-        {/* Theme Toggle Dock */}
+        {/* Theme Toggle Dock — animación minimalista y sobria + reveal */}
         <div className={`${dockContainer} px-2`}>
-          <button
+          <motion.button
             type="button"
-            onClick={onToggleTheme}
-            className="p-1.5 rounded-full text-on-surface-variant hover:text-on-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-            aria-label="Toggle theme"
+            onClick={(e) => onToggleTheme(e.currentTarget.getBoundingClientRect())}
+            className="relative p-2 rounded-full text-on-surface-variant hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            aria-label={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+            title={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+            whileHover={shouldReduce ? undefined : { scale: 1.06 }}
+            whileTap={shouldReduce ? undefined : { scale: 0.94 }}
+            transition={{ duration: DUR.fast, ease: EASE_SUBTLE }}
           >
-            {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-          </button>
+            <span className="relative flex items-center justify-center w-4 h-4">
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                  key={theme}
+                  initial={
+                    shouldReduce
+                      ? { opacity: 0 }
+                      : { opacity: 0, scale: 0.82, rotate: -22 }
+                  }
+                  animate={
+                    shouldReduce
+                      ? { opacity: 1 }
+                      : { opacity: 1, scale: 1, rotate: 0 }
+                  }
+                  exit={
+                    shouldReduce
+                      ? { opacity: 0 }
+                      : { opacity: 0, scale: 0.82, rotate: 22 }
+                  }
+                  transition={
+                    shouldReduce
+                      ? { duration: 0.12 }
+                      : { duration: 0.30, ease: EASE_SUBTLE }
+                  }
+                  className="absolute inset-0 flex items-center justify-center"
+                  aria-hidden
+                >
+                  {theme === "dark" ? (
+                    <Sun className="w-4 h-4" />
+                  ) : (
+                    <Moon className="w-4 h-4" />
+                  )}
+                </motion.span>
+              </AnimatePresence>
+            </span>
+          </motion.button>
         </div>
       </div>
 
@@ -107,13 +158,18 @@ export default function MiniTabNav({ activeTab, onNavigate, theme, onToggleTheme
               {subSections.map((sub) => {
                 const isActive = activeTab === sub.tabId;
                 return (
-                  <button
+                  <a
                     key={sub.tabId}
-                    type="button"
-                    onClick={() => onNavigate(sub.tabId)}
+                    href={sub.path}
+                    onClick={(e) => {
+                      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+                      e.preventDefault();
+                      onNavigate(sub.tabId);
+                    }}
                     onMouseEnter={() => preloadTab(sub.tabId)}
+                    onPointerDown={() => preloadTab(sub.tabId)}
                     aria-current={isActive ? "page" : undefined}
-                    className={`${subDockItemBase} ${
+                    className={`${subDockItemBase} block ${
                       isActive ? "text-primary font-semibold" : "text-on-surface-variant/70 hover:text-on-surface"
                     }`}
                   >
@@ -125,7 +181,7 @@ export default function MiniTabNav({ activeTab, onNavigate, theme, onToggleTheme
                       />
                     )}
                     <span className="relative z-10">{sub.label}</span>
-                  </button>
+                  </a>
                 );
               })}
             </div>

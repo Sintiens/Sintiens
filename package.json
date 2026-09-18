@@ -5,10 +5,17 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
+    "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --outfile=dist-server/server.cjs",
+    "prebuild": "npm run validate:news && npm run validate:all && npm run generate:news",
     "preview": "vite preview",
-    "clean": "rm -rf dist server.cjs",
+    "start": "node dist-server/server.cjs",
+    "clean": "node -e \"for (const d of ['dist','dist-server']) { try { require('fs').rmSync(d,{recursive:true,force:true}); console.log('removed '+d); } catch(e){} }\"",
     "lint": "tsc --noEmit",
+    "validate:news": "node scripts/validate-news.mjs",
+    "validate:all": "node scripts/validate-all.mjs",
+    "generate:rss": "node scripts/generate-rss.mjs",
+    "generate:sitemap": "node scripts/generate-sitemap.mjs",
+    "generate:news": "node scripts/generate-rss.mjs && node scripts/generate-sitemap.mjs",
     "favicons": "node scripts/generate-favicons.mjs",
     "pwa-assets": "node scripts/generate-pwa-assets.mjs"
   },
@@ -22,6 +29,7 @@
     "motion": "^12.23.24",
     "react": "^19.0.1",
     "react-dom": "^19.0.1",
+    "react-helmet-async": "^3.0.0",
     "recharts": "^3.8.1",
     "vite": "^6.2.3"
   },

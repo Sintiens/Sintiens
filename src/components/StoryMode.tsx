@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
-import { ChevronDown } from "lucide-react";
+import { HeroShell } from "./ui/Shells";
+import { useModalOverlay } from "../hooks/useModalOverlay";
+import { scrollBehavior } from "../utils/motionPrefs";
 import SocraticReflection from "./SocraticReflection";
 import ConceptCard from "./ConceptCard";
 import { actsData } from "../data/storyData";
@@ -63,6 +65,8 @@ const [mobileNote, setMobileNote] = useState<{
   item: GlossaryEntry;
   actColor: string;
 } | null>(null);
+
+const mobileNoteSheetRef = useModalOverlay(!!mobileNote, () => setMobileNote(null));
 
 // Close the mobile note sheet with Escape
 useEffect(() => {
@@ -348,8 +352,8 @@ const handleScroll = () => {
         const { actId, entry, actRect, textRect, headerRect, titleRect, lastBlockRect, blockRects } = data;
         const { container, stickyHeader, chipInner, fixedBar, fillEl, blocks } = entry;
 
-        // Update mask
-        if (headerRect) {
+        // Update mask — solo si el act está activo o cerca (evita repaint de 6 acts por frame)
+        if (headerRect && (actId === newActive || Math.abs(actRect.top) < window.innerHeight * 1.2)) {
           const relativeBottom = headerRect.bottom - textRect.top;
           if (relativeBottom <= 0) {
             container.style.webkitMaskImage = "";
@@ -358,8 +362,13 @@ const handleScroll = () => {
             const fadeStart = relativeBottom - 15;
             const fadeEnd = relativeBottom + 35;
             const maskVal = `linear-gradient(to bottom, transparent ${fadeStart}px, black ${fadeEnd}px)`;
-            container.style.webkitMaskImage = maskVal;
-            container.style.maskImage = maskVal;
+            // Evita escritura si no cambió
+            const prevMask = (container as any)._prevMask as string | undefined;
+            if (prevMask !== maskVal) {
+              (container as any)._prevMask = maskVal;
+              container.style.webkitMaskImage = maskVal;
+              container.style.maskImage = maskVal;
+            }
           }
         }
 
@@ -458,16 +467,16 @@ return () => {
 const handleScrollTo = (id: string) => {
   const el = document.getElementById(id);
   if (el) {
-    el.scrollIntoView({ behavior: "smooth", block: "start" });
+      el.scrollIntoView({ behavior: scrollBehavior(), block: "start" });
   }
 };
 
 const chapterVariants = {
-hidden: { opacity: 0, y: 40 },
+hidden: { opacity: 0, y: 24 },
 visible: { 
 opacity: 1, 
 y: 0, 
-transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] as const } 
+transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as const } 
 }
 };
 
@@ -490,50 +499,33 @@ return (
   <div className="flex flex-col w-full space-y-8 lg:space-y-12 pb-16">
 
 {/* SECTION 0: Hero & Hook */}
-<section 
+<HeroShell
 id="hero"
-className="-mt-12 lg:-mt-20 flex flex-col items-center relative overflow-visible"
-style={{
-width: "calc(100vw - var(--scrollbar-width, 0px))",
-marginLeft: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
-marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
-}}
->
-{/* ... Hero Content ... */}
-<div className="w-full flex flex-col lg:justify-center items-center text-center relative h-[550px] min-h-[550px] lg:h-[600px] lg:min-h-[600px] pt-16 lg:pt-28 pb-12 lg:pb-16 px-6 lg:px-16">
-<div className="absolute top-[25px] left-[20px] w-6 h-6 pointer-events-none select-none flex items-center justify-center">
-<div className="absolute w-4 h-[2px] bg-primary/30" /><div className="absolute w-[2px] h-4 bg-primary/30" />
-</div>
-<div className="absolute top-[25px] right-[20px] w-6 h-6 pointer-events-none select-none flex items-center justify-center">
-<div className="absolute w-4 h-[2px] bg-primary/30" /><div className="absolute w-[2px] h-4 bg-primary/30" />
-</div>
-
-<div className="absolute top-8 left-8 text-left select-none hidden xl:block max-w-[280px]">
+watermark="¿"
+cue
+sideLeft={
 <div className="relative pt-0 space-y-4">
 <span className="text-[10px] font-mono font-bold text-primary uppercase tracking-widest block leading-none pl-6">SINTIENS LAB</span>
 <div className="relative pl-6 text-[11px] text-on-surface-variant font-light space-y-1.5 leading-relaxed border-l-2 border-primary/30">
 <p>• Proyecto iniciado: Mayo 2026</p><p>• Enfoque: Empírico-racional</p><p>• Código abierto e independiente</p>
 </div>
 </div>
-</div>
-
-<div className="absolute top-8 right-8 text-right select-none hidden xl:block max-w-[280px]">
+}
+sideRight={
 <div className="relative pt-0 space-y-4">
 <span className="text-[10px] font-mono font-bold text-primary uppercase tracking-widest block leading-none pr-6">ESTADO DEL SISTEMA</span>
 <div className="relative pr-6 text-[11px] text-on-surface-variant font-light space-y-1.5 leading-relaxed border-r-2 border-primary/30">
 <p>Versión Alpha •</p><p>Desarrollo y revisión asistidos por IA •</p><p>Sujeto a posibles inexactitudes •</p>
 </div>
 </div>
-</div>
-
-<div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden" style={{ zIndex: 0 }}>
-<span className="font-serif font-bold leading-none text-zinc-900 dark:text-zinc-100 blur" style={{ fontSize: "clamp(160px, 50vw, 600px)", opacity: 0.08, transform: "translateY(-20%)" }}>¿</span>
-</div>
+}
+>
+{/* ... Hero Content ... */}
 
 <div className="flex-1 lg:flex-none flex flex-col justify-center items-center w-full">
   {/* Title and Subtitle Section */}
-  <div className="space-y-2 lg:space-y-4 max-w-3xl w-full text-center relative z-10 mt-12 lg:mt-20">
-    <motion.h1 initial="hidden" animate="visible" variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.18 } } }} className="text-[clamp(42px,8.5vw,80px)] font-bold tracking-tight font-heading leading-[1.05] text-on-background select-none">
+  <div className="space-y-2 lg:space-y-4 w-full text-center">
+    <motion.h1 initial="hidden" animate="visible" variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.18 } } }} className="text-[clamp(42px,8.5vw,80px)] font-bold tracking-tight font-heading leading-[1.05] text-on-background select-text">
       <motion.span variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } } }} className="block sm:inline-block">
         ¿Qué vidas merecen&nbsp;
       </motion.span>
@@ -541,7 +533,7 @@ marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
         consideración moral?
       </motion.span>
     </motion.h1>
-    <p className="max-w-2xl mx-auto pt-1 font-serif italic font-light text-on-surface-variant/70 leading-relaxed text-[14px] sm:text-[16px] md:text-[18px] lg:text-[19px] text-center tracking-normal select-none">
+    <p className="max-w-2xl mx-auto pt-1 font-serif italic font-light text-on-surface-variant/70 leading-relaxed text-[14px] sm:text-[16px] md:text-[18px] lg:text-[19px] text-center tracking-normal select-text">
       Una mirada a la relación que mantenemos con los demás animales,<br className="hidden sm:inline" /> 
       y a lo que la evidencia tiene que decir al respecto.
     </p>
@@ -551,32 +543,18 @@ marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
   <div className="w-full max-w-7xl px-6 lg:px-16 mt-12 lg:mt-20 relative z-10 font-sans font-light leading-relaxed" />
 </div>
 
-<div className="w-full flex justify-center pt-10 lg:pt-16 select-none relative z-10">
-<motion.div className="text-primary/50 cursor-pointer" animate={{ y: [0, 4, 0] }} transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}>
-<ChevronDown className="w-5 h-5" />
-</motion.div>
-</div>
+</HeroShell>
 
-<div className="w-full relative z-[100] px-6 lg:px-16 max-w-7xl mx-auto pt-8 lg:pt-12">
-  <div className="flex justify-center">
-    <div className="pointer-events-auto">
-      {/* TabNav is now global in App.tsx */}
-    </div>
-  </div>
-</div>
-
-<div className="absolute bottom-[20px] left-[20px] w-6 h-6 pointer-events-none select-none flex items-center justify-center">
-<div className="absolute w-4 h-[2px] bg-primary/30" /><div className="absolute w-[2px] h-4 bg-primary/30" />
-</div>
-<div className="absolute bottom-[20px] right-[20px] w-6 h-6 pointer-events-none select-none flex items-center justify-center">
-<div className="absolute w-4 h-[2px] bg-primary/30" /><div className="absolute w-[2px] h-4 bg-primary/30" />
-</div>
-</div>
-
-<div className="mt-16 lg:mt-24 w-full text-left relative z-10 pt-4 px-2 pb-2">
+<div 
+className="mt-16 lg:mt-24 w-full text-left relative z-10 pt-4 px-2 pb-2"
+style={{
+  width: "calc(100vw - var(--scrollbar-width, 0px))",
+  marginLeft: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
+  marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
+}}
+>
 <SocraticReflection />
 </div>
-</section>
 
 <div 
   id="intro" 
@@ -598,6 +576,8 @@ marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
           width: "calc(100vw - var(--scrollbar-width, 0px))",
           left: "50%",
           transform: "translateX(-50%)",
+          maskImage: "linear-gradient(to bottom, transparent 0%, black 10%, black 86%, transparent 100%)",
+          WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 10%, black 86%, transparent 100%)",
         }}
       >
         <div className="absolute top-[0px] left-[-5vw] w-[500px] h-[500px] animate-float-1">
@@ -636,13 +616,13 @@ marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
     </div>
 
     {/* 5 Tarjetas de conceptos fundamentales */}
-    <div className="relative z-10 mb-16 lg:mb-24 -mx-6 lg:-mx-20">
+    <div className="relative z-10 mb-16 lg:mb-24 -mx-2 sm:mx-0 xl:-mx-12">
       <div className="text-center mb-6 lg:mb-8">
         <span className="text-[10px] font-mono font-bold text-primary uppercase tracking-widest block leading-none mb-3 drop-shadow-md">
           [ LOS 5 CONCEPTOS CLAVE ]
         </span>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 xl:grid-cols-5 gap-3 sm:gap-4">
         {[
           { id: 'sintiencia', color: 'bg-ch1' },
           { id: 'dolor-vs-nocicepcion', color: 'bg-ch2' },
@@ -650,13 +630,15 @@ marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
           { id: 'causalidad-sistemica', color: 'bg-ch3' },
           { id: 'axioma-implicito', color: 'bg-ch5' },
         ].map((item, i) => (
-          <ConceptCard key={item.id} number={i + 1} glossaryId={item.id} colorClass={item.color} />
+          <div key={item.id} className={`lg:col-span-2 xl:col-span-1 ${i === 3 ? 'lg:col-start-2 xl:col-start-auto' : ''} ${i === 4 ? 'sm:col-span-2' : ''}`}>
+            <ConceptCard number={i + 1} glossaryId={item.id} colorClass={item.color} />
+          </div>
         ))}
       </div>
     </div>
 
     {/* 6 Tarjetas del Índice de Actos */}
-    <div className="relative z-10 mb-16 lg:mb-24 -mx-6 lg:-mx-20">
+    <div className="relative z-10 mb-16 lg:mb-24 -mx-2 sm:mx-0 xl:-mx-12">
       <div className="text-center mb-6 lg:mb-8">
         <span className="text-[10px] font-mono font-bold text-primary uppercase tracking-widest block leading-none mb-3 drop-shadow-md">
           [ ÍNDICE ]
@@ -1062,10 +1044,10 @@ return (
               style={{
                 top: `${Math.max(20, activeNote.y - 80)}px`,
               }}
-              initial={{ opacity: 0, x: 24, scale: 0.96 }}
+              initial={{ opacity: 0, x: 18, scale: 0.98 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: 12, scale: 0.97 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+              exit={{ opacity: 0, x: 8, scale: 0.98 }}
+              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] as const, delay: 0.08 }}
             >
               <SideNoteCard
                 item={activeNote.item}
@@ -1107,7 +1089,7 @@ onClose={() => setDeepDiveData(null)}
 <AnimatePresence>
 {mobileNote && (
   createPortal(
-    <div  role="dialog" aria-modal="true" aria-label="Nota de glosario" className="fixed inset-0 z-[100] flex items-end justify-center pointer-events-auto select-none">
+    <div ref={mobileNoteSheetRef} role="dialog" aria-modal="true" aria-label="Nota de glosario" className="fixed inset-0 z-[100] flex items-end justify-center pointer-events-auto select-none">
       {/* Dark glass backdrop */}
       <motion.div
         initial={{ opacity: 0 }}

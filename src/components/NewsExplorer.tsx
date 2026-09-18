@@ -39,7 +39,9 @@ import {
 import { NEWS_DATA, NewsItem, SourceType } from "../data/newsData";
 import { GLOSSARY_UNIFIED, GLOSSARY_BY_ID } from "../data/glossaryUnified";
 import { buildGlossaryRegex } from "../utils/glossaryPatterns";
+import { SITE_URL, SITE_NAME } from "../utils/site.ts";
 import GlossaryLink from "./GlossaryLink";
+import { HeroShell } from "./ui/Shells";
 
 // Safe hostname extraction for favicon URLs
 const getDomain = (url: string): string => {
@@ -257,10 +259,20 @@ export default memo(function NewsExplorer() {
   const [visibleCount, setVisibleCount] = useState<number>(12);
   const INITIAL_VISIBLE = 12;
   const LOAD_MORE_STEP = 12;
+  // Deep link de entrada (?id= o #<id>): se calcula una sola vez al montar
+  const [deepLinkTargetId] = useState<string | null>(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("id") || window.location.hash.replace("#", "") || null;
+    } catch {
+      return null;
+    }
+  });
   const [expandedIds, setExpandedIds] = useState<Set<string>>(() => new Set());
   const controlBarRef = useRef<HTMLDivElement | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const newsTitleRef = useRef<HTMLDivElement | null>(null);
+  const popScrollTimerRef = useRef<number | null>(null);
   const filterTrapRef = useFocusTrap(isMainFilterOpen);
 
   const toggleExpanded = (id: string) => {
@@ -374,6 +386,9 @@ export default memo(function NewsExplorer() {
       if (sortOrder !== "recientes") params.set("sort", sortOrder);
       const qTrim = debouncedQuery.trim();
       if (qTrim) params.set("q", qTrim);
+      // Conservar el ?id= activo (deep link a una noticia concreta)
+      const currentId = new URLSearchParams(window.location.search).get("id");
+      if (currentId) params.set("id", currentId);
       const qs = params.toString();
       const hash = window.location.hash || "";
       const newUrl = `${window.location.pathname}${qs ? `?${qs}` : ""}${hash}`;
@@ -407,13 +422,33 @@ export default memo(function NewsExplorer() {
         setSelectedYear(y && /^\d{4}$/.test(y) ? y : "todos");
         const so = params.get("sort");
         setSortOrder(so === "antiguas" ? "antiguas" : "recientes");
+        // Restaurar deep link a noticia concreta si lo hay
+        const id = params.get("id") || window.location.hash.replace("#", "") || null;
+        const sorted = [...NEWS_DATA].sort((a, b) => b.date.localeCompare(a.date));
+        const idx = id ? sorted.findIndex((n) => n.id === id) : -1;
+        if (id && idx !== -1) {
+          if (idx >= INITIAL_VISIBLE) {
+            setVisibleCount(
+              Math.min(sorted.length, Math.ceil((idx + 1) / LOAD_MORE_STEP) * LOAD_MORE_STEP)
+            );
+          }
+          setHighlightedCardId(id);
+          if (popScrollTimerRef.current) window.clearTimeout(popScrollTimerRef.current);
+          popScrollTimerRef.current = window.setTimeout(() => {
+            const el = document.getElementById(id);
+            if (el) el.scrollIntoView({ behavior: "auto", block: "center" });
+          }, 150);
+        }
         setTimeout(() => (isSyncingFromUrlRef.current = false), 80);
       } catch {
         isSyncingFromUrlRef.current = false;
       }
     };
     window.addEventListener("popstate", onPopState);
-    return () => window.removeEventListener("popstate", onPopState);
+    return () => {
+      window.removeEventListener("popstate", onPopState);
+      if (popScrollTimerRef.current) window.clearTimeout(popScrollTimerRef.current);
+    };
   }, []);
 
   // Monitor scroll to detect when the single unified spotlight bar becomes sticky at top-4.
@@ -463,46 +498,27 @@ export default memo(function NewsExplorer() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isMainFilterOpen, activeTaxonomyDrawer]);
 
-  // Deep linking: Auto-scroll on initial load if URL contains hash or ?id=
+  // Deep linking: scroll + resaltado al cargar con ?id= o #<id>
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const idFromQuery = params.get("id");
-    const hash = window.location.hash.replace("#", "");
-    const targetId = idFromQuery || hash;
-    if (targetId) {
-      const item = NEWS_DATA.find((n) => n.id === targetId);
-      if (item) {
-        // Si el item está fuera de paginación inicial, expandir
-        const idx = NEWS_DATA.findIndex((n) => n.id === targetId);
-        if (idx !== -1) {
-          // Asegurar que visibleCount incluye el índice (aprox, considerando orden recientes por defecto)
-          const sorted = [...NEWS_DATA].sort((a,b)=> b.date.localeCompare(a.date));
-          const sortedIdx = sorted.findIndex((n)=> n.id === targetId);
-          if (sortedIdx >= 12) {
-            setVisibleCount(Math.min(sorted.length, Math.ceil((sortedIdx+1)/12)*12));
-          }
-        }
-        setTimeout(() => {
-          const element = document.getElementById(targetId);
-          if (element) {
-            element.scrollIntoView({ behavior: "smooth", block: "center" });
-            setHighlightedCardId(targetId);
-            setTimeout(() => setHighlightedCardId(null), 3500);
-          } else {
-            // Fallback: si aún no renderizado por paginación, reintentar
-            setTimeout(() => {
-              const el2 = document.getElementById(targetId);
-              if (el2) {
-                el2.scrollIntoView({ behavior: "smooth", block: "center" });
-                setHighlightedCardId(targetId);
-                setTimeout(() => setHighlightedCardId(null), 3500);
-              }
-            }, 600);
-          }
-        }, 600);
+    if (!deepLinkTargetId) return;
+    const item = NEWS_DATA.find((n) => n.id === deepLinkTargetId);
+    if (!item) return;
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const timers: number[] = [];
+    const scrollToTarget = (attempt: number) => {
+      const element = document.getElementById(deepLinkTargetId);
+      if (element) {
+        element.scrollIntoView({ behavior: prefersReduced ? "auto" : "smooth", block: "center" });
+        setHighlightedCardId(deepLinkTargetId);
+        timers.push(window.setTimeout(() => setHighlightedCardId(null), 3500));
+      } else if (attempt === 0) {
+        // Reintento: puede que la paginación aún no haya renderizado la tarjeta
+        timers.push(window.setTimeout(() => scrollToTarget(1), 600));
       }
-    }
-  }, []);
+    };
+    timers.push(window.setTimeout(() => scrollToTarget(0), 600));
+    return () => timers.forEach((t) => window.clearTimeout(t));
+  }, [deepLinkTargetId]);
 
   const handleCopyLink = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
@@ -582,14 +598,29 @@ export default memo(function NewsExplorer() {
   const hasMore = visibleCount < sortedNews.length;
   const remaining = sortedNews.length - visibleCount;
 
-  // Reset paginación al cambiar cualquier filtro/búsqueda/orden
+  // Reset paginación al cambiar cualquier filtro/búsqueda/orden.
+  // En el primer render, si hay deep link a una noticia fuera del primer bloque,
+  // se expande hasta incluirla (si no, el reset pisaría el deep link).
+  const deepLinkAppliedRef = useRef(false);
   useEffect(() => {
+    if (!deepLinkAppliedRef.current && deepLinkTargetId) {
+      deepLinkAppliedRef.current = true;
+      const sorted = [...NEWS_DATA].sort((a, b) => b.date.localeCompare(a.date));
+      const idx = sorted.findIndex((n) => n.id === deepLinkTargetId);
+      if (idx >= INITIAL_VISIBLE) {
+        setVisibleCount(
+          Math.min(sorted.length, Math.ceil((idx + 1) / LOAD_MORE_STEP) * LOAD_MORE_STEP)
+        );
+        return;
+      }
+    }
+    deepLinkAppliedRef.current = true;
     setVisibleCount(INITIAL_VISIBLE);
-  }, [selectedRegion, selectedYear, selectedCategory, selectedImpact, selectedSourceType, debouncedQuery, sortOrder]);
+  }, [selectedRegion, selectedYear, selectedCategory, selectedImpact, selectedSourceType, debouncedQuery, sortOrder, deepLinkTargetId]);
 
   // SEO: JSON-LD CollectionPage + NewsArticle para cada noticia visible (muy cuidadoso)
   const structuredData = useMemo(() => {
-    const baseUrl = "https://sintiens.onrender.com/noticias";
+    const baseUrl = `${SITE_URL}/noticias`;
     return {
       "@context": "https://schema.org",
       "@type": "CollectionPage",
@@ -608,7 +639,7 @@ export default memo(function NewsExplorer() {
         isAccessibleForFree: true,
         url: `${baseUrl}?id=${item.id}`,
         author: { "@type": "Organization", name: item.source },
-        publisher: { "@type": "Organization", name: "Sintiens", url: "https://sintiens.onrender.com" },
+        publisher: { "@type": "Organization", name: SITE_NAME, url: SITE_URL },
       })),
     };
   }, [paginatedNews]);
@@ -1122,45 +1153,22 @@ export default memo(function NewsExplorer() {
   };
 
   return (
-    <div id="news-section-view" className="-mt-12 lg:-mt-20 space-y-8 w-full relative max-w-full mx-auto">
+    <div id="news-section-view" className="space-y-8 w-full relative max-w-full mx-auto">
 
       {/* ───────────── HERO (restaurado 550/600 publicada + ambient glows StoryMode) ───────────── */}
-      <div
-        className="flex flex-col items-center relative overflow-visible"
-        style={{
-          width: "calc(100vw - var(--scrollbar-width, 0px))",
-          marginLeft: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
-          marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
-        }}
-      >
-        <div className="w-full flex flex-col lg:justify-center items-center text-center relative h-[550px] min-h-[550px] lg:h-[600px] lg:min-h-[600px] pt-16 lg:pt-28 pb-20 lg:pb-24 px-6 lg:px-16 overflow-visible">
-          {/* Esquinas tipo crosshair — publicada: 25px/20px */}
-          <div className="absolute top-[25px] left-[20px] w-6 h-6 pointer-events-none select-none flex items-center justify-center z-10">
-            <div className="absolute w-4 h-[2px] bg-primary/30" /><div className="absolute w-[2px] h-4 bg-primary/30" />
-          </div>
-          <div className="absolute top-[25px] right-[20px] w-6 h-6 pointer-events-none select-none flex items-center justify-center z-10">
-            <div className="absolute w-4 h-[2px] bg-primary/30" /><div className="absolute w-[2px] h-4 bg-primary/30" />
-          </div>
-          <div className="absolute bottom-[25px] left-[20px] w-6 h-6 pointer-events-none select-none flex items-center justify-center z-10">
-            <div className="absolute w-4 h-[2px] bg-primary/30" /><div className="absolute w-[2px] h-4 bg-primary/30" />
-          </div>
-          <div className="absolute bottom-[25px] right-[20px] w-6 h-6 pointer-events-none select-none flex items-center justify-center z-10">
-            <div className="absolute w-4 h-[2px] bg-primary/30" /><div className="absolute w-[2px] h-4 bg-primary/30" />
-          </div>
-
-          <motion.div variants={headerVariants} initial="hidden" animate="visible" className="relative z-10 space-y-7 sm:space-y-8 max-w-3xl">
-            <motion.h1 variants={childVariants} className="text-[clamp(42px,8.5vw,80px)] font-bold tracking-tight font-heading leading-[1.05] text-on-background select-none">
-              Noticias
-              <span className="font-serif italic font-light text-on-surface-variant/75 block mt-3 sm:mt-4 text-[clamp(20px,3.2vw,32px)] tracking-normal">
-                Registro &amp; Análisis
-              </span>
-            </motion.h1>
-            <motion.p variants={childVariants} className="max-w-2xl mx-auto pt-2 sm:pt-3 font-serif italic font-light text-on-surface-variant/70 leading-relaxed text-[14px] sm:text-[16px] md:text-[18px] lg:text-[19px] text-center tracking-normal select-none">
-              Selección, síntesis y seguimiento de los eventos más determinantes para los animales, ordenados por metodología de impacto y con acceso a sus fuentes originales.
-            </motion.p>
-          </motion.div>
-        </div>
-      </div>
+      <HeroShell border="none" watermark={null}>
+        <motion.div variants={headerVariants} initial="hidden" animate="visible" className="space-y-7 sm:space-y-8">
+          <motion.h1 variants={childVariants} className="text-[clamp(42px,8.5vw,80px)] font-bold tracking-tight font-heading leading-[1.05] text-on-background select-none">
+            Noticias
+            <span className="font-serif italic font-light text-on-surface-variant/75 block mt-3 sm:mt-4 text-[clamp(20px,3.2vw,32px)] tracking-normal">
+              Registro &amp; Análisis
+            </span>
+          </motion.h1>
+          <motion.p variants={childVariants} className="max-w-2xl mx-auto pt-2 sm:pt-3 font-serif italic font-light text-on-surface-variant/70 leading-relaxed text-[14px] sm:text-[16px] md:text-[18px] lg:text-[19px] text-center tracking-normal select-none">
+            Selección, síntesis y seguimiento de los eventos más determinantes para los animales, ordenados por metodología de impacto y con acceso a sus fuentes originales.
+          </motion.p>
+        </motion.div>
+      </HeroShell>
 
       {/* ───────────── MAIN CONTENT (BELOW MENU & HERO) — margenes laterales reducidos ~50% ───────────── */}
       <div className="space-y-8 relative z-10">

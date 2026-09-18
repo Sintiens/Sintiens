@@ -10,13 +10,17 @@ const data = [
 
 export default function MeatConsumptionChart() {
   return (
-    <div className="w-full h-80 bg-zinc-50 dark:bg-zinc-900/50 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800">
+    <div
+      role="img"
+      aria-label="Evolución del consumo de carne per cápita en kg al año, 1961 a 2021: EE.UU. pasa de 89,8 a 126,8; Brasil de 27,5 a 98,7; China de 3,8 a 63,6; media mundial de 23,1 a 42,8."
+      className="w-full h-80 bg-zinc-50 dark:bg-zinc-900/50 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800"
+    >
       <h4 className="text-sm font-semibold mb-4 text-zinc-700 dark:text-zinc-300">Consumo de Carne per Cápita (kg/año)</h4>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#525252" opacity={0.2} />
-          <XAxis dataKey="year" stroke="#888" fontSize={12} />
-          <YAxis stroke="#888" fontSize={12} />
+          <XAxis dataKey="year" stroke="#71717a" fontSize={12} />
+          <YAxis stroke="#71717a" fontSize={12} />
           <Tooltip 
             contentStyle={{ backgroundColor: "#18181b", borderColor: "#3f3f46", borderRadius: "8px", color: "#f4f4f5" }}
             itemStyle={{ color: "#f4f4f5" }}

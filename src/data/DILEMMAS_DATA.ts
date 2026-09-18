@@ -9,7 +9,7 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
     consensus: "FALACIA",
     scientificDeconstruction: "Los leones son carnívoros biológicos obligatorios: carecen de las enzimas necesarias para sintetizar nutrientes vitales a partir de plantas [3]. En cambio, el ser humano es un omnívoro flexible dotado de un tracto digestivo capaz de asimilar perfectamente todos los macro y micronutrientes necesarios a partir de fuentes vegetales [1]. Además, los animales salvajes operan por instinto de supervivencia y no generan industrias de cría masiva confinada ni contaminan el planeta.",
     philosophicalDeconstruction: "Apelar a la conducta de un felino salvaje cae directamente en la 'Falacia Naturalista' o ley de Hume: asumir que lo que ocurre en la naturaleza dicta lo que es éticamente correcto [2]. Los leones carecen de discernimiento moral; los humanos somos agentes morales con libre albedrío, conciencia y pleno acceso a alternativas vegetales. Justificar el maltrato animal masivo copiando la conducta de un carnívoro salvaje es una contradicción lógica [1].",
-    coexistenceImpact: "Relegar nuestra ética humana moderna a la conducta de un felino salvaje para justificar la ganadería industrial representa una renuncia voluntaria a nuestra racionalidad moral y compasión.",
+    coexistenceImpact: "Relegar nuestra ética humana moderna a la conducta de un felino salvaje para justificar la ganadería industrial invita a preguntarse qué distingue nuestra deliberación moral —capaz de elegir— del instinto de un depredador que no puede hacer otra cosa.",
     citation: "Singer, P. (1975). Animal Liberation (Chapter 6).",
     references: [
       {
@@ -34,7 +34,7 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
     consensus: "FALACIA",
     scientificDeconstruction: "Las plantas reaccionan mecánicamente a las agresiones físicas liberando gases químicos (etileno fitohormonal) [1]. Sin embargo, carecen por completo de sistema nervioso centralizado, nociceptores y cerebro. Al no tener esta infraestructura fisiológica, sus respuestas son reflejos bioquímicos automáticos que no se traducen en una experiencia emocional subjetiva ni en dolor consciente [2].",
     philosophicalDeconstruction: "Incluso si aceptáramos el absurdo biológico de que las plantas sienten dolor, la ineficiencia termodinámica de la ganadería industrial significa que los animales consumen entre 10 y 16 veces más alimento vegetal para producir un kilo de carne [3]. Por tanto, comer plantas directamente (veganismo) reduce drásticamente el volumen total de vidas vegetales destruidas en más de un 90% [3].",
-    coexistenceImpact: "Equiparar la reacción bioquímica de una lechuga con el pánico conscientes y el dolor real de un animal en el matadero es una severa simplificación de la conciencia biológica.",
+    coexistenceImpact: "Equiparar la reacción bioquímica de una lechuga con el pánico y el dolor de un animal en el matadero simplifica en exceso lo que la biología distingue: nocicepción refleja frente a experiencia consciente del sufrimiento.",
     citation: "Taiz, L. et al. (2019). Plant sentience: The burden of proof.",
     references: [
       {
@@ -204,7 +204,7 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
     consensus: "FALACIA",
     scientificDeconstruction: "René Descartes argumentaba en 1637 que los animales eran autómatas biológicos desprovistos de dolor consciente [1]. La neurobiología evolutiva moderna desmiente radicalmente este dualismo: todos los vertebrados poseen un tronco encefálico homólogo al humano y neurotransmisores idénticos (como las endorfinas y el cortisol) para procesar el dolor emocional y el miedo de forma consciente [2]. La Declaración de Cambridge sobre la Conciencia certifica científicamente esta realidad [2].",
     philosophicalDeconstruction: "Esta perspectiva cartesiana actuó como una 'inmunización moral' para justificar abusos salvajes y vivisecciones históricas. La consistencia ética secular dicta que para merecer consideración moral no se requiere la capacidad de hablar o resolver ecuaciones abstractas, sino el estatus biológico de la sintiencia: la capacidad de sufrir de forma consciente [1, 2].",
-    coexistenceImpact: "Erradica el negacionismo intelectual que trata al maltrato animal como un simple crujido de engranajes para ignorar el pánico y el dolor subjetivo en el cautiverio.",
+    coexistenceImpact: "Cuestiona la imagen del animal-mecanismo insensible: si el pánico y el dolor en el cautiverio son experiencias subjetivas reales, ¿qué justifica tratarlos como un simple crujido de engranajes?",
     citation: "Descartes, R. (1637). Discurso del método.",
     references: [
       {
@@ -269,7 +269,7 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
     title: "La Prioridad Humanitaria",
     popularStatement: "Debemos concentrar todos nuestros recursos en solucionar el hambre y la pobreza humana antes de preocuparnos por los animales.",
     consensus: "FALACIA",
-    scientificDeconstruction: "La ganadería industrial e intensiva consume anualmente miles de millones de toneladas de soja y cereales que podrían alimentar directamente a toda la población mundial de forma directa y eficiente [3]. La ineficiencia termodinámica del filtrado calórico a través del ganado acapara el 80% del suelo agrícola global, agravando de forma directa la escasez mundial de recursos agrarios [2, 3].",
+    scientificDeconstruction: "La ganadería industrial e intensiva consume anualmente miles de millones de toneladas de soja y cereales que podrían alimentar directamente a toda la población mundial de forma directa y eficiente [3]. La ineficiencia termodinámica del filtrado calórico a través del ganado acapara el 83% del suelo agrícola global, agravando de forma directa la escasez mundial de recursos agrarios [2, 3].",
     philosophicalDeconstruction: "Este argumento cae en la falacia del falso dilema. El veganismo y los derechos de los animales no son una causa que reste recursos a los humanos: es un cese pasivo de la financiación de la violencia industrial. Dejar de consumir carne no impide luchar contra el hambre humana; de hecho, libera inmensos recursos de tierras y agua en favor de los países del tercer mundo [1, 2].",
     coexistenceImpact: "Desarticula la excusa colectiva de que el respeto por las vidas animales compite con la justicia humana, mostrando que ambos círculos de compasión se refuerzan mutuamente.",
     citation: "Adams, C. J. (1990). The Sexual Politics of Meat.",
@@ -578,5 +578,35 @@ export const DILEMMAS_DATA: DilemmaDetail[] = [
       { id: "2", citation: "Stanford Encyclopedia of Philosophy (2017). Fallacies (Walton, D.).", url: "https://plato.stanford.edu/entries/fallacies/" }
     ],
     openQuestion: "¿En qué medida nuestras propias generalizaciones basadas en experiencias individuales moldean injustamente cómo valoramos el comportamiento de industrias enteras?"
+  },
+  {
+    id: "sexado-in-ovo",
+    category: "sistemas_uso",
+    title: "Sexado in-ovo: ¿la biotecnología resuelve el sacrificio de pollitos machos?",
+    popularStatement: "«El sexado in-ovo ya detecta el sexo del embrión dentro del huevo antes de nacer: ¿es el fin del sacrificio masivo de pollitos machos, o la industria solo ha encontrado una forma más aséptica de descartar vidas?»",
+    consensus: "ESCENARIO_GRIS",
+    scientificDeconstruction: "En la industria avícola de puesta, la mitad de los huevos fértiles producen pollitos machos, inútiles para la producción de huevos y económicamente inviables para la carne: cada año se sacrifican miles de millones de pollitos recién nacidos en todo el mundo, normalmente por maceración o gasificación [1]. El sexado in-ovo analiza el embrión dentro del huevo entre los días 9 y 14 de incubación mediante espectroscopía óptica (p. ej. espectroscopía Raman o espectroscopía de infrarrojo cercano) o análisis de ADN a partir de micro-muestras, permitiendo retirar los huevos machos antes de la eclosión [1]. Sistemas comerciales como SelEggt alcanzan una precisión superior al 99% en la identificación del sexo y descartan los huevos machos en fase embrionaria [2]. Esta tecnología está siendo impulsada por legislación: Alemania prohibió el sacrificio de pollitos machos a partir de 2022 y Francia a partir de 2023, forzando a la industria a adoptar alternativas [1].",
+    philosophicalDeconstruction: "La tecnología plantea una paradoja moral: elimina el sufrimiento de cientos de millones de pollitos ya nacidos, pero convierte la vida animal en un input de producción aún más perfectamente gestionado, donde el macho es descartado como defecto de fábrica en estado embrionario [1]. Quienes defienden el bienestarismo ven un progreso tangible y mensurable; quienes sostienen posturas abolicionistas argumentan que optimizar el descarte no cuestiona el sistema que define a los animales como mercancía, solo perfecciona su gestión [2]. Además, la evidencia sobre la sintiencia embrionaria temprana sigue siendo limitada, lo que convierte el umbral del día 9 en una decisión política tanto como científica: ¿qué confiere estatus moral a un embrión, y cuándo exactamente?",
+    coexistenceImpact: "El sexado in-ovo demuestra que la legislación puede forzar cambios tecnológicos reales en favor de los animales, un precedente de cómo la sociedad civil y el derecho pueden moldear la industria [1]. Pero la coexistencia futura exigirá decidir si estas soluciones son el destino final o una estación intermedia: la misma capacidad de análisis que hoy descarta huevos machos podría mañana usarse para seleccionar rasgos de mayor sufrimiento silencioso. La pregunta socrática queda abierta: ¿cuando la tecnología nos permite evitar el sufrimiento sin coste, seguimos justificando el resto del sistema de explotación?",
+    references: [
+      { id: "1", citation: "Krautwald-Junghanns, M.-E., Cramer, K., Fischer, B., et al. (2018). Current approaches to avoid the culling of day-old male chicks in the layer industry, with special reference to spectroscopic methods. Poultry Science, 97(3), 749-757.", url: "https://doi.org/10.3382/ps/pex389" },
+      { id: "2", citation: "HatchTech Group (2026). SelEggt In-Ovo Sexing: early DNA-based sex determination from day 9 of incubation.", url: "https://www.respeggt.com/" }
+    ],
+    openQuestion: "¿El sexado in-ovo elimina un sufrimiento real o solo vuelve invisible un descarte que el sistema sigue considerando inevitable?"
+  },
+  {
+    id: "ia-bienestar-animal",
+    category: "sistemas_uso",
+    title: "Inteligencia artificial en favor del bienestar animal",
+    popularStatement: "«La tecnología se usa para producir más barato; ¿puede la IA ponerse también al servicio de medir y proteger el bienestar de los animales?»",
+    consensus: "CONSENSO",
+    scientificDeconstruction: "La inteligencia artificial y el aprendizaje automático ya se aplican de forma demostrada al monitoreo del bienestar animal [1]. Modelos de deep learning entrenados con miles de vocalizaciones identifican automáticamente llamadas de angustia en pollos de granja, un 'indicador iceberg' del bienestar que antes dependía de anotación manual lenta y costosa [2]. En paralelo, sensores conectados, big data y visión por computadora permiten detectar de forma continua y no invasiva signos de dolor, estrés y enfermedad en ganadería de precisión: cojeras, problemas respiratorios y comportamientos anómalos son reconocidos antes de que los humanos los perciban [1]. La misma tecnología acústica se emplea en conservación y santuarios para monitorizar fauna silvestre sin interferir en su comportamiento [1].",
+    philosophicalDeconstruction: "La IA es una herramienta moralmente neutra cuyo signo ético depende de quien la despliegue. En la ganadería de precisión, el monitoreo puede mejorar el bienestar de los animales existentes —un avance bienestarista real— o convertirse en un sistema de vigilancia que optimiza la productividad sin cuestionar el marco de explotación [1]. Para los animales que ya existen en las granjas, cada capacidad de detectar dolor evitable se traduce en sufrimiento evitado, lo que concede a estas tecnologías un valor utilitario inmediato; pero la pregunta de fondo sigue siendo si perfeccionar el cuidado dentro del sistema es un paso hacia su superación o una forma de hacerlo moralmente más cómodo de sostener [2].",
+    coexistenceImpact: "La IA abre una vía concreta de reconciliación entre industria y ética: etiquetas de bienestar verificadas por monitoreo algorítmico independiente, auditorías continuas frente a inspecciones puntuales y una transparencia que hoy no existe en la cadena de suministro [1]. Para la convivencia futura, la cuestión no es si la tecnología puede medir el sufrimiento —ya puede— sino quién controla esos datos y con qué incentivos: ¿un modelo de negocio que cobra por certificar bienestar, o una infraestructura pública que garantice que los animales no paguen el coste de nuestra desatención?",
+    references: [
+      { id: "1", citation: "Neethirajan, S. (2020). The role of sensors, big data and machine learning in modern animal farming. Sensing and Bio-Sensing Research, 29, 100367.", url: "https://doi.org/10.1016/j.sbsr.2020.100367" },
+      { id: "2", citation: "Mao, A., Giraudet, C. S. E., Liu, K., et al. (2022). Automated identification of chicken distress vocalizations using deep learning models. Journal of the Royal Society Interface, 19(191), 20210921.", url: "https://doi.org/10.1098/rsif.2021.0921" }
+    ],
+    openQuestion: "Si la IA ya es capaz de leer el sufrimiento de los animales en tiempo real, ¿qué nos impide —a nosotros como sociedad— dejar de causarlo?"
   }
 ];

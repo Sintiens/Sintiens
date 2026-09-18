@@ -5,9 +5,11 @@ services:
     plan: free
     healthCheckPath: /api/ping
     buildCommand: npm run build
-    startCommand: node dist/server.cjs
+    startCommand: node dist-server/server.cjs
     envVars:
       - key: NODE_ENV
         value: production
+      - key: SITE_URL
+        value: https://sintiens.duckdns.org
       - key: GEMINI_API_KEY
         sync: false # You will enter the value in the Render dashboard

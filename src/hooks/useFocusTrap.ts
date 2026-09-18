@@ -1,18 +1,38 @@
 import { useEffect, useRef } from "react";
 
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+function isVisible(el: HTMLElement): boolean {
+  // offsetParent es null en fixed/ocultos; getClientRects cubre todos los casos
+  return el.getClientRects().length > 0 && !el.hasAttribute("hidden") && el.getAttribute("aria-hidden") !== "true";
+}
+
 export function useFocusTrap(active: boolean) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!active || !containerRef.current) return;
     const container = containerRef.current;
-    const focusable = () => Array.from(container.querySelectorAll<HTMLElement>(
-      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    )).filter(el => !el.hasAttribute("hidden") && el.getAttribute("aria-hidden") !== "true");
+    // Restaurar el foco al elemento que lo tenía al cerrar
+    const previouslyFocused = document.activeElement as HTMLElement | null;
 
-    const first = focusable()[0];
+    const focusable = () =>
+      Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(isVisible);
+
+    const focusInitial = () => {
+      const first = focusable()[0];
+      if (first) {
+        first.focus();
+      } else {
+        // Sin elementos focusables: el propio contenedor recibe el foco
+        if (!container.hasAttribute("tabindex")) container.setAttribute("tabindex", "-1");
+        container.focus();
+      }
+    };
+
     // Focus first element after paint
-    requestAnimationFrame(() => first?.focus());
+    const raf = requestAnimationFrame(focusInitial);
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key !== "Tab") return;
@@ -32,8 +52,24 @@ export function useFocusTrap(active: boolean) {
         }
       }
     };
+    // Red de seguridad: si el foco escapa (lectores de pantalla, clic programático), devolverlo al diálogo
+    const onFocusIn = (e: FocusEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target || container.contains(target)) return;
+      // Si otro diálogo modal activo reclama el foco, no interferir
+      const otherDialog = target.closest('[aria-modal="true"]');
+      if (otherDialog && otherDialog !== container) return;
+      focusInitial();
+    };
+
     container.addEventListener("keydown", onKeyDown);
-    return () => container.removeEventListener("keydown", onKeyDown);
+    document.addEventListener("focusin", onFocusIn);
+    return () => {
+      cancelAnimationFrame(raf);
+      container.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("focusin", onFocusIn);
+      previouslyFocused?.focus?.();
+    };
   }, [active]);
 
   return containerRef;

@@ -30,6 +30,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { HeroShell } from "./ui/Shells";
 
 interface AIAnalysisResult {
   argumentSummary: string;
@@ -148,12 +149,36 @@ const LOADING_PHRASES = [
 /* ── Persistencia del historial ── */
 const HISTORY_KEY = "sintiens-descompresor-historial";
 
+function isValidHistoryEntry(value: unknown): value is HistoryEntry {
+  if (!value || typeof value !== "object") return false;
+  const entry = value as Partial<HistoryEntry>;
+  const result = entry.result as Partial<AIAnalysisResult> | undefined;
+  return (
+    typeof entry.id === "string" &&
+    typeof entry.argument === "string" &&
+    typeof entry.timestamp === "number" &&
+    ANALYSIS_MODES.some((mode) => mode.id === entry.mode) &&
+    !!result &&
+    typeof result === "object" &&
+    typeof result.argumentSummary === "string" &&
+    Array.isArray(result.axioms) &&
+    Array.isArray(result.logicalFailures) &&
+    !!result.scientificAccuracy &&
+    typeof result.scientificAccuracy.rating === "string" &&
+    typeof result.scientificAccuracy.analysis === "string" &&
+    !!result.impactAnalysis &&
+    typeof result.impactAnalysis.sintiente === "string" &&
+    typeof result.impactAnalysis.ecosistemic === "string" &&
+    typeof result.alternativeReflection === "string"
+  );
+}
+
 function loadHistory(): HistoryEntry[] {
   try {
     const raw = localStorage.getItem(HISTORY_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    return Array.isArray(parsed) ? parsed.filter(isValidHistoryEntry) : [];
   } catch {
     return [];
   }
@@ -191,6 +216,7 @@ export default memo(function AiValidator({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const isMountedRef = useRef(true);
+  const lastProcessedArgumentRef = useRef<string | null>(null);
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -229,11 +255,15 @@ export default memo(function AiValidator({
 
   /* ── Disparo desde otras pestañas (argumento pasado por props) ── */
   useEffect(() => {
-    if (argumentToAnalyze && !loading) {
-      setUserInput(argumentToAnalyze);
-      void handleSubmit(argumentToAnalyze, mode);
-      clearArgument();
+    if (!argumentToAnalyze) {
+      lastProcessedArgumentRef.current = null;
+      return;
     }
+    if (argumentToAnalyze === lastProcessedArgumentRef.current || loading) return;
+    lastProcessedArgumentRef.current = argumentToAnalyze;
+    setUserInput(argumentToAnalyze);
+    void handleSubmit(argumentToAnalyze, mode);
+    clearArgument();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [argumentToAnalyze, loading]);
 
@@ -363,64 +393,34 @@ export default memo(function AiValidator({
   const clearHistory = () => setHistory([]);
 
   const activeMode = ANALYSIS_MODES.find((m) => m.id === mode)!;
-  const severity = analysis ? inferSeverity(analysis.scientificAccuracy.rating) : null;
+  const severity = analysis ? inferSeverity(analysis.scientificAccuracy?.rating ?? "") : null;
 
   return (
     <motion.section
       id="ai-validator-view"
-      className="-mt-12 lg:-mt-20 space-y-10 w-full relative"
+      className="space-y-10 w-full relative"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
 
       {/* ═════════════════════════ HERO ═════════════════════════ */}
-      <div className="w-full flex flex-col lg:justify-center items-center text-center relative h-[550px] min-h-[550px] lg:h-[600px] lg:min-h-[600px] pt-16 lg:pt-28 pb-20 lg:pb-24 px-6 lg:px-16 border-b border-outline-variant/20">
-        {/* Esquinas crosshair */}
-        {["top-6 left-6", "top-6 right-6", "bottom-6 left-6", "bottom-6 right-6"].map((pos) => (
-          <div
-            key={pos}
-            className={`absolute ${pos} w-6 h-6 pointer-events-none select-none flex items-center justify-center`}
-          >
-            <div className="absolute w-4 h-[2px] bg-primary/30" />
-            <div className="absolute w-[2px] h-4 bg-primary/30" />
-          </div>
-        ))}
-
-        {/* Icono de fondo */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden" style={{ zIndex: 0 }}>
-          <BrainCircuit
-            className="text-zinc-900 dark:text-zinc-100 blur"
-            style={{
-              width: "clamp(144px, 45vw, 540px)",
-              height: "clamp(144px, 45vw, 540px)",
-              opacity: 0.08,
-              strokeWidth: 1.5,
-            }}
-          />
-        </div>
-
+      <HeroShell id="hero" pad="wide" border="20" watermark={{ icon: BrainCircuit, opacity: 0.08, strokeWidth: 1.5 }}>
         <motion.div
           initial="hidden"
           animate="visible"
           variants={{ visible: { transition: { staggerChildren: 0.12 } } }}
-          className="relative z-10 space-y-6 max-w-3xl"
+          className="space-y-6"
         >
-          <motion.span
-            variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-            className="text-[10px] font-mono font-bold text-primary select-none tracking-[0.25em] uppercase block opacity-60"
-          >
-            [ IA ]
-          </motion.span>
           <motion.h1
             variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-            className="text-[clamp(42px,8.5vw,80px)] font-bold tracking-tight font-heading leading-[1.05] text-on-background select-none"
+            className="text-[clamp(42px,8.5vw,80px)] font-bold tracking-tight font-heading leading-[1.05] text-on-background select-text"
           >
             Descomponer<span className="text-secondary/60 font-light block mt-2 text-[clamp(24px,4vw,40px)]">Axiomas No Examinados</span>
           </motion.h1>
           <motion.p
             variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-            className="max-w-2xl mx-auto pt-1 font-serif italic font-light text-on-surface-variant/70 leading-relaxed text-[14px] sm:text-[16px] md:text-[18px] lg:text-[19px] text-center tracking-normal select-none"
+            className="max-w-2xl mx-auto pt-1 font-serif italic font-light text-on-surface-variant/70 leading-relaxed text-[14px] sm:text-[16px] md:text-[18px] lg:text-[19px] text-center tracking-normal select-text"
           >
             Escribe cualquier argumento o excusa que utilices para justificar el consumo animal. La IA de Sintiens
             deconstruirá su validez lógica y expondrá sus sesgos.
@@ -445,7 +445,7 @@ export default memo(function AiValidator({
             </span>
           </motion.div>
         </motion.div>
-      </div>
+      </HeroShell>
 
       {/* ───────────── NAVEGACIÓN DE PESTAÑAS ───────────── */}
       <div className="w-full py-4 relative z-10">
@@ -522,17 +522,18 @@ export default memo(function AiValidator({
               value={userInput}
               onChange={(e) => setUserInput(e.target.value)}
               placeholder="Introduce una excusa: ej. 'Los leones consumen carne y es natural que hagamos lo mismo'..."
+              aria-label="Escribe la excusa o argumento que quieres analizar"
               className="w-full bg-surface-dim/30 border border-outline-variant/30 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 rounded-xl px-5 py-4 text-body-md text-on-surface outline-none transition-all placeholder:text-on-surface-variant/40 resize-none custom-scrollbar min-h-[110px]"
               disabled={loading}
               rows={2}
             />
-            <span className="absolute bottom-3 right-4 text-[9px] font-mono text-on-surface-variant/30 select-none pointer-events-none">
+            <span className="absolute bottom-3 right-4 text-[9px] font-mono text-on-surface-variant/60 select-none pointer-events-none">
               {userInput.length} car.
             </span>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center justify-between">
-            <span className="text-[9px] font-mono uppercase tracking-widest text-on-surface-variant/40 hidden sm:flex items-center gap-1.5">
+            <span className="text-[9px] font-mono uppercase tracking-widest text-on-surface-variant/60 hidden sm:flex items-center gap-1.5">
               <kbd className="px-1.5 py-0.5 rounded border border-outline-variant/30 bg-surface-dim/40">Ctrl</kbd>
               <span>+</span>
               <kbd className="px-1.5 py-0.5 rounded border border-outline-variant/30 bg-surface-dim/40">Enter</kbd>
@@ -658,14 +659,14 @@ export default memo(function AiValidator({
                         <span className="block text-[12px] text-on-surface truncate group-hover:text-primary transition-colors">
                           "{entry.argument}"
                         </span>
-                        <span className="block text-[9px] font-mono uppercase tracking-widest text-on-surface-variant/40 mt-0.5">
+                        <span className="block text-[9px] font-mono uppercase tracking-widest text-on-surface-variant/60 mt-0.5">
                           {m.label} · {new Date(entry.timestamp).toLocaleDateString("es-ES", { day: "numeric", month: "short" })}
                         </span>
                       </button>
                       <button
                         onClick={() => setHistory((prev) => prev.filter((h) => h.id !== entry.id))}
                         aria-label="Eliminar del historial"
-                        className="p-1.5 rounded-md text-on-surface-variant/30 hover:text-ch1 hover:bg-surface-dim/50 opacity-0 group-hover:opacity-100 transition-all cursor-pointer shrink-0"
+                        className="p-1.5 rounded-md text-on-surface-variant/50 hover:text-ch1 hover:bg-surface-dim/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 transition-all cursor-pointer shrink-0"
                       >
                         <X className="w-3.5 h-3.5" />
                       </button>
@@ -784,7 +785,7 @@ export default memo(function AiValidator({
                     intro="Verdades que tu mente da por válidas automáticamente para sostener tu justificación:"
                   >
                     <ul className="space-y-1.5">
-                      {analysis.axioms.map((ax, i) => (
+                      {(analysis.axioms ?? []).map((ax, i) => (
                         <li
                           key={i}
                           className="flex items-start gap-2 text-on-surface-variant bg-surface-dim/30 px-3 py-2 rounded-lg border border-outline-variant/10"
@@ -804,10 +805,10 @@ export default memo(function AiValidator({
                     accent="var(--ch4)"
                   >
                     <span className="inline-block text-[10px] font-mono px-2.5 py-0.5 rounded uppercase bg-surface-dim/40 border border-outline-variant/20 text-on-surface-variant mb-2">
-                      {analysis.scientificAccuracy.rating}
+                      {analysis.scientificAccuracy?.rating}
                     </span>
                     <p className="text-[11.5px] text-on-surface-variant/80 leading-relaxed">
-                      {analysis.scientificAccuracy.analysis}
+                      {analysis.scientificAccuracy?.analysis}
                     </p>
                   </ResultSection>
                 </div>
@@ -820,7 +821,7 @@ export default memo(function AiValidator({
                     accent="var(--ch5)"
                   >
                     <div className="space-y-2.5">
-                      {analysis.logicalFailures.map((fail, i) => (
+                      {(analysis.logicalFailures ?? []).map((fail, i) => (
                         <div
                           key={i}
                           className="flex items-start gap-2.5 text-on-surface-variant/85 bg-surface-dim/20 px-3 py-2 rounded-lg border-l-2"
@@ -841,7 +842,7 @@ export default memo(function AiValidator({
                       compact
                     >
                       <p className="text-[11px] text-on-surface-variant/80 leading-relaxed">
-                        {analysis.impactAnalysis.sintiente}
+                        {analysis.impactAnalysis?.sintiente}
                       </p>
                     </ResultSection>
                     <ResultSection
@@ -851,7 +852,7 @@ export default memo(function AiValidator({
                       compact
                     >
                       <p className="text-[11px] text-on-surface-variant/80 leading-relaxed">
-                        {analysis.impactAnalysis.ecosistemic}
+                        {analysis.impactAnalysis?.ecosistemic}
                       </p>
                     </ResultSection>
                   </div>
@@ -920,10 +921,10 @@ export default memo(function AiValidator({
             </div>
           </div>
           <div className="space-y-2">
-            <p className="text-technical-xs uppercase tracking-[0.2em] text-on-surface-variant/40">
+            <p className="text-technical-xs uppercase tracking-[0.2em] text-on-surface-variant/70">
               A la espera de premisa
             </p>
-            <p className="text-xs text-on-surface-variant/40 max-w-sm mx-auto leading-relaxed">
+            <p className="text-xs text-on-surface-variant/70 max-w-sm mx-auto leading-relaxed">
               Escribe una justificación arriba o elige un ejemplo de la biblioteca para que la IA lo deconstruya.
             </p>
           </div>

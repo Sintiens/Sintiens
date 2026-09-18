@@ -5,6 +5,7 @@ import { X, ArrowRight, ArrowUpRight, HelpCircle, Activity, Globe, Scale, BookOp
 import { GlossaryEntry } from "../data/glossaryUnified";
 import { CORE_NODES } from "../data/CORE_NODES";
 import { DILEMMAS_DATA } from "../data/DILEMMAS_DATA";
+import { useModalOverlay } from "../hooks/useModalOverlay";
 
 interface GlossaryLinkProps {
   entry: GlossaryEntry;
@@ -38,6 +39,7 @@ export default function GlossaryLink({ entry, children, noPopup, isActive, onAct
   const [showRelations, setShowRelations] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef<HTMLSpanElement>(null);
+  const mobileSheetRef = useModalOverlay(isMobile && !noPopup && isOpen, () => setIsOpen(false));
 
   useEffect(() => {
     const checkMobile = () => {
@@ -227,7 +229,7 @@ export default function GlossaryLink({ entry, children, noPopup, isActive, onAct
         !noPopup &&
         isOpen &&
         createPortal(
-          <div role="dialog" aria-modal="true" aria-label={`Nota sobre ${entry.term}`} className="fixed inset-0 z-[100] flex items-end justify-center select-none pointer-events-auto">
+          <div ref={mobileSheetRef} role="dialog" aria-modal="true" aria-label={`Nota sobre ${entry.term}`} className="fixed inset-0 z-[100] flex items-end justify-center select-none pointer-events-auto">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

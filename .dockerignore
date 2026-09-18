@@ -1,0 +1,20 @@
+# Evita bakear secretos y artefactos en la imagen Docker (Oracle/Render)
+.env
+.env.*
+!.env.example
+node_modules/
+dist/
+dist-server/
+.git/
+.gitignore
+backups/
+todo.json
+*.log
+dev-server.log
+.vscode/
+.antigravity/
+.tool_log/
+scratch/
+coverage/
+*.tmp
+.DS_Store

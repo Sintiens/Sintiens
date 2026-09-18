@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://sintiens.onrender.com/sitemap.xml
+Disallow: /api/
+Disallow: /*.map$
+
+Sitemap: https://sintiens.duckdns.org/sitemap.xml

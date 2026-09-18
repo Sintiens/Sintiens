@@ -10,13 +10,17 @@ const data = [
 
 export default function AnimalsSlaughteredChart() {
   return (
-    <div className="w-full h-80 bg-zinc-50 dark:bg-zinc-900/50 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800">
+    <div
+      role="img"
+      aria-label="Animales sacrificados globalmente en miles de millones, 1961 a 2021: pollos pasan de 6,6 a 73,8; cerdos de 0,38 a 1,50; vacas de 0,17 a 0,30."
+      className="w-full h-80 bg-zinc-50 dark:bg-zinc-900/50 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800"
+    >
       <h4 className="text-sm font-semibold mb-4 text-zinc-700 dark:text-zinc-300">Animales sacrificados globalmente (Miles de Millones)</h4>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#525252" opacity={0.2} />
-          <XAxis dataKey="year" stroke="#888" fontSize={12} />
-          <YAxis stroke="#888" fontSize={12} />
+          <XAxis dataKey="year" stroke="#71717a" fontSize={12} />
+          <YAxis stroke="#71717a" fontSize={12} />
           <Tooltip 
             contentStyle={{ backgroundColor: "#18181b", borderColor: "#3f3f46", borderRadius: "8px", color: "#f4f4f5" }}
             itemStyle={{ color: "#f4f4f5" }}
