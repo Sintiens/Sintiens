@@ -33,4 +33,5 @@ scratch/
 todo.json
 .tool_log/
 .antigravity/
+.playwright-mcp/
 
