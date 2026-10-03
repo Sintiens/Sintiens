@@ -219,15 +219,6 @@ const SOURCE_TYPE_CONFIG: Record<SourceType, { label: string; icon: typeof Build
 type SortOrder = "recientes" | "antiguas";
 type ViewMode = "grid" | "list" | "timeline";
 
-const headerVariants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.08 } },
-};
-const childVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
-};
-
 // Shared animation language for the search control bar: smooth, no bounce.
 const BAR_SPRING = { type: "spring", stiffness: 260, damping: 34 } as const;
 const BAR_EASE = [0.16, 1, 0.3, 1] as const;

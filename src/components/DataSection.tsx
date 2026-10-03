@@ -1,5 +1,4 @@
 import { memo, useState, useEffect } from "react";
-import { motion } from "motion/react";
 import {
   Database,
   Eye,

@@ -75,15 +75,6 @@ const cardVariants = {
   exit: { opacity: 0, y: 8, transition: { duration: 0.18, ease: "easeOut" as const } },
 };
 
-const headerVariants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.08 } },
-};
-const childVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] as const } },
-};
-
 /* ── Catálogos de filtros ── */
 const CATEGORY_OPTIONS: { id: string; label: string; icon: React.ReactNode; color: string }[] = [
   { id: "all", label: "Todas", icon: null, color: "var(--on-surface-variant)" },

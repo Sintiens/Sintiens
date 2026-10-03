@@ -440,7 +440,6 @@ export default function App() {
               initial={isSubTabNav ? PAGE_SUB.initial : PAGE_CAT.initial}
               animate={isSubTabNav ? PAGE_SUB.animate : PAGE_CAT.animate}
               exit={isSubTabNav ? PAGE_SUB.exit : PAGE_CAT.exit}
-              transition={isSubTabNav ? PAGE_SUB.transition : PAGE_CAT.transition}
               className="w-full"
             >
               {activeTab === "historia_narrativa" && (

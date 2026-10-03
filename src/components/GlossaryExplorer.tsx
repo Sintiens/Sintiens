@@ -1291,15 +1291,6 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
     );
   };
 
-  const headerVariants = {
-    hidden: {},
-    visible: { transition: { staggerChildren: 0.08 } }
-  };
-  const childVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] as const } }
-  };
-
   return (
     <div className="space-y-10 w-full">
       {/* ==================== UPPER ZONE WITH GLOWS ==================== */}
