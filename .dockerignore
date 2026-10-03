@@ -1,4 +1,4 @@
-# Evita bakear secretos y artefactos en la imagen Docker (Oracle/Render)
+# Evita bakear secretos y artefactos en la imagen Docker (Oracle VPS)
 .env
 .env.*
 !.env.example

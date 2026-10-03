@@ -56,7 +56,14 @@ Una herramienta interactiva impulsada por Inteligencia Artificial que recibe cua
 
 ---
 
-## ☁️ Despliegue en la Nube (Hosting)
-El proyecto está configurado para desplegarse en **Render** mediante `render.yaml`. Cada cambio que se empuje a la rama `main` en GitHub actualizará el sitio de forma automática. Se requiere la variable de entorno `GEMINI_API_KEY` (configurable en el panel de Render).
+## ☁️ Despliegue en producción (Oracle Cloud)
+
+La web de producción corre en un **VPS de Oracle Cloud** (Always Free ARM) como contenedor Docker `sintiens_app` (puerto 3000, red `sintiens_net`), detrás de **Caddy** con HTTPS automático (Let's Encrypt) y DNS de DuckDNS:
+
+👉 **[https://sintiens.duckdns.org](https://sintiens.duckdns.org)**
+
+- **No se usa Render ni Vercel.** El despliegue vive únicamente en el VPS.
+- La actualización de producción se hace reconstruyendo y recreando el contenedor en el VPS (`docker build` + `docker run`); un simple `git push` no actualiza la web.
+- Requiere la variable de entorno `GEMINI_API_KEY` en el entorno del servidor.
 
 

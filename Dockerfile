@@ -9,12 +9,12 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-# Runner stage — Oracle / Render ready (non-root + healthcheck)
+# Runner stage — Oracle VPS ready (non-root + healthcheck)
 FROM node:20-alpine AS runner
 
 WORKDIR /app
 ENV NODE_ENV=production
-# PORT por defecto; Oracle/Render lo sobreescribe con $PORT
+# PORT por defecto; en el VPS se puede sobreescribir con $PORT
 ENV PORT=3000
 
 COPY package*.json ./
