@@ -12,25 +12,40 @@ import { PAGE_SUB, PAGE_CAT } from "./styles/motionTokens";
 import { useReducedMotion } from "./hooks/useReducedMotion";
 import ThemeReveal from "./components/ThemeReveal";
 
-const StoryMode = lazy(() => import("./components/StoryMode"));
-const GlossaryExplorer = lazy(() => import("./components/GlossaryExplorer"));
-const TimelineExplorer = lazy(() => import("./components/TimelineExplorer"));
-const ExcusesDilemmas = lazy(() => import("./components/ExcusesDilemmas"));
-const ImpactCalculator = lazy(() => import("./components/ImpactCalculator"));
-const AiValidator = lazy(() => import("./components/AiValidator"));
-const DataSection = lazy(() => import("./components/DataSection"));
-const NewsExplorer = lazy(() => import("./components/NewsExplorer"));
-const LaboratorioHub = lazy(() => import("./components/LaboratorioHub"));
-const RawlsianMachine = lazy(() => import("./components/RawlsianMachine"));
-const ThermodynamicMatrix = lazy(() => import("./components/ThermodynamicMatrix"));
-const NeurobiologyViewer = lazy(() => import("./components/NeurobiologyViewer"));
-const NutriCompare = lazy(() => import("./components/NutriCompare"));
-const WelfarewashingScanner = lazy(() => import("./components/WelfarewashingScanner"));
+const storyPromise = import("./components/StoryMode");
+const glossaryPromise = import("./components/GlossaryExplorer");
+const timelinePromise = import("./components/TimelineExplorer");
+const excusesPromise = import("./components/ExcusesDilemmas");
+const dataPromise = import("./components/DataSection");
+const newsPromise = import("./components/NewsExplorer");
+const labHubPromise = import("./components/LaboratorioHub");
+const rawlsPromise = import("./components/RawlsianMachine");
+const thermoPromise = import("./components/ThermodynamicMatrix");
+const neuroPromise = import("./components/NeurobiologyViewer");
+const nutriPromise = import("./components/NutriCompare");
+const welfarePromise = import("./components/WelfarewashingScanner");
+const aiValidatorPromise = import("./components/AiValidator");
+const impactCalcPromise = import("./components/ImpactCalculator");
+
+const StoryMode = lazy(() => storyPromise);
+const GlossaryExplorer = lazy(() => glossaryPromise);
+const TimelineExplorer = lazy(() => timelinePromise);
+const ExcusesDilemmas = lazy(() => excusesPromise);
+const ImpactCalculator = lazy(() => impactCalcPromise);
+const AiValidator = lazy(() => aiValidatorPromise);
+const DataSection = lazy(() => dataPromise);
+const NewsExplorer = lazy(() => newsPromise);
+const LaboratorioHub = lazy(() => labHubPromise);
+const RawlsianMachine = lazy(() => rawlsPromise);
+const ThermodynamicMatrix = lazy(() => thermoPromise);
+const NeurobiologyViewer = lazy(() => neuroPromise);
+const NutriCompare = lazy(() => nutriPromise);
+const WelfarewashingScanner = lazy(() => welfarePromise);
 const DevModeOverlay = lazy(() => import("./components/DevModeOverlay"));
 const DevErrorBoundary = lazy(() => import("./components/DevErrorBoundary"));
 
 import AppErrorBoundary from "./components/AppErrorBoundary";
-import { PageSkeleton, HeroNavProvider } from "./components/ui/Shells";
+import { PageSkeleton, HeroFixedNav } from "./components/ui/Shells";
 import TabSeo from "./components/TabSeo";
 
 function LazyTabWrapper({ children, fallback }: { children: React.ReactNode; fallback?: React.ReactNode }) {
@@ -143,6 +158,7 @@ export default function App() {
         if (saved) targetUrl += saved;
       } catch {}
     }
+    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
     window.history.pushState({ tab }, "", targetUrl);
     setActiveTab(tab);
   };
@@ -214,11 +230,9 @@ export default function App() {
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
-  useEffect(() => {
-    // Sub-tabs: sin scroll brusco (conserva posición), cambio de categoría: smooth top
-    if (isSubTabNav) return;
+  const handleExitComplete = useCallback(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
-  }, [activeTab, isSubTabNav]);
+  }, []);
 
   const [coreNodes, setCoreNodes] = useState<NodeDetail[] | null>(null);
   const [glossaryData, setGlossaryData] = useState<{ GLOSSARY_BY_ID: Record<string, GlossaryEntry>; GLOSSARY_UNIFIED: GlossaryEntry[] } | null>(null);
@@ -230,6 +244,22 @@ export default function App() {
     import("./data/glossaryUnified")
       .then(m => setGlossaryData({ GLOSSARY_BY_ID: m.GLOSSARY_BY_ID, GLOSSARY_UNIFIED: m.GLOSSARY_UNIFIED }))
       .catch(err => console.error("Failed to load glossary data:", err));
+
+    // Precargar componentes principales en tiempo ocioso para navegación instantánea
+    const prefetchTabs = () => {
+      import("./components/StoryMode");
+      import("./components/GlossaryExplorer");
+      import("./components/TimelineExplorer");
+      import("./components/ExcusesDilemmas");
+      import("./components/DataSection");
+      import("./components/NewsExplorer");
+      import("./components/LaboratorioHub");
+    };
+    if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+      (window as any).requestIdleCallback(prefetchTabs, { timeout: 1500 });
+    } else {
+      setTimeout(prefetchTabs, 400);
+    }
   }, []);
 
   const dilemmaExpandTimerRef = useRef<number | null>(null);
@@ -393,27 +423,24 @@ export default function App() {
       {/* Global ambient glows: absolute at top of page, scroll away naturally */}
       <GlobalGlows />
 
-      {/* P1-1b: el nav nace en cada hero (HeroNavSlot sticky). */}
-      <HeroNavProvider
-        nav={
-          <nav aria-label="Navegación principal">
-            <MiniTabNav activeTab={activeTab} onNavigate={handleNavigate} theme={theme} onToggleTheme={handleToggleTheme} />
-          </nav>
-        }
-      >
+      {/* Menú persistente: vive en su apartado del hero y reaparece al subir */}
+      <HeroFixedNav activeTab={activeTab}>
+        <nav aria-label="Navegación principal">
+          <MiniTabNav activeTab={activeTab} onNavigate={handleNavigate} theme={theme} onToggleTheme={handleToggleTheme} />
+        </nav>
+      </HeroFixedNav>
 
       {/* Main Content — noticias: ultra-densidad, gutters mínimos */}
       <main id="contenido" className={`flex-1 w-full mx-auto py-12 lg:py-20 relative z-[1] ${activeTab === "noticias" ? "max-w-[1480px] px-2 sm:px-2 md:px-3 lg:px-3" : "max-w-[1280px] px-4 md:px-6 lg:px-8"}`}>
 
         <div className="min-h-[600px]">
-          <AnimatePresence mode="wait" initial={false}>
+          <AnimatePresence mode="wait" initial={false} onExitComplete={handleExitComplete}>
             <motion.div
               key={activeTab}
               initial={isSubTabNav ? PAGE_SUB.initial : PAGE_CAT.initial}
               animate={isSubTabNav ? PAGE_SUB.animate : PAGE_CAT.animate}
               exit={isSubTabNav ? PAGE_SUB.exit : PAGE_CAT.exit}
-              transition={isSubTabNav ? PAGE_SUB.transition : PAGE_CAT.transition}
-              className="w-full will-change-transform"
+              className="w-full"
             >
               {activeTab === "historia_narrativa" && (
                 <LazyTabWrapper>
@@ -421,26 +448,18 @@ export default function App() {
                 </LazyTabWrapper>
               )}
               {activeTab === "grafo" && (
-                glossaryData ? (
-                  <LazyTabWrapper>
-                    <GlossaryExplorer
-                      initialEntryId={redirectEntryId}
-                      onClearInitialEntryId={handleClearRedirectEntryId}
-                      onNavigate={handleNavigate}
-                    />
-                  </LazyTabWrapper>
-                ) : (
-                  <PageSkeleton label="Cargando glosario" />
-                )
+                <LazyTabWrapper>
+                  <GlossaryExplorer
+                    initialEntryId={redirectEntryId}
+                    onClearInitialEntryId={handleClearRedirectEntryId}
+                    onNavigate={handleNavigate}
+                  />
+                </LazyTabWrapper>
               )}
               {activeTab === "cronologia" && (
-                coreNodes ? (
-                  <LazyTabWrapper>
-                    <TimelineExplorer onRedirectToConcept={handleRedirectToConcept} />
-                  </LazyTabWrapper>
-                ) : (
-                  <PageSkeleton label="Cargando cronología" />
-                )
+                <LazyTabWrapper>
+                  <TimelineExplorer onRedirectToConcept={handleRedirectToConcept} />
+                </LazyTabWrapper>
               )}
               {activeTab === "dialectica" && (
                 <LazyTabWrapper>
@@ -528,7 +547,6 @@ export default function App() {
         </div>
       </footer>
 
-      </HeroNavProvider>
     </div>
     </MotionConfig>
   );

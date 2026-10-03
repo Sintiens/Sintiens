@@ -75,15 +75,6 @@ const cardVariants = {
   exit: { opacity: 0, y: 8, transition: { duration: 0.18, ease: "easeOut" as const } },
 };
 
-const headerVariants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.08 } },
-};
-const childVariants = {
-  hidden: { opacity: 0, y: 18 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.32, ease: [0.22, 1, 0.36, 1] as const } },
-};
-
 /* ── Catálogos de filtros ── */
 const CATEGORY_OPTIONS: { id: string; label: string; icon: React.ReactNode; color: string }[] = [
   { id: "all", label: "Todas", icon: null, color: "var(--on-surface-variant)" },
@@ -416,31 +407,34 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
       className="space-y-10 w-full relative"
     >
       {/* ───────────── HERO ───────────── */}
-      <HeroShell id="hero" pad="wide" border="20" watermark={{ icon: Compass, opacity: 0.08, strokeWidth: 1.5 }}>
-        <motion.div variants={headerVariants} className="space-y-6">
-          <motion.h1 variants={childVariants} className="text-[clamp(42px,8.5vw,80px)] font-bold tracking-tight font-heading leading-[1.05] text-on-background select-text">
-            Crítica<span className="text-secondary/60 font-light block mt-2 text-[clamp(24px,4vw,40px)]">Dialéctica Socrática</span>
-          </motion.h1>
-          <motion.p variants={childVariants} className="max-w-2xl mx-auto pt-1 font-serif italic font-light text-on-surface-variant/70 leading-relaxed text-[14px] sm:text-[16px] md:text-[18px] lg:text-[19px] text-center tracking-normal select-text">
+      <HeroShell id="hero" pad="wide" border="20" cue watermark={{ icon: Compass, opacity: 0.08, strokeWidth: 1.5 }}>
+        <div className="space-y-3 w-full text-center">
+          <h1 className="text-[clamp(34px,5.8vw,64px)] font-bold tracking-tight font-heading leading-[1.06] text-on-background select-text">
+            Crítica
+            <span className="italic font-light text-secondary font-serif block mt-1.5 text-[clamp(20px,3.4vw,34px)]">
+              Dialéctica Socrática
+            </span>
+          </h1>
+          <p className="max-w-2xl mx-auto pt-1.5 sm:pt-2.5 font-serif italic font-light text-on-surface-variant/75 leading-relaxed text-[14px] sm:text-[16px] lg:text-[17px] text-center tracking-normal select-text">
             Análisis crítico de las justificaciones antropocéntricas a través del tamiz de la evidencia científica, consistencia ética y entrenamiento socrático.
-          </motion.p>
-          <motion.div variants={childVariants} className="flex items-center justify-center gap-6 pt-2">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
+          </p>
+          <div className="flex items-center justify-center gap-3 sm:gap-5 pt-1.5">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-1.5">
               <Quote className="w-3.5 h-3.5" />
               {stats.total} TESIS
             </span>
-            <span className="w-px h-4 bg-outline-variant/50" />
-            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
+            <span className="w-px h-3.5 bg-outline-variant/50" />
+            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-1.5">
               <Heart className="w-3.5 h-3.5" />
               {favorites.length} FAVORITAS
             </span>
-            <span className="w-px h-4 bg-outline-variant/50" />
-            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
+            <span className="w-px h-3.5 bg-outline-variant/50" />
+            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-1.5">
               <Check className="w-3.5 h-3.5" />
               {visited.length}/{stats.total} EXPLORADAS
             </span>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </HeroShell>
 
       {/* ───────────── TOGGLE DE VISTAS ───────────── */}
@@ -942,7 +936,7 @@ function DilemmaDetail({
   return (
     <div className="flex flex-col gap-6 p-6 lg:p-7">
       {/* ── Cabecera pegajosa ── */}
-      <div className="sticky top-0 z-20 -mx-6 lg:-mx-7 px-6 lg:px-7 py-4 bg-background/85 backdrop-blur-md border-b border-outline-variant/15">
+      <div data-nav-avoid="true" className="sticky top-0 z-20 -mx-6 lg:-mx-7 px-6 lg:px-7 py-4 bg-background/85 backdrop-blur-md border-b border-outline-variant/15">
         {/* Navegación back/forward */}
         <div className="flex items-center gap-1 mb-3 -ml-1">
           <button

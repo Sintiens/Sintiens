@@ -1,5 +1,4 @@
 import { memo, useState, useEffect } from "react";
-import { motion } from "motion/react";
 import {
   Database,
   Eye,
@@ -75,83 +74,81 @@ export default memo(function DataSection() {
   };
 
   return (
-    <motion.div
-      key="cifras_view"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] as const }}
-      className="space-y-16 w-full max-w-[1280px] mx-auto px-4 md:px-6 lg:px-8 py-8 text-left"
-    >
+    <div className="space-y-16 w-full max-w-[1280px] mx-auto px-4 md:px-6 lg:px-8 pt-0 pb-8 text-left">
       {/* SECTION 0: Academic Hero & Meta Stats Banner */}
-      <HeroShell compact border="20" watermark={null}>
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 dark:bg-emerald-500/10 border border-primary/20 dark:border-emerald-500/20 rounded-full text-xs font-mono font-bold text-primary dark:text-emerald-400">
-          <Database className="w-3.5 h-3.5" />
-          <span>REPOSITORIO DE EVIDENCIA EMPÍRICA Y BIOFÍSICA · ACCESO ABIERTO</span>
-        </div>
-
-        <h1 className="text-3xl sm:text-5xl md:text-6xl font-heading font-black tracking-tight text-on-surface">
-          La Anatomía Cuantitativa de la Explotación Animal
+      <HeroShell id="hero" pad="wide" border="20" cue watermark={{ icon: Database, size: "clamp(140px, 35vw, 360px)" }}>
+        <h1 className="text-[clamp(34px,5.8vw,64px)] font-bold tracking-tight font-heading leading-[1.06] text-on-background select-text">
+          Cifras
+          <span className="italic font-light text-secondary font-serif block mt-1.5 text-[clamp(20px,3.4vw,34px)]">
+            Anatomía Cuantitativa
+          </span>
         </h1>
 
-        <p className="text-sm sm:text-base md:text-lg font-sans text-on-surface-variant max-w-3xl mx-auto leading-relaxed">
+        <p className="max-w-2xl mx-auto pt-1.5 sm:pt-2.5 font-serif italic font-light text-on-surface-variant/75 leading-relaxed text-[14px] sm:text-[16px] lg:text-[17px] text-center tracking-normal select-text">
           Base de datos interactiva respaldada por más de 50.000 explotaciones comerciales y metaanálisis en <span className="text-on-surface font-semibold">Science</span>, <span className="text-on-surface font-semibold">Nature</span>, <span className="text-on-surface font-semibold">PNAS</span>, la <span className="text-on-surface font-semibold">FAO</span> y la <span className="text-on-surface font-semibold">EFSA</span>.
         </p>
 
-        {/* Global Key Figures Bar — glass sutil */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-4xl mx-auto pt-4 text-left">
-          <div className="p-4 glass-enhance rounded-xl border border-outline-variant/15 space-y-1 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-red-600 dark:text-red-400 font-semibold block">
-              Sacrificio Anual
-            </span>
-            <span className="text-2xl font-mono font-bold text-on-surface">
-              &gt;80.000 M
-            </span>
-            <span className="text-[10px] font-mono text-on-surface-variant/60 block">
-              Animales terrestres / año
-            </span>
-          </div>
-
-          <div className="p-4 glass-enhance rounded-xl border border-outline-variant/15 space-y-1 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-primary font-semibold block">
-              Biomasa Mamífera
-            </span>
-            <span className="text-2xl font-mono font-bold text-on-surface">
-              62% Ganado
-            </span>
-            <span className="text-[10px] font-mono text-on-surface-variant/60 block">
-              Vs 4% mamíferos silvestres
-            </span>
-          </div>
-
-          <div className="p-4 glass-enhance rounded-xl border border-outline-variant/15 space-y-1 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-amber-600 dark:text-amber-400 font-semibold block">
-              Uso de Tierra
-            </span>
-            <span className="text-2xl font-mono font-bold text-on-surface">
-              77% Suelo
-            </span>
-            <span className="text-[10px] font-mono text-on-surface-variant/60 block">
-              Para 18% de calorías
-            </span>
-          </div>
-
-          <div className="p-4 glass-enhance rounded-xl border border-outline-variant/15 space-y-1 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-blue-600 dark:text-blue-400 font-semibold block">
-              Antibióticos
-            </span>
-            <span className="text-2xl font-mono font-bold text-on-surface">
-              73% Global
-            </span>
-            <span className="text-[10px] font-mono text-on-surface-variant/60 block">
-              Administrado a granjas
-            </span>
-          </div>
+        <div className="flex items-center justify-center gap-3 sm:gap-5 pt-1.5">
+          <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-1.5">
+            <Database className="w-3.5 h-3.5 text-primary" />
+            REPOSITORIO BIOFÍSICO · ACCESO ABIERTO
+          </span>
         </div>
       </HeroShell>
 
+      {/* Global Key Figures Bar — glass sutil */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-4xl mx-auto text-left">
+        <div className="p-4 glass-enhance rounded-xl border border-outline-variant/15 space-y-1 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative">
+          <span className="text-[10px] font-mono uppercase tracking-widest text-red-600 dark:text-red-400 font-semibold block">
+            Sacrificio Anual
+          </span>
+          <span className="text-2xl font-mono font-bold text-on-surface">
+            &gt;80.000 M
+          </span>
+          <span className="text-[10px] font-mono text-on-surface-variant/60 block">
+            Animales terrestres / año
+          </span>
+        </div>
+
+        <div className="p-4 glass-enhance rounded-xl border border-outline-variant/15 space-y-1 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative">
+          <span className="text-[10px] font-mono uppercase tracking-widest text-primary font-semibold block">
+            Biomasa Mamífera
+          </span>
+          <span className="text-2xl font-mono font-bold text-on-surface">
+            62% Ganado
+          </span>
+          <span className="text-[10px] font-mono text-on-surface-variant/60 block">
+            Vs 4% mamíferos silvestres
+          </span>
+        </div>
+
+        <div className="p-4 glass-enhance rounded-xl border border-outline-variant/15 space-y-1 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative">
+          <span className="text-[10px] font-mono uppercase tracking-widest text-amber-600 dark:text-amber-400 font-semibold block">
+            Uso de Tierra
+          </span>
+          <span className="text-2xl font-mono font-bold text-on-surface">
+            77% Suelo
+          </span>
+          <span className="text-[10px] font-mono text-on-surface-variant/60 block">
+            Para 18% de calorías
+          </span>
+        </div>
+
+        <div className="p-4 glass-enhance rounded-xl border border-outline-variant/15 space-y-1 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative">
+          <span className="text-[10px] font-mono uppercase tracking-widest text-blue-600 dark:text-blue-400 font-semibold block">
+            Antibióticos
+          </span>
+          <span className="text-2xl font-mono font-bold text-on-surface">
+            73% Global
+          </span>
+          <span className="text-[10px] font-mono text-on-surface-variant/60 block">
+            Administrado a granjas
+          </span>
+        </div>
+      </div>
+
       {/* STICKY FLOATING NAVIGATION — glass unificada, offset para MiniTabNav */}
-      <div className="sticky top-[88px] z-20 py-3 glass-enhance border-y border-outline-variant/15 -mx-4 md:-mx-6 lg:-mx-8 px-4 md:px-6 lg:px-8 before:content-[''] before:absolute before:inset-0 before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
+      <div data-nav-avoid="true" className="sticky top-[88px] z-20 py-3 glass-enhance border-y border-outline-variant/15 -mx-4 md:-mx-6 lg:-mx-8 px-4 md:px-6 lg:px-8 before:content-[''] before:absolute before:inset-0 before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar max-w-[1280px] mx-auto">
           {MODULE_NAVS.map((mod) => {
             const Icon = mod.icon;
@@ -274,6 +271,6 @@ export default memo(function DataSection() {
 
         <FoodEnvironmentalMatrix />
       </section>
-    </motion.div>
+    </div>
   );
 });

@@ -783,6 +783,7 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
       <div className="flex flex-col gap-6 w-full">
         {/* Sticky header — stays visible while scrolling inside the card */}
         <div
+          data-nav-avoid="true"
           className="sticky top-0 z-20 -mx-6 px-6 py-4 bg-background border-b border-outline-variant/20"
         >
           {/* Back / forward navigation */}
@@ -1290,57 +1291,37 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
     );
   };
 
-  const headerVariants = {
-    hidden: {},
-    visible: { transition: { staggerChildren: 0.08 } }
-  };
-  const childVariants = {
-    hidden: { opacity: 0, y: 18 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.32, ease: [0.22, 1, 0.36, 1] as const } }
-  };
-
   return (
     <div className="space-y-10 w-full">
       {/* ==================== UPPER ZONE WITH GLOWS ==================== */}
-      <div
-        className="relative"
-        style={{
-          width: "calc(100vw - var(--scrollbar-width, 0px))",
-          marginLeft: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
-          marginRight: "calc(-50vw + var(--scrollbar-width, 0px) / 2 + 50%)",
-        }}
-      >
+      <div className="relative w-full">
 
-        {/* HERO SECTION — unificado con Laboratorio: border-b + icon blur 0.10 */}
-        <HeroShell pad="wide" watermark={{ icon: BookOpen, size: "clamp(140px, 35vw, 400px)" }}>
-          {/* Hero content */}
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={headerVariants}
-            className="space-y-6"
-          >
-            <motion.h1 variants={childVariants} className="text-display-lg text-on-background select-text">
-              Glosario<span className="text-secondary/60 font-light"> · Sintiens</span>
-            </motion.h1>
+        {/* HERO SECTION — unificado */}
+        <HeroShell id="hero" pad="wide" cue watermark={{ icon: BookOpen, size: "clamp(140px, 35vw, 400px)" }}>
+          <div className="space-y-3 w-full text-center">
+            <h1 className="text-[clamp(34px,5.8vw,64px)] font-bold tracking-tight font-heading leading-[1.06] text-on-background select-text">
+              Glosario
+              <span className="italic font-light text-secondary font-serif block mt-1.5 text-[clamp(20px,3.4vw,34px)]">
+                Sintiens
+              </span>
+            </h1>
 
-            <motion.p variants={childVariants} className="text-body-md text-on-surface-variant max-w-xl mx-auto leading-relaxed">
+            <p className="max-w-2xl mx-auto pt-1.5 sm:pt-2.5 font-serif italic font-light text-on-surface-variant/75 leading-relaxed text-[14px] sm:text-[16px] lg:text-[17px] text-center tracking-normal select-text">
               Navega por los conceptos, autores, obras y declaraciones que vertebran el sistema.
-            </motion.p>
+            </p>
 
-            <motion.div variants={childVariants} className="flex items-center justify-center gap-6 pt-2">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
+            <div className="flex items-center justify-center gap-3 sm:gap-5 pt-1.5">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-1.5">
                 <BookOpen className="w-3.5 h-3.5" />
                 {GLOSSARY_UNIFIED.length} ENTRADAS
               </span>
-              <span className="w-px h-4 bg-outline-variant/50" />
-              <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
+              <span className="w-px h-3.5 bg-outline-variant/50" />
+              <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-1.5">
                 <Layers className="w-3.5 h-3.5" />
                 {GLOSSARY_CATEGORIES.length} CATEGORÍAS
               </span>
-            </motion.div>
-
-          </motion.div>
+            </div>
+          </div>
         </HeroShell>
 
         {/* View mode tabs */}
@@ -1397,7 +1378,7 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
       </div>
 
       {/* ==================== COMPACT PERMANENT SEARCH (all views) ==================== */}
-      <div className="relative max-w-xs mx-auto pb-4 z-20 sticky top-[76px]" role="search">
+      <div data-nav-avoid="true" className="relative max-w-xs mx-auto pb-4 z-20 sticky top-[76px]" role="search">
         <div className="relative">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-on-surface-variant/40 pointer-events-none" />
           <input
@@ -1469,6 +1450,7 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
       {/* ==================== FILTERS (hidden in grafo view) ==================== */}
       {viewMode !== "grafo" && (
         <div
+          data-nav-avoid="true"
           className="glass-enhance border border-outline-variant/20 rounded-2xl p-3 lg:p-4 sticky top-[132px] z-20 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none"
           style={{
             width: "calc(100vw - 96px - var(--scrollbar-width, 0px))",
@@ -1620,7 +1602,7 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
 
             {/* Detail */}
             <div className="hidden lg:block relative">
-              <div ref={cardScrollRef} className="sticky top-[76px] max-h-[calc(100vh-88px)] overflow-y-auto overscroll-y-contain custom-scrollbar glass-enhance border border-outline-variant/20 rounded-xl p-6 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
+              <div ref={cardScrollRef} data-nav-avoid="true" className="sticky top-[76px] max-h-[calc(100vh-88px)] overflow-y-auto overscroll-y-contain custom-scrollbar glass-enhance border border-outline-variant/20 rounded-xl p-6 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
                 <AnimatePresence mode="wait" initial={false}>
                   {selectedEntry ? (
                     <motion.div

@@ -405,46 +405,35 @@ export default memo(function AiValidator({
     >
 
       {/* ═════════════════════════ HERO ═════════════════════════ */}
-      <HeroShell id="hero" pad="wide" border="20" watermark={{ icon: BrainCircuit, opacity: 0.08, strokeWidth: 1.5 }}>
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={{ visible: { transition: { staggerChildren: 0.12 } } }}
-          className="space-y-6"
-        >
-          <motion.h1
-            variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-            className="text-[clamp(42px,8.5vw,80px)] font-bold tracking-tight font-heading leading-[1.05] text-on-background select-text"
-          >
-            Descomponer<span className="text-secondary/60 font-light block mt-2 text-[clamp(24px,4vw,40px)]">Axiomas No Examinados</span>
-          </motion.h1>
-          <motion.p
-            variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-            className="max-w-2xl mx-auto pt-1 font-serif italic font-light text-on-surface-variant/70 leading-relaxed text-[14px] sm:text-[16px] md:text-[18px] lg:text-[19px] text-center tracking-normal select-text"
-          >
+      <HeroShell id="hero" pad="wide" border="20" cue watermark={{ icon: BrainCircuit, opacity: 0.08, strokeWidth: 1.5 }}>
+        <div className="space-y-3 w-full text-center">
+          <h1 className="text-[clamp(34px,5.8vw,64px)] font-bold tracking-tight font-heading leading-[1.06] text-on-background select-text">
+            Descomponer
+            <span className="italic font-light text-secondary font-serif block mt-1.5 text-[clamp(20px,3.4vw,34px)]">
+              Axiomas No Examinados
+            </span>
+          </h1>
+          <p className="max-w-2xl mx-auto pt-1.5 sm:pt-2.5 font-serif italic font-light text-on-surface-variant/75 leading-relaxed text-[14px] sm:text-[16px] lg:text-[17px] text-center tracking-normal select-text">
             Escribe cualquier argumento o excusa que utilices para justificar el consumo animal. La IA de Sintiens
             deconstruirá su validez lógica y expondrá sus sesgos.
-          </motion.p>
-          <motion.div
-            variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-            className="flex items-center justify-center gap-6 pt-2"
-          >
+          </p>
+          <div className="flex items-center justify-center gap-3 sm:gap-5 pt-1.5">
             <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
               <BrainCircuit className="w-3.5 h-3.5" />
               4 MODOS
             </span>
-            <span className="w-px h-4 bg-outline-variant/50" />
+            <span className="w-px h-3.5 bg-outline-variant/50" />
             <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
               <History className="w-3.5 h-3.5" />
               {history.length} ANÁLISIS
             </span>
-            <span className="w-px h-4 bg-outline-variant/50" />
+            <span className="w-px h-3.5 bg-outline-variant/50" />
             <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
               <Microscope className="w-3.5 h-3.5" />
               GEMINI 2.5
             </span>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </HeroShell>
 
       {/* ───────────── NAVEGACIÓN DE PESTAÑAS ───────────── */}
