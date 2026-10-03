@@ -215,28 +215,33 @@ export default memo(function ImpactCalculator() {
   return (
     <div id="impact-calculator-view" className="space-y-16 w-full relative text-left">
       {/* SECTION 0: Hero & Hook */}
-      <HeroShell id="hero" pad="wide" border="20" watermark={{ icon: Calculator, opacity: 0.08 }}>
-        <h1 className="text-[clamp(36px,7vw,68px)] font-bold tracking-tight font-heading leading-[1.08] text-on-background select-text">
-          Calculadora de Impacto
-        </h1>
-        <p className="max-w-2xl mx-auto pt-1 font-serif italic font-light text-on-surface-variant/70 leading-relaxed text-[14px] sm:text-[16px] md:text-[18px] text-center tracking-normal select-text">
-          Calcula la huella acumulada de recursos naturales y vidas de animales sintientes según las decisiones dietéticas en el tiempo.
-        </p>
-        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pt-2">
-          <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
-            <Heart className="w-3.5 h-3.5 text-primary" />
-            VIDAS DE ANIMALES
-          </span>
-          <span className="w-px h-4 bg-outline-variant/50 hidden sm:inline" />
-          <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
-            <Droplet className="w-3.5 h-3.5 text-primary" />
-            AGUA VIRTUAL
-          </span>
-          <span className="w-px h-4 bg-outline-variant/50 hidden sm:inline" />
-          <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
-            <Flame className="w-3.5 h-3.5 text-primary" />
-            CO₂ & METANO
-          </span>
+      <HeroShell id="hero" pad="wide" border="20" cue watermark={{ icon: Calculator, opacity: 0.08 }}>
+        <div className="space-y-3 w-full text-center">
+          <h1 className="text-[clamp(34px,5.8vw,64px)] font-bold tracking-tight font-heading leading-[1.06] text-on-background select-text">
+            Calculadora
+            <span className="italic font-light text-secondary font-serif block mt-1.5 text-[clamp(20px,3.4vw,34px)]">
+              Impacto &amp; Huella Ética
+            </span>
+          </h1>
+          <p className="max-w-2xl mx-auto pt-1.5 sm:pt-2.5 font-serif italic font-light text-on-surface-variant/75 leading-relaxed text-[14px] sm:text-[16px] lg:text-[17px] text-center tracking-normal select-text">
+            Calcula la huella acumulada de recursos naturales y vidas de animales sintientes según las decisiones dietéticas en el tiempo.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5 pt-1.5">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-1.5">
+              <Heart className="w-3.5 h-3.5 text-primary" />
+              VIDAS DE ANIMALES
+            </span>
+            <span className="w-px h-3.5 bg-outline-variant/50 hidden sm:inline" />
+            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-1.5">
+              <Droplet className="w-3.5 h-3.5 text-primary" />
+              AGUA VIRTUAL
+            </span>
+            <span className="w-px h-3.5 bg-outline-variant/50 hidden sm:inline" />
+            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-1.5">
+              <Flame className="w-3.5 h-3.5 text-primary" />
+              CO₂ &amp; METANO
+            </span>
+          </div>
         </div>
       </HeroShell>
 

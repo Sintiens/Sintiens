@@ -49,28 +49,33 @@ export default function WelfarewashingScanner({ onNavigateToTab: _onNavigateToTa
   return (
     <div id="welfarewashing-scanner-view" className="space-y-16 w-full relative text-left">
       {/* SECTION 0: Hero & Hook */}
-      <HeroShell id="hero" watermark={{ icon: Scale }}>
-        <h1 className="text-[clamp(36px,7vw,68px)] font-bold tracking-tight font-heading leading-[1.08] text-on-background select-text">
-          Escáner de Welfarewashing
-        </h1>
-        <p className="max-w-2xl mx-auto pt-1 font-serif italic font-light text-on-surface-variant/70 leading-relaxed text-[14px] sm:text-[16px] md:text-[18px] text-center tracking-normal select-text">
-          La brecha entre la promesa de la ley y la realidad de la granja: cómo las cláusulas de excepción legalizan el sufrimiento estándar.
-        </p>
-        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pt-2">
-          <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
-            <Scale className="w-3.5 h-3.5 text-primary" />
-            DERECHO COMPARADO UE
-          </span>
-          <span className="w-px h-4 bg-outline-variant/50 hidden sm:inline" />
-          <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
-            <ShieldAlert className="w-3.5 h-3.5 text-primary" />
-            DICTÁMENES EFSA
-          </span>
-          <span className="w-px h-4 bg-outline-variant/50 hidden sm:inline" />
-          <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
-            <Eye className="w-3.5 h-3.5 text-primary" />
-            PANTALLA DIVIDIDA
-          </span>
+      <HeroShell id="hero" pad="wide" cue watermark={{ icon: Scale }}>
+        <div className="space-y-3 w-full text-center">
+          <h1 className="text-[clamp(30px,5vw,56px)] font-bold tracking-tight font-heading leading-[1.08] text-on-background select-text">
+            Welfarewashing
+            <span className="italic font-light text-secondary font-serif block mt-1 text-[clamp(18px,3vw,30px)]">
+              Auditoría Legal &amp; Cláusulas de Excepción
+            </span>
+          </h1>
+          <p className="max-w-2xl mx-auto pt-1 sm:pt-2 font-serif italic font-light text-on-surface-variant/75 leading-relaxed text-[13px] sm:text-[15px] lg:text-[16px] text-center tracking-normal select-text">
+            La brecha entre la promesa de la ley y la realidad de la granja: cómo las cláusulas de excepción legalizan el sufrimiento estándar.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5 pt-1.5">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-1.5">
+              <Scale className="w-3.5 h-3.5 text-primary" />
+              DERECHO COMPARADO UE
+            </span>
+            <span className="w-px h-3.5 bg-outline-variant/50 hidden sm:inline" />
+            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-1.5">
+              <ShieldAlert className="w-3.5 h-3.5 text-primary" />
+              DICTÁMENES EFSA
+            </span>
+            <span className="w-px h-3.5 bg-outline-variant/50 hidden sm:inline" />
+            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-1.5">
+              <Eye className="w-3.5 h-3.5 text-primary" />
+              PANTALLA DIVIDIDA
+            </span>
+          </div>
         </div>
       </HeroShell>
 

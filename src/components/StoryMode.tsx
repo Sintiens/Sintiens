@@ -522,26 +522,15 @@ sideRight={
 >
 {/* ... Hero Content ... */}
 
-<div className="flex-1 lg:flex-none flex flex-col justify-center items-center w-full">
-  {/* Title and Subtitle Section */}
-  <div className="space-y-2 lg:space-y-4 w-full text-center">
-    <motion.h1 initial="hidden" animate="visible" variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.18 } } }} className="text-[clamp(42px,8.5vw,80px)] font-bold tracking-tight font-heading leading-[1.05] text-on-background select-text">
-      <motion.span variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } } }} className="block sm:inline-block">
-        ¿Qué vidas merecen&nbsp;
-      </motion.span>
-      <motion.span variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } } }} className="italic font-light text-secondary font-serif relative block sm:inline-block mt-2 sm:mt-0">
-        consideración moral?
-      </motion.span>
-    </motion.h1>
-    <p className="max-w-2xl mx-auto pt-1 font-serif italic font-light text-on-surface-variant/70 leading-relaxed text-[14px] sm:text-[16px] md:text-[18px] lg:text-[19px] text-center tracking-normal select-text">
-      Una mirada a la relación que mantenemos con los demás animales,<br className="hidden sm:inline" /> 
-      y a lo que la evidencia tiene que decir al respecto.
-    </p>
-  </div>
-
-  {/* Crystalline Glass Card for Focus Columns Section */}
-  <div className="w-full max-w-7xl px-6 lg:px-16 mt-12 lg:mt-20 relative z-10 font-sans font-light leading-relaxed" />
-</div>
+<h1 className="text-[clamp(34px,5.8vw,64px)] font-bold tracking-tight font-heading leading-[1.06] text-on-background select-text">
+  ¿Qué vidas merecen
+  <span className="italic font-light text-secondary font-serif block mt-1.5 text-[clamp(20px,3.4vw,34px)]">
+    consideración moral?
+  </span>
+</h1>
+<p className="max-w-2xl mx-auto pt-1.5 sm:pt-2.5 font-serif italic font-light text-on-surface-variant/75 leading-relaxed text-[14px] sm:text-[16px] lg:text-[17px] text-center tracking-normal select-text">
+  Una mirada a la relación que mantenemos con los demás animales, y a lo que la evidencia tiene que decir al respecto.
+</p>
 
 </HeroShell>
 
@@ -753,7 +742,7 @@ const isActive = activeChapter === act0.id;
           </h2>
         </div>
         {/* Sticky TTS button — joins the sticky block at top-0 */}
-        <div className="sticky top-0 z-30 w-full pointer-events-none -mt-[52px] mb-[52px]">
+        <div data-nav-avoid="true" className="sticky top-0 z-30 w-full pointer-events-none -mt-[52px] mb-[52px]">
           <div className="flex justify-end items-center pointer-events-none pr-3 md:pr-6 xl:pl-20 xl:pr-4">
             <div className="pointer-events-auto mr-5 xl:mr-20">
               <ReadingUtilities
@@ -767,7 +756,7 @@ const isActive = activeChapter === act0.id;
         </div>
         {/* Slim sticky orientation chip — pinned while reading: act + current block + progress.
             Invisible while the arrival title is in view; fades in once the title scrolls off. */}
-        <div className="sticky top-0 z-20 w-full pointer-events-none act-sticky-header">
+        <div data-nav-avoid="true" className="sticky top-0 z-20 w-full pointer-events-none act-sticky-header">
           <div className="act-chip-inner opacity-0">
             <div className="w-full px-3 md:px-6 xl:pl-20 xl:pr-4 pt-0 pb-0 pointer-events-auto">
               <div className="flex items-center gap-3 min-h-[20px]">
@@ -864,7 +853,7 @@ return (
     </h2>
   </div>
   {/* Sticky TTS button — joins the sticky block at top-0 */}
-  <div className="sticky top-0 z-30 w-full pointer-events-none -mt-[52px] mb-[52px]">
+  <div data-nav-avoid="true" className="sticky top-0 z-30 w-full pointer-events-none -mt-[52px] mb-[52px]">
     <div className="flex justify-end items-center pointer-events-none pr-3 md:pr-6 xl:pl-20 xl:pr-4">
       <div className="pointer-events-auto mr-5 xl:mr-20">
         <ReadingUtilities
@@ -878,7 +867,7 @@ return (
   </div>
   {/* Slim sticky orientation chip — pinned while reading.
       Invisible while the arrival title is in view; fades in once the title scrolls off. */}
-  <div className="sticky top-0 z-20 w-full pointer-events-none act-sticky-header">
+  <div data-nav-avoid="true" className="sticky top-0 z-20 w-full pointer-events-none act-sticky-header">
     <div className="act-chip-inner opacity-0">
       <div className="w-full px-3 md:px-6 xl:pl-20 xl:pr-4 pt-0 pb-0 pointer-events-auto">
         <div className="flex items-center gap-3 min-h-[20px]">

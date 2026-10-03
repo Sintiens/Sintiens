@@ -57,7 +57,7 @@ export default function MiniTabNav({ activeTab, onNavigate, theme, onToggleTheme
 
 
   return (
-    <div className="flex flex-col items-center gap-2 sm:gap-3 px-1 py-1" data-minitabnav="true">
+    <div className="flex flex-col items-center gap-1.5 sm:gap-2 px-1 py-0.5" data-minitabnav="true">
       {/* Top Row: Main Categories & Theme Toggle */}
       <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 w-full">
         <div className={dockContainer}>
@@ -143,9 +143,9 @@ export default function MiniTabNav({ activeTab, onNavigate, theme, onToggleTheme
         </div>
       </div>
 
-      {/* Bottom Row: Subcategories — altura colapsa si no hay subnav, sin hueco */}
+      {/* Bottom Row: Subcategories — solo si la categoría tiene subsecciones */}
       <AnimatePresence mode="wait">
-        {showSubNav ? (
+        {showSubNav && (
           <motion.div
             key={`sub-${activeCategory}`}
             initial={{ opacity: 0, y: -6, scale: 0.98 }}
@@ -186,8 +186,6 @@ export default function MiniTabNav({ activeTab, onNavigate, theme, onToggleTheme
               })}
             </div>
           </motion.div>
-        ) : (
-          <motion.div key="sub-empty" initial={{ opacity: 0 }} animate={{ opacity: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.12 }} className="h-0" />
         )}
       </AnimatePresence>
     </div>

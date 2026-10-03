@@ -3,10 +3,11 @@
  * Migración progresiva: los 14 heroes duplicados y los 22 visualizadores
  * (cifras/* + charts/*) deben converger a estos componentes.
  */
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import { HERO_FULL_BLEED, HERO_ICON_STYLE } from "../../styles/glass";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { useReducedMotion } from "../../hooks/useReducedMotion";
 import { lockScroll, unlockScroll } from "../../utils/scrollLock";
 
 /* ------------------------------------------------------------------ */
@@ -27,80 +28,224 @@ export function HeroCorners() {
 }
 
 /* ------------------------------------------------------------------ */
-/* HeroNav — el nav nace en el hero y se pega al scrollear (P1-1b)     */
-/*  App provee el nodo via HeroNavProvider; cada HeroShell renderiza   */
-/*  <HeroNavSlot/> como hermano sticky tras el <section>. Mientras     */
-/*  queden heroes sin migrar, App muestra el fallback absoluto.        */
+/* HeroNav — el menú vive en "su apartado" (posición permanente, una   */
+/*  sola vez montado). Al subir reaparece arriba del todo; al llegar   */
+/*  a la portada se asienta en su apartado; al bajar se aparta.        */
+/*  El hero reserva el hueco con HeroNavSlot (altura --hero-nav-h).    */
 /* ------------------------------------------------------------------ */
-interface HeroNavCtxValue {
-  nav: React.ReactNode;
-  claimed: boolean;
-  setClaimed: (v: boolean) => void;
-}
-
-const HeroNavContext = createContext<HeroNavCtxValue>({
-  nav: null,
-  claimed: false,
-  setClaimed: () => {},
-});
-
-export function HeroNavProvider({ nav, children }: { nav: React.ReactNode; children: React.ReactNode }) {
-  const [claimed, setClaimed] = useState(false);
-  const value = useMemo(() => ({ nav, claimed, setClaimed }), [nav, claimed]);
-  return <HeroNavContext.Provider value={value}>{children}</HeroNavContext.Provider>;
-}
-
-/** True cuando la tab activa ya aporta su nav desde su hero. */
-export function useHeroNavClaimed() {
-  return useContext(HeroNavContext).claimed;
-}
-
-/** Slot sticky solapado al borde inferior del hero (sustituye top-[480px]).
- *  Auto-hide: se repliega al bajar y reaparece al subir, para no ocupar
- *  espacio permanente durante la lectura. */
 export function HeroNavSlot() {
-  const { nav, setClaimed } = useContext(HeroNavContext);
-  const [hidden, setHidden] = useState(false);
+  return <div data-nav-slot className="w-full mt-7 sm:mt-10 lg:mt-12 shrink-0" style={{ height: "var(--hero-nav-h, 104px)" }} aria-hidden />;
+}
+
+type HeroNavMode = "apart" | "top" | "off";
+
+/** Separación superior del menú en modo flotante. */
+const NAV_TOP_Y = 16;
+
+const getStandardApartY = () => {
+  if (typeof window === "undefined") return 368;
+  const w = window.innerWidth;
+  if (w >= 1024) return 368;
+  if (w >= 640) return 324;
+  return 279;
+};
+
+interface HeroFixedNavProps {
+  children: React.ReactNode;
+  activeTab?: string;
+}
+
+export function HeroFixedNav({ children, activeTab }: HeroFixedNavProps) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [mode, setMode] = useState<HeroNavMode>(() => {
+    if (typeof window === "undefined") return "apart";
+    return window.scrollY > 400 ? "off" : "apart";
+  });
+  const [apartY, setApartY] = useState<number>(() => {
+    if (typeof document === "undefined") return 323;
+    const slot = document.querySelector("[data-nav-slot]") as HTMLElement | null;
+    if (slot) {
+      const slotRect = slot.getBoundingClientRect();
+      const scrollY = typeof window !== "undefined" ? window.scrollY : 0;
+      const rootEl = slot.closest("main")?.parentElement;
+      const rootTop = rootEl ? Math.round(rootEl.getBoundingClientRect().top + scrollY) : 0;
+      return Math.round(slotRect.top + scrollY - rootTop);
+    }
+    return getStandardApartY();
+  });
+  const apartYRef = useRef<number>(apartY);
+  const heroBottomRef = useRef<number | null>(null);
+  const modeRef = useRef(mode);
+  const reduced = useReducedMotion();
+
+  const syncApart = useCallback(() => {
+    const slot = document.querySelector("[data-nav-slot]") as HTMLElement | null;
+    if (!slot) return;
+    const slotRect = slot.getBoundingClientRect();
+    const scrollY = window.scrollY;
+    const rootEl = ref.current?.parentElement;
+    const rootTop = rootEl ? Math.round(rootEl.getBoundingClientRect().top + scrollY) : 0;
+    const y = Math.round(slotRect.top + scrollY - rootTop);
+    const hero = slot.closest("section");
+    const hBottom = hero ? Math.round(hero.getBoundingClientRect().bottom + scrollY) : y + 120;
+
+    heroBottomRef.current = hBottom;
+    if (Math.abs(apartYRef.current - y) > 1) {
+      apartYRef.current = y;
+      setApartY(y);
+    }
+
+    const dockThreshold = Math.max(0, y - NAV_TOP_Y);
+    if (scrollY <= dockThreshold && modeRef.current !== "apart") {
+      modeRef.current = "apart";
+      setMode("apart");
+    }
+  }, []);
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const root = document.documentElement;
+    const apply = () => root.style.setProperty("--hero-nav-h", `${el.offsetHeight}px`);
+    apply();
+    syncApart();
+
+    const ro = new ResizeObserver(() => {
+      apply();
+      syncApart();
+    });
+    ro.observe(el);
+
+    // MutationObserver: cuando React monta un nuevo Hero o Lazy tab, detectar slot al instante
+    const mo = new MutationObserver(() => {
+      syncApart();
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      ro.disconnect();
+      mo.disconnect();
+      root.style.removeProperty("--hero-nav-h");
+    };
+  }, [syncApart]);
+
+  // Re-sincronizar de inmediato y tras transiciones de pestaña
   useEffect(() => {
-    setClaimed(true);
-    return () => setClaimed(false);
-  }, [setClaimed]);
+    if (window.scrollY <= (apartYRef.current - NAV_TOP_Y)) {
+      if (modeRef.current !== "apart") {
+        modeRef.current = "apart";
+        setMode("apart");
+      }
+    }
+    syncApart();
+    const id = requestAnimationFrame(syncApart);
+    return () => cancelAnimationFrame(id);
+  }, [activeTab, syncApart]);
+
   useEffect(() => {
     let lastY = window.scrollY;
     let ticking = false;
+
     const update = () => {
       ticking = false;
       const y = window.scrollY;
       const delta = y - lastY;
-      if (y < 96) {
-        setHidden(false);
-      } else if (delta > 6) {
-        setHidden(true);
-      } else if (delta < -6) {
-        setHidden(false);
-      }
       lastY = y;
+
+      const slot = document.querySelector("[data-nav-slot]") as HTMLElement | null;
+      const hero = slot?.closest("section") as HTMLElement | null;
+      const rootEl = ref.current?.parentElement;
+      const rootTop = rootEl ? Math.round(rootEl.getBoundingClientRect().top + y) : 0;
+      const slotY = slot ? Math.round(slot.getBoundingClientRect().top + y - rootTop) : apartYRef.current;
+      const heroBottom = hero ? Math.round(hero.getBoundingClientRect().bottom + y) : slotY + 120;
+
+      if (Math.abs(apartYRef.current - slotY) > 1) {
+        apartYRef.current = slotY;
+        setApartY(slotY);
+      }
+      heroBottomRef.current = heroBottom;
+
+      const dockThreshold = Math.max(0, slotY - NAV_TOP_Y);
+      let next: HeroNavMode;
+
+      if (y <= dockThreshold) {
+        // En la zona superior de la cabecera: siempre acoplado en el hero
+        next = "apart";
+      } else if (delta <= 0) {
+        // --- SCROLLING UP (por debajo de la cabecera) ---
+        if (delta < -6) {
+          // Subiendo con intención: mostrar barra flotante arriba
+          next = "top";
+        } else {
+          next = modeRef.current;
+        }
+      } else {
+        // --- SCROLLING DOWN (por debajo de la cabecera) ---
+        if (modeRef.current === "apart") {
+          // Si venía acompañando al hero, sigue acompañándolo hasta que el hero salga por arriba
+          next = y < heroBottom ? "apart" : "off";
+        } else if (delta > 6) {
+          // Si la barra flotante estaba arriba y baja, se oculta suavemente
+          next = "off";
+        } else {
+          next = modeRef.current;
+        }
+      }
+
+      if (next !== modeRef.current) {
+        modeRef.current = next;
+        setMode(next);
+      }
     };
+
     const onScroll = () => {
       if (!ticking) {
         ticking = true;
         requestAnimationFrame(update);
       }
     };
+
+    update();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-  if (!nav) return null;
+    window.addEventListener("resize", syncApart, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", syncApart);
+    };
+  }, [syncApart]);
+
+  const isApart = mode === "apart";
+  const isTop = mode === "top";
+  const isOff = mode === "off";
+
+  const targetY = isApart ? apartY : isTop ? NAV_TOP_Y : -120;
+
+  const transition = reduced
+    ? "none"
+    : isApart
+      ? "none"
+      : "transform 320ms cubic-bezier(0.16, 1, 0.3, 1), opacity 240ms ease-out";
+
   return (
     <div
-      inert={hidden || undefined}
-      aria-hidden={hidden || undefined}
-      className={`sticky top-3 z-[90] -mt-14 lg:-mt-20 flex justify-center pointer-events-none transition-[transform,opacity] duration-300 ease-out ${
-        hidden ? "-translate-y-[160%] opacity-0" : "translate-y-0 opacity-100"
-      }`}
+      ref={ref}
+      inert={isOff || undefined}
+      aria-hidden={isOff || undefined}
+      className={`${
+        isApart ? "absolute" : "fixed"
+      } inset-x-0 top-0 z-[90] flex justify-center pointer-events-none`}
+      style={{
+        width: isApart ? "100%" : "calc(100% - var(--dev-sidebar-width, 0px))",
+        transform: `translate3d(0, ${targetY}px, 0)`,
+        transition,
+      }}
     >
-      <div className={`w-full max-w-[1280px] px-4 md:px-8 flex justify-center ${hidden ? "pointer-events-none" : "pointer-events-auto"}`}>
-        {nav}
+      <div
+        className={`w-full max-w-[1280px] px-4 md:px-8 flex justify-center transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none ${
+          isOff ? "-translate-y-4 opacity-0 pointer-events-none" : "translate-y-0 opacity-100 pointer-events-auto"
+        }`}
+      >
+        {children}
       </div>
     </div>
   );
@@ -135,7 +280,7 @@ interface HeroShellProps {
   children: React.ReactNode;
 }
 
-const HERO_TALL = "h-[min(550px,calc(100dvh-240px))] min-h-[min(550px,calc(100dvh-240px))] lg:h-[min(600px,calc(100dvh-260px))] lg:min-h-[min(600px,calc(100dvh-260px))] pt-16 pb-16 lg:pt-28 lg:pb-24";
+const HERO_TALL = "min-h-[calc(100dvh-4.5rem)] lg:min-h-[calc(100dvh-5rem)] max-h-[920px] pt-14 pb-6 sm:pt-16 sm:pb-8 lg:pt-20 lg:pb-10";
 const HERO_COMPACT = "pt-4 pb-8";
 
 export function HeroShell({
@@ -143,7 +288,7 @@ export function HeroShell({
   watermark,
   sideLeft,
   sideRight,
-  cue = false,
+  cue = true,
   border = "15",
   pad = "narrow",
   compact = false,
@@ -155,9 +300,8 @@ export function HeroShell({
     border === "none" ? "" : border === "20" ? "border-b border-outline-variant/20" : "border-b border-outline-variant/15";
   const padCls = pad === "wide" ? "px-6 lg:px-16" : "px-4 md:px-6 lg:px-8";
   return (
-    <>
-      <section id={id} className="-mt-12 lg:-mt-20 flex flex-col items-center relative overflow-visible" style={{ ...HERO_FULL_BLEED }}>
-        <div className={`w-full flex flex-col justify-center items-center text-center relative ${compact ? HERO_COMPACT : HERO_TALL} ${padCls} ${borderCls} ${className}`}>
+      <section id={id} className={`${compact ? "" : "-mt-12 lg:-mt-20"} flex flex-col items-center relative overflow-visible`} style={{ ...HERO_FULL_BLEED }}>
+        <div className={`w-full flex flex-col items-center text-center relative ${compact ? HERO_COMPACT : HERO_TALL} ${padCls} ${borderCls} ${className}`}>
           <HeroCorners />
 
           {sideLeft && (
@@ -191,25 +335,38 @@ export function HeroShell({
             </div>
           )}
 
-          <div className="flex-1 lg:flex-none flex flex-col justify-center items-center w-full">
-            <div className={`space-y-2 lg:space-y-4 max-w-3xl w-full text-center relative z-10${compact ? " mt-12 lg:mt-20" : ""}`}>
+          <div className={`w-full flex flex-col justify-center items-center ${compact ? "min-h-[140px]" : "min-h-[195px] sm:min-h-[220px] lg:min-h-[240px] shrink-0"}`}>
+            <div className="space-y-2 sm:space-y-2.5 max-w-3xl w-full text-center relative z-10 flex flex-col items-center justify-center">
               {children}
             </div>
           </div>
-
+          <HeroNavSlot />
           {cue && (
-            <div className="w-full flex justify-center pt-10 lg:pt-16 select-none relative z-10" aria-hidden>
-              <div className="text-primary/50 animate-bounce">
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                  <path d="m6 9 6 6 6-6" />
-                </svg>
-              </div>
+            <div className="w-full flex-1 min-h-[48px] flex flex-col items-center justify-center">
+              <button
+                type="button"
+                onClick={() => {
+                  const heroEl = document.getElementById(id);
+                  if (heroEl) {
+                    const nextY = heroEl.offsetTop + heroEl.offsetHeight - 48;
+                    window.scrollTo({ top: nextY, behavior: "smooth" });
+                  } else {
+                    window.scrollTo({ top: window.innerHeight * 0.85, behavior: "smooth" });
+                  }
+                }}
+                aria-label="Desplazarse al contenido"
+                className="group flex flex-col items-center select-none relative z-10 p-2 text-primary/50 hover:text-primary transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-full"
+              >
+                <div className="animate-bounce">
+                  <svg className="w-5 h-5 transition-transform group-hover:translate-y-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </div>
+              </button>
             </div>
           )}
         </div>
       </section>
-      <HeroNavSlot />
-    </>
   );
 }
 
@@ -309,22 +466,18 @@ export function ModalShell({ onClose, labelledBy, describedBy, className = "", c
 }
 
 /* ------------------------------------------------------------------ */
-/* PageSkeleton — mismo esqueleto que el fallback de LazyTabWrapper.   */
-/*  Úsalo cuando la tab espera datos (grafo/cronologia sin CORE_NODES). */
+/* PageSkeleton — esqueleto armónico que preserva HeroShell y slot    */
+/*  del menú, evitando cualquier salto visual o pérdida de anclaje.   */
 /* ------------------------------------------------------------------ */
 export function PageSkeleton({ label = "Cargando sección" }: { label?: string }) {
   return (
-    <div className="w-full max-w-[1280px] mx-auto px-4 md:px-6 lg:px-8 py-12 space-y-4" aria-label={label} role="status">
-      <div className="h-8 w-48 rounded-full bg-surface-dim/40 animate-pulse" />
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-8">
-        {[0, 1, 2].map((i) => (
-          <div key={i} className="glass-enhance rounded-2xl p-6 space-y-3 border border-outline-variant/15 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative animate-pulse">
-            <div className="h-4 w-24 rounded-full bg-surface-dim/60" />
-            <div className="h-6 w-full rounded-lg bg-surface-dim/40" />
-            <div className="h-20 w-full rounded-xl bg-surface-dim/30" />
-          </div>
-        ))}
-      </div>
+    <div className="w-full" aria-label={label} role="status">
+      <HeroShell id="hero-skeleton" cue={true} watermark={null}>
+        <div className="space-y-3 w-full flex flex-col items-center justify-center">
+          <div className="h-9 sm:h-11 w-48 sm:w-64 rounded-full bg-surface-dim/40 animate-pulse" />
+          <div className="h-4 sm:h-5 w-72 sm:w-96 rounded-full bg-surface-dim/25 animate-pulse mt-2" />
+        </div>
+      </HeroShell>
     </div>
   );
 }

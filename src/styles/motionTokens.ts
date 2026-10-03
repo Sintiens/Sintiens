@@ -47,10 +47,9 @@ export const headerVariants = {
 } as const;
 
 export const childVariants = {
-  hidden: { opacity: 0, y: 18 },
+  hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    y: 0,
     transition: { duration: DUR.base, ease: EASE_ENTER },
   },
 } as const;
@@ -67,19 +66,17 @@ export const slideUp = {
   exit: { opacity: 0, y: -6, transition: { duration: DUR.fast, ease: EASE_OUT } },
 } as const;
 
-// Page transitions (usadas en App.tsx)
+// Page transitions (usadas en App.tsx) — crossfade puro, ultra-snappy y calmado sin desplazamiento vertical ni escala
 export const PAGE_SUB = {
-  initial: { opacity: 0, y: 6 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -4 },
-  transition: { duration: DUR.pageSub, ease: EASE_SUBTLE },
+  initial: { opacity: 0 },
+  animate: { opacity: 1, transition: { duration: 0.12, ease: EASE_ENTER } },
+  exit: { opacity: 0, transition: { duration: 0.06, ease: EASE_OUT } },
 } as const;
 
 export const PAGE_CAT = {
-  initial: { opacity: 0, y: 10, scale: 0.985 },
-  animate: { opacity: 1, y: 0, scale: 1 },
-  exit: { opacity: 0, y: -6, scale: 0.99 },
-  transition: { duration: DUR.pageCat, ease: EASE_SPRING },
+  initial: { opacity: 0 },
+  animate: { opacity: 1, transition: { duration: 0.14, ease: EASE_ENTER } },
+  exit: { opacity: 0, transition: { duration: 0.07, ease: EASE_OUT } },
 } as const;
 
 // Hook para respetar prefers-reduced-motion

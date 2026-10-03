@@ -1,4 +1,5 @@
-import { useState, useMemo, useEffect, useRef, memo } from "react";
+import { useState, useMemo, useEffect, useRef, memo, Fragment } from "react";
+import type { MouseEvent as ReactMouseEvent } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import {
@@ -223,8 +224,8 @@ const headerVariants = {
   visible: { transition: { staggerChildren: 0.08 } },
 };
 const childVariants = {
-  hidden: { opacity: 0, y: 18 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.32, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
 };
 
 // Shared animation language for the search control bar: smooth, no bounce.
@@ -277,13 +278,51 @@ export default memo(function NewsExplorer() {
 
   const toggleExpanded = (id: string) => {
     setExpandedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
+      if (prev.has(id)) {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      }
+      return new Set([id]);
     });
   };
   const isExpanded = (id: string) => expandedIds.has(id);
+  const collapseScrollTimerRef = useRef<number | null>(null);
+  const expandedId = useMemo<string | null>(() => {
+    if (expandedIds.size === 0) return null;
+    return expandedIds.values().next().value ?? null;
+  }, [expandedIds]);
+
+  const handleToggleExpanded = (e: ReactMouseEvent<HTMLButtonElement>, id: string) => {
+    e.stopPropagation();
+    const card = (e.currentTarget as HTMLElement).closest("[data-news-card]") as HTMLElement | null;
+    const beforeTop = card ? card.getBoundingClientRect().top : null;
+    const wasExpanded = isExpanded(id);
+    toggleExpanded(id);
+    if (!card || beforeTop === null) return;
+
+    // Al colapsar: volver a la posición original de la tarjeta.
+    // Al expandir: mantener la tarjeta clavada donde estaba, compensando el reflujo del grid sin desplazar la vista.
+    const targetTop = wasExpanded ? Math.max(beforeTop, 96) : beforeTop;
+    const prefersReduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+    const restore = (behavior: ScrollBehavior) => {
+      if (!card.isConnected) return;
+      const afterTop = card.getBoundingClientRect().top;
+      const delta = afterTop - targetTop;
+      if (Math.abs(delta) > 1) window.scrollBy({ top: delta, behavior });
+    };
+
+    if (collapseScrollTimerRef.current !== null) window.clearTimeout(collapseScrollTimerRef.current);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        restore("auto");
+        collapseScrollTimerRef.current = window.setTimeout(() => {
+          restore(wasExpanded && !prefersReduced ? "smooth" : "auto");
+          collapseScrollTimerRef.current = null;
+        }, 430);
+      });
+    });
+  };
 
   // Helper to scroll smoothly to the top of the news section
   const scrollToNewsTop = () => {
@@ -723,6 +762,68 @@ export default memo(function NewsExplorer() {
     setDebouncedQuery("");
   };
 
+  const renderCardFooter = (item: NewsItem) => (
+    <div className="mx-5 ml-[22px] py-3.5 border-t border-outline-variant/15 flex items-center justify-between gap-2">
+      {item.impact === "positivo" ? (
+        <span className="flex items-center gap-1.5 text-[10px] font-mono font-bold tracking-wide text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+          <CheckCircle className="w-3 h-3" />
+          Avance
+        </span>
+      ) : (
+        <span className="flex items-center gap-1.5 text-[10px] font-mono font-bold tracking-wide text-red-700 dark:text-red-300 bg-red-500/10 px-2.5 py-1 rounded-full border border-red-500/20">
+          <AlertTriangle className="w-3 h-3" />
+          Vulneración
+        </span>
+      )}
+
+      <div className="flex items-center gap-1.5">
+        <a
+          href={item.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 h-7 rounded-full bg-surface-dim dark:bg-surface-container border border-outline-variant/25 hover:border-link/40 hover:bg-link/[0.06] text-on-surface-variant/80 transition-all duration-300 group/link shadow-[0_1px_2px_rgba(0,0,0,0.04)] pl-0 pr-2.5 max-w-[150px]"
+          title={`Abrir fuente: ${item.source}`}
+        >
+          <span className="-ml-px w-7 h-7 rounded-full bg-white dark:bg-zinc-800 border border-outline-variant/25 flex items-center justify-center shrink-0 shadow-sm overflow-hidden">
+            <img
+              src={`https://www.google.com/s2/favicons?sz=64&domain=${getDomain(item.url)}`}
+              alt=""
+              aria-hidden="true"
+              loading="lazy"
+              decoding="async"
+              referrerPolicy="no-referrer"
+              className="w-4 h-4 object-contain transition-transform duration-300 group-hover/link:scale-110"
+              onError={(e) => {
+                const img = e.currentTarget as HTMLImageElement;
+                img.style.display = "none";
+                const fallback = img.nextElementSibling as HTMLElement | null;
+                if (fallback) fallback.style.display = "flex";
+              }}
+            />
+            <span className="hidden w-4 h-4 items-center justify-center text-[10px]" aria-hidden="true">📰</span>
+          </span>
+          <span className="tracking-wider uppercase text-[9.5px] font-mono font-bold text-on-surface-variant/85 group-hover/link:text-link transition-colors truncate">
+            {item.source}
+          </span>
+          <ExternalLink className="w-2.5 h-2.5 text-on-surface-variant/40 group-hover/link:text-link group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform shrink-0" />
+        </a>
+
+        <button
+          onClick={(e) => handleCopyLink(e, item.id)}
+          title="Copiar enlace a esta noticia"
+          aria-label="Copiar enlace directo"
+          className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-surface-dim/60 dark:bg-surface-container/60 hover:bg-primary/10 border border-outline-variant/25 hover:border-primary/30 text-on-surface-variant/60 hover:text-primary transition-all cursor-pointer shrink-0"
+        >
+          {copiedId === item.id ? (
+            <Check className="w-3.5 h-3.5 text-emerald-500" />
+          ) : (
+            <Link2 className="w-3.5 h-3.5" />
+          )}
+        </button>
+      </div>
+    </div>
+  );
+
   // Render Card (Grid View) — Rediseño Museum Specimen
   const renderCard = (item: NewsItem) => {
     const isHighlighted = highlightedCardId === item.id;
@@ -743,6 +844,7 @@ export default memo(function NewsExplorer() {
     return (
       <motion.div
         id={item.id}
+        data-news-card
         key={item.id}
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -754,7 +856,7 @@ export default memo(function NewsExplorer() {
           <div className={`absolute -inset-2 rounded-2xl blur-xl opacity-60 z-0 animate-pulse pointer-events-none transition-all duration-700 ${glowBgClass}`} />
         )}
         <div
-          className={`glass-enhance border rounded-xl flex flex-col justify-between relative overflow-hidden hover:border-primary/30 hover:shadow-[0_8px_32px_-16px_rgba(0,0,0,0.12)] hover:-translate-y-[1px] transition-all duration-300 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/15 dark:before:bg-surface-dim/5 before:backdrop-blur-md before:z-[-1] before:pointer-events-none group z-10 ${highlightedBorderClass}`}
+          className={`glass-enhance border rounded-xl flex flex-col justify-between relative overflow-hidden hover:border-primary/30 hover:shadow-[0_8px_32px_-16px_rgba(0,0,0,0.12)] hover:-translate-y-[1px] transition-all duration-300 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/15 dark:before:bg-surface-dim/5 before:backdrop-blur-md before:z-[-1] before:pointer-events-none group z-10 ${highlightedBorderClass} h-full`}
         >
           {/* Acento lateral por impacto — sutil a altura completa */}
           <div className={`absolute left-0 top-0 bottom-0 w-[2px] ${accentBar} opacity-45`} />
@@ -791,7 +893,7 @@ export default memo(function NewsExplorer() {
             </div>
 
             {/* Título — serif editorial, mayor contraste + highlight búsqueda + glosario */}
-            <h4 className="font-serif text-[19px] md:text-[20px] font-semibold leading-[1.25] tracking-tight text-on-surface group-hover/card:text-primary transition-colors line-clamp-3">
+            <h4 className={`font-serif text-[19px] md:text-[20px] font-semibold leading-[1.25] tracking-tight text-on-surface group-hover/card:text-primary transition-colors ${isExpanded(item.id) ? "" : "line-clamp-3"}`}>
               {renderWithGlossary(item.title, item, debouncedQuery) as any}
             </h4>
 
@@ -839,10 +941,7 @@ export default memo(function NewsExplorer() {
                   {needsExpand && (
                     <button
                       type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleExpanded(item.id);
-                      }}
+                      onClick={(e) => handleToggleExpanded(e, item.id)}
                       aria-expanded={expanded}
                       aria-label={expanded ? "Mostrar menos" : hasDetails ? "Leer análisis ampliado" : "Leer resumen completo"}
                       className="inline-flex items-center gap-1 text-[10px] font-mono font-normal tracking-wide text-on-surface-variant/55 hover:text-primary transition-colors cursor-pointer group/btn"
@@ -860,71 +959,27 @@ export default memo(function NewsExplorer() {
             })()}
           </div>
 
-          {/* Footer: impacto + fuente + copiar */}
-          <div className="mx-5 ml-[22px] py-3.5 border-t border-outline-variant/15 flex items-center justify-between gap-2">
-            {/* Estado de protección */}
-            {item.impact === "positivo" ? (
-              <span className="flex items-center gap-1.5 text-[10px] font-mono font-bold tracking-wide text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
-                <CheckCircle className="w-3 h-3" />
-                Avance
-              </span>
-            ) : (
-              <span className="flex items-center gap-1.5 text-[10px] font-mono font-bold tracking-wide text-red-700 dark:text-red-300 bg-red-500/10 px-2.5 py-1 rounded-full border border-red-500/20">
-                <AlertTriangle className="w-3 h-3" />
-                Vulneración
-              </span>
-            )}
-
-            {/* Acciones */}
-            <div className="flex items-center gap-1.5">
-              <a
-                href={item.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 h-7 rounded-full bg-surface-dim dark:bg-surface-container border border-outline-variant/25 hover:border-link/40 hover:bg-link/[0.06] text-on-surface-variant/80 transition-all duration-300 group/link shadow-[0_1px_2px_rgba(0,0,0,0.04)] pl-0 pr-2.5 max-w-[150px]"
-                title={`Abrir fuente: ${item.source}`}
-              >
-                <span className="-ml-px w-7 h-7 rounded-full bg-white dark:bg-zinc-800 border border-outline-variant/25 flex items-center justify-center shrink-0 shadow-sm overflow-hidden">
-                  <img
-                    src={`https://www.google.com/s2/favicons?sz=64&domain=${getDomain(item.url)}`}
-                    alt=""
-                    aria-hidden="true"
-                    loading="lazy"
-                    decoding="async"
-                    referrerPolicy="no-referrer"
-                    className="w-4 h-4 object-contain transition-transform duration-300 group-hover/link:scale-110"
-                    onError={(e) => {
-                      const img = e.currentTarget as HTMLImageElement;
-                      img.style.display = "none";
-                      const fallback = img.nextElementSibling as HTMLElement | null;
-                      if (fallback) fallback.style.display = "flex";
-                    }}
-                  />
-                  <span className="hidden w-4 h-4 items-center justify-center text-[10px]" aria-hidden="true">📰</span>
-                </span>
-                <span className="tracking-wider uppercase text-[9.5px] font-mono font-bold text-on-surface-variant/85 group-hover/link:text-link transition-colors truncate">
-                  {item.source}
-                </span>
-                <ExternalLink className="w-2.5 h-2.5 text-on-surface-variant/40 group-hover/link:text-link group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform shrink-0" />
-              </a>
-
-              <button
-                onClick={(e) => handleCopyLink(e, item.id)}
-                title="Copiar enlace a esta noticia"
-                aria-label="Copiar enlace directo"
-                className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-surface-dim/60 dark:bg-surface-container/60 hover:bg-primary/10 border border-outline-variant/25 hover:border-primary/30 text-on-surface-variant/60 hover:text-primary transition-all cursor-pointer shrink-0"
-              >
-                {copiedId === item.id ? (
-                  <Check className="w-3.5 h-3.5 text-emerald-500" />
-                ) : (
-                  <Link2 className="w-3.5 h-3.5" />
-                )}
-              </button>
-            </div>
-          </div>
+          {renderCardFooter(item)}
         </div>
       </motion.div>
     );
+  };
+
+  // Grid por filas uniformes: la tarjeta expandida ocupa el ancho completo de su fila
+  const renderGridRows = (columns: number) => {
+    const rows: NewsItem[][] = [];
+    for (let i = 0; i < paginatedNews.length; i += columns) {
+      rows.push(paginatedNews.slice(i, i + columns));
+    }
+    return rows.map((rowItems, rowIndex) => (
+      <Fragment key={`row-${columns}-${rowIndex}`}>
+        {rowItems.map((item) => (
+          <div key={item.id} className={expandedId === item.id ? "col-span-full" : "flex"}>
+            {renderCard(item)}
+          </div>
+        ))}
+      </Fragment>
+    ));
   };
 
   // Render Row (List View) — unificado al sistema specimen
@@ -942,6 +997,7 @@ export default memo(function NewsExplorer() {
     return (
       <motion.div
         id={item.id}
+        data-news-card
         key={item.id}
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -982,7 +1038,7 @@ export default memo(function NewsExplorer() {
               {getCategoryLabel(item.category)}
             </div>
 
-            <h4 className="font-serif text-[16px] md:text-[17px] font-semibold leading-snug text-on-surface group-hover/row:text-primary transition-colors line-clamp-2">
+            <h4 className={`font-serif text-[16px] md:text-[17px] font-semibold leading-snug text-on-surface group-hover/row:text-primary transition-colors ${isExpanded(item.id) ? "" : "line-clamp-2"}`}>
               {highlightMatch(item.title, debouncedQuery) as any}
             </h4>
 
@@ -1029,10 +1085,7 @@ export default memo(function NewsExplorer() {
                   {needsExpand && (
                     <button
                       type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleExpanded(item.id);
-                      }}
+                      onClick={(e) => handleToggleExpanded(e, item.id)}
                       aria-expanded={expanded}
                       aria-label={expanded ? "Mostrar menos" : hasDetails ? "Leer análisis ampliado" : "Leer resumen completo"}
                       className="inline-flex items-center gap-1 text-[10px] font-mono font-normal tracking-wide text-on-surface-variant/55 hover:text-primary transition-colors cursor-pointer group/btn"
@@ -1092,10 +1145,7 @@ export default memo(function NewsExplorer() {
                   {needsExpand && (
                     <button
                       type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleExpanded(item.id);
-                      }}
+                      onClick={(e) => handleToggleExpanded(e, item.id)}
                       aria-expanded={expanded}
                       aria-label={expanded ? "Mostrar menos" : hasDetails ? "Leer análisis ampliado" : "Leer resumen completo"}
                       className="inline-flex items-center gap-1 text-[10px] font-mono font-normal tracking-wide text-on-surface-variant/55 hover:text-primary transition-colors cursor-pointer group/btn"
@@ -1155,19 +1205,19 @@ export default memo(function NewsExplorer() {
   return (
     <div id="news-section-view" className="space-y-8 w-full relative max-w-full mx-auto">
 
-      {/* ───────────── HERO (restaurado 550/600 publicada + ambient glows StoryMode) ───────────── */}
-      <HeroShell border="none" watermark={null}>
-        <motion.div variants={headerVariants} initial="hidden" animate="visible" className="space-y-7 sm:space-y-8">
-          <motion.h1 variants={childVariants} className="text-[clamp(42px,8.5vw,80px)] font-bold tracking-tight font-heading leading-[1.05] text-on-background select-none">
+      {/* ───────────── HERO ───────────── */}
+      <HeroShell id="hero" pad="wide" border="none" cue watermark={{ icon: Newspaper, size: "clamp(140px, 35vw, 400px)" }}>
+        <div className="space-y-3 w-full text-center">
+          <h1 className="text-[clamp(34px,5.8vw,64px)] font-bold tracking-tight font-heading leading-[1.06] text-on-background select-none">
             Noticias
-            <span className="font-serif italic font-light text-on-surface-variant/75 block mt-3 sm:mt-4 text-[clamp(20px,3.2vw,32px)] tracking-normal">
+            <span className="italic font-light text-secondary font-serif block mt-1.5 text-[clamp(20px,3.4vw,34px)]">
               Registro &amp; Análisis
             </span>
-          </motion.h1>
-          <motion.p variants={childVariants} className="max-w-2xl mx-auto pt-2 sm:pt-3 font-serif italic font-light text-on-surface-variant/70 leading-relaxed text-[14px] sm:text-[16px] md:text-[18px] lg:text-[19px] text-center tracking-normal select-none">
+          </h1>
+          <p className="max-w-2xl mx-auto pt-1.5 sm:pt-2.5 font-serif italic font-light text-on-surface-variant/75 leading-relaxed text-[14px] sm:text-[16px] lg:text-[17px] text-center tracking-normal select-none">
             Selección, síntesis y seguimiento de los eventos más determinantes para los animales, ordenados por metodología de impacto y con acceso a sus fuentes originales.
-          </motion.p>
-        </motion.div>
+          </p>
+        </div>
       </HeroShell>
 
       {/* ───────────── MAIN CONTENT (BELOW MENU & HERO) — margenes laterales reducidos ~50% ───────────── */}
@@ -1721,7 +1771,7 @@ export default memo(function NewsExplorer() {
         <div ref={sentinelRef} className="h-0 w-full pointer-events-none" />
 
         {/* Unified Spotlight Sticky Bar — blur-md único */}
-        <div ref={controlBarRef} className="sticky top-4 z-40 w-full max-w-[620px] mx-auto pt-2 relative">
+        <div ref={controlBarRef} data-nav-avoid="true" className="sticky top-4 z-40 w-full max-w-[620px] mx-auto pt-2 relative">
           {/* Spotlight Pill — glass unificada */}
           <div
             className={`relative rounded-full border backdrop-blur-md p-1.5 sm:p-2 flex items-center gap-1.5 sm:gap-2 transition-[box-shadow,background-color,border-color] duration-300 ${
@@ -2334,20 +2384,12 @@ export default memo(function NewsExplorer() {
           {sortedNews.length > 0 ? (
             viewMode === "grid" ? (
               <>
-                {/* Grid masonry: CSS columns mantiene un solo parent → motion layout funciona sin teleport */}
-                <div className="hidden lg:block columns-3 gap-5 space-y-5 [column-fill:_balance]">
-                  {paginatedNews.map((item) => (
-                    <div key={item.id} className="break-inside-avoid mb-5">
-                      {renderCard(item)}
-                    </div>
-                  ))}
+                {/* Grid por filas uniformes: el panel de análisis se inserta en flujo y empuja al resto */}
+                <div className="hidden lg:grid grid-flow-row-dense grid-cols-3 gap-5 items-stretch">
+                  {renderGridRows(3)}
                 </div>
-                <div className="hidden md:block lg:hidden columns-2 gap-5 space-y-5 [column-fill:_balance]">
-                  {paginatedNews.map((item) => (
-                    <div key={`t-${item.id}`} className="break-inside-avoid mb-5">
-                      {renderCard(item)}
-                    </div>
-                  ))}
+                <div className="hidden md:grid lg:hidden grid-flow-row-dense grid-cols-2 gap-5 items-stretch">
+                  {renderGridRows(2)}
                 </div>
                 <div className="flex flex-col gap-5 md:hidden">
                   {paginatedNews.map((item) => renderCard(item))}
@@ -2373,7 +2415,7 @@ export default memo(function NewsExplorer() {
                   return Array.from(groups.entries()).map(([year, items]) => (
                     <div key={year} className="relative pb-8 last:pb-0">
                       {/* Año header */}
-                      <div className="sticky top-16 z-10 flex items-center gap-3 mb-4 bg-background/80 backdrop-blur-md py-1 -ml-6 sm:-ml-8 pl-6 sm:pl-8">
+                      <div data-nav-avoid="true" className="sticky top-16 z-10 flex items-center gap-3 mb-4 bg-background/80 backdrop-blur-md py-1 -ml-6 sm:-ml-8 pl-6 sm:pl-8">
                         <span className="absolute left-0 sm:left-1 w-3 h-3 rounded-full bg-primary border-2 border-background shadow-sm" style={{ left: '2px' }} />
                         <span className="absolute left-0 w-3 h-3 rounded-full bg-primary/20 animate-ping" style={{ left: '2px' }} />
                         <h4 className="text-sm font-mono font-bold tracking-widest text-primary ml-4">{year}</h4>

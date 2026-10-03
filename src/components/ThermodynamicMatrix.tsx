@@ -98,28 +98,33 @@ export default function ThermodynamicMatrix({ onNavigateToTab: _onNavigateToTab 
   return (
     <div id="thermodynamics-matrix-view" className="space-y-16 w-full relative text-left">
       {/* SECTION 0: Hero & Hook */}
-      <HeroShell id="hero" watermark={{ icon: Flame }}>
-        <h1 className="text-[clamp(38px,7.5vw,72px)] font-bold tracking-tight font-heading leading-[1.08] text-on-background select-text">
-          Termodinámica Trófica
-        </h1>
-        <p className="max-w-2xl mx-auto pt-1 font-serif italic font-light text-on-surface-variant/70 leading-relaxed text-[14px] sm:text-[16px] md:text-[18px] text-center tracking-normal select-text">
-          Los animales no producen energía: son transformadores disipativos que pierden hasta el 98% de las calorías de cultivo en calor y mantenimiento biológico.
-        </p>
-        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pt-2">
-          <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
-            <Flame className="w-3.5 h-3.5 text-primary" />
-            REGLA DEL 10% DE LINDEMAN
-          </span>
-          <span className="w-px h-4 bg-outline-variant/50 hidden sm:inline" />
-          <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
-            <Globe className="w-3.5 h-3.5 text-primary" />
-            SCIENCE (POORE & NEMECEK)
-          </span>
-          <span className="w-px h-4 bg-outline-variant/50 hidden sm:inline" />
-          <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
-            <Trees className="w-3.5 h-3.5 text-primary" />
-            RESTITUCIÓN PLANETARIA
-          </span>
+      <HeroShell id="hero" pad="wide" cue watermark={{ icon: Flame }}>
+        <div className="space-y-3 w-full text-center">
+          <h1 className="text-[clamp(30px,5vw,56px)] font-bold tracking-tight font-heading leading-[1.08] text-on-background select-text">
+            Termodinámica
+            <span className="italic font-light text-secondary font-serif block mt-1 text-[clamp(18px,3vw,30px)]">
+              Física Trófica &amp; Eficiencia
+            </span>
+          </h1>
+          <p className="max-w-2xl mx-auto pt-1 sm:pt-2 font-serif italic font-light text-on-surface-variant/75 leading-relaxed text-[13px] sm:text-[15px] lg:text-[16px] text-center tracking-normal select-text">
+            Los animales no producen energía: son transformadores disipativos que pierden hasta el 98% de las calorías de cultivo en calor y mantenimiento biológico.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5 pt-1.5">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-1.5">
+              <Flame className="w-3.5 h-3.5 text-primary" />
+              REGLA DEL 10% DE LINDEMAN
+            </span>
+            <span className="w-px h-3.5 bg-outline-variant/50 hidden sm:inline" />
+            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-1.5">
+              <Globe className="w-3.5 h-3.5 text-primary" />
+              SCIENCE (POORE &amp; NEMECEK)
+            </span>
+            <span className="w-px h-3.5 bg-outline-variant/50 hidden sm:inline" />
+            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-1.5">
+              <Trees className="w-3.5 h-3.5 text-primary" />
+              RESTITUCIÓN PLANETARIA
+            </span>
+          </div>
         </div>
       </HeroShell>
 

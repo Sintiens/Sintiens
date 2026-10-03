@@ -209,28 +209,33 @@ export default function RawlsianMachine({ onNavigateToTab: _onNavigateToTab }: R
   return (
     <div id="rawls-machine-view" className="space-y-16 w-full relative text-left">
       {/* SECTION 0: Hero & Hook */}
-      <HeroShell id="hero" watermark={{ icon: Scale }}>
-        <h1 className="text-[clamp(38px,7.5vw,72px)] font-bold tracking-tight font-heading leading-[1.08] text-on-background select-text">
-          El Velo de la Ignorancia
-        </h1>
-        <p className="max-w-2xl mx-auto pt-1 font-serif italic font-light text-on-surface-variant/70 leading-relaxed text-[14px] sm:text-[16px] md:text-[18px] text-center tracking-normal select-text">
-          ¿Qué leyes de convivencia diseñarías para un planeta si no supieras en qué cuerpo, especie o condición te tocará nacer?
-        </p>
-        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pt-2">
-          <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
-            <Scale className="w-3.5 h-3.5 text-primary" />
-            JUSTICIA RAWLSIANA
-          </span>
-          <span className="w-px h-4 bg-outline-variant/50 hidden sm:inline" />
-          <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
-            <Activity className="w-3.5 h-3.5 text-primary" />
-            DEMOGRAFÍA REAL (FAO 2024)
-          </span>
-          <span className="w-px h-4 bg-outline-variant/50 hidden sm:inline" />
-          <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
-            <Dna className="w-3.5 h-3.5 text-primary" />
-            SINTIENCIA UNIVERSAL
-          </span>
+      <HeroShell id="hero" pad="wide" cue watermark={{ icon: Scale }}>
+        <div className="space-y-3 w-full text-center">
+          <h1 className="text-[clamp(34px,5.8vw,64px)] font-bold tracking-tight font-heading leading-[1.06] text-on-background select-text">
+            Velo de Rawls
+            <span className="italic font-light text-secondary font-serif block mt-1.5 text-[clamp(20px,3.4vw,34px)]">
+              Justicia Interespecífica
+            </span>
+          </h1>
+          <p className="max-w-2xl mx-auto pt-1.5 sm:pt-2.5 font-serif italic font-light text-on-surface-variant/75 leading-relaxed text-[14px] sm:text-[16px] lg:text-[17px] text-center tracking-normal select-text">
+            ¿Qué leyes de convivencia diseñarías para un planeta si no supieras en qué cuerpo, especie o condición te tocará nacer?
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5 pt-1.5">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-1.5">
+              <Scale className="w-3.5 h-3.5 text-primary" />
+              JUSTICIA RAWLSIANA
+            </span>
+            <span className="w-px h-3.5 bg-outline-variant/50 hidden sm:inline" />
+            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-1.5">
+              <Activity className="w-3.5 h-3.5 text-primary" />
+              DEMOGRAFÍA REAL (FAO 2024)
+            </span>
+            <span className="w-px h-3.5 bg-outline-variant/50 hidden sm:inline" />
+            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-1.5">
+              <Dna className="w-3.5 h-3.5 text-primary" />
+              SINTIENCIA UNIVERSAL
+            </span>
+          </div>
         </div>
       </HeroShell>
 

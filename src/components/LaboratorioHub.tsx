@@ -10,34 +10,32 @@ interface LaboratorioHubProps {
 
 export default memo(function LaboratorioHub({ onNavigate }: LaboratorioHubProps) {
   return (
-    <motion.div
-      key="laboratorio_hub"
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -6 }}
-      transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-      className="col-start-1 row-start-1 w-full h-full flex flex-col"
-    >
+    <div className="col-start-1 row-start-1 w-full h-full flex flex-col">
       <div id="laboratorio-hub-view" className="space-y-16 w-full relative text-left">
         {/* SECTION 0: Hero & Hook */}
-        <HeroShell id="hero" pad="wide" watermark={{ icon: FlaskConical }}>
+        <HeroShell id="hero" pad="wide" cue watermark={{ icon: FlaskConical }}>
           {/* Title and Subtitle Section */}
-          <h1 className="text-[clamp(42px,8.5vw,80px)] font-bold tracking-tight font-heading leading-[1.05] text-on-background select-text">
-            Laboratorio
-          </h1>
-          <p className="max-w-2xl mx-auto pt-1 font-serif italic font-light text-on-surface-variant/70 leading-relaxed text-[14px] sm:text-[16px] md:text-[18px] lg:text-[19px] text-center tracking-normal select-text">
-            Centro interactivo de experimentación bioética, física trófica, neurociencia, bioquímica clínica, auditoría legal y dialéctica analítica.
-          </p>
-          <div className="flex items-center justify-center gap-6 pt-2">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
-              <Activity className="w-3.5 h-3.5" />
-              INTERACTIVO
-            </span>
-            <span className="w-px h-4 bg-outline-variant/50" />
-            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
-              <Layers className="w-3.5 h-3.5" />
-              7 HERRAMIENTAS
-            </span>
+          <div className="space-y-3 w-full text-center">
+            <h1 className="text-[clamp(34px,5.8vw,64px)] font-bold tracking-tight font-heading leading-[1.06] text-on-background select-text">
+              Laboratorio
+              <span className="italic font-light text-secondary font-serif block mt-1.5 text-[clamp(20px,3.4vw,34px)]">
+                Herramientas Interactivas
+              </span>
+            </h1>
+            <p className="max-w-2xl mx-auto pt-1.5 sm:pt-2.5 font-serif italic font-light text-on-surface-variant/75 leading-relaxed text-[14px] sm:text-[16px] lg:text-[17px] text-center tracking-normal select-text">
+              Centro interactivo de experimentación bioética, física trófica, neurociencia, bioquímica clínica, auditoría legal y dialéctica analítica.
+            </p>
+            <div className="flex items-center justify-center gap-3 sm:gap-5 pt-1.5">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-1.5">
+                <Activity className="w-3.5 h-3.5" />
+                INTERACTIVO
+              </span>
+              <span className="w-px h-3.5 bg-outline-variant/50" />
+              <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5" />
+                7 HERRAMIENTAS
+              </span>
+            </div>
           </div>
         </HeroShell>
 
@@ -208,7 +206,7 @@ export default memo(function LaboratorioHub({ onNavigate }: LaboratorioHubProps)
         {/* Espaciador final para scroll */}
         <div className="h-32" />
       </div>
-    </motion.div>
+    </div>
   );
 });
 
