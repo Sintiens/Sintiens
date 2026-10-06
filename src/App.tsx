@@ -486,7 +486,7 @@ export default function App() {
               )}
               {activeTab === "noticias" && (
                 <LazyTabWrapper>
-                  <NewsExplorer />
+                  <NewsExplorer onNavigate={handleNavigate} />
                 </LazyTabWrapper>
               )}
               {activeTab === "laboratorio_hub" && (

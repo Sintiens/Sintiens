@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useRef, memo, Fragment } from "react";
 import type { MouseEvent as ReactMouseEvent } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useFocusTrap } from "../hooks/useFocusTrap";
+import type { TabType } from "../types";
 import {
   Newspaper,
   Search, 
@@ -223,7 +224,7 @@ type ViewMode = "grid" | "list" | "timeline";
 const BAR_SPRING = { type: "spring", stiffness: 260, damping: 34 } as const;
 const BAR_EASE = [0.16, 1, 0.3, 1] as const;
 
-export default memo(function NewsExplorer() {
+export default memo(function NewsExplorer({ onNavigate }: { onNavigate?: (tab: TabType) => void }) {
   // State for filters & controls
   const [selectedRegion, setSelectedRegion] = useState<"todos" | "españa" | "europa" | "global">("todos");
   const [selectedYear, setSelectedYear] = useState<string>("todos");
@@ -1207,6 +1208,21 @@ export default memo(function NewsExplorer() {
           </h1>
           <p className="max-w-2xl mx-auto pt-1.5 sm:pt-2.5 font-serif italic font-light text-on-surface-variant/75 leading-relaxed text-[14px] sm:text-[16px] lg:text-[17px] text-center tracking-normal select-none">
             Selección, síntesis y seguimiento de los eventos más determinantes para los animales, ordenados por metodología de impacto y con acceso a sus fuentes originales.
+          </p>
+          <p className="pt-0.5 text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-on-surface-variant/55">
+            Cada noticia es un caso documentado · la escala de fondo está en{" "}
+            <a
+              href="/argumento/cifras"
+              onClick={(e) => {
+                if (onNavigate) {
+                  e.preventDefault();
+                  onNavigate("datos");
+                }
+              }}
+              className="underline decoration-outline-variant/40 underline-offset-2 hover:text-on-surface transition-colors"
+            >
+              Cifras
+            </a>
           </p>
         </div>
       </HeroShell>
