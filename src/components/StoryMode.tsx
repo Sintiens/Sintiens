@@ -16,10 +16,12 @@ import { BlockEnrichments } from "./InlineEnrichments";
 import MicroQuiz from "./MicroQuiz";
 import { GlossaryEntry } from "../data/glossaryUnified";
 import AmbientGlow from "./ui/AmbientGlow";
+import { Compass, X } from "lucide-react";
 
 export default React.memo(function StoryMode() {
 const [activeChapter, setActiveChapter] = useState<string | null>(null);
 const [flashChapter, setFlashChapter] = useState<string | null>(null);
+const [isMobileTocOpen, setIsMobileTocOpen] = useState(false);
 
 // State for Deep Dive modal
 const [deepDiveData, setDeepDiveData] = useState<{
@@ -611,7 +613,7 @@ style={{
           [ LOS 5 CONCEPTOS CLAVE ]
         </span>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 xl:grid-cols-5 gap-3 sm:gap-4">
+      <div className="flex overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-px-4 gap-3 pb-3 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 lg:grid-cols-6 xl:grid-cols-5 sm:gap-4 sm:overflow-visible sm:snap-none">
         {[
           { id: 'sintiencia', color: 'bg-ch1' },
           { id: 'dolor-vs-nocicepcion', color: 'bg-ch2' },
@@ -619,7 +621,7 @@ style={{
           { id: 'causalidad-sistemica', color: 'bg-ch3' },
           { id: 'axioma-implicito', color: 'bg-ch5' },
         ].map((item, i) => (
-          <div key={item.id} className={`lg:col-span-2 xl:col-span-1 ${i === 3 ? 'lg:col-start-2 xl:col-start-auto' : ''} ${i === 4 ? 'sm:col-span-2' : ''}`}>
+          <div key={item.id} className={`w-[80vw] max-w-[280px] shrink-0 snap-start sm:w-auto sm:max-w-none sm:shrink lg:col-span-2 xl:col-span-1 ${i === 3 ? 'lg:col-start-2 xl:col-start-auto' : ''} ${i === 4 ? 'sm:col-span-2' : ''}`}>
             <ConceptCard number={i + 1} glossaryId={item.id} colorClass={item.color} />
           </div>
         ))}
@@ -633,7 +635,7 @@ style={{
           [ ÍNDICE ]
         </span>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-5">
+      <div className="flex overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-px-4 gap-3 pb-3 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-4 lg:gap-5 sm:overflow-visible sm:snap-none">
         {actsData.map((act) => (
           <div
             key={`idx-${act.id}`}
@@ -647,7 +649,7 @@ style={{
               }
             }}
             aria-label={`Navegar a ACTO ${act.num}: ${act.label}`}
-            className="group relative w-full h-full text-left p-5 sm:p-6 rounded-2xl border border-outline-variant/25 bg-surface-container/30 hover:bg-surface-container/60 hover:border-outline-variant/50 transition-all duration-500 flex flex-col justify-between gap-4 cursor-pointer overflow-hidden"
+            className="w-[82vw] max-w-[310px] shrink-0 snap-start sm:w-full sm:max-w-none sm:shrink group relative text-left p-5 sm:p-6 rounded-2xl border border-outline-variant/25 bg-surface-container/30 hover:bg-surface-container/60 hover:border-outline-variant/50 transition-all duration-500 flex flex-col justify-between gap-4 cursor-pointer overflow-hidden"
           >
             {/* Ambient glow per act on hover */}
             <AmbientGlow soft
@@ -1121,6 +1123,7 @@ return name === "primary" ? "var(--primary)" : `var(--${name})`;
 };
 
 return (
+<>
 <div className={`fixed left-6 top-1/2 -translate-y-1/2 z-[200] hidden xl:flex flex-col gap-2 transition-all duration-700 ${activeChapter ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8 pointer-events-none'}`}>
 {chaptersList.map((ch) => {
 const isActive = activeChapter === ch.id;
@@ -1167,6 +1170,89 @@ isActive ? 'opacity-100' : 'opacity-0'
 );
 })}
 </div>
+
+{/* Mobile & Tablet Floating Chapter Index (xl:hidden) */}
+<div className={`fixed bottom-5 right-4 z-40 xl:hidden transition-all duration-300 ${activeChapter ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
+  <button
+    type="button"
+    onClick={() => setIsMobileTocOpen((prev) => !prev)}
+    className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-full bg-surface-container/90 dark:bg-surface-container/90 backdrop-blur-md border border-outline-variant/30 text-on-surface shadow-xl text-xs font-mono font-bold tracking-wider hover:border-primary/50 transition-all cursor-pointer select-none"
+    aria-label="Abrir índice de capítulos"
+  >
+    <Compass className="w-4 h-4 text-primary" />
+    <span>{chaptersList.find((ch) => ch.id === activeChapter) ? `Acto ${chaptersList.find((ch) => ch.id === activeChapter)?.num}` : "Capítulos"}</span>
+  </button>
+</div>
+
+<AnimatePresence>
+  {isMobileTocOpen && (
+    <div className="fixed inset-0 z-50 xl:hidden flex flex-col justify-end">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={() => setIsMobileTocOpen(false)}
+        className="absolute inset-0 bg-black/60 backdrop-blur-xs"
+      />
+      <motion.div
+        initial={{ y: "100%" }}
+        animate={{ y: 0 }}
+        exit={{ y: "100%" }}
+        transition={{ type: "spring", damping: 28, stiffness: 300 }}
+        className="relative w-full max-h-[80vh] bg-surface dark:bg-zinc-900 border-t border-outline-variant/30 rounded-t-2xl p-5 overflow-y-auto overscroll-contain shadow-2xl"
+      >
+        <div className="flex items-center justify-between mb-4 border-b border-outline-variant/15 pb-3">
+          <div className="flex items-center gap-2">
+            <Compass className="w-4 h-4 text-primary" />
+            <span className="text-xs font-mono uppercase tracking-widest font-bold text-on-surface">Índice de Actos</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsMobileTocOpen(false)}
+            className="p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-surface-dim text-on-surface-variant hover:text-on-surface cursor-pointer"
+            aria-label="Cerrar índice"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="space-y-1.5">
+          {chaptersList.map((ch) => {
+            const isActive = activeChapter === ch.id;
+            const actObj = actsData.find((a) => a.id === ch.id);
+            return (
+              <button
+                key={ch.id}
+                type="button"
+                onClick={() => {
+                  setIsMobileTocOpen(false);
+                  handleScrollTo(ch.id);
+                }}
+                className={`w-full text-left flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${
+                  isActive
+                    ? "bg-primary/10 border-primary/40 text-primary font-bold"
+                    : "border-outline-variant/15 hover:bg-surface-dim/40 text-on-surface"
+                }`}
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${ch.dotClass}`} />
+                  <span className="text-xs font-mono uppercase tracking-wider shrink-0">Acto {ch.num}</span>
+                  {actObj && (
+                    <span className="text-xs font-heading font-medium truncate text-on-surface-variant/90">
+                      · {actObj.label}
+                    </span>
+                  )}
+                </div>
+                {isActive && <span className="text-[10px] font-mono text-primary uppercase tracking-widest shrink-0">Actual</span>}
+              </button>
+            );
+          })}
+        </div>
+      </motion.div>
+    </div>
+  )}
+</AnimatePresence>
+</>
 );
 })()}
 

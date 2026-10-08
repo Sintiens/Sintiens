@@ -1,3 +1,5 @@
+import type { ScientificSourceId } from "./scientificSources";
+
 export interface BehavioralFreedom {
   name: string;
   category: "locomotion" | "comfort" | "social" | "instinct";
@@ -34,7 +36,7 @@ export interface SpeciesConfinementProfile {
     description: string;
     deprivationConsequence: string;
   }[];
-  scientificCitationId: string;
+  scientificCitationId: ScientificSourceId;
 }
 
 export const MULTI_SPECIES_CONFINEMENT_DATA: Record<"hen" | "sow" | "calf" | "salmon" | "broiler_barn", SpeciesConfinementProfile> = {
@@ -82,7 +84,7 @@ export const MULTI_SPECIES_CONFINEMENT_DATA: Record<"hen" | "sow" | "calf" | "sa
         name: "Jaula de Batería Convencional",
         legalStatus: "Estándar común en EE.UU., Asia y Latinoamérica; prohibida en UE desde 2012",
         region: "Global (excepto UE, Suiza, Reino Unido)",
-        areaCm2OrM2: "450 cm² / ave (menos que un folio A4)",
+        areaCm2OrM2: "450 cm² (pre-2003) → 550 cm² / ave (menos que un folio A4)",
         widthCm: 20,
         lengthCm: 22.5,
         densityNote: "18-22 gallinas por metro cuadrado",
@@ -138,14 +140,14 @@ export const MULTI_SPECIES_CONFINEMENT_DATA: Record<"hen" | "sow" | "calf" | "sa
         ]
       }
     ],
-    scientificCitationId: "efsa-broiler-welfare-2023"
+    scientificCitationId: "efsa-laying-hens-2023"
   },
 
   broiler_barn: {
     speciesId: "broiler_barn",
     speciesName: "Pollo de Engorde en Nave",
     scientificName: "Gallus gallus domesticus (Broiler)",
-    globalPopulation: "Más de 74.000 millones sacrificados al año",
+    globalPopulation: "≈75.800 millones sacrificados al año (2024)",
     keyIssueSummary: "Alojados en naves industriales cerradas a densidades de hasta 42 kg/m² (18 a 22 pollos adultos por metro cuadrado) sobre camas saturadas de amoníaco.",
     naturalBehaviors: [
       {
@@ -216,7 +218,7 @@ export const MULTI_SPECIES_CONFINEMENT_DATA: Record<"hen" | "sow" | "calf" | "sa
     speciesId: "sow",
     speciesName: "Cerda Reproductora",
     scientificName: "Sus domesticus",
-    globalPopulation: "Más de 150 millones de cerdas reproductoras confinadas anualmente",
+    globalPopulation: "Entre 60 y 80 millones de cerdas reproductoras en el mundo (China ≈40 M)",
     keyIssueSummary: "Encerradas en jaulas de gestación y parideras de barras metálicas donde no pueden darse la vuelta durante meses consecutivos.",
     naturalBehaviors: [
       {
@@ -286,7 +288,7 @@ export const MULTI_SPECIES_CONFINEMENT_DATA: Record<"hen" | "sow" | "calf" | "sa
         ]
       }
     ],
-    scientificCitationId: "van-boeckel-antibiotics-2017"
+    scientificCitationId: "efsa-pigs-welfare-2022"
   },
 
   calf: {
@@ -321,7 +323,7 @@ export const MULTI_SPECIES_CONFINEMENT_DATA: Record<"hen" | "sow" | "calf" | "sa
         name: "Box / Caseta Individual de Aislamiento",
         legalStatus: "Legal hasta las 8 semanas de vida en la UE; sin límite en muchos países",
         region: "Global",
-        areaCm2OrM2: "1,2 m² a 1,6 m² (150 cm × 90 cm)",
+        areaCm2OrM2: "1,2 m² a 1,6 m² (90 cm × 160 cm ≈ 1,44 m²)",
         widthCm: 90,
         lengthCm: 160,
         densityNote: "1 ternero lactante en aislamiento visual/táctil",
@@ -337,14 +339,14 @@ export const MULTI_SPECIES_CONFINEMENT_DATA: Record<"hen" | "sow" | "calf" | "sa
         ]
       }
     ],
-    scientificCitationId: "poore-nemecek-2018"
+    scientificCitationId: "eu-directive-calves-2008"
   },
 
   salmon: {
     speciesId: "salmon",
     speciesName: "Salmón Atlántico de Acuicultura",
     scientificName: "Salmo salar",
-    globalPopulation: "Más de 1.000 millones de salmones en jaulas marinas cada año",
+    globalPopulation: "Entre 500 y 700 millones de salmones en jaulas marinas cada año (≈2,8 Mt ÷ 4-5 kg)",
     keyIssueSummary: "Peces migratorios confinados en jaulas de red flotantes a densidades extremas donde nadan en círculos repetitivos.",
     naturalBehaviors: [
       {
@@ -367,8 +369,8 @@ export const MULTI_SPECIES_CONFINEMENT_DATA: Record<"hen" | "sow" | "calf" | "sa
         legalStatus: "Estándar global en Noruega, Chile, Escocia y Canadá",
         region: "Costas oceánicas",
         areaCm2OrM2: "15 a 25 kg de biomasa por m³ de agua",
-        widthCm: 100,
-        lengthCm: 100,
+        widthCm: 0, // No aplica: densidad volumétrica en jaula marina (campo no usado en la vista)
+        lengthCm: 0,
         densityNote: "Hasta 200.000 salmones por jaula de red",
         welfareRating: "poor",
         welfareScore: 2,

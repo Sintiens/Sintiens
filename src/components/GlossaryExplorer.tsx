@@ -817,7 +817,7 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
                 }}
                 aria-label="Explorar en Grafo Conceptual"
                 title="Explorar en Grafo Conceptual"
-                className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-mono uppercase tracking-wider text-primary bg-primary/10 hover:bg-primary hover:text-on-primary border border-primary/20 transition-all cursor-pointer"
+                className="flex items-center gap-1 px-2.5 py-1.5 min-h-[38px] rounded-md text-[10px] font-mono uppercase tracking-wider text-primary bg-primary/10 hover:bg-primary hover:text-on-primary border border-primary/20 transition-all cursor-pointer"
               >
                 <Network className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Ver en Grafo</span>
@@ -826,7 +826,7 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
                 onClick={handleRandom}
                 aria-label="Concepto aleatorio"
                 title="Concepto aleatorio"
-                className="p-1.5 rounded-md text-on-surface-variant/60 hover:text-primary hover:bg-surface-dim/50 transition-all"
+                className="p-2 min-w-[38px] min-h-[38px] flex items-center justify-center rounded-md text-on-surface-variant/60 hover:text-primary hover:bg-surface-dim/50 transition-all"
               >
                 <Dices className="w-3.5 h-3.5" />
               </button>
@@ -834,7 +834,7 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
                 onClick={() => handleCopyLink(entry)}
                 aria-label="Copiar enlace del término"
                 title="Copiar enlace"
-                className="p-1.5 rounded-md text-on-surface-variant/60 hover:text-primary hover:bg-surface-dim/50 transition-all"
+                className="p-2 min-w-[38px] min-h-[38px] flex items-center justify-center rounded-md text-on-surface-variant/60 hover:text-primary hover:bg-surface-dim/50 transition-all"
               >
                 {copiedId === entry.id ? (
                   <Check className="w-3.5 h-3.5 text-primary" />
@@ -1378,7 +1378,7 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
       </div>
 
       {/* ==================== COMPACT PERMANENT SEARCH (all views) ==================== */}
-      <div data-nav-avoid="true" className="relative max-w-xs mx-auto pb-4 z-20 sticky top-[76px]" role="search">
+      <div data-nav-avoid="true" className="relative max-w-xs mx-auto pb-4 z-20 sticky top-[calc(var(--hero-nav-active-top,0px)+12px)] transition-[top] duration-200" role="search">
         <div className="relative">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-on-surface-variant/40 pointer-events-none" />
           <input
@@ -1388,20 +1388,20 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Buscar término…"
             aria-label="Buscar en el glosario"
-            className="w-full bg-surface-dim/50 border border-outline-variant/25 focus:border-primary/50 rounded-full pl-9 pr-16 py-1.5 text-sm outline-none transition-all placeholder:text-on-surface-variant/40 backdrop-blur-md"
+            className="w-full bg-surface-dim/50 border border-outline-variant/25 focus:border-primary/50 rounded-full pl-9 pr-16 py-2 sm:py-1.5 text-base sm:text-sm outline-none transition-all placeholder:text-on-surface-variant/40 backdrop-blur-md"
           />
-          <kbd className="absolute right-9 top-1/2 -translate-y-1/2 pointer-events-none px-1.5 py-0.5 rounded border border-outline-variant/30 bg-surface-dim/40 text-[10px] font-mono text-on-surface-variant/60 select-none">
+          <kbd className="absolute right-9 top-1/2 -translate-y-1/2 pointer-events-none px-1.5 py-0.5 rounded border border-outline-variant/30 bg-surface-dim/40 text-[10px] font-mono text-on-surface-variant/60 select-none hidden sm:inline">
             /
           </kbd>
           {searchQuery && (
             <button
-                   type="button"
-                   onClick={() => setSearchQuery("")}
-                   aria-label="Limpiar búsqueda"
-                   className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-surface-dim text-on-surface-variant hover:text-on-surface transition-all"
-                 >
-                   <X className="w-3 h-3" />
-                 </button>
+              type="button"
+              onClick={() => setSearchQuery("")}
+              aria-label="Limpiar búsqueda"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-full hover:bg-surface-dim text-on-surface-variant hover:text-on-surface transition-all"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
           )}
         </div>
       </div>
@@ -1451,11 +1451,7 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
       {viewMode !== "grafo" && (
         <div
           data-nav-avoid="true"
-          className="glass-enhance border border-outline-variant/20 rounded-2xl p-3 lg:p-4 sticky top-[132px] z-20 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none"
-          style={{
-            width: "calc(100vw - 96px - var(--scrollbar-width, 0px))",
-            marginLeft: "calc(-50vw + 48px + var(--scrollbar-width, 0px) / 2 + 50%)"
-          }}
+          className="glass-enhance border border-outline-variant/20 rounded-2xl p-3 lg:p-4 sticky top-[calc(var(--hero-nav-active-top,0px)+64px)] z-20 w-full sm:w-[calc(100vw-96px-var(--scrollbar-width,0px))] sm:ml-[calc(-50vw+48px+var(--scrollbar-width,0px)/2+50%)] transition-[top] duration-200 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none"
         >
           <div className="flex flex-wrap items-center gap-3">
             {/* Categories */}
@@ -1492,7 +1488,8 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value as GlossaryType | "all")}
-              className="text-[10px] font-mono uppercase tracking-tighter px-2.5 py-1 rounded-md border border-outline-variant/30 bg-surface-dim/30 text-on-surface-variant hover:border-outline-variant transition-all outline-none"
+              aria-label="Filtrar por tipo"
+              className="text-base sm:text-[10px] font-mono uppercase tracking-tighter px-2.5 py-2 sm:py-1 min-h-[38px] sm:min-h-0 rounded-md border border-outline-variant/30 bg-surface-dim/30 text-on-surface-variant hover:border-outline-variant transition-all outline-none [&>option]:bg-surface [&>option]:text-on-surface"
             >
               <option value="all">Todos los tipos</option>
               {GLOSSARY_TYPES.map((t) => (
@@ -1506,7 +1503,8 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
                 <select
                   value={sortMode}
                   onChange={(e) => setSortMode(e.target.value as SortMode)}
-                  className="text-[10px] font-mono uppercase tracking-tighter px-2.5 py-1 rounded-md border border-outline-variant/30 bg-surface-dim/30 text-on-surface-variant hover:border-outline-variant transition-all outline-none"
+                  aria-label="Criterio de ordenación"
+                  className="text-base sm:text-[10px] font-mono uppercase tracking-tighter px-2.5 py-2 sm:py-1 min-h-[38px] sm:min-h-0 rounded-md border border-outline-variant/30 bg-surface-dim/30 text-on-surface-variant hover:border-outline-variant transition-all outline-none [&>option]:bg-surface [&>option]:text-on-surface"
                 >
                   <option value="az">Orden A-Z</option>
                   <option value="citado">Más citado</option>
@@ -1515,7 +1513,8 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
                 <select
                   value={listGroup}
                   onChange={(e) => setListGroup(e.target.value as ListGroup)}
-                  className="text-[10px] font-mono uppercase tracking-tighter px-2.5 py-1 rounded-md border border-outline-variant/30 bg-surface-dim/30 text-on-surface-variant hover:border-outline-variant transition-all outline-none"
+                  aria-label="Criterio de agrupación"
+                  className="text-base sm:text-[10px] font-mono uppercase tracking-tighter px-2.5 py-2 sm:py-1 min-h-[38px] sm:min-h-0 rounded-md border border-outline-variant/30 bg-surface-dim/30 text-on-surface-variant hover:border-outline-variant transition-all outline-none [&>option]:bg-surface [&>option]:text-on-surface"
                 >
                   <option value="az">Agrupar A-Z</option>
                   <option value="categoria">Por categoría</option>

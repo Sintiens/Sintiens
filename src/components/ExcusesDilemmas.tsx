@@ -612,12 +612,12 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Buscar por tesis, falacia, argumento o concepto (ej. 'leones', 'b12', 'plantas')..."
-                  className="w-full pl-10 pr-10 py-2.5 bg-surface-dim/40 border border-outline-variant/30 rounded-xl text-xs sm:text-sm text-on-surface placeholder:text-on-surface-variant/40 focus:outline-hidden focus:border-primary transition-all"
+                  className="w-full pl-10 pr-10 py-2.5 bg-surface-dim/40 border border-outline-variant/30 rounded-xl text-base sm:text-sm text-on-surface placeholder:text-on-surface-variant/40 focus:outline-hidden focus:border-primary transition-all"
                 />
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery("")}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant/40 hover:text-on-surface p-1"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant/40 hover:text-on-surface p-2 min-w-[36px] min-h-[36px] flex items-center justify-center"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -756,7 +756,7 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
                                   }}
                                   aria-pressed={isFav}
                                   aria-label={isFav ? `Quitar "${dilemma.title}" de favoritos` : `Añadir "${dilemma.title}" a favoritos`}
-                                  className={`p-1 rounded-full transition-all cursor-pointer ${isFav ? "text-red-500" : "text-on-surface-variant/30 hover:text-on-surface-variant"}`}
+                                  className={`p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full transition-all cursor-pointer ${isFav ? "text-red-500" : "text-on-surface-variant/30 hover:text-on-surface-variant"}`}
                                 >
                                   <Heart className={`w-3.5 h-3.5 ${isFav ? "fill-current" : ""}`} />
                                 </button>
@@ -857,7 +857,7 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
                 <span className="absolute top-1.5 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-outline-variant/60" />
                 <button
                   onClick={() => setIsMobileDetailOpen(false)}
-                  className="ml-auto mr-4 mt-1 p-1.5 rounded-full hover:bg-surface-dim transition-colors cursor-pointer"
+                  className="ml-auto mr-4 mt-1 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-surface-dim transition-colors cursor-pointer"
                   aria-label="Cerrar"
                 >
                   <X className="w-5 h-5" />

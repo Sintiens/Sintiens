@@ -15,11 +15,13 @@ export interface BroilerYearMetric {
   strainName: string;
   weightAt56DaysG: number;
   daysToMarketWeight2kg: number;
+  /** Ganancia media diaria implícita: (peso a 56 días − 40 g de pollito) / 56 días. */
   dailyGrowthRateGrams: number;
   breastYieldPercent: number;
+  /** FCR acumulado a 42 días (Zuidhof et al. 2014); el valor 2025 es estimación. */
   feedConversionRatio: number;
-  metabolicMortalityRate: number; // % death due to ascitis/heart failure
-  scaleRatio: number; // 3D volume scale cube root
+  /** % de mortalidad asociada a ascitis/fallo cardíaco (histórico global ~4,7%; moderno <1%). */
+  metabolicMortalityRate: number;
   systems: Record<"breast" | "skeleton" | "cardio" | "pododermatitis", OrganSystemEvolution>;
 }
 
@@ -33,11 +35,10 @@ export const BROILER_EVOLUTION_DATA: Record<BroilerYearType, BroilerYearMetric> 
     strainName: "Athens-Canadian Randombred (ACRBC)",
     weightAt56DaysG: 905,
     daysToMarketWeight2kg: 84,
-    dailyGrowthRateGrams: 11.2,
+    dailyGrowthRateGrams: 15.4,
     breastYieldPercent: 11.6,
-    feedConversionRatio: 3.25,
-    metabolicMortalityRate: 1.2,
-    scaleRatio: 0.60,
+    feedConversionRatio: 2.88,
+    metabolicMortalityRate: 0.8,
     systems: {
       breast: {
         systemId: "breast",
@@ -88,11 +89,10 @@ export const BROILER_EVOLUTION_DATA: Record<BroilerYearType, BroilerYearMetric> 
     strainName: "Línea Comercial Híbrida 1978",
     weightAt56DaysG: 1808,
     daysToMarketWeight2kg: 56,
-    dailyGrowthRateGrams: 32.1,
+    dailyGrowthRateGrams: 31.6,
     breastYieldPercent: 15.2,
-    feedConversionRatio: 2.35,
-    metabolicMortalityRate: 4.8,
-    scaleRatio: 0.76,
+    feedConversionRatio: 1.90,
+    metabolicMortalityRate: 3.5,
     systems: {
       breast: {
         systemId: "breast",
@@ -143,17 +143,16 @@ export const BROILER_EVOLUTION_DATA: Record<BroilerYearType, BroilerYearMetric> 
     strainName: "Ross 308 (Cepa Comercial 2005)",
     weightAt56DaysG: 4202,
     daysToMarketWeight2kg: 39,
-    dailyGrowthRateGrams: 66.1,
+    dailyGrowthRateGrams: 74.3,
     breastYieldPercent: 21.4,
-    feedConversionRatio: 1.72,
-    metabolicMortalityRate: 14.5,
-    scaleRatio: 1.00,
+    feedConversionRatio: 1.67,
+    metabolicMortalityRate: 4.7,
     systems: {
       breast: {
         systemId: "breast",
         title: "Miopatías Severas: Pechuga de Madera",
         clinicalDiagnosis: "Necrosis y Fibrosis por Isquemia Pectoral",
-        description: "El pectoral crece más rápido de lo que el sistema circulatorio puede ramificar capilares. Las fibras musculares sufren asfixia metabólica, necrosis y reemplazo por tejido conectivo fibroso rígido.",
+        description: "El pectoral crece más rápido de lo que el sistema circulatorio puede ramificar capilares. Las fibras musculares sufren asfixia metabólica, necrosis y reemplazo por tejido conectivo fibroso rígido. Este tipo de miopatías (pechuga de madera) se documenta en la literatura a partir de la década de 2010 en cepas de crecimiento rápido.",
         severityLevel: "severe",
         severityPercent: 80,
         histologicalNote: "Estrías blancas (infiltración grasa lipídica), degeneración hialina de fibras y miofibrosis difusa (Wooden Breast).",
@@ -163,7 +162,7 @@ export const BROILER_EVOLUTION_DATA: Record<BroilerYearType, BroilerYearMetric> 
         systemId: "skeleton",
         title: "Discondroplasia Tibial y Colapso Locomotor",
         clinicalDiagnosis: "Necrosis de Cabeza Femoral y Deformidad Valgus",
-        description: "Las patas se arquean lateralmente bajo un peso cuatro veces superior al natural. Más del 30% de los broilers sufren dolor crónico severo (Gait Score 3-5) y pasan el 85% del día postrados.",
+        description: "Las patas se arquean lateralmente bajo un peso muy superior al natural. En algunos lotes, una fracción relevante de las aves presenta cojera (Gait Score ≥3) y reduce drásticamente su actividad.",
         severityLevel: "severe",
         severityPercent: 85,
         histologicalNote: "Fallo de vascularización en el cartílago de crecimiento con persistencia de tapones cartilaginosos no calcificados.",
@@ -194,21 +193,20 @@ export const BROILER_EVOLUTION_DATA: Record<BroilerYearType, BroilerYearMetric> 
 
   2025: {
     year: 2025,
-    label: "2025 (Cepa Ultra-Rápida Contemporánea)",
-    strainName: "Ross 708 / Cobb 500 Fast Growth",
+    label: "2025 (Extrapolación Contemporánea)",
+    strainName: "Ross 708 / Cobb 500 Fast Growth (estimación)",
     weightAt56DaysG: 4950,
     daysToMarketWeight2kg: 34,
-    dailyGrowthRateGrams: 78.4,
+    dailyGrowthRateGrams: 87.7,
     breastYieldPercent: 24.8,
-    feedConversionRatio: 1.51,
-    metabolicMortalityRate: 18.2,
-    scaleRatio: 1.08,
+    feedConversionRatio: 1.55,
+    metabolicMortalityRate: 1.0,
     systems: {
       breast: {
         systemId: "breast",
         title: "Miopatía Masiva y 'Espaguetización' Muscular",
         clinicalDiagnosis: "Pechuga de Madera Grado III y Spaghetti Meat",
-        description: "La estructura fibrilar se desintegra por apoptosis celular acelerada. El músculo pectoral pierde cohesión estructural convirtiéndose en haces deshilachados con pérdidas del 50% de valor proteico biológico.",
+        description: "La estructura fibrilar se desintegra por apoptosis celular acelerada. El músculo pectoral pierde cohesión estructural convirtiéndose en haces deshilachados, con pérdidas significativas de calidad y textura (no del valor proteico en sí).",
         severityLevel: "critical",
         severityPercent: 95,
         histologicalNote: "Pérdida de la integridad de la matriz extracelular con lisis de fibras musculares y esteatosis masiva generalizada.",
@@ -238,7 +236,7 @@ export const BROILER_EVOLUTION_DATA: Record<BroilerYearType, BroilerYearMetric> 
         systemId: "pododermatitis",
         title: "Quemaduras Severas y Quemadura de Pechuga",
         clinicalDiagnosis: "Quemaduras Químicas Cáusticas Grado 4",
-        description: "Dermatitis de contacto necrosante que cubre más del 50% de la superficie plantar y la quilla del esternón (quemaduras de pechuga por contacto ininterrumpido con camas húmedas).",
+        description: "Dermatitis de contacto necrosante que cubre áreas extensas de la superficie plantar y la quilla del esternón (quemaduras de pechuga por contacto ininterrumpido con camas húmedas).",
         severityLevel: "critical",
         severityPercent: 90,
         histologicalNote: "Pérdida total del epitelio cutáneo con exposición de fascia y tendones a la infección por Staphylococcus aureus.",

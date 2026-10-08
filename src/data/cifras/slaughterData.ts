@@ -30,7 +30,8 @@ export interface CountryMeatConsumption {
   primaryMeat: string;
 }
 
-// Tasas calculadas a partir de datos consolidados FAOSTAT (2022/2023) y Fishcount UK
+// Tasas calculadas a partir de datos consolidados FAOSTAT (2022/2023) y Fishcount UK.
+// Nota: los datos FAOSTAT se revisan anualmente; revisar la serie al actualizar el dataset.
 export const SLAUGHTER_RATES_PER_SECOND: SpeciesSlaughterRate[] = [
   {
     id: "chickens",
@@ -40,7 +41,7 @@ export const SLAUGHTER_RATES_PER_SECOND: SpeciesSlaughterRate[] = [
     perSecondRate: 2352.8,
     iconType: "chicken",
     color: "#f59e0b", // amber
-    notes: "Representa más del 92% de todos los vertebrados terrestres sacrificados para consumo humano."
+    notes: "Representa en torno al 91,5% de todos los vertebrados terrestres sacrificados para consumo humano (2024)."
   },
   {
     id: "farmed_fish",
@@ -146,4 +147,29 @@ export const COUNTRY_MEAT_CONSUMPTION_DATA: CountryMeatConsumption[] = [
   { country: "Media Mundial", code: "WLD", kgPerCapita1961: 23.1, kgPerCapita1990: 33.4, kgPerCapita2021: 42.8, growthPercent: 85.3, primaryMeat: "Aves y Cerdo" },
   { country: "Nigeria", code: "NGA", kgPerCapita1961: 8.6, kgPerCapita1990: 9.8, kgPerCapita2021: 7.2, growthPercent: -16.3, primaryMeat: "Bovino y Caprino" },
   { country: "India", code: "IND", kgPerCapita1961: 3.7, kgPerCapita1990: 4.3, kgPerCapita2021: 4.5, growthPercent: 21.6, primaryMeat: "Pollo" }
+];
+
+// Serie por década para el gráfico comparativo (kg per cápita / año).
+// Los anclajes 1961/1990/2021 coinciden con COUNTRY_MEAT_CONSUMPTION_DATA; los años
+// intermedios son estimaciones a partir de FAO Food Balance Sheets / Our World in Data.
+export interface CountryConsumptionPoint {
+  year: number;
+  usa: number;
+  spain: number;
+  china: number;
+  brazil: number;
+  germany: number;
+  world: number;
+  india: number;
+}
+
+export const COUNTRY_MEAT_CONSUMPTION_TIMESERIES: CountryConsumptionPoint[] = [
+  { year: 1961, usa: 89.8, spain: 21.8, china: 3.8, brazil: 27.5, germany: 64.0, world: 23.1, india: 3.7 },
+  { year: 1970, usa: 104.5, spain: 38.4, china: 8.5, brazil: 34.1, germany: 78.5, world: 28.4, india: 3.9 },
+  { year: 1980, usa: 108.0, spain: 67.2, china: 13.8, brazil: 41.2, germany: 92.1, world: 30.1, india: 4.1 },
+  { year: 1990, usa: 112.4, spain: 89.6, china: 25.1, brazil: 55.8, germany: 95.1, world: 33.4, india: 4.4 },
+  { year: 2000, usa: 120.1, spain: 118.4, china: 45.2, brazil: 74.3, germany: 86.2, world: 38.2, india: 4.6 },
+  { year: 2010, usa: 117.8, spain: 98.2, china: 56.4, brazil: 91.5, germany: 87.0, world: 41.8, india: 4.5 },
+  { year: 2020, usa: 124.1, spain: 100.2, china: 63.8, brazil: 99.8, germany: 82.5, world: 42.6, india: 4.2 },
+  { year: 2021, usa: 126.8, spain: 100.3, china: 63.6, brazil: 98.7, germany: 79.2, world: 42.8, india: 4.5 }
 ];

@@ -375,18 +375,20 @@ export default memo(function ImpactCalculator() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleCustomMealChange(cat, -1)}
-                          className="w-6 h-6 rounded-md bg-surface-dim hover:bg-primary/20 text-on-surface-variant hover:text-primary flex items-center justify-center cursor-pointer transition-all"
+                          className="w-10 h-10 sm:w-8 sm:h-8 min-w-[40px] min-h-[40px] sm:min-w-0 sm:min-h-0 rounded-lg bg-surface-dim hover:bg-primary/20 text-on-surface-variant hover:text-primary flex items-center justify-center cursor-pointer transition-all active:scale-95"
+                          aria-label={`Reducir comidas de ${FOOD_LABELS[cat]}`}
                         >
-                          <Minus className="w-3 h-3" />
+                          <Minus className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
                         </button>
-                        <span className="w-4 text-center font-bold text-on-surface">
+                        <span className="w-6 text-center font-bold text-on-surface text-sm sm:text-xs">
                           {customMeals[cat]}
                         </span>
                         <button
                           onClick={() => handleCustomMealChange(cat, 1)}
-                          className="w-6 h-6 rounded-md bg-surface-dim hover:bg-primary/20 text-on-surface-variant hover:text-primary flex items-center justify-center cursor-pointer transition-all"
+                          className="w-10 h-10 sm:w-8 sm:h-8 min-w-[40px] min-h-[40px] sm:min-w-0 sm:min-h-0 rounded-lg bg-surface-dim hover:bg-primary/20 text-on-surface-variant hover:text-primary flex items-center justify-center cursor-pointer transition-all active:scale-95"
+                          aria-label={`Aumentar comidas de ${FOOD_LABELS[cat]}`}
                         >
-                          <Plus className="w-3 h-3" />
+                          <Plus className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
                         </button>
                       </div>
                     </div>

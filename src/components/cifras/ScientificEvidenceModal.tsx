@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { X, ExternalLink, Copy, Check, Download, BookOpen, FileText, BarChart2 } from "lucide-react";
-import { SCIENTIFIC_SOURCES, type ScientificSource } from "../../data/cifras/scientificSources";
+import { SCIENTIFIC_SOURCES, type ScientificSource, type ScientificSourceId } from "../../data/cifras/scientificSources";
 import { ModalShell } from "../ui/Shells";
 
 interface ScientificEvidenceModalProps {
-  sourceId: string;
+  sourceId: ScientificSourceId;
   isOpen: boolean;
   onClose: () => void;
-  rawDataset?: any;
+  rawDataset?: unknown;
   datasetName?: string;
 }
 
@@ -24,7 +24,21 @@ export default function ScientificEvidenceModal({
   const [copiedBibtex, setCopiedBibtex] = useState(false);
   const copyTimersRef = useRef<number[]>([]);
 
-  const source: ScientificSource = SCIENTIFIC_SOURCES[sourceId] || SCIENTIFIC_SOURCES["poore-nemecek-2018"]!;
+  const source: ScientificSource | undefined = SCIENTIFIC_SOURCES[sourceId];
+
+  useEffect(() => {
+    if (!source) {
+      console.error(`[ScientificEvidenceModal] sourceId no encontrado: "${sourceId}"`);
+    }
+  }, [source, sourceId]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setActiveTab("summary");
+      setCopiedApa(false);
+      setCopiedBibtex(false);
+    }
+  }, [isOpen, sourceId]);
 
   useEffect(() => {
     return () => {
@@ -32,27 +46,30 @@ export default function ScientificEvidenceModal({
     };
   }, []);
 
-  const copyToClipboard = (text: string, markCopied: (v: boolean) => void) => {
+  const copyToClipboard = async (text: string, markCopied: (v: boolean) => void) => {
     try {
-      navigator.clipboard?.writeText(text).catch(() => {});
+      await navigator.clipboard.writeText(text);
+      markCopied(true);
+      const timer = window.setTimeout(() => markCopied(false), 2000);
+      copyTimersRef.current.push(timer);
     } catch {
-      /* clipboard no disponible en este contexto */
+      /* clipboard no disponible: no se muestra «Copiado» */
     }
-    markCopied(true);
-    const timer = window.setTimeout(() => markCopied(false), 2000);
-    copyTimersRef.current.push(timer);
   };
 
   const handleCopyApa = () => {
+    if (!source) return;
     const apaString = `${source.authors} (${source.year}). ${source.title}. ${source.journalOrPublisher}. ${source.doi ? `https://doi.org/${source.doi}` : source.url}`;
-    copyToClipboard(apaString, setCopiedApa);
+    void copyToClipboard(apaString, setCopiedApa);
   };
 
   const handleCopyBibtex = () => {
-    copyToClipboard(source.bibtex, setCopiedBibtex);
+    if (!source) return;
+    void copyToClipboard(source.bibtex, setCopiedBibtex);
   };
 
   const handleDownloadBibtex = () => {
+    if (!source) return;
     const blob = new Blob([source.bibtex], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -60,22 +77,49 @@ export default function ScientificEvidenceModal({
     link.download = `${source.id}.bib`;
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+    link.remove();
     URL.revokeObjectURL(url);
   };
 
   const handleDownloadJson = () => {
     if (!rawDataset) return;
-    const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(rawDataset, null, 2))}`;
-    const downloadAnchor = document.createElement("a");
-    downloadAnchor.setAttribute("href", jsonString);
-    downloadAnchor.setAttribute("download", `${datasetName}_${source.id}.json`);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
+    const blob = new Blob([JSON.stringify(rawDataset, null, 2)], { type: "application/json;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${datasetName}_${source?.id ?? "fuente"}.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
   };
 
   if (!isOpen) return null;
+
+  if (!source) {
+    return (
+      <ModalShell
+        onClose={onClose}
+        labelledBy="scientific-evidence-title"
+        className="max-w-xl bg-surface dark:bg-zinc-900"
+      >
+        <div className="p-6 space-y-4 text-left">
+          <h3 id="scientific-evidence-title" className="text-lg font-heading font-bold text-on-surface">
+            Fuente no encontrada
+          </h3>
+          <p className="text-sm text-on-surface-variant">
+            El identificador «{sourceId}» no existe en el registro de fuentes científicas. Revisa la referencia del componente.
+          </p>
+          <button
+            onClick={onClose}
+            className="px-4 py-1.5 bg-surface-dim dark:bg-zinc-800 text-xs font-mono font-bold rounded-lg border border-outline-variant/30 cursor-pointer"
+          >
+            Cerrar
+          </button>
+        </div>
+      </ModalShell>
+    );
+  }
 
   return (
     <ModalShell
@@ -109,7 +153,7 @@ export default function ScientificEvidenceModal({
             </div>
             <button
               onClick={onClose}
-              className="p-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-dim transition-colors cursor-pointer"
+              className="p-2 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-dim transition-colors cursor-pointer"
               aria-label="Cerrar modal"
             >
               <X className="w-5 h-5" />
@@ -117,8 +161,10 @@ export default function ScientificEvidenceModal({
           </div>
 
           {/* Sub Navigation Tabs */}
-          <div className="flex items-center gap-2 px-4 sm:px-6 pt-3 border-b border-outline-variant/10 dark:border-zinc-800 bg-surface dark:bg-zinc-900 overflow-x-auto">
+          <div role="tablist" aria-label="Secciones del respaldo científico" className="flex items-center gap-2 px-4 sm:px-6 pt-3 border-b border-outline-variant/10 dark:border-zinc-800 bg-surface dark:bg-zinc-900 overflow-x-auto">
             <button
+              role="tab"
+              aria-selected={activeTab === "summary"}
               onClick={() => setActiveTab("summary")}
               className={`pb-2.5 px-3 text-xs font-mono font-bold transition-all border-b-2 flex items-center gap-1.5 cursor-pointer shrink-0 whitespace-nowrap ${
                 activeTab === "summary"
@@ -129,6 +175,8 @@ export default function ScientificEvidenceModal({
               <BookOpen className="w-3.5 h-3.5" /> Metodología & Hallazgos
             </button>
             <button
+              role="tab"
+              aria-selected={activeTab === "bibtex"}
               onClick={() => setActiveTab("bibtex")}
               className={`pb-2.5 px-3 text-xs font-mono font-bold transition-all border-b-2 flex items-center gap-1.5 cursor-pointer shrink-0 whitespace-nowrap ${
                 activeTab === "bibtex"
@@ -138,8 +186,10 @@ export default function ScientificEvidenceModal({
             >
               <FileText className="w-3.5 h-3.5" /> Cita Académica & BibTeX
             </button>
-            {rawDataset && (
+            {rawDataset != null && (
               <button
+                role="tab"
+                aria-selected={activeTab === "raw_data"}
                 onClick={() => setActiveTab("raw_data")}
                 className={`pb-2.5 px-3 text-xs font-mono font-bold transition-all border-b-2 flex items-center gap-1.5 cursor-pointer shrink-0 whitespace-nowrap ${
                   activeTab === "raw_data"
@@ -153,7 +203,7 @@ export default function ScientificEvidenceModal({
           </div>
 
           {/* Body Content */}
-          <div className="p-6 space-y-6 flex-1 text-sm font-sans">
+          <div role="tabpanel" className="p-6 space-y-6 flex-1 text-sm font-sans">
             {activeTab === "summary" && (
               <div className="space-y-6">
                 {/* Meta details grid */}
@@ -206,7 +256,7 @@ export default function ScientificEvidenceModal({
                 {source.statisticalUncertainty && (
                   <div className="space-y-1.5">
                     <h4 className="text-xs font-mono uppercase tracking-widest text-primary dark:text-emerald-400 font-bold">
-                      Intervalos de Incertidumbre Estadística (IC 95%)
+                      Incertidumbre / Rango Reportado
                     </h4>
                     <p className="text-xs sm:text-sm text-on-surface-variant leading-relaxed bg-surface-dim/30 dark:bg-zinc-800/20 p-3.5 rounded-xl border border-outline-variant/15">
                       {source.statisticalUncertainty}
@@ -275,18 +325,18 @@ export default function ScientificEvidenceModal({
                       </button>
                     </div>
                   </div>
-                  <pre className="p-4 bg-zinc-950 text-emerald-400 rounded-xl border border-zinc-800 text-xs font-mono overflow-x-auto leading-relaxed">
+                  <pre className="p-4 bg-surface-dim text-on-surface rounded-xl border border-outline-variant text-xs font-mono overflow-x-auto leading-relaxed">
                     {source.bibtex}
                   </pre>
                 </div>
               </div>
             )}
 
-            {activeTab === "raw_data" && rawDataset && (
+            {activeTab === "raw_data" && rawDataset != null && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-mono uppercase tracking-widest text-on-surface-variant font-bold">
-                    Dataset Completo en Formato Estructurado
+                    Dataset Estructurado (JSON completo)
                   </span>
                   <button
                     onClick={handleDownloadJson}
@@ -295,8 +345,8 @@ export default function ScientificEvidenceModal({
                     <Download className="w-3.5 h-3.5" /> Descargar JSON
                   </button>
                 </div>
-                <pre className="p-4 bg-zinc-950 text-zinc-300 rounded-xl border border-zinc-800 text-xs font-mono max-h-[350px] overflow-auto leading-relaxed">
-                  {JSON.stringify(rawDataset, null, 2)}
+                <pre className="p-4 bg-surface-dim text-on-surface-variant rounded-xl border border-outline-variant text-xs font-mono max-h-[350px] overflow-auto leading-relaxed">
+                  {JSON.stringify(rawDataset, null, 2) ?? ""}
                 </pre>
               </div>
             )}

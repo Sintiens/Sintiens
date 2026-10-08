@@ -9,6 +9,8 @@ export interface AntibioticSectorItem {
 export interface ZoonoticRiskEvent {
   year: string;
   name: string;
+  /** Etiqueta corta para selectores (p. ej. «H5N1», «Nipah»). */
+  shortLabel: string;
   pathogen: string;
   animalReservoir: string;
   humanImpact: string;
@@ -42,49 +44,75 @@ export const ANTIBIOTIC_SECTORS_DATA: AntibioticSectorItem[] = [
 ];
 
 export const COUNTRY_ANTIBIOTIC_INTENSITY_DATA: CountryAntibioticIntensity[] = [
-  { country: "Chipre", flag: "🇨🇾", mgPerPcu: 296.5, category: "extreme", note: "Uso profiláctico masivo en porcino y avicultura." },
-  { country: "España", flag: "🇪🇸", mgPerPcu: 154.3, category: "high", note: "Líder de la UE en producción porcina intensiva; ha reducido su uso desde los 400 mg/PCU de 2014 pero sigue quintuplicando la media nórdica." },
-  { country: "Estados Unidos", flag: "🇺🇸", mgPerPcu: 160.0, category: "high", note: "Estimación FDA/NRDC: el 65% de los antibióticos médicamente importantes se venden a la ganadería." },
-  { country: "Italia", flag: "🇮🇹", mgPerPcu: 144.1, category: "high", note: "Alto uso en terneros lecheros y cerdos de cebo del Valle del Po." },
-  { country: "Polonia", flag: "🇵🇱", mgPerPcu: 138.6, category: "high", note: "Rápida expansión de macrogranjas avícolas intensivas." },
-  { country: "Alemania", flag: "🇩🇪", mgPerPcu: 58.2, category: "moderate", note: "Reducción sostenida mediante monitorización veterinaria digital obligatoria." },
-  { country: "Francia", flag: "🇫🇷", mgPerPcu: 38.4, category: "moderate", note: "Planes EcoAntibio con bajada del 45% en una década." },
+  { country: "Chipre", flag: "🇨🇾", mgPerPcu: 254.7, category: "extreme", note: "El mayor uso de la UE en 2022 (ESVAC): uso profiláctico masivo en porcino y avicultura." },
+  { country: "Polonia", flag: "🇵🇱", mgPerPcu: 196.0, category: "high", note: "196 mg/PCU en 2022 (ESVAC), con subida del 16% en el periodo 2018-2022." },
+  { country: "Estados Unidos", flag: "🇺🇸", mgPerPcu: 160.0, category: "high", note: "Estimación FDA/NRDC (unidad no estrictamente comparable con ESVAC): ~65% de los antibióticos médicamente importantes se venden a la ganadería." },
+  { country: "Italia", flag: "🇮🇹", mgPerPcu: 157.5, category: "high", note: "157,5 mg/PCU en 2022 (ESVAC); alto uso en terneros lecheros y cerdos del Valle del Po." },
+  { country: "España", flag: "🇪🇸", mgPerPcu: 127.4, category: "high", note: "127,4 mg/PCU en 2022 (ESVAC); reducción superior al 60% desde los 418 mg/PCU de 2014." },
+  { country: "Alemania", flag: "🇩🇪", mgPerPcu: 58.2, category: "moderate", note: "Último dato ESVAC disponible (2021); reducción sostenida mediante monitorización veterinaria obligatoria." },
+  { country: "Países Bajos", flag: "🇳🇱", mgPerPcu: 42.5, category: "low", note: "Reducción histórica >70% tras los brotes de MRSA en granjas." },
+  { country: "Francia", flag: "🇫🇷", mgPerPcu: 38.4, category: "low", note: "Planes EcoAntibio con una bajada superior al 45% en una década." },
   { country: "Dinamarca", flag: "🇩🇰", mgPerPcu: 32.1, category: "low", note: "Sistema de 'Tarjeta Amarilla' que sanciona a granjas con exceso de prescripción." },
   { country: "Reino Unido", flag: "🇬🇧", mgPerPcu: 28.3, category: "low", note: "Reducción voluntaria coordinada por la alianza RUMA." },
-  { country: "Países Bajos", flag: "🇳🇱", mgPerPcu: 42.5, category: "low", note: "Reducción histórica del 70% tras brotes de MRSA resistente en granjas." },
-  { country: "Suecia", flag: "🇸🇪", mgPerPcu: 11.2, category: "minimal", note: "Prohibición pionera de antibióticos promotores de crecimiento en 1986 y bienestar animal estricto." },
+  { country: "Suecia", flag: "🇸🇪", mgPerPcu: 10.6, category: "minimal", note: "10,6 mg/PCU en 2022 (ESVAC), tras prohibir los promotores de crecimiento en 1986." },
   { country: "Islandia", flag: "🇮🇸", mgPerPcu: 4.8, category: "minimal", note: "Baja densidad y aislamiento geográfico." },
-  { country: "Noruega", flag: "🇳🇴", mgPerPcu: 3.1, category: "minimal", note: "El estándar más bajo del mundo gracias a vacunas eficaces en piscicultura de salmón." }
+  { country: "Noruega", flag: "🇳🇴", mgPerPcu: 2.1, category: "minimal", note: "2,1 mg/PCU en 2022 (ESVAC): el estándar más bajo de Europa, gracias a vacunas eficaces en piscicultura de salmón." }
 ];
 
-export const AMR_PROJECTION_DATA = [
-  { year: 2019, deathsMillions: 1.27, label: "Muertes directas anuales actuales por resistencia a antibióticos (The Lancet, 2022)" },
-  { year: 2030, deathsMillions: 3.50, label: "Proyección intermedia sin cambios regulatorios" },
-  { year: 2050, deathsMillions: 10.00, label: "Proyección Informe O'Neill (Superando a todas las muertes por cáncer juntas)" }
+/** Umbrales únicos de categorización (mg/PCU) para todo el visualizador. */
+export function getAntibioticCategory(mgPerPcu: number): CountryAntibioticIntensity["category"] {
+  if (mgPerPcu >= 200) return "extreme";
+  if (mgPerPcu >= 100) return "high";
+  if (mgPerPcu >= 50) return "moderate";
+  if (mgPerPcu >= 25) return "low";
+  return "minimal";
+}
+
+export interface AmrProjectionPoint {
+  year: number;
+  deathsMillions: number;
+  metric: "attributable" | "associated";
+  projection: boolean;
+  sourceLabel: string;
+}
+
+// Set canónico GRAM/Lancet: muertes atribuibles (directas) y asociadas, históricas y a 2050.
+// La proyección de O'Neill (10 M en 2050, muertes totales por RAM) se cita como escenario
+// separado y contestado; no se mezcla con las métricas de GRAM.
+export const AMR_PROJECTION_DATA: AmrProjectionPoint[] = [
+  { year: 2019, deathsMillions: 1.27, metric: "attributable", projection: false, sourceLabel: "GRAM · Lancet 2022 (2019)" },
+  { year: 2019, deathsMillions: 4.95, metric: "associated", projection: false, sourceLabel: "GRAM · Lancet 2022 (2019)" },
+  { year: 2021, deathsMillions: 1.14, metric: "attributable", projection: false, sourceLabel: "GRAM · Lancet 2024 (2021)" },
+  { year: 2021, deathsMillions: 4.71, metric: "associated", projection: false, sourceLabel: "GRAM · Lancet 2024 (2021)" },
+  { year: 2050, deathsMillions: 1.91, metric: "attributable", projection: true, sourceLabel: "Previsión GRAM · Lancet 2024 (2050)" },
+  { year: 2050, deathsMillions: 8.22, metric: "associated", projection: true, sourceLabel: "Previsión GRAM · Lancet 2024 (2050)" }
 ];
 
 export const ZOONOTIC_TIMELINE_DATA: ZoonoticRiskEvent[] = [
   {
     year: "1997—Presente",
     name: "Gripe Aviar de Alta Patogenicidad H5N1",
+    shortLabel: "H5N1",
     pathogen: "Virus Influenza A (H5N1 Clado 2.3.4.4b)",
     animalReservoir: "Macrogranjas de pollos de engorde y patos comerciales ➔ Salto a mamíferos silvestres y vacas lecheras",
-    humanImpact: "Tasa de letalidad en humanos superior al 50% en infecciones confirmadas. Cientos de millones de aves sacrificadas.",
+    humanImpact: "Tasa de letalidad en torno al 48% en casos humanos confirmados (WHO, 2003-2026). Cientos de millones de aves sacrificadas.",
     intensiveFarmingLink: "Naves con 50.000 aves genéticamente idénticas y hacinadas actúan como biorreactores de amplificación y recombinación viral continua.",
     severity: "critical"
   },
   {
     year: "1998",
     name: "Brote del Virus Nipah (Malasia)",
+    shortLabel: "Nipah",
     pathogen: "Henipavirus (Virus Nipah)",
     animalReservoir: "Murciélagos frugívoros (Pteropus) ➔ Granjas porcinas intensivas ➔ Trabajadores de matadero",
-    humanImpact: "105 muertes humanas con encefalitis aguda y tasa de letalidad del 40-75%. Sacrificio de 1,1 millones de cerdos.",
+    humanImpact: "105 muertes humanas con encefalitis aguda y tasa de letalidad del 40-75%. Sacrificio de más de 1 millón de cerdos.",
     intensiveFarmingLink: "Macrogranjas porcinas instaladas en el límite de selvas tropicales taladas con árboles frutales sobre las pocilgas.",
     severity: "critical"
   },
   {
     year: "2009",
     name: "Pandemia de Gripe Porcina H1N1",
+    shortLabel: "H1N1",
     pathogen: "Virus Influenza A H1N1/09 (triple reordenamiento)",
     animalReservoir: "Granjas industriales de cerdos en Norteamérica (Veracruz, México y EE.UU.)",
     humanImpact: "Entre 151.700 y 575.400 muertes humanas estimadas durante el primer año (CDC).",
@@ -94,15 +122,17 @@ export const ZOONOTIC_TIMELINE_DATA: ZoonoticRiskEvent[] = [
   {
     year: "2015",
     name: "Aparición del Gen de Resistencia mcr-1",
+    shortLabel: "mcr-1",
     pathogen: "Plásmido de resistencia transferible a Colistina (mcr-1)",
     animalReservoir: "Granjas porcinas y avícolas en Shanghái (China)",
     humanImpact: "Pérdida de la colistina como antibiótico de último recurso para tratar infecciones por bacterias Gram-negativas multirresistentes en UCI.",
-    intensiveFarmingLink: "Uso rutinario de más de 8.000 toneladas anuales de colistina en el pienso de cerdos y aves para compensar el estrés digestivo del destete forzado.",
+    intensiveFarmingLink: "Uso masivo de colistina en el pienso (China produjo ~30.000 t en 2015; la producción global fue de ~4.300 t en 2019, 96% para uso animal) para compensar el estrés digestivo del destete forzado.",
     severity: "critical"
   },
   {
     year: "2020",
     name: "Mutaciones de SARS-CoV-2 en Granjas de Visones",
+    shortLabel: "Cluster 5",
     pathogen: "Coronavirus SARS-CoV-2 (Variante 'Cluster 5')",
     animalReservoir: "Granjas peleteras de visones en Dinamarca, España y Países Bajos",
     humanImpact: "Transmisión bidireccional visón-humano con mutaciones en la proteína spike que amenazaban la eficacia de las vacunas iniciales.",

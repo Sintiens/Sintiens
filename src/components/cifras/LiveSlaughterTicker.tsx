@@ -4,10 +4,10 @@ import {
   SLAUGHTER_RATES_PER_SECOND,
   TOTAL_TERRESTRIAL_PER_SECOND,
   TOTAL_AQUATIC_FARMED_PER_SECOND,
-  TOTAL_WILD_FISH_PER_SECOND,
-  type SpeciesSlaughterRate
+  TOTAL_WILD_FISH_PER_SECOND
 } from "../../data/cifras/slaughterData";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
+import { formatEs } from "../../utils/format";
 import ScientificEvidenceModal from "./ScientificEvidenceModal";
 
 type TimeWindow = "live" | "1_sec" | "1_min" | "1_hour" | "24_hours" | "1_year" | "custom";
@@ -24,6 +24,11 @@ export default function LiveSlaughterTicker() {
   const [isPaused, setIsPaused] = useState(shouldReduceMotion);
   const elapsedBaseRef = useRef(0);
   const lastResumeRef = useRef(Date.now());
+
+  // Si el usuario activa «reducir movimiento», pausamos el contador en vivo.
+  useEffect(() => {
+    if (shouldReduceMotion) setIsPaused(true);
+  }, [shouldReduceMotion]);
 
   useEffect(() => {
     if (timeWindow !== "live" || isPaused) return;
@@ -59,7 +64,7 @@ export default function LiveSlaughterTicker() {
   // Multiplier depending on selected window
   const multiplier =
     timeWindow === "live"
-      ? Math.max(elapsedSeconds, 0.05)
+      ? Math.max(elapsedSeconds, 0)
       : timeWindow === "1_sec"
       ? 1
       : timeWindow === "1_min"
@@ -72,14 +77,24 @@ export default function LiveSlaughterTicker() {
       ? 31536000
       : customMultiplierSeconds;
 
-  const totalKilled = Math.floor(currentRatePerSecond * multiplier);
+  const visibleSpecies = SLAUGHTER_RATES_PER_SECOND.filter((sp) => {
+    if (inclusionMode === "terrestrial") return sp.id !== "farmed_fish" && sp.id !== "wild_fish";
+    if (inclusionMode === "with_aquaculture") return sp.id !== "wild_fish";
+    return true;
+  });
+  // Total = suma de los desgloses por especie (evita desfases de redondeo).
+  const speciesCounts = visibleSpecies.map((sp) => ({
+    species: sp,
+    count: Math.floor(sp.perSecondRate * multiplier)
+  }));
+  const totalKilled = speciesCounts.reduce((sum, item) => sum + item.count, 0);
 
   // Equivalences
   const stadiumCapacity = 80000; // Santiago Bernabéu / Camp Nou
   const spainPopulation = 48000000;
-  const stadiumsEquivalent = (totalKilled / stadiumCapacity).toFixed(1);
-  const spainEquivalent = (totalKilled / spainPopulation).toFixed(2);
-  const humanCountingYears = (totalKilled / (60 * 60 * 24 * 365.25)).toFixed(1);
+  const stadiumsEquivalent = formatEs(totalKilled / stadiumCapacity, 1);
+  const spainEquivalent = formatEs(totalKilled / spainPopulation, 2);
+  const humanCountingYears = formatEs(totalKilled / (60 * 60 * 24 * 365.25), 1);
 
   const getEmoji = (iconType: string) => {
     switch (iconType) {
@@ -101,12 +116,6 @@ export default function LiveSlaughterTicker() {
     }
   };
 
-  const visibleSpecies = SLAUGHTER_RATES_PER_SECOND.filter((sp) => {
-    if (inclusionMode === "terrestrial") return sp.id !== "farmed_fish" && sp.id !== "wild_fish";
-    if (inclusionMode === "with_aquaculture") return sp.id !== "wild_fish";
-    return true;
-  });
-
   return (
     <div className="w-full bg-surface dark:bg-zinc-900/60 rounded-2xl border border-outline-variant/30 dark:border-zinc-800 p-6 sm:p-8 space-y-8 text-left relative overflow-hidden shadow-sm">
       {/* Background ambient gradient */}
@@ -117,7 +126,7 @@ export default function LiveSlaughterTicker() {
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-mono font-bold tracking-widest text-red-600 dark:text-red-400 uppercase bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20 flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
+              <span className="w-2 h-2 rounded-full bg-red-500" />
               MONITOR EN TIEMPO REAL · EXHIBIT I
             </span>
             <span className="text-xs font-mono text-on-surface-variant/60">
@@ -150,9 +159,10 @@ export default function LiveSlaughterTicker() {
           <div className="flex flex-wrap gap-1.5">
             <button
               onClick={() => setInclusionMode("terrestrial")}
+              aria-pressed={inclusionMode === "terrestrial"}
               className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
                 inclusionMode === "terrestrial"
-                  ? "bg-red-600 text-white shadow-sm"
+                  ? "bg-ch1 text-ch1-on shadow-sm"
                   : "bg-surface dark:bg-zinc-800 text-on-surface-variant hover:text-on-surface border border-outline-variant/20"
               }`}
             >
@@ -160,9 +170,10 @@ export default function LiveSlaughterTicker() {
             </button>
             <button
               onClick={() => setInclusionMode("with_aquaculture")}
+              aria-pressed={inclusionMode === "with_aquaculture"}
               className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
                 inclusionMode === "with_aquaculture"
-                  ? "bg-red-600 text-white shadow-sm"
+                  ? "bg-ch1 text-ch1-on shadow-sm"
                   : "bg-surface dark:bg-zinc-800 text-on-surface-variant hover:text-on-surface border border-outline-variant/20"
               }`}
             >
@@ -170,9 +181,10 @@ export default function LiveSlaughterTicker() {
             </button>
             <button
               onClick={() => setInclusionMode("all_sentient")}
+              aria-pressed={inclusionMode === "all_sentient"}
               className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
                 inclusionMode === "all_sentient"
-                  ? "bg-red-600 text-white shadow-sm"
+                  ? "bg-ch1 text-ch1-on shadow-sm"
                   : "bg-surface dark:bg-zinc-800 text-on-surface-variant hover:text-on-surface border border-outline-variant/20"
               }`}
             >
@@ -198,6 +210,7 @@ export default function LiveSlaughterTicker() {
             ].map((tab) => (
               <button
                 key={tab.id}
+                aria-pressed={timeWindow === tab.id}
                 onClick={() => {
                   setTimeWindow(tab.id as TimeWindow);
                   if (tab.id === "live") {
@@ -229,14 +242,19 @@ export default function LiveSlaughterTicker() {
             type="number"
             min={1}
             max={1000}
+            aria-label="Cantidad personalizada de tiempo"
             value={customValue}
-            onChange={(e) => setCustomValue(Math.max(1, Number(e.target.value)))}
-            className="w-20 px-2.5 py-1 bg-surface dark:bg-zinc-900 border border-outline-variant/40 rounded-lg text-center font-bold text-on-surface"
+            onChange={(e) => {
+              const n = Number(e.target.value);
+              setCustomValue(Number.isFinite(n) ? Math.min(1000, Math.max(1, n)) : 1);
+            }}
+            className="w-20 px-2.5 py-1 bg-surface dark:bg-zinc-900 border border-outline-variant/40 rounded-lg text-center font-bold text-on-surface text-base sm:text-xs"
           />
           <select
+            aria-label="Unidad de tiempo personalizada"
             value={customUnit}
-            onChange={(e) => setCustomUnit(e.target.value as any)}
-            className="px-3 py-1 bg-surface dark:bg-zinc-900 border border-outline-variant/40 rounded-lg font-bold text-on-surface cursor-pointer"
+            onChange={(e) => setCustomUnit(e.target.value as typeof customUnit)}
+            className="px-3 py-1 bg-surface dark:bg-zinc-900 border border-outline-variant/40 rounded-lg font-bold text-on-surface cursor-pointer text-base sm:text-xs"
           >
             <option value="minutes">Minutos</option>
             <option value="hours">Horas</option>
@@ -244,17 +262,17 @@ export default function LiveSlaughterTicker() {
             <option value="years">Años</option>
           </select>
           <span className="text-on-surface-variant ml-auto text-[11px]">
-            ({customMultiplierSeconds.toLocaleString()} segundos transcurridos)
+            ({formatEs(customMultiplierSeconds)} segundos transcurridos)
           </span>
         </div>
       )}
 
       {/* Huge Counter Billboard */}
-      <div className="p-8 sm:p-12 bg-gradient-to-b from-zinc-950 via-zinc-900 to-black text-white rounded-2xl border border-red-500/30 text-center space-y-4 shadow-2xl relative">
-        <div className="flex flex-wrap items-center justify-center gap-2 text-xs font-mono text-red-400 font-bold uppercase tracking-widest">
-          <Flame className="w-4 h-4 text-red-500 animate-pulse" />
+      <div className="p-8 sm:p-12 bg-surface-dim text-on-surface rounded-2xl border border-red-500/30 text-center space-y-4 relative">
+        <div className="flex flex-wrap items-center justify-center gap-2 text-xs font-mono text-red-700 dark:text-red-400 font-bold uppercase tracking-widest">
+          <Flame className="w-4 h-4 text-red-500" />
           {timeWindow === "live"
-            ? `Transcurrido desde la carga: ${elapsedSeconds.toFixed(1)} segundos${isPaused ? " · EN PAUSA" : ""}`
+            ? `Transcurrido desde la carga: ${formatEs(elapsedSeconds, 1)} segundos${isPaused ? " · EN PAUSA" : ""}`
             : timeWindow === "custom"
             ? `Proyección para ${customValue} ${customUnit}`
             : `Total acumulado en ${timeWindow.replace("_", " ")}`}
@@ -264,7 +282,7 @@ export default function LiveSlaughterTicker() {
               onClick={() => setIsPaused((p) => !p)}
               aria-pressed={isPaused}
               aria-label={isPaused ? "Reanudar contador en vivo" : "Pausar contador en vivo"}
-              className="ml-1 inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-red-500/40 bg-red-500/10 hover:bg-red-500/20 text-red-300 transition-colors cursor-pointer normal-case tracking-normal"
+              className="ml-1 inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-red-500/40 bg-red-500/10 hover:bg-red-500/20 text-red-700 dark:text-red-300 transition-colors cursor-pointer normal-case tracking-normal"
             >
               {isPaused ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
               {isPaused ? "Reanudar" : "Pausar"}
@@ -272,48 +290,54 @@ export default function LiveSlaughterTicker() {
           )}
         </div>
 
-        <div className="text-4xl sm:text-6xl md:text-7xl font-mono font-black tracking-tight text-red-500 drop-shadow-[0_0_25px_rgba(239,68,68,0.4)]">
-          {totalKilled.toLocaleString("es-ES")}
+        <div aria-hidden="true" className="text-[clamp(1.9rem,9vw,4.5rem)] leading-tight break-all font-mono font-bold tracking-tight text-red-600 dark:text-red-400 tabular-nums">
+          {formatEs(totalKilled)}
         </div>
 
-        <p className="text-xs sm:text-sm text-zinc-400 font-sans max-w-xl mx-auto">
+        <span className="sr-only" role="status">
+          {timeWindow === "live"
+            ? `Contador en vivo: ${formatEs(currentRatePerSecond)} animales por segundo en el alcance seleccionado.`
+            : `Total calculado para la ventana temporal seleccionada.`}
+        </span>
+
+        <p className="text-xs sm:text-sm text-on-surface-variant font-sans max-w-xl mx-auto">
           individuos con sistema nervioso central sacrificados a nivel mundial
         </p>
 
         {/* Human Equivalences Strip */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-6 border-t border-zinc-800 text-left">
-          <div className="p-3 bg-zinc-900/80 rounded-xl border border-zinc-800 space-y-1">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 block">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-6 border-t border-outline-variant text-left">
+          <div className="p-3 bg-surface rounded-xl border border-outline-variant space-y-1">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-on-surface-variant block">
               🏟️ Capacidad de Estadios
             </span>
-            <span className="text-sm font-mono font-bold text-white">
+            <span className="text-sm font-mono font-bold text-on-surface">
               {stadiumsEquivalent} estadios
             </span>
-            <p className="text-[10px] text-zinc-400 font-sans">
+            <p className="text-[10px] text-on-surface-variant font-sans">
               (Equivalente a llenar estadios de 80.000 personas)
             </p>
           </div>
 
-          <div className="p-3 bg-zinc-900/80 rounded-xl border border-zinc-800 space-y-1">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 block">
+          <div className="p-3 bg-surface rounded-xl border border-outline-variant space-y-1">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-on-surface-variant block">
               🇪🇸 Población de España
             </span>
-            <span className="text-sm font-mono font-bold text-white">
+            <span className="text-sm font-mono font-bold text-on-surface">
               {spainEquivalent}x población
             </span>
-            <p className="text-[10px] text-zinc-400 font-sans">
+            <p className="text-[10px] text-on-surface-variant font-sans">
               (48 millones de habitantes humanos)
             </p>
           </div>
 
-          <div className="p-3 bg-zinc-900/80 rounded-xl border border-zinc-800 space-y-1">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 block">
+          <div className="p-3 bg-surface rounded-xl border border-outline-variant space-y-1">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-on-surface-variant block">
               ⏱️ Tiempo de Conteo Humano
             </span>
-            <span className="text-sm font-mono font-bold text-white">
+            <span className="text-sm font-mono font-bold text-on-surface">
               {humanCountingYears} años
             </span>
-            <p className="text-[10px] text-zinc-400 font-sans">
+            <p className="text-[10px] text-on-surface-variant font-sans">
               (Contando 1 animal por segundo sin parar)
             </p>
           </div>
@@ -332,42 +356,39 @@ export default function LiveSlaughterTicker() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {visibleSpecies.map((sp: SpeciesSlaughterRate, idx) => {
-            const count = Math.floor(sp.perSecondRate * multiplier);
-            return (
-              <div
-                key={idx}
-                className="p-4 bg-surface dark:bg-zinc-800/40 rounded-xl border border-outline-variant/20 dark:border-zinc-800 flex items-center justify-between gap-3 hover:border-outline-variant/60 transition-all shadow-xs"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl select-none">{getEmoji(sp.iconType)}</span>
-                  <div>
-                    <span className="text-xs font-heading font-bold text-on-surface block leading-tight">
-                      {sp.name}
-                    </span>
-                    <span className="text-[10px] font-mono text-on-surface-variant/70">
-                      {sp.perSecondRate.toLocaleString("es-ES")} / segundo
-                    </span>
-                  </div>
-                </div>
-
-                <div className="text-right">
-                  <span className="text-sm font-mono font-bold text-red-600 dark:text-red-400 block">
-                    {count.toLocaleString("es-ES")}
+          {speciesCounts.map(({ species: sp, count }) => (
+            <div
+              key={sp.id}
+              className="p-4 bg-surface dark:bg-zinc-800/40 rounded-xl border border-outline-variant/20 dark:border-zinc-800 flex items-center justify-between gap-3 hover:border-outline-variant/60 transition-all shadow-xs"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-2xl select-none" aria-hidden="true">{getEmoji(sp.iconType)}</span>
+                <div>
+                  <span className="text-xs font-heading font-bold text-on-surface block leading-tight">
+                    {sp.name}
                   </span>
-                  <span className="text-[9px] font-mono text-on-surface-variant/60 uppercase">
-                    muertos
+                  <span className="text-[10px] font-mono text-on-surface-variant/70">
+                    {formatEs(sp.perSecondRate, 1)} / segundo
                   </span>
                 </div>
               </div>
-            );
-          })}
+
+              <div className="text-right">
+                <span className="text-sm font-mono font-bold text-red-600 dark:text-red-400 block">
+                  {formatEs(count)}
+                </span>
+                <span className="text-[9px] font-mono text-on-surface-variant/60 uppercase">
+                  muertos
+                </span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
       {/* Scientific modal */}
       <ScientificEvidenceModal
-        sourceId="faostat-slaughter-2024"
+        sourceId={inclusionMode === "terrestrial" ? "faostat-slaughter-2024" : "fishcount-aquatic-2020"}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         rawDataset={{

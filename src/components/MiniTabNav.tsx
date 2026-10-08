@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Sun, Moon } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -46,21 +47,40 @@ export default function MiniTabNav({ activeTab, onNavigate, theme, onToggleTheme
   const showSubNav = hasSubNav(activeTab);
   const subSections = getSubSectionsForTab(activeTab);
   const shouldReduce = useReducedMotion();
+  const mainDockRef = useRef<HTMLDivElement | null>(null);
+  const subDockRef = useRef<HTMLDivElement | null>(null);
+
+  // Auto-scroll the active tab into view on mobile / narrow viewports
+  useEffect(() => {
+    if (!subDockRef.current) return;
+    const activeEl = subDockRef.current.querySelector('[aria-current="page"]') as HTMLElement | null;
+    if (activeEl) {
+      activeEl.scrollIntoView({ behavior: shouldReduce ? "auto" : "smooth", inline: "center", block: "nearest" });
+    }
+  }, [activeTab, shouldReduce]);
+
+  useEffect(() => {
+    if (!mainDockRef.current) return;
+    const activeEl = mainDockRef.current.querySelector('[aria-current="page"]') as HTMLElement | null;
+    if (activeEl) {
+      activeEl.scrollIntoView({ behavior: shouldReduce ? "auto" : "smooth", inline: "center", block: "nearest" });
+    }
+  }, [activeCategory, shouldReduce]);
 
   // Main Menu — glass consistente con sub, blur-md único (no 2xl)
-  const dockContainer = "flex items-center gap-1 p-1 rounded-full bg-surface/80 dark:bg-surface-container/70 backdrop-blur-md border border-outline-variant/25 shadow-sm overflow-x-auto no-scrollbar max-w-full";
-  const dockItemBase = "relative shrink-0 whitespace-nowrap px-3 sm:px-4 py-2 sm:py-2.5 rounded-full text-[11px] sm:text-xs uppercase font-mono tracking-widest transition-colors duration-300 select-none cursor-pointer z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40";
+  const dockContainer = "flex items-center gap-1 p-1 rounded-full bg-surface/80 dark:bg-surface-container/70 backdrop-blur-md border border-outline-variant/25 shadow-sm overflow-x-auto no-scrollbar max-w-full min-w-0 scroll-px-3";
+  const dockItemBase = "relative shrink-0 whitespace-nowrap px-2.5 sm:px-4 py-2 sm:py-2.5 min-h-[38px] sm:min-h-0 flex items-center justify-center rounded-full text-[11px] sm:text-xs uppercase font-mono tracking-wider sm:tracking-widest transition-colors duration-300 select-none cursor-pointer z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40";
 
   // Submenu — más sutil, mismo sistema físico que main
-  const subDockContainer = "flex items-center gap-0.5 p-1 rounded-full bg-surface-dim/45 dark:bg-surface-container/45 backdrop-blur-md border border-outline-variant/15 overflow-x-auto no-scrollbar max-w-full shadow-sm";
-  const subDockItemBase = "relative shrink-0 whitespace-nowrap px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-full text-[11px] uppercase font-mono tracking-widest transition-colors duration-300 select-none cursor-pointer z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40";
+  const subDockContainer = "flex items-center gap-0.5 p-1 rounded-full bg-surface-dim/45 dark:bg-surface-container/45 backdrop-blur-md border border-outline-variant/15 overflow-x-auto no-scrollbar max-w-full min-w-0 shadow-sm scroll-px-3";
+  const subDockItemBase = "relative shrink-0 whitespace-nowrap px-2.5 sm:px-3.5 py-1.5 sm:py-2 min-h-[36px] sm:min-h-0 flex items-center justify-center rounded-full text-[11px] uppercase font-mono tracking-wider sm:tracking-widest transition-colors duration-300 select-none cursor-pointer z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40";
 
 
   return (
-    <div className="flex flex-col items-center gap-1.5 sm:gap-2 px-1 py-0.5" data-minitabnav="true">
-      {/* Top Row: Main Categories & Theme Toggle */}
-      <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 w-full">
-        <div className={dockContainer}>
+    <div className="flex flex-col items-center gap-1.5 sm:gap-2 px-1 py-0.5 w-full max-w-full min-w-0" data-minitabnav="true">
+      {/* Top Row: Main Categories & Theme Toggle (single horizontal flow, never orphaned) */}
+      <div className="flex flex-nowrap items-center justify-start sm:justify-center gap-1.5 sm:gap-2.5 w-full max-w-full min-w-0 px-1 sm:px-0">
+        <div ref={mainDockRef} className={dockContainer}>
           {CATEGORIES.map((cat) => {
             const isActive = activeCategory === cat.id;
             return (
@@ -93,7 +113,7 @@ export default function MiniTabNav({ activeTab, onNavigate, theme, onToggleTheme
         </div>
 
         {/* Theme Toggle Dock — animación minimalista y sobria + reveal */}
-        <div className={`${dockContainer} px-2`}>
+        <div className={`${dockContainer} px-2 shrink-0`}>
           <motion.button
             type="button"
             onClick={(e) => onToggleTheme(e.currentTarget.getBoundingClientRect())}
@@ -152,9 +172,9 @@ export default function MiniTabNav({ activeTab, onNavigate, theme, onToggleTheme
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -4, scale: 0.98 }}
             transition={{ duration: DUR.fast, ease: EASE_SUBTLE }}
-            className="flex items-center justify-center w-full"
+            className="flex items-center justify-start sm:justify-center w-full max-w-full min-w-0 px-1 sm:px-0"
           >
-            <div className={subDockContainer}>
+            <div ref={subDockRef} className={subDockContainer}>
               {subSections.map((sub) => {
                 const isActive = activeTab === sub.tabId;
                 return (

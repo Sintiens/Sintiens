@@ -147,6 +147,21 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId, searchQu
   }, [zoom]);
   const [panX, setPanX] = useState(0);
   const [panY, setPanY] = useState(0);
+  const panXRef = useRef(panX);
+  const panYRef = useRef(panY);
+  useEffect(() => {
+    panXRef.current = panX;
+  }, [panX]);
+  useEffect(() => {
+    panYRef.current = panY;
+  }, [panY]);
+
+  // Multitouch / pinch-to-zoom / pointer tracking
+  const activePointersRef = useRef<Map<number, { x: number; y: number }>>(new Map());
+  const pinchStartDistRef = useRef<number | null>(null);
+  const pinchStartZoomRef = useRef<number>(1);
+  const pinchStartCenterRef = useRef<{ x: number; y: number } | null>(null);
+  const pinchStartPanRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
   // New: view options
   const [showAllLabels, setShowAllLabels] = useState(false);
@@ -802,50 +817,172 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId, searchQu
     }
   };
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    didDragRef.current = false;
-    downPosRef.current = { x: e.clientX, y: e.clientY };
-    const { x, y } = toCanvasCoords(e.clientX, e.clientY);
-    const target = getNodeAt(x, y);
-    if (target) {
-      setDraggedNode(target);
-      setIsPanning(false);
-    } else {
-      setIsPanning(true);
-      panLastRef.current = { x: e.clientX, y: e.clientY };
+  const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      // Ignore if setPointerCapture fails
     }
-  };
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!didDragRef.current && downPosRef.current) {
-      const dx = e.clientX - downPosRef.current.x;
-      const dy = e.clientY - downPosRef.current.y;
-      if (Math.abs(dx) + Math.abs(dy) > 5) didDragRef.current = true;
-    }
-    if (draggedNode) {
+    activePointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (activePointersRef.current.size === 1) {
+      didDragRef.current = false;
+      downPosRef.current = { x: e.clientX, y: e.clientY };
       const { x, y } = toCanvasCoords(e.clientX, e.clientY);
-      setNodes((current) =>
-        current.map((n) => (n.id === draggedNode.id ? { ...n, x, y, vx: 0, vy: 0 } : n))
-      );
-      return;
+      const target = getNodeAt(x, y);
+      if (target) {
+        setDraggedNode(target);
+        draggedNodeRef.current = target;
+        setIsPanning(false);
+      } else {
+        setDraggedNode(null);
+        draggedNodeRef.current = null;
+        setIsPanning(true);
+        panLastRef.current = { x: e.clientX, y: e.clientY };
+      }
+    } else if (activePointersRef.current.size === 2) {
+      // 2 fingers: pinch-to-zoom mode
+      setDraggedNode(null);
+      draggedNodeRef.current = null;
+      setIsPanning(false);
+      panLastRef.current = null;
+
+      const pts = Array.from(activePointersRef.current.values());
+      const p1 = pts[0];
+      const p2 = pts[1];
+      if (p1 && p2) {
+        const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
+        pinchStartDistRef.current = dist > 0 ? dist : 1;
+        pinchStartZoomRef.current = zoomRef.current;
+        pinchStartPanRef.current = { x: panXRef.current, y: panYRef.current };
+
+        const canvas = canvasRef.current;
+        const rect = canvas ? canvas.getBoundingClientRect() : { left: 0, top: 0 };
+        pinchStartCenterRef.current = {
+          x: (p1.x + p2.x) / 2 - rect.left,
+          y: (p1.y + p2.y) / 2 - rect.top,
+        };
+      }
     }
-    if (isPanning && panLastRef.current) {
-      const dx = e.clientX - panLastRef.current.x;
-      const dy = e.clientY - panLastRef.current.y;
-      panLastRef.current = { x: e.clientX, y: e.clientY };
-      setPanX((p) => p + dx);
-      setPanY((p) => p + dy);
-      return;
-    }
-    const { x, y } = toCanvasCoords(e.clientX, e.clientY);
-    setHoveredNode(getNodeAt(x, y));
   };
 
-  const handleMouseUpOrLeave = () => {
-    setDraggedNode(null);
-    setIsPanning(false);
-    panLastRef.current = null;
-    downPosRef.current = null;
+  const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (activePointersRef.current.has(e.pointerId)) {
+      activePointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    }
+
+    // Pinch-to-zoom with 2 fingers
+    if (activePointersRef.current.size >= 2 && pinchStartDistRef.current) {
+      const pts = Array.from(activePointersRef.current.values());
+      const p1 = pts[0];
+      const p2 = pts[1];
+      if (p1 && p2 && pinchStartDistRef.current > 0) {
+        const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
+        const scale = dist / pinchStartDistRef.current;
+        const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, pinchStartZoomRef.current * scale));
+
+        const canvas = canvasRef.current;
+        const rect = canvas ? canvas.getBoundingClientRect() : { left: 0, top: 0 };
+        const currentCenter = {
+          x: (p1.x + p2.x) / 2 - rect.left,
+          y: (p1.y + p2.y) / 2 - rect.top,
+        };
+        const startCenter = pinchStartCenterRef.current || currentCenter;
+        const ratio = newZoom / pinchStartZoomRef.current;
+
+        const newPanX = currentCenter.x - (startCenter.x - pinchStartPanRef.current.x) * ratio;
+        const newPanY = currentCenter.y - (startCenter.y - pinchStartPanRef.current.y) * ratio;
+
+        setZoom(newZoom);
+        setPanX(newPanX);
+        setPanY(newPanY);
+        didDragRef.current = true;
+      }
+      return;
+    }
+
+    // 1 pointer dragging (node or canvas pan)
+    if (activePointersRef.current.size === 1) {
+      if (!didDragRef.current && downPosRef.current) {
+        const dx = e.clientX - downPosRef.current.x;
+        const dy = e.clientY - downPosRef.current.y;
+        if (Math.hypot(dx, dy) > 10) didDragRef.current = true;
+      }
+
+      // Only move node if drag threshold was exceeded (prevents node jumping on taps)
+      if (draggedNodeRef.current && didDragRef.current) {
+        const activeNode = draggedNodeRef.current;
+        const { x, y } = toCanvasCoords(e.clientX, e.clientY);
+        setNodes((current) =>
+          current.map((n) => (n.id === activeNode.id ? { ...n, x, y, vx: 0, vy: 0 } : n))
+        );
+        return;
+      }
+
+      if (isPanning && panLastRef.current && didDragRef.current) {
+        const dx = e.clientX - panLastRef.current.x;
+        const dy = e.clientY - panLastRef.current.y;
+        panLastRef.current = { x: e.clientX, y: e.clientY };
+        setPanX((p) => p + dx);
+        setPanY((p) => p + dy);
+        return;
+      }
+    }
+
+    // Hover (mouse only when no drag/pan active)
+    if (e.pointerType === "mouse" && activePointersRef.current.size === 0) {
+      const { x, y } = toCanvasCoords(e.clientX, e.clientY);
+      setHoveredNode(getNodeAt(x, y));
+    }
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {
+      // Ignore
+    }
+    activePointersRef.current.delete(e.pointerId);
+
+    if (activePointersRef.current.size === 0) {
+      const wasTap = !didDragRef.current && downPosRef.current;
+      setDraggedNode(null);
+      draggedNodeRef.current = null;
+      setIsPanning(false);
+      panLastRef.current = null;
+      pinchStartDistRef.current = null;
+      pinchStartCenterRef.current = null;
+
+      if (wasTap && downPosRef.current) {
+        // Direct tap handling: ensures touchscreens and iOS Safari (where synthetic click is suppressed
+        // on pointer-captured elements with touch-action: none) reliably trigger node selection.
+        const { x, y } = toCanvasCoords(downPosRef.current.x, downPosRef.current.y);
+        const clicked = getNodeAt(x, y);
+        if (clicked) {
+          navigateToNode(clicked.id);
+        } else {
+          setDetailNodeId(null);
+          setSelectedNodeInternal(null);
+        }
+        // Mark drag as true so subsequent synthetic click event (if dispatched) is safely ignored
+        didDragRef.current = true;
+      }
+      downPosRef.current = null;
+    } else if (activePointersRef.current.size === 1) {
+      // Returned from 2 fingers to 1 finger
+      pinchStartDistRef.current = null;
+      pinchStartCenterRef.current = null;
+      const remaining = Array.from(activePointersRef.current.values())[0];
+      if (remaining) {
+        panLastRef.current = { x: remaining.x, y: remaining.y };
+        setIsPanning(true);
+      }
+    }
+  };
+
+  const handlePointerCancel = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    handlePointerUp(e);
   };
 
   const handleCanvasKeyDown = (e: React.KeyboardEvent<HTMLCanvasElement>) => {
@@ -999,19 +1136,19 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId, searchQu
             <button
               type="button"
               onClick={zoomOut}
-              className="p-1.5 hover:text-primary text-on-surface-variant transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 rounded"
+              className="p-2 sm:p-1.5 min-w-[36px] min-h-[36px] sm:min-w-0 sm:min-h-0 flex items-center justify-center hover:text-primary text-on-surface-variant transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 rounded"
               aria-label="Zoom out"
               title="Zoom -"
             >
               <Minus className="w-3.5 h-3.5" />
             </button>
-            <span className="text-[10px] font-mono text-on-surface-variant px-1.5 min-w-[36px] text-center">
+            <span className="text-[10px] font-mono text-on-surface-variant px-1.5 min-w-[36px] text-center select-none">
               {Math.round(zoom * 100)}%
             </span>
             <button
               type="button"
               onClick={zoomIn}
-              className="p-1.5 hover:text-primary text-on-surface-variant transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 rounded"
+              className="p-2 sm:p-1.5 min-w-[36px] min-h-[36px] sm:min-w-0 sm:min-h-0 flex items-center justify-center hover:text-primary text-on-surface-variant transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 rounded"
               aria-label="Zoom in"
               title="Zoom +"
             >
@@ -1021,7 +1158,7 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId, searchQu
             <button
               type="button"
               onClick={resetView}
-              className="p-1.5 hover:text-primary text-on-surface-variant transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 rounded"
+              className="p-2 sm:p-1.5 min-w-[36px] min-h-[36px] sm:min-w-0 sm:min-h-0 flex items-center justify-center hover:text-primary text-on-surface-variant transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 rounded"
               aria-label="Reset view"
               title="Reset"
             >
@@ -1033,7 +1170,7 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId, searchQu
           <button
             type="button"
             onClick={() => setShowAllLabels((p) => !p)}
-            className={`glass-enhance rounded-md p-1.5 transition-colors before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${
+            className={`glass-enhance rounded-md p-2 sm:p-1.5 min-w-[36px] min-h-[36px] sm:min-w-0 sm:min-h-0 flex items-center justify-center transition-colors before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${
               showAllLabels ? "text-primary" : "text-on-surface-variant hover:text-primary"
             }`}
             aria-label="Mostrar etiquetas"
@@ -1046,7 +1183,7 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId, searchQu
           <button
             type="button"
             onClick={() => setFocusMode((p) => !p)}
-            className={`glass-enhance rounded-md p-1.5 transition-colors before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${
+            className={`glass-enhance rounded-md p-2 sm:p-1.5 min-w-[36px] min-h-[36px] sm:min-w-0 sm:min-h-0 flex items-center justify-center transition-colors before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${
               focusMode ? "text-primary" : "text-on-surface-variant hover:text-primary"
             }`}
             aria-label="Modo foco"
@@ -1059,7 +1196,7 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId, searchQu
           <button
             type="button"
             onClick={() => setFiltersDrawerOpen(true)}
-            className="glass-enhance rounded-md px-2.5 py-1.5 flex items-center gap-1.5 text-on-surface-variant hover:text-primary transition-colors before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+            className="glass-enhance rounded-md px-2.5 py-1.5 min-h-[36px] flex items-center gap-1.5 text-on-surface-variant hover:text-primary transition-colors before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
             aria-label="Abrir filtros"
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
@@ -1304,7 +1441,7 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId, searchQu
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: "100%", opacity: 0 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute top-0 right-0 bottom-0 z-40 w-[min(560px,50vw)] max-w-[85vw] glass-enhance border-l border-outline-variant/30 p-5 overflow-y-auto overscroll-y-contain custom-scrollbar flex flex-col before:content-[''] before:absolute before:inset-0 before:bg-surface-dim/40 dark:before:bg-surface-dim/20 before:backdrop-blur-xl before:z-[-1] before:pointer-events-none"
+            className="absolute top-0 right-0 bottom-0 z-40 w-full sm:w-[min(560px,50vw)] max-w-full sm:max-w-[85vw] glass-enhance border-l border-outline-variant/30 p-4 sm:p-5 overflow-y-auto overscroll-y-contain custom-scrollbar flex flex-col before:content-[''] before:absolute before:inset-0 before:bg-surface/95 dark:before:bg-zinc-950/95 sm:before:bg-surface-dim/40 sm:dark:before:bg-surface-dim/20 before:backdrop-blur-xl before:z-[-1] before:pointer-events-none"
           >
             <div className="flex items-start justify-between gap-2 mb-4">
               <div className="flex flex-col gap-2 min-w-0 flex-1">
@@ -1330,7 +1467,7 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId, searchQu
                   setSelectedNodeInternal(null);
                   setHistory([]);
                 }}
-                className="p-1.5 rounded-md hover:bg-surface-dim text-on-surface-variant hover:text-on-surface shrink-0"
+                className="p-2 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-md hover:bg-surface-dim text-on-surface-variant hover:text-on-surface shrink-0"
                 aria-label="Cerrar detalle"
               >
                 <X className="w-4 h-4" />
@@ -1417,12 +1554,13 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId, searchQu
           role="application"
           aria-label="Grafo de conceptos del glosario. Usa las flechas para moverte entre nodos, Enter para abrir la entrada y Escape para cerrar el detalle."
           onClick={handleCanvasClick}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUpOrLeave}
-          onMouseLeave={handleMouseUpOrLeave}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerCancel}
           onKeyDown={handleCanvasKeyDown}
-          className={`absolute inset-0 w-full h-full outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${
+          style={{ touchAction: "none" }}
+          className={`absolute inset-0 w-full h-full outline-none touch-none focus-visible:ring-2 focus-visible:ring-primary/40 ${
             isPanning ? "cursor-grabbing" : draggedNode ? "cursor-grabbing" : hoveredNode ? "cursor-pointer" : "cursor-grab"
           }`}
         />

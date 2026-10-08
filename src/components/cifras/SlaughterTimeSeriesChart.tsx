@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   AreaChart,
   Area,
@@ -8,33 +8,81 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
-  Legend
+  ResponsiveContainer
 } from "recharts";
 import { BookOpen, BarChart3, Globe2, TrendingUp } from "lucide-react";
 import {
   HISTORICAL_SLAUGHTER_SERIES,
-  COUNTRY_MEAT_CONSUMPTION_DATA
+  COUNTRY_MEAT_CONSUMPTION_DATA,
+  COUNTRY_MEAT_CONSUMPTION_TIMESERIES
 } from "../../data/cifras/slaughterData";
 import ScientificEvidenceModal from "./ScientificEvidenceModal";
+import ChartLegend from "./ChartLegend";
+import { CHART_AXIS, CHART_GRID, CHART_SERIES, CHART_TOOLTIP_STYLE } from "./chartPalette";
+import { formatEs } from "../../utils/format";
+
+const GLOBAL_YEARS = [1961, 1970, 1980, 1990, 2000, 2010, 2015, 2020, 2022, 2024];
+const GLOBAL_YEARS_MOBILE = [1961, 1980, 2000, 2024];
+const COUNTRY_YEARS = COUNTRY_MEAT_CONSUMPTION_TIMESERIES.map((d) => d.year);
+const COUNTRY_YEARS_MOBILE = [1961, 1980, 2000, 2021];
 
 export default function SlaughterTimeSeriesChart() {
   const [chartType, setChartType] = useState<"stacked_area" | "lines">("stacked_area");
   const [showAquaculture, setShowAquaculture] = useState(true);
   const [activeSubTab, setActiveSubTab] = useState<"global_series" | "per_capita" | "country_comparison">("global_series");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
-  // Transform country data for time series chart
-  const countryComparisonTimeSeries = [
-    { year: "1961", usa: 89.2, spain: 21.8, china: 3.8, brazil: 29.4, germany: 64.0, world: 23.1, india: 3.7 },
-    { year: "1970", usa: 104.5, spain: 38.4, china: 8.5, brazil: 34.1, germany: 78.5, world: 28.4, india: 3.9 },
-    { year: "1980", usa: 108.0, spain: 67.2, china: 13.8, brazil: 41.2, germany: 92.1, world: 30.1, india: 4.1 },
-    { year: "1990", usa: 112.4, spain: 95.6, china: 25.1, brazil: 55.8, germany: 88.4, world: 33.6, india: 4.4 },
-    { year: "2000", usa: 120.1, spain: 118.4, china: 45.2, brazil: 74.3, germany: 86.2, world: 38.2, india: 4.6 },
-    { year: "2010", usa: 117.8, spain: 98.2, china: 56.4, brazil: 91.5, germany: 87.0, world: 41.8, india: 4.5 },
-    { year: "2020", usa: 124.1, spain: 100.2, china: 63.8, brazil: 99.8, germany: 82.5, world: 42.6, india: 4.2 },
-    { year: "2024", usa: 126.8, spain: 98.7, china: 68.5, brazil: 102.4, germany: 79.3, world: 43.8, india: 4.5 }
-  ];
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener("resize", check, { passive: true });
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  // La serie fuente está en miles de millones (10⁹); se normaliza a millones para la UI.
+  const globalSeries = useMemo(
+    () =>
+      HISTORICAL_SLAUGHTER_SERIES.map((d) => ({
+        year: d.year,
+        chickensMillions: d.chickens * 1000,
+        turkeysDucksMillions: d.ducksAndTurkeys * 1000,
+        pigsMillions: d.pigs * 1000,
+        sheepGoatsMillions: d.sheepAndGoats * 1000,
+        cattleMillions: d.cattle * 1000,
+        aquacultureFishMillions: d.farmedFishEstimated * 1000
+      })),
+    []
+  );
+
+  const speciesTooltipLabels: Record<string, string> = {
+    chickensMillions: "Pollos",
+    pigsMillions: "Cerdos",
+    cattleMillions: "Vacuno",
+    sheepGoatsMillions: "Ovejas/Cabras",
+    turkeysDucksMillions: "Pavos y Patos",
+    aquacultureFishMillions: "Piscicultura"
+  };
+
+  const countryTooltipLabels: Record<string, string> = {
+    usa: "🇺🇸 Estados Unidos",
+    spain: "🇪🇸 España",
+    china: "🇨🇳 China",
+    brazil: "🇧🇷 Brasil",
+    germany: "🇩🇪 Alemania",
+    world: "🌐 Media Mundial",
+    india: "🇮🇳 India"
+  };
+
+  const renderSpeciesTooltip = (value: unknown, name: unknown) => {
+    const num = typeof value === "number" ? value : Number(value);
+    return [`${formatEs(num)} millones`, speciesTooltipLabels[String(name)] || String(name)];
+  };
+
+  const renderCountryTooltip = (value: unknown, name: unknown) => {
+    const num = typeof value === "number" ? value : Number(value);
+    return [`${formatEs(num, 1)} kg / persona / año`, countryTooltipLabels[String(name)] || String(name)];
+  };
 
   return (
     <div className="w-full bg-surface dark:bg-zinc-900/60 rounded-2xl border border-outline-variant/30 dark:border-zinc-800 p-6 sm:p-8 space-y-6 text-left relative overflow-hidden shadow-sm">
@@ -66,7 +114,7 @@ export default function SlaughterTimeSeriesChart() {
       </div>
 
       {/* Navigation Subtabs */}
-      <div className="flex items-center gap-2 border-b border-outline-variant/20 dark:border-zinc-800 pb-2">
+      <div className="flex flex-wrap items-center gap-2 border-b border-outline-variant/20 dark:border-zinc-800 pb-2">
         <button
           onClick={() => setActiveSubTab("global_series")}
           className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
@@ -143,177 +191,133 @@ export default function SlaughterTimeSeriesChart() {
 
           {/* Recharts Canvas */}
           <div
-            className="w-full h-[400px] sm:h-[450px]"
+            className="w-full h-[320px] sm:h-[450px]"
             role="img"
             aria-label="Gráfico interactivo: animales sacrificados anualmente en el mundo (1961-2024) por especie (pollos, cerdos, vacuno, ovejas y cabras, pavos y patos, y opcionalmente peces de acuicultura). Alterna entre área apilada y líneas."
           >
             <ResponsiveContainer width="100%" height="100%">
               {chartType === "stacked_area" ? (
                 <AreaChart
-                  data={HISTORICAL_SLAUGHTER_SERIES}
-                  margin={{ top: 10, right: 30, left: 20, bottom: 0 }}
+                  data={globalSeries}
+                  accessibilityLayer
+                  margin={isMobile ? { top: 10, right: 10, left: 2, bottom: 0 } : { top: 10, right: 30, left: 20, bottom: 0 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} opacity={0.9} />
                   <XAxis
                     dataKey="year"
-                    stroke="#71717a"
-                    fontSize={12}
+                    type="number"
+                    domain={[1961, 2024]}
+                    ticks={isMobile ? GLOBAL_YEARS_MOBILE : GLOBAL_YEARS}
+                    stroke={CHART_AXIS}
+                    fontSize={isMobile ? 10 : 12}
                     tickLine={false}
                   />
                   <YAxis
-                    stroke="#71717a"
-                    fontSize={12}
-                    tickFormatter={(val) => `${(val / 1000).toFixed(0)}k M`}
+                    stroke={CHART_AXIS}
+                    fontSize={isMobile ? 10 : 12}
+                    tickFormatter={(val: number) => isMobile ? `${formatEs(val / 1000, 0)} mM` : `${formatEs(val / 1000, val < 10000 ? 1 : 0)} mil M`}
                     tickLine={false}
+                    width={isMobile ? 52 : 78}
                   />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "rgba(24, 24, 27, 0.95)",
-                      borderColor: "rgba(63, 63, 70, 0.5)",
-                      borderRadius: "0.75rem",
-                      fontSize: "12px",
-                      color: "#fff",
-                      fontFamily: "monospace"
-                    }}
-                    formatter={(value: any, name: any) => {
-                      const labels: Record<string, string> = {
-                        chickensMillions: "Pollos",
-                        pigsMillions: "Cerdos",
-                        cattleMillions: "Vacuno",
-                        sheepGoatsMillions: "Ovejas/Cabras",
-                        turkeysDucksMillions: "Pavos y Patos",
-                        aquacultureFishMillions: "Piscicultura"
-                      };
-                      return [`${Number(value).toLocaleString("es-ES")} Millones`, labels[name] || name];
-                    }}
-                  />
-                  <Legend
-                    verticalAlign="top"
-                    height={36}
-                    formatter={(val) => {
-                      const map: Record<string, string> = {
-                        chickensMillions: "Pollos de engorde",
-                        pigsMillions: "Cerdos",
-                        cattleMillions: "Vacuno",
-                        sheepGoatsMillions: "Ovejas y Cabras",
-                        turkeysDucksMillions: "Pavos y Patos",
-                        aquacultureFishMillions: "Peces de Piscifactoría"
-                      };
-                      return map[val] || val;
-                    }}
-                  />
+                  <Tooltip contentStyle={CHART_TOOLTIP_STYLE} formatter={renderSpeciesTooltip} />
                   <Area
-                    type="monotone"
+                    type="linear"
                     dataKey="chickensMillions"
                     stackId="1"
-                    stroke="#ef4444"
-                    fill="#ef4444"
+                    stroke={CHART_SERIES.ch1}
+                    fill={CHART_SERIES.ch1}
                     fillOpacity={0.7}
                   />
                   <Area
-                    type="monotone"
+                    type="linear"
                     dataKey="turkeysDucksMillions"
                     stackId="1"
-                    stroke="#f97316"
-                    fill="#f97316"
+                    stroke={CHART_SERIES.ch3}
+                    fill={CHART_SERIES.ch3}
                     fillOpacity={0.7}
                   />
                   <Area
-                    type="monotone"
+                    type="linear"
                     dataKey="pigsMillions"
                     stackId="1"
-                    stroke="#ec4899"
-                    fill="#ec4899"
+                    stroke={CHART_SERIES.ch5}
+                    fill={CHART_SERIES.ch5}
                     fillOpacity={0.7}
                   />
                   <Area
-                    type="monotone"
+                    type="linear"
                     dataKey="sheepGoatsMillions"
                     stackId="1"
-                    stroke="#84cc16"
-                    fill="#84cc16"
+                    stroke={CHART_SERIES.ch6}
+                    fill={CHART_SERIES.ch6}
                     fillOpacity={0.7}
                   />
                   <Area
-                    type="monotone"
+                    type="linear"
                     dataKey="cattleMillions"
                     stackId="1"
-                    stroke="#64748b"
-                    fill="#64748b"
+                    stroke={CHART_AXIS}
+                    fill={CHART_AXIS}
                     fillOpacity={0.7}
                   />
                   {showAquaculture && (
                     <Area
-                      type="monotone"
+                      type="linear"
                       dataKey="aquacultureFishMillions"
                       stackId="1"
-                      stroke="#3b82f6"
-                      fill="#3b82f6"
+                      stroke={CHART_SERIES.ch4}
+                      fill={CHART_SERIES.ch4}
                       fillOpacity={0.7}
                     />
                   )}
                 </AreaChart>
               ) : (
                 <LineChart
-                  data={HISTORICAL_SLAUGHTER_SERIES}
-                  margin={{ top: 10, right: 30, left: 20, bottom: 0 }}
+                  data={globalSeries}
+                  accessibilityLayer
+                  margin={isMobile ? { top: 10, right: 10, left: 2, bottom: 0 } : { top: 10, right: 30, left: 20, bottom: 0 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                  <XAxis dataKey="year" stroke="#71717a" fontSize={12} tickLine={false} />
-                  <YAxis
-                    stroke="#71717a"
-                    fontSize={12}
-                    tickFormatter={(val) => `${(val / 1000).toFixed(0)}k M`}
+                  <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} opacity={0.9} />
+                  <XAxis
+                    dataKey="year"
+                    type="number"
+                    domain={[1961, 2024]}
+                    ticks={isMobile ? GLOBAL_YEARS_MOBILE : GLOBAL_YEARS}
+                    stroke={CHART_AXIS}
+                    fontSize={isMobile ? 10 : 12}
                     tickLine={false}
                   />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "rgba(24, 24, 27, 0.95)",
-                      borderColor: "rgba(63, 63, 70, 0.5)",
-                      borderRadius: "0.75rem",
-                      fontSize: "12px",
-                      color: "#fff",
-                      fontFamily: "monospace"
-                    }}
-                    formatter={(value: any, name: any) => {
-                      const labels: Record<string, string> = {
-                        chickensMillions: "Pollos",
-                        pigsMillions: "Cerdos",
-                        cattleMillions: "Vacuno",
-                        sheepGoatsMillions: "Ovejas/Cabras",
-                        turkeysDucksMillions: "Pavos y Patos",
-                        aquacultureFishMillions: "Piscicultura"
-                      };
-                      return [`${Number(value).toLocaleString("es-ES")} Millones`, labels[name] || name];
-                    }}
+                  <YAxis
+                    stroke={CHART_AXIS}
+                    fontSize={isMobile ? 10 : 12}
+                    tickFormatter={(val: number) => isMobile ? `${formatEs(val / 1000, 0)} mM` : `${formatEs(val / 1000, val < 10000 ? 1 : 0)} mil M`}
+                    tickLine={false}
+                    width={isMobile ? 52 : 78}
                   />
-                  <Legend
-                    verticalAlign="top"
-                    height={36}
-                    formatter={(val) => {
-                      const map: Record<string, string> = {
-                        chickensMillions: "Pollos de engorde",
-                        pigsMillions: "Cerdos",
-                        cattleMillions: "Vacuno",
-                        sheepGoatsMillions: "Ovejas y Cabras",
-                        turkeysDucksMillions: "Pavos y Patos",
-                        aquacultureFishMillions: "Peces de Piscifactoría"
-                      };
-                      return map[val] || val;
-                    }}
-                  />
-                  <Line type="monotone" dataKey="chickensMillions" stroke="#ef4444" strokeWidth={3} dot={false} />
-                  <Line type="monotone" dataKey="turkeysDucksMillions" stroke="#f97316" strokeWidth={2} dot={false} />
-                  <Line type="monotone" dataKey="pigsMillions" stroke="#ec4899" strokeWidth={2} dot={false} />
-                  <Line type="monotone" dataKey="sheepGoatsMillions" stroke="#84cc16" strokeWidth={2} dot={false} />
-                  <Line type="monotone" dataKey="cattleMillions" stroke="#64748b" strokeWidth={2} dot={false} />
+                  <Tooltip contentStyle={CHART_TOOLTIP_STYLE} formatter={renderSpeciesTooltip} />
+                  <Line type="linear" dataKey="chickensMillions" stroke={CHART_SERIES.ch1} strokeWidth={3} dot={false} />
+                  <Line type="linear" dataKey="turkeysDucksMillions" stroke={CHART_SERIES.ch3} strokeWidth={2} dot={false} />
+                  <Line type="linear" dataKey="pigsMillions" stroke={CHART_SERIES.ch5} strokeWidth={2} dot={false} />
+                  <Line type="linear" dataKey="sheepGoatsMillions" stroke={CHART_SERIES.ch6} strokeWidth={2} dot={false} />
+                  <Line type="linear" dataKey="cattleMillions" stroke={CHART_AXIS} strokeWidth={2} dot={false} />
                   {showAquaculture && (
-                    <Line type="monotone" dataKey="aquacultureFishMillions" stroke="#3b82f6" strokeWidth={2} dot={false} />
+                    <Line type="linear" dataKey="aquacultureFishMillions" stroke={CHART_SERIES.ch4} strokeWidth={2} dot={false} />
                   )}
                 </LineChart>
               )}
             </ResponsiveContainer>
           </div>
+
+          <ChartLegend
+            items={[
+              { label: "Pollos de engorde", color: CHART_SERIES.ch1 },
+              { label: "Pavos y Patos", color: CHART_SERIES.ch3 },
+              { label: "Cerdos", color: CHART_SERIES.ch5 },
+              { label: "Ovejas y Cabras", color: CHART_SERIES.ch6 },
+              { label: "Vacuno", color: CHART_AXIS },
+              ...(showAquaculture ? [{ label: "Peces de Piscifactoría", color: CHART_SERIES.ch4 }] : [])
+            ]}
+          />
 
           {/* Key Insights */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
@@ -325,7 +329,7 @@ export default function SlaughterTimeSeriesChart() {
                 +1.048%
               </span>
               <p className="text-xs text-on-surface-variant leading-relaxed">
-                De 6.600 millones en 1961 a más de 74.000 millones en 2024 debido a la intensificación de naves industriales.
+                De 6.600 millones en 1961 a más de 75.000 millones en 2024 debido a la intensificación de naves industriales.
               </p>
             </div>
 
@@ -334,10 +338,10 @@ export default function SlaughterTimeSeriesChart() {
                 🐖 Porcino
               </span>
               <span className="text-xl font-mono font-bold text-on-surface">
-                +305%
+                +300%
               </span>
               <p className="text-xs text-on-surface-variant leading-relaxed">
-                De 376 millones a 1.520 millones anuales, impulsado por el rápido incremento del consumo per cápita en Asia y la UE.
+                De 380 millones a 1.520 millones anuales, impulsado por el rápido incremento del consumo per cápita en Asia y la UE.
               </p>
             </div>
 
@@ -346,10 +350,10 @@ export default function SlaughterTimeSeriesChart() {
                 🐟 Acuicultura Marina
               </span>
               <span className="text-xl font-mono font-bold text-on-surface">
-                +4.200%
+                +3.931%
               </span>
               <p className="text-xs text-on-surface-variant leading-relaxed">
-                La piscicultura intensiva ha crecido más rápido que cualquier otro sector ganadero desde los años 1980.
+                La piscicultura pasó de 3.200 millones de peces en 1961 a 129.000 millones en 2024, el sector ganadero de mayor crecimiento.
               </p>
             </div>
           </div>
@@ -361,7 +365,7 @@ export default function SlaughterTimeSeriesChart() {
         <div className="space-y-6">
           <div className="space-y-2">
             <span className="text-xs font-mono uppercase tracking-widest text-primary dark:text-emerald-400 font-bold">
-              Consumo Cárnico Histórico (kg por persona / año) de 1961 a 2024
+              Consumo Cárnico Histórico (kg por persona / año) de 1961 a 2021
             </span>
             <p className="text-xs text-on-surface-variant">
               Compara cómo ha evolucionado el consumo per cápita en los principales países productores y consumidores.
@@ -369,74 +373,59 @@ export default function SlaughterTimeSeriesChart() {
           </div>
 
           <div
-            className="w-full h-[400px]"
+            className="w-full h-[340px] sm:h-[400px]"
             role="img"
-            aria-label="Gráfico de líneas: consumo cárnico per cápita (kg por persona y año) de 1961 a 2024 en países seleccionados."
+            aria-label="Gráfico de líneas: consumo cárnico per cápita (kg por persona y año) de 1961 a 2021 en países seleccionados."
           >
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
-                data={countryComparisonTimeSeries}
-                margin={{ top: 10, right: 30, left: 20, bottom: 0 }}
+                data={COUNTRY_MEAT_CONSUMPTION_TIMESERIES}
+                accessibilityLayer
+                margin={isMobile ? { top: 10, right: 10, left: 2, bottom: 0 } : { top: 10, right: 30, left: 20, bottom: 0 }}
               >
-                <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                <XAxis dataKey="year" stroke="#71717a" fontSize={12} tickLine={false} />
-                <YAxis
-                  stroke="#71717a"
-                  fontSize={12}
-                  tickFormatter={(val) => `${val} kg`}
+                <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} opacity={0.9} />
+                <XAxis
+                  dataKey="year"
+                  type="number"
+                  domain={[1961, 2021]}
+                  ticks={isMobile ? COUNTRY_YEARS_MOBILE : COUNTRY_YEARS}
+                  stroke={CHART_AXIS}
+                  fontSize={isMobile ? 10 : 12}
                   tickLine={false}
                 />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "rgba(24, 24, 27, 0.95)",
-                    borderColor: "rgba(63, 63, 70, 0.5)",
-                    borderRadius: "0.75rem",
-                    fontSize: "12px",
-                    color: "#fff",
-                    fontFamily: "monospace"
-                  }}
-                  formatter={(value: any, name: any) => {
-                    const map: Record<string, string> = {
-                      usa: "🇺🇸 Estados Unidos",
-                      spain: "🇪🇸 España",
-                      china: "🇨🇳 China",
-                      brazil: "🇧🇷 Brasil",
-                      germany: "🇩🇪 Alemania",
-                      world: "🌐 Media Mundial",
-                      india: "🇮🇳 India"
-                    };
-                    return [`${value} kg / persona / año`, map[name] || name];
-                  }}
+                <YAxis
+                  stroke={CHART_AXIS}
+                  fontSize={isMobile ? 10 : 12}
+                  tickFormatter={(val: number) => `${formatEs(val)} kg`}
+                  tickLine={false}
+                  width={isMobile ? 48 : 60}
                 />
-                <Legend
-                  verticalAlign="top"
-                  height={36}
-                  formatter={(val) => {
-                    const map: Record<string, string> = {
-                      usa: "EE.UU. (126.8 kg)",
-                      spain: "España (98.7 kg)",
-                      china: "China (68.5 kg)",
-                      brazil: "Brasil (102.4 kg)",
-                      germany: "Alemania (79.3 kg)",
-                      world: "Media Mundial (43.8 kg)",
-                      india: "India (4.5 kg)"
-                    };
-                    return map[val] || val;
-                  }}
-                />
-                <Line type="monotone" dataKey="usa" stroke="#ef4444" strokeWidth={2.5} dot={{ r: 3 }} />
-                <Line type="monotone" dataKey="spain" stroke="#f59e0b" strokeWidth={3} dot={{ r: 4 }} />
-                <Line type="monotone" dataKey="brazil" stroke="#10b981" strokeWidth={2} dot={{ r: 3 }} />
-                <Line type="monotone" dataKey="china" stroke="#8b5cf6" strokeWidth={2.5} dot={{ r: 3 }} />
-                <Line type="monotone" dataKey="germany" stroke="#06b6d4" strokeWidth={2} dot={{ r: 3 }} />
-                <Line type="monotone" dataKey="world" stroke="#ffffff" strokeWidth={2} strokeDasharray="5 5" dot={{ r: 2 }} />
-                <Line type="monotone" dataKey="india" stroke="#64748b" strokeWidth={1.5} dot={{ r: 2 }} />
+                <Tooltip contentStyle={CHART_TOOLTIP_STYLE} formatter={renderCountryTooltip} />
+                <Line type="linear" dataKey="usa" stroke={CHART_SERIES.ch1} strokeWidth={2.5} dot={{ r: 3 }} />
+                <Line type="linear" dataKey="spain" stroke={CHART_SERIES.ch3} strokeWidth={3} dot={{ r: 4 }} />
+                <Line type="linear" dataKey="brazil" stroke={CHART_SERIES.ch6} strokeWidth={2} dot={{ r: 3 }} />
+                <Line type="linear" dataKey="china" stroke={CHART_SERIES.ch5} strokeWidth={2.5} dot={{ r: 3 }} />
+                <Line type="linear" dataKey="germany" stroke={CHART_SERIES.ch4} strokeWidth={2} dot={{ r: 3 }} />
+                <Line type="linear" dataKey="world" stroke={CHART_AXIS} strokeWidth={2} strokeDasharray="5 5" dot={{ r: 2 }} />
+                <Line type="linear" dataKey="india" stroke={CHART_AXIS} strokeWidth={1.5} dot={{ r: 2 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
 
+          <ChartLegend
+            items={[
+              { label: "EE.UU. (126,8 kg)", color: CHART_SERIES.ch1 },
+              { label: "España (100,3 kg)", color: CHART_SERIES.ch3 },
+              { label: "Brasil (98,7 kg)", color: CHART_SERIES.ch6 },
+              { label: "China (63,6 kg)", color: CHART_SERIES.ch5 },
+              { label: "Alemania (79,2 kg)", color: CHART_SERIES.ch4 },
+              { label: "Media Mundial (42,8 kg)", color: CHART_AXIS, dashed: true },
+              { label: "India (4,5 kg)", color: CHART_AXIS }
+            ]}
+          />
+
           <div className="p-4 bg-surface-dim/40 dark:bg-zinc-800/40 rounded-xl border border-outline-variant/20 dark:border-zinc-800 text-xs font-mono text-on-surface-variant leading-relaxed">
-            <span className="font-bold text-on-surface">💡 Conclusión zootécnica:</span> España pasó de 21,8 kg/persona en 1961 a casi 100 kg/persona en la actualidad, situándose entre los países con mayor consumo de carne per cápita del mundo junto a EE.UU. y Brasil.
+            <span className="font-bold text-on-surface">💡 Conclusión zootécnica:</span> España pasó de 21,8 kg/persona en 1961 a 100,3 kg/persona en 2021, situándose entre los países con mayor consumo de carne per cápita del mundo junto a EE.UU. y Brasil.
           </div>
         </div>
       )}
@@ -455,9 +444,9 @@ export default function SlaughterTimeSeriesChart() {
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/10 dark:divide-zinc-800/60 font-mono">
-              {COUNTRY_MEAT_CONSUMPTION_DATA.map((row, idx) => (
+              {COUNTRY_MEAT_CONSUMPTION_DATA.map((row) => (
                 <tr
-                  key={idx}
+                  key={row.code}
                   className="hover:bg-surface-dim/40 dark:hover:bg-zinc-800/40 transition-colors"
                 >
                   <td className="py-3 px-4 font-bold text-on-surface">
@@ -490,7 +479,7 @@ export default function SlaughterTimeSeriesChart() {
         rawDataset={{
           historicalSlaughterSeries: HISTORICAL_SLAUGHTER_SERIES,
           countryMeatConsumption: COUNTRY_MEAT_CONSUMPTION_DATA,
-          countryComparisonTimeSeries
+          countryComparisonTimeSeries: COUNTRY_MEAT_CONSUMPTION_TIMESERIES
         }}
         datasetName="faostat_historical_series"
       />

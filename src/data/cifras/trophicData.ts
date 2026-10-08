@@ -34,15 +34,15 @@ export interface RewildingScenario {
 export const GLOBAL_LAND_ALLOCATION: LandAllocationItem[] = [
   {
     category: "Ganadería (Pastos + Cultivos Forrajeros)",
-    percentage: 77,
-    millionKm2: 39.0,
+    percentage: 83,
+    millionKm2: 42.3,
     outputDescription: "Suministra únicamente el 18% de las calorías globales y el 37% de las proteínas consumidas por la humanidad.",
     color: "#ef4444"
   },
   {
     category: "Cultivos Directos para Consumo Humano",
-    percentage: 23,
-    millionKm2: 12.0,
+    percentage: 17,
+    millionKm2: 8.7,
     outputDescription: "Suministra el 82% de las calorías globales y el 63% de las proteínas consumidas por la humanidad.",
     color: "#10b981"
   }
@@ -51,15 +51,15 @@ export const GLOBAL_LAND_ALLOCATION: LandAllocationItem[] = [
 export const GLOBAL_HARVEST_FLOW_DATA: GlobalHarvestFlowItem[] = [
   {
     stage: "Consumo Humano Directo",
-    percentage: 36,
-    caloriesTrillionsKcal: 3600,
+    percentage: 55,
+    caloriesTrillionsKcal: 5500,
     color: "#10b981",
-    description: "Cereales, legumbres, frutas, tubérculos y hortalizas consumidos directamente por los 8.000 millones de personas."
+    description: "Cereales, legumbres, frutas, tubérculos y hortalizas consumidos directamente por los 8.000 millones de personas (Cassidy et al. 2013)."
   },
   {
     stage: "Piensos para Ganado (Pérdida Metabólica)",
-    percentage: 55,
-    caloriesTrillionsKcal: 5500,
+    percentage: 36,
+    caloriesTrillionsKcal: 3600,
     color: "#ef4444",
     description: "Maíz, soja forrajera, cebada y trigo destinados a engordar animales. Entre el 80% y el 97% de esta energía se disipa en calor corporal, movimiento y heces."
   },
@@ -83,7 +83,7 @@ export const REWILDING_SCENARIOS: RewildingScenario[] = [
     shiftPercent: 50,
     landFreedMillionHa: 1550,
     co2SequestrationGt: 235,
-    description: "Reducción del 50%: libera 1.550 millones de hectáreas (toda la superficie de Rusia) y absorbe más de 235 Gt de CO₂ en biomasa forestal nativa en 30 años."
+    description: "Reducción del 50%: libera 1.550 millones de hectáreas (casi la superficie de Rusia) y absorbe más de 235 Gt de CO₂ en biomasa forestal nativa en 30 años."
   },
   {
     shiftPercent: 75,
@@ -95,7 +95,7 @@ export const REWILDING_SCENARIOS: RewildingScenario[] = [
     shiftPercent: 100,
     landFreedMillionHa: 3100,
     co2SequestrationGt: 547,
-    description: "Transición 100% basada en plantas (Poore & Nemecek 2018 / Hayek et al. 2021): libera 3.100 millones de hectáreas (el tamaño del continente africano completo) y captura 547 Gt de CO₂, neutralizando 16 años de emisiones humanas."
+    description: "Transición 100% basada en plantas (Poore & Nemecek 2018; Hayek et al. 2021): libera 3.100 millones de hectáreas (el tamaño del continente africano) y captura del orden de 547 Gt de CO₂ en estimaciones internas conservadoras (el rango publicado de Hayek et al. llega hasta 743 Gt según escenario), equivalente a ≈15 años de emisiones fósiles actuales."
   }
 ];
 

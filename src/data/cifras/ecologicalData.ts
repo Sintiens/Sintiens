@@ -22,6 +22,7 @@ export interface SupplyChainEmissionsItem {
   transport: number;
   packaging: number;
   retail: number;
+  losses: number; // pérdidas entre granja y minorista (Food Balance Sheets, FAO)
   totalKgCO2eq: number;
   proteinGramsPerKg: number;
   co2Per100gProtein: number;
@@ -36,31 +37,33 @@ export interface DeforestationDriver {
   color: string;
 }
 
-// Datos de Bar-On et al., PNAS (2018)
+// Datos de Bar-On et al., PNAS (2018): 0,10 / 0,06 / 0,007 Gt C → 60% / 36% / 4%.
+// Nota: el estudio de Greenspoon et al. (PNAS 2023) revisa ligeramente los valores
+// (36% humanos, 59% ganado+mascotas, 5% silvestres); se mantiene Bar-On por coherencia.
 export const MAMMAL_BIOMASS_GROUPS: MammalBiomassGroup[] = [
   {
     id: "livestock",
     label: "Ganado Doméstico",
-    percent: 62,
+    percent: 60,
     gigatonsCarbon: 0.10,
     color: "#ef4444", // red
     description: "Animales criados por el ser humano para carne, lácteos, huevos y cuero.",
     subGroups: [
-      { name: "Vacas y Búfalos", percent: 38.5, description: "La especie con mayor masa biológica individual del planeta." },
-      { name: "Cerdos", percent: 12.0, description: "Más de 1.500 millones de cerdos en granjas intensivas." },
-      { name: "Ovejas y Cabras", percent: 8.5, description: "Ganadería ovina y caprina extensiva e intensiva." },
-      { name: "Caballos, Asnos y Camélidos", percent: 3.0, description: "Animales de tiro y pastoreo tradicional." }
+      { name: "Vacas y Búfalos", percent: 37.3, description: "La mayor biomasa agregada de mamíferos del planeta (≈420 Mt)." },
+      { name: "Cerdos", percent: 11.6, description: "Unos 800 millones de cerdos vivos; ~1.500 millones sacrificados al año." },
+      { name: "Ovejas y Cabras", percent: 8.2, description: "Ganadería ovina y caprina extensiva e intensiva." },
+      { name: "Caballos, Asnos y Camélidos", percent: 2.9, description: "Animales de tiro y pastoreo tradicional." }
     ]
   },
   {
     id: "humans",
     label: "Humanos",
-    percent: 34,
+    percent: 36,
     gigatonsCarbon: 0.06,
     color: "#3b82f6", // blue
-    description: "Más de 8.000 millones de personas que habitan la superficie terrestre.",
+    description: "Más de 8.000 millones de personas que habitan el planeta.",
     subGroups: [
-      { name: "Población Humana Global", percent: 34.0, description: "Consumo de recursos y alimentos que sostiene al 62% ganadero." }
+      { name: "Población Humana Global", percent: 36.0, description: "Consumo de recursos y alimentos que sostiene al 60% de la biomasa ganadera." }
     ]
   },
   {
@@ -71,233 +74,254 @@ export const MAMMAL_BIOMASS_GROUPS: MammalBiomassGroup[] = [
     color: "#10b981", // emerald
     description: "Todos los mamíferos salvajes del planeta juntos: elefantes, ballenas, ciervos, leones, osos, lobos, primates, delfines y roedores.",
     subGroups: [
-      { name: "Mamíferos Terrestres Silvestres", percent: 2.3, description: "Fauna salvaje en bosques, sabanas y tundras." },
-      { name: "Mamíferos Marinos (Cetáceos, Focas)", percent: 1.7, description: "Ballenas, orcas, delfines y pinnípedos." }
+      { name: "Mamíferos Marinos (Cetáceos, Focas)", percent: 2.4, description: "Ballenas, orcas, delfines y pinnípedos (≈0,004 Gt C)." },
+      { name: "Mamíferos Terrestres Silvestres", percent: 1.8, description: "Fauna salvaje en bosques, sabanas y tundras (≈0,003 Gt C)." }
     ]
   }
 ];
 
-// Comparativa de Aves: 70% aves de corral de granja vs 30% aves silvestres
+// Comparativa de Aves (Bar-On 2018 / OWID): 71% aves de corral vs 29% silvestres.
 export const BIRD_BIOMASS_GROUPS = {
-  poultryPercent: 70, // predominantemente pollos broilers
-  wildBirdsPercent: 30
+  poultryPercent: 71, // predominantemente pollos broilers
+  wildBirdsPercent: 29
 };
 
-// Datos del metaanálisis de Poore & Nemecek (Science 2018)
+// Poore & Nemecek (Science 2018), procesado por Our World in Data.
+// Etapas por kg de producto (grapher "food-emissions-supply-chain", 2018).
+// La suma de etapas = total medio por kg de "ghg-per-kg-poore".
+// "Leche de Avena" es una estimación propia fuera de P&N (marcada en comentario).
 export const SUPPLY_CHAIN_EMISSIONS_DATA: SupplyChainEmissionsItem[] = [
   {
     food: "Carne de Vacuno (Ganado de Carne)",
     category: "ruminant",
-    landUseChange: 16.3,
-    farmEmissions: 39.4,
-    animalFeed: 39.0,
-    processing: 1.3,
-    transport: 0.3,
-    packaging: 0.2,
-    retail: 3.0,
-    totalKgCO2eq: 99.5,
+    landUseChange: 23.24,
+    farmEmissions: 56.23,
+    animalFeed: 2.68,
+    processing: 1.81,
+    transport: 0.49,
+    packaging: 0.35,
+    retail: 0.23,
+    losses: 14.44,
+    totalKgCO2eq: 99.48,
     proteinGramsPerKg: 200,
-    co2Per100gProtein: 49.75
+    co2Per100gProtein: 49.74
   },
   {
     food: "Carne de Cordero y Cabrito",
     category: "ruminant",
-    landUseChange: 0.5,
-    farmEmissions: 35.1,
-    animalFeed: 2.4,
-    processing: 1.1,
-    transport: 0.5,
-    packaging: 0.3,
-    retail: 0.2,
-    totalKgCO2eq: 40.1,
+    landUseChange: 0.65,
+    farmEmissions: 27.03,
+    animalFeed: 3.28,
+    processing: 1.54,
+    transport: 0.68,
+    packaging: 0.35,
+    retail: 0.30,
+    losses: 5.90,
+    totalKgCO2eq: 39.72,
     proteinGramsPerKg: 200,
-    co2Per100gProtein: 20.05
+    co2Per100gProtein: 19.86
   },
   {
     food: "Carne de Vacuno (Cabaña Lechera)",
     category: "ruminant",
-    landUseChange: 0.9,
-    farmEmissions: 15.7,
-    animalFeed: 2.5,
-    processing: 0.7,
-    transport: 0.4,
-    packaging: 0.2,
-    retail: 0.7,
-    totalKgCO2eq: 21.1,
+    landUseChange: 1.27,
+    farmEmissions: 21.92,
+    animalFeed: 3.50,
+    processing: 1.55,
+    transport: 0.59,
+    packaging: 0.37,
+    retail: 0.25,
+    losses: 3.85,
+    totalKgCO2eq: 33.30,
     proteinGramsPerKg: 200,
-    co2Per100gProtein: 10.55
+    co2Per100gProtein: 16.65
   },
   {
     food: "Queso",
     category: "dairy_egg",
-    landUseChange: 4.5,
-    farmEmissions: 13.1,
-    animalFeed: 2.3,
-    processing: 0.7,
-    transport: 0.1,
-    packaging: 0.2,
-    retail: 0.3,
-    totalKgCO2eq: 21.2,
+    landUseChange: 4.47,
+    farmEmissions: 13.10,
+    animalFeed: 2.35,
+    processing: 0.74,
+    transport: 0.14,
+    packaging: 0.17,
+    retail: 0.33,
+    losses: 2.58,
+    totalKgCO2eq: 23.88,
     proteinGramsPerKg: 220,
-    co2Per100gProtein: 9.64
+    co2Per100gProtein: 10.85
   },
   {
     food: "Piscifactoría (Pescado de Granja)",
     category: "fish",
-    landUseChange: 0.5,
-    farmEmissions: 3.6,
-    animalFeed: 6.8,
-    processing: 0.1,
-    transport: 0.1,
-    packaging: 0.1,
-    retail: 0.2,
-    totalKgCO2eq: 11.4,
+    landUseChange: 1.19,
+    farmEmissions: 8.06,
+    animalFeed: 1.83,
+    processing: 0.04,
+    transport: 0.25,
+    packaging: 0.14,
+    retail: 0.09,
+    losses: 2.03,
+    totalKgCO2eq: 13.63,
     proteinGramsPerKg: 200,
-    co2Per100gProtein: 5.70
+    co2Per100gProtein: 6.82
   },
   {
     food: "Carne de Cerdo",
     category: "meat",
-    landUseChange: 1.5,
-    farmEmissions: 1.7,
-    animalFeed: 2.9,
-    processing: 0.3,
-    transport: 0.3,
-    packaging: 0.3,
-    retail: 0.2,
-    totalKgCO2eq: 7.2,
+    landUseChange: 2.24,
+    farmEmissions: 2.48,
+    animalFeed: 4.30,
+    processing: 0.42,
+    transport: 0.50,
+    packaging: 0.43,
+    retail: 0.28,
+    losses: 1.66,
+    totalKgCO2eq: 12.31,
     proteinGramsPerKg: 170,
-    co2Per100gProtein: 4.24
+    co2Per100gProtein: 7.24
   },
   {
     food: "Carne de Pollo / Aves",
     category: "meat",
-    landUseChange: 2.5,
-    farmEmissions: 0.7,
-    animalFeed: 1.8,
-    processing: 0.4,
-    transport: 0.3,
-    packaging: 0.2,
-    retail: 0.2,
-    totalKgCO2eq: 6.1,
+    landUseChange: 3.51,
+    farmEmissions: 0.93,
+    animalFeed: 2.45,
+    processing: 0.61,
+    transport: 0.38,
+    packaging: 0.29,
+    retail: 0.24,
+    losses: 1.45,
+    totalKgCO2eq: 9.87,
     proteinGramsPerKg: 175,
-    co2Per100gProtein: 3.49
+    co2Per100gProtein: 5.64
   },
   {
     food: "Huevos",
     category: "dairy_egg",
-    landUseChange: 0.7,
-    farmEmissions: 1.3,
-    animalFeed: 2.2,
-    processing: 0.0,
-    transport: 0.1,
-    packaging: 0.2,
-    retail: 0.0,
-    totalKgCO2eq: 4.5,
+    landUseChange: 0.71,
+    farmEmissions: 1.32,
+    animalFeed: 2.21,
+    processing: 0.00,
+    transport: 0.08,
+    packaging: 0.16,
+    retail: 0.04,
+    losses: 0.15,
+    totalKgCO2eq: 4.67,
     proteinGramsPerKg: 110,
-    co2Per100gProtein: 4.09
+    co2Per100gProtein: 4.25
   },
   {
     food: "Arroz",
     category: "plant_staple",
-    landUseChange: 0.0,
-    farmEmissions: 3.6,
-    animalFeed: 0.0,
-    processing: 0.1,
-    transport: 0.1,
-    packaging: 0.1,
-    retail: 0.1,
-    totalKgCO2eq: 4.0,
+    landUseChange: -0.02,
+    farmEmissions: 3.55,
+    animalFeed: 0.00,
+    processing: 0.07,
+    transport: 0.10,
+    packaging: 0.08,
+    retail: 0.06,
+    losses: 0.61,
+    totalKgCO2eq: 4.45,
     proteinGramsPerKg: 27,
-    co2Per100gProtein: 14.81
+    co2Per100gProtein: 16.48
   },
   {
     food: "Leche de Vaca",
     category: "dairy_egg",
-    landUseChange: 0.5,
-    farmEmissions: 1.5,
-    animalFeed: 0.6,
-    processing: 0.1,
-    transport: 0.1,
-    packaging: 0.1,
-    retail: 0.3,
-    totalKgCO2eq: 3.2,
+    landUseChange: 0.51,
+    farmEmissions: 1.51,
+    animalFeed: 0.24,
+    processing: 0.15,
+    transport: 0.09,
+    packaging: 0.10,
+    retail: 0.27,
+    losses: 0.27,
+    totalKgCO2eq: 3.15,
     proteinGramsPerKg: 33,
-    co2Per100gProtein: 9.70
+    co2Per100gProtein: 9.55
   },
   {
     food: "Tofu / Proteína de Soja",
     category: "plant_protein",
-    landUseChange: 1.0,
-    farmEmissions: 0.8,
-    animalFeed: 0.0,
-    processing: 0.8,
-    transport: 0.2,
-    packaging: 0.2,
-    retail: 0.2,
-    totalKgCO2eq: 3.2,
+    landUseChange: 0.96,
+    farmEmissions: 0.49,
+    animalFeed: 0.00,
+    processing: 0.79,
+    transport: 0.18,
+    packaging: 0.18,
+    retail: 0.27,
+    losses: 0.29,
+    totalKgCO2eq: 3.16,
     proteinGramsPerKg: 160,
-    co2Per100gProtein: 2.00
+    co2Per100gProtein: 1.98
   },
   {
     food: "Leche de Soja",
     category: "plant_protein",
-    landUseChange: 0.2,
-    farmEmissions: 0.1,
-    animalFeed: 0.0,
-    processing: 0.3,
-    transport: 0.1,
-    packaging: 0.1,
-    retail: 0.1,
-    totalKgCO2eq: 0.9,
+    landUseChange: 0.18,
+    farmEmissions: 0.09,
+    animalFeed: 0.00,
+    processing: 0.16,
+    transport: 0.11,
+    packaging: 0.10,
+    retail: 0.27,
+    losses: 0.06,
+    totalKgCO2eq: 0.98,
     proteinGramsPerKg: 30,
-    co2Per100gProtein: 3.00
+    co2Per100gProtein: 3.27
   },
   {
-    food: "Leche de Avena",
+    // Estimación propia fuera de P&N (bebida vegetal; no figura en el dataset original).
+    food: "Leche de Avena (estimación)",
     category: "plant_staple",
-    landUseChange: 0.0,
-    farmEmissions: 0.4,
-    animalFeed: 0.0,
-    processing: 0.2,
-    transport: 0.1,
-    packaging: 0.1,
-    retail: 0.1,
-    totalKgCO2eq: 0.9,
+    landUseChange: 0.00,
+    farmEmissions: 0.40,
+    animalFeed: 0.00,
+    processing: 0.20,
+    transport: 0.10,
+    packaging: 0.10,
+    retail: 0.10,
+    losses: 0.00,
+    totalKgCO2eq: 0.90,
     proteinGramsPerKg: 10,
     co2Per100gProtein: 9.00
   },
   {
-    food: "Guisantes y Legumbres",
+    food: "Guisantes (Legumbres)",
     category: "plant_protein",
-    landUseChange: 0.0,
-    farmEmissions: 0.7,
-    animalFeed: 0.0,
-    processing: 0.0,
-    transport: 0.1,
-    packaging: 0.1,
-    retail: 0.0,
-    totalKgCO2eq: 0.9,
+    landUseChange: 0.00,
+    farmEmissions: 0.72,
+    animalFeed: 0.00,
+    processing: 0.00,
+    transport: 0.10,
+    packaging: 0.04,
+    retail: 0.04,
+    losses: 0.08,
+    totalKgCO2eq: 0.98,
     proteinGramsPerKg: 80,
-    co2Per100gProtein: 1.13
+    co2Per100gProtein: 1.23
   },
   {
     food: "Frutos Secos (Nueces / Almendras)",
     category: "plant_protein",
-    landUseChange: -1.3, // Fijación de carbono en masa forestal de árboles leñosos
-    farmEmissions: 0.9,
-    animalFeed: 0.0,
-    processing: 0.1,
-    transport: 0.1,
-    packaging: 0.1,
-    retail: 0.0,
-    totalKgCO2eq: -0.1,
+    landUseChange: -3.26, // Fijación de carbono en masa forestal de árboles leñosos (dato P&N)
+    farmEmissions: 3.37,
+    animalFeed: 0.00,
+    processing: 0.05,
+    transport: 0.11,
+    packaging: 0.12,
+    retail: 0.04,
+    losses: -0.01,
+    totalKgCO2eq: 0.43,
     proteinGramsPerKg: 210,
-    co2Per100gProtein: -0.05
+    co2Per100gProtein: 0.20
   }
 ];
 
-// Datos de Pendrill et al. (Science 2022)
+// Reparto por commodity: Pendrill et al. 2019 (Global Environmental Change), difundido por OWID.
+// Contexto: Pendrill et al. 2022 (Science) estima que el 90-99% de la deforestación tropical
+// está ligada a la agricultura, pero solo el 45-65% termina en producción agrícola.
 export const DEFORESTATION_DRIVERS_DATA: DeforestationDriver[] = [
   {
     name: "Pastoreo de Ganado Vacuno",
@@ -312,7 +336,7 @@ export const DEFORESTATION_DRIVERS_DATA: DeforestationDriver[] = [
     sharePercent: 18.4,
     annualHectaresLoss: "950.000 ha/año",
     primaryRegions: "Cerrado y Amazonía brasileña (soja) e Indonesia/Malasia (palma)",
-    driverDetail: "Más del 77% de la soja cultivada en tierras desmontadas en Sudamérica se exporta para alimentar cerdos, pollos y vacas en la UE y China.",
+    driverDetail: "A nivel mundial, alrededor del 77% de la soja se destina a pienso (aves, cerdos y acuicultura). En la Amazonía brasileña el principal motor ha sido el pastoreo; la soja pesa más en el Cerrado.",
     color: "#f59e0b"
   },
   {

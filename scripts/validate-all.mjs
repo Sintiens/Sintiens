@@ -7,7 +7,7 @@
 //
 // Severidad: ERROR (exit 1) = id huérfano total, no existe en ningún dataset.
 // WARN = resuelve en un dataset distinto al esperado (ej. connection a glosario).
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const errors = [];
@@ -148,6 +148,78 @@ for (const [name, raw] of Object.entries(EVIDENCE_FILES)) {
     warnings.push(
       `${name}: ${n} citas a Wikipedia/Google Books — migrar datos factuales a DOI/primaria (obras clásicas OK)`
     );
+  }
+}
+
+// --- 8. CIFRAS: integridad de la capa de fuentes ---
+const sourcesRaw = read("src/data/cifras/scientificSources.ts");
+const sourceIds = new Set(
+  [...sourcesRaw.matchAll(/\bid:\s+"([a-z0-9-]+)"/g)].map((m) => m[1])
+);
+const declaredSourceIds = new Set(
+  [...sourcesRaw.matchAll(/SOURCE_IDS\s*=\s*\[([\s\S]*?)\]/g)].flatMap((m) =>
+    [...m[1].matchAll(/"([a-z0-9-]+)"/g)].map((x) => x[1])
+  )
+);
+for (const id of declaredSourceIds) {
+  if (!sourceIds.has(id)) errors.push(`cifras.SOURCE_IDS: "${id}" no tiene ficha en SCIENTIFIC_SOURCES`);
+}
+const usedSourceIds = new Set();
+for (const file of readdirSync(resolve("src/components/cifras")).filter((f) => f.endsWith(".tsx"))) {
+  const raw = read(`src/components/cifras/${file}`);
+  for (const m of raw.matchAll(/sourceId="([^"]+)"/g)) {
+    usedSourceIds.add(m[1]);
+    if (!sourceIds.has(m[1])) errors.push(`cifras/${file}: sourceId "${m[1]}" no existe en SCIENTIFIC_SOURCES`);
+  }
+  for (const m of raw.matchAll(/sourceId=\{([\s\S]*?)\}/g)) {
+    // Referencias indirectas (p. ej. sourceId={perfil.scientificCitationId}) se validan
+    // escaneando los propios ficheros de datos más abajo.
+    const found = [...m[1].matchAll(/"([a-z0-9-]+)"/g)]
+      .map((x) => x[1])
+      .filter((id) => id.includes("-") && /\d/.test(id));
+    for (const id of found) {
+      usedSourceIds.add(id);
+      if (!sourceIds.has(id)) errors.push(`cifras/${file}: sourceId "${id}" no existe en SCIENTIFIC_SOURCES`);
+    }
+  }
+}
+for (const file of ["confinementData.ts", "broilerEvolutionData.ts"]) {
+  const raw = read(`src/data/cifras/${file}`);
+  for (const m of raw.matchAll(/scientificCitationId:\s*"([^"]+)"/g)) {
+    usedSourceIds.add(m[1]);
+    if (!sourceIds.has(m[1])) errors.push(`cifras/${file}: scientificCitationId "${m[1]}" no existe en SCIENTIFIC_SOURCES`);
+  }
+}
+for (const id of sourceIds) {
+  if (!usedSourceIds.has(id)) warnings.push(`cifras.scientificSources: "${id}" no se usa en ningún componente`);
+}
+for (const m of sourcesRaw.matchAll(/doi:\s*"([^"]+)"/g)) {
+  if (!/^10\.\d{4,9}\/\S+$/.test(m[1])) errors.push(`cifras.scientificSources: DOI con formato inválido "${m[1]}"`);
+}
+
+// --- 9. CIFRAS: sumas internas y canónicos ---
+const ecoRaw = read("src/data/cifras/ecologicalData.ts");
+const deforPercents = [...ecoRaw.matchAll(/sharePercent:\s*([\d.]+)/g)].map((m) => Number(m[1]));
+if (deforPercents.length) {
+  const sum = deforPercents.reduce((a, b) => a + b, 0);
+  if (Math.abs(sum - 100) > 0.1) errors.push(`ecologicalData: los sharePercent de deforestación suman ${sum.toFixed(1)} (≠100)`);
+}
+const mainPercents = [...ecoRaw.matchAll(/id:\s*"(livestock|humans|wild_mammals)"[\s\S]*?percent:\s*([\d.]+)/g)].map((m) => Number(m[2]));
+if (mainPercents.length === 3) {
+  const sum = mainPercents.reduce((a, b) => a + b, 0);
+  if (Math.abs(sum - 100) > 0.1) errors.push(`ecologicalData: biomasa de mamíferos suma ${sum.toFixed(1)} (≠100)`);
+}
+const canonCifras = {
+  "DataSection.tsx": read("src/components/DataSection.tsx"),
+  "ecologicalData.ts": ecoRaw,
+  "trophicData.ts": read("src/data/cifras/trophicData.ts")
+};
+for (const [name, raw] of Object.entries(canonCifras)) {
+  for (const m of raw.matchAll(/\b(7[67]|8[02])\s?%([^"'\n]{0,90})/g)) {
+    const ctx = m[2].toLowerCase();
+    if (/(tierra|suelo|agrícola|agricola|pastor|forraje)/.test(ctx)) {
+      warnings.push(`${name}: "${m[1]}%" junto a tierra/suelo — el canónico Poore 2018 es 83%`);
+    }
   }
 }
 

@@ -14,8 +14,39 @@ import {
   type FoodEnvironmentalMetric
 } from "../../data/cifras/foodMatrixData";
 import ScientificEvidenceModal from "./ScientificEvidenceModal";
+import { formatEs } from "../../utils/format";
 
 type NormalizationMode = "per_kg" | "per_100g_protein";
+
+interface ColumnDef {
+  field: keyof FoodEnvironmentalMetric;
+  label: string;
+  unitKg: string;
+  unitProt: string;
+}
+
+const COLUMNS: ColumnDef[] = [
+  { field: "ghgKgCO2eqPerKg", label: "GEI", unitKg: "kg CO₂eq/kg", unitProt: "kg CO₂eq/100 g prot" },
+  { field: "landM2PerKg", label: "Suelo", unitKg: "m²/kg", unitProt: "m²/100 g prot" },
+  { field: "waterLitresPerKg", label: "Agua dulce", unitKg: "L/kg", unitProt: "L/100 g prot" },
+  { field: "eutrophicationGramsPO4eqPerKg", label: "Eutrofización", unitKg: "g PO₄eq/kg", unitProt: "g PO₄eq/100 g prot" }
+];
+
+function resolveSortField(field: keyof FoodEnvironmentalMetric, mode: NormalizationMode): keyof FoodEnvironmentalMetric {
+  if (mode === "per_kg") return field;
+  switch (field) {
+    case "ghgKgCO2eqPerKg":
+      return "ghgKgCO2eqPer100gProt";
+    case "landM2PerKg":
+      return "landM2Per100gProt";
+    case "waterLitresPerKg":
+      return "waterLitresPer100gProt";
+    case "eutrophicationGramsPO4eqPerKg":
+      return "eutrophicationGramsPO4eqPer100gProt";
+    default:
+      return field;
+  }
+}
 
 export default function FoodEnvironmentalMatrix() {
   const [activeTab, setActiveTab] = useState<"matrix" | "diet_simulator">("matrix");
@@ -28,27 +59,17 @@ export default function FoodEnvironmentalMatrix() {
 
   // Diet Swap Simulator States
   const [replaceFoodId, setReplaceFoodId] = useState<string>("beef_pasture");
-  const [withFoodId, setWithFoodId] = useState<string>("tofu");
+  const [withFoodId, setWithFoodId] = useState<string>("tofu_soy");
   const [weeklyGrams, setWeeklyGrams] = useState<number>(300);
 
   // Filtered and sorted data for matrix
   const filteredData = useMemo(() => {
+    const field = resolveSortField(sortField, normalizationMode);
     return MASTER_FOOD_MATRIX.filter((item) => {
       const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory = selectedCategory === "all" || item.category === selectedCategory;
       return matchesSearch && matchesCategory;
     }).sort((a, b) => {
-      const field =
-        normalizationMode === "per_kg"
-          ? sortField
-          : sortField === "ghgKgCO2eqPerKg"
-          ? "ghgKgCO2eqPer100gProt"
-          : sortField === "landM2PerKg"
-          ? "landM2Per100gProt"
-          : sortField === "waterLitresPerKg"
-          ? "waterLitresPer100gProt"
-          : "eutrophicationGramsPO4eqPer100gProt";
-
       const valA = (a[field] as number) ?? 0;
       const valB = (b[field] as number) ?? 0;
       return sortAscending ? valA - valB : valB - valA;
@@ -64,24 +85,31 @@ export default function FoodEnvironmentalMatrix() {
     }
   };
 
-  // CSV Export
+  const sortDirection = (field: keyof FoodEnvironmentalMetric): "ascending" | "descending" | "none" => {
+    if (sortField !== field) return "none";
+    return sortAscending ? "ascending" : "descending";
+  };
+
+  // CSV Export — matriz completa con BOM para Excel es-ES
   const handleExportCsv = () => {
     const headers = [
       "Alimento",
       "Categoría",
+      "Proteína (g/kg)",
       "GEI (kg CO2eq/kg)",
       "Tierra (m2/kg)",
       "Agua (L/kg)",
       "Eutrofización (g PO4eq/kg)",
-      "GEI (kg CO2eq/100g Prot)",
-      "Tierra (m2/100g Prot)",
-      "Agua (L/100g Prot)",
-      "Eutrofización (g PO4eq/100g Prot)"
+      "GEI (kg CO2eq/100g prot)",
+      "Tierra (m2/100g prot)",
+      "Agua (L/100g prot)",
+      "Eutrofización (g PO4eq/100g prot)"
     ];
 
-    const rows = filteredData.map((f) => [
+    const rows = MASTER_FOOD_MATRIX.map((f) => [
       `"${f.name}"`,
       `"${f.categoryLabel}"`,
+      f.proteinGramsPerKg,
       f.ghgKgCO2eqPerKg,
       f.landM2PerKg,
       f.waterLitresPerKg,
@@ -92,30 +120,39 @@ export default function FoodEnvironmentalMatrix() {
       f.eutrophicationGramsPO4eqPer100gProt
     ]);
 
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
-    const encodedUri = encodeURI(csvContent);
+    const csvContent = [headers.join(";"), ...rows.map((e) => e.join(";"))].join("\n");
+    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `sintiens_food_matrix_${normalizationMode}.csv`);
+    link.setAttribute("href", url);
+    link.setAttribute("download", "sintiens_matriz_alimentos_completa.csv");
     document.body.appendChild(link);
     link.click();
     link.remove();
+    URL.revokeObjectURL(url);
   };
 
   // Diet Swap Calculation (Annual)
   const replaceItem = MASTER_FOOD_MATRIX.find((f) => f.id === replaceFoodId) || MASTER_FOOD_MATRIX[0]!;
-  const withItem = MASTER_FOOD_MATRIX.find((f) => f.id === withFoodId) || MASTER_FOOD_MATRIX.find((f) => f.id === "tofu") || MASTER_FOOD_MATRIX[0]!;
+  const withItem = MASTER_FOOD_MATRIX.find((f) => f.id === withFoodId) || MASTER_FOOD_MATRIX.find((f) => f.id === "tofu_soy") || MASTER_FOOD_MATRIX[0]!;
 
   const annualKg = (weeklyGrams * 52) / 1000;
-  const savedGhgKg = Math.max(0, (replaceItem.ghgKgCO2eqPerKg - withItem.ghgKgCO2eqPerKg) * annualKg);
-  const savedLandM2 = Math.max(0, (replaceItem.landM2PerKg - withItem.landM2PerKg) * annualKg);
-  const savedWaterL = Math.max(0, (replaceItem.waterLitresPerKg - withItem.waterLitresPerKg) * annualKg);
-  const savedEutrophG = Math.max(0, (replaceItem.eutrophicationGramsPO4eqPerKg - withItem.eutrophicationGramsPO4eqPerKg) * annualKg);
+  const diffGhgKg = (replaceItem.ghgKgCO2eqPerKg - withItem.ghgKgCO2eqPerKg) * annualKg;
+  const diffLandM2 = (replaceItem.landM2PerKg - withItem.landM2PerKg) * annualKg;
+  const diffWaterL = (replaceItem.waterLitresPerKg - withItem.waterLitresPerKg) * annualKg;
+  const diffEutrophG = (replaceItem.eutrophicationGramsPO4eqPerKg - withItem.eutrophicationGramsPO4eqPerKg) * annualKg;
+  const savedGhgKg = Math.max(0, diffGhgKg);
+  const savedLandM2 = Math.max(0, diffLandM2);
+  const savedWaterL = Math.max(0, diffWaterL);
+  const savedEutrophG = Math.max(0, diffEutrophG);
+  const increasesAnyImpact = diffGhgKg < 0 || diffLandM2 < 0 || diffWaterL < 0 || diffEutrophG < 0;
 
   // Equivalences
-  const carKmEquivalent = Math.round(savedGhgKg / 0.192); // 192g CO2/km average gasoline car
-  const tennisCourtsEquivalent = (savedLandM2 / 260).toFixed(1); // 260 m2 per tennis court
+  const carKmEquivalent = Math.round(savedGhgKg / 0.192); // 192 g CO2/km average gasoline car
+  const tennisCourtsEquivalent = formatEs(savedLandM2 / 260, 1); // 260 m2 per tennis court
   const showersEquivalent = Math.round(savedWaterL / 65); // 65 L per 8-minute shower
+
+  const unitFor = (col: ColumnDef) => (normalizationMode === "per_kg" ? col.unitKg : col.unitProt);
 
   return (
     <div className="w-full bg-surface dark:bg-zinc-900/60 rounded-2xl border border-outline-variant/30 dark:border-zinc-800 p-6 sm:p-8 space-y-6 text-left relative overflow-hidden shadow-sm">
@@ -124,7 +161,7 @@ export default function FoodEnvironmentalMatrix() {
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-mono font-bold tracking-widest text-primary dark:text-emerald-400 uppercase bg-primary/10 dark:bg-emerald-500/10 px-2 py-0.5 rounded border border-primary/20">
-              MATRIZ COMPARATIVA Y SIMULADOR · EXHIBIT VIII
+              MATRIZ COMPARATIVA Y SIMULADOR · EXHIBIT X
             </span>
             <span className="text-xs font-mono text-on-surface-variant/60">
               Metaanálisis Science (Poore & Nemecek 2018)
@@ -134,7 +171,7 @@ export default function FoodEnvironmentalMatrix() {
             Matriz Multidimensional de Impacto Ambiental de los Alimentos
           </h3>
           <p className="text-xs sm:text-sm text-on-surface-variant max-w-2xl">
-            Comparativa de más de 20 alimentos en cuatro dimensiones biofísicas con normalización dual y simulador de ahorro anual por sustitución dietética.
+            Comparativa de {MASTER_FOOD_MATRIX.length} alimentos en cuatro dimensiones biofísicas con normalización dual y simulador de ahorro anual por sustitución dietética.
           </p>
         </div>
 
@@ -147,8 +184,10 @@ export default function FoodEnvironmentalMatrix() {
       </div>
 
       {/* Main Tab Switcher */}
-      <div className="flex items-center gap-2 border-b border-outline-variant/20 dark:border-zinc-800 pb-2">
+      <div role="tablist" aria-label="Vistas de la matriz alimentaria" className="flex flex-wrap items-center gap-2 border-b border-outline-variant/20 dark:border-zinc-800 pb-2">
         <button
+          role="tab"
+          aria-selected={activeTab === "matrix"}
           onClick={() => setActiveTab("matrix")}
           className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
             activeTab === "matrix"
@@ -159,6 +198,8 @@ export default function FoodEnvironmentalMatrix() {
           <TableIcon className="w-3.5 h-3.5" /> Matriz Completa de Alimentos
         </button>
         <button
+          role="tab"
+          aria-selected={activeTab === "diet_simulator"}
           onClick={() => setActiveTab("diet_simulator")}
           className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
             activeTab === "diet_simulator"
@@ -177,13 +218,14 @@ export default function FoodEnvironmentalMatrix() {
           <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 bg-surface-dim/40 dark:bg-zinc-800/40 p-4 rounded-xl border border-outline-variant/20 dark:border-zinc-800">
             {/* Search Input */}
             <div className="relative flex-1">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60" />
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60" aria-hidden="true" />
               <input
                 type="text"
+                aria-label="Buscar alimento en la matriz"
                 placeholder="Buscar alimento (ej. ternera, tofu, leche, lentejas)..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 bg-surface dark:bg-zinc-900 border border-outline-variant/30 rounded-xl text-xs font-sans focus:outline-none focus:border-primary text-on-surface placeholder:text-on-surface-variant/50"
+                className="w-full pl-9 pr-4 py-2 bg-surface dark:bg-zinc-900 border border-outline-variant/30 rounded-xl text-base sm:text-xs font-sans focus:outline-none focus:border-primary text-on-surface placeholder:text-on-surface-variant/50"
               />
             </div>
 
@@ -191,6 +233,7 @@ export default function FoodEnvironmentalMatrix() {
             <div className="flex items-center gap-1 bg-surface dark:bg-zinc-900 p-1 rounded-xl border border-outline-variant/20">
               <button
                 onClick={() => setNormalizationMode("per_kg")}
+                aria-pressed={normalizationMode === "per_kg"}
                 className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
                   normalizationMode === "per_kg"
                     ? "bg-primary text-on-primary shadow-xs"
@@ -201,6 +244,7 @@ export default function FoodEnvironmentalMatrix() {
               </button>
               <button
                 onClick={() => setNormalizationMode("per_100g_protein")}
+                aria-pressed={normalizationMode === "per_100g_protein"}
                 className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
                   normalizationMode === "per_100g_protein"
                     ? "bg-primary text-on-primary shadow-xs"
@@ -216,7 +260,7 @@ export default function FoodEnvironmentalMatrix() {
               onClick={handleExportCsv}
               className="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-surface dark:bg-zinc-900 hover:bg-surface-dim text-xs font-mono font-bold rounded-xl border border-outline-variant/30 text-on-surface transition-all cursor-pointer"
             >
-              <Download className="w-3.5 h-3.5 text-primary" /> Descargar CSV
+              <Download className="w-3.5 h-3.5 text-primary" /> Descargar CSV (matriz completa)
             </button>
           </div>
 
@@ -224,6 +268,7 @@ export default function FoodEnvironmentalMatrix() {
           <div className="flex items-center gap-1.5 flex-wrap">
             <button
               onClick={() => setSelectedCategory("all")}
+              aria-pressed={selectedCategory === "all"}
               className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
                 selectedCategory === "all"
                   ? "bg-on-surface text-surface dark:bg-white dark:text-zinc-950 shadow-xs"
@@ -238,6 +283,7 @@ export default function FoodEnvironmentalMatrix() {
                 <button
                   key={key}
                   onClick={() => setSelectedCategory(key)}
+                  aria-pressed={selectedCategory === key}
                   className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
                     selectedCategory === key
                       ? "bg-on-surface text-surface dark:bg-white dark:text-zinc-950 shadow-xs"
@@ -253,48 +299,39 @@ export default function FoodEnvironmentalMatrix() {
           {/* Table Container */}
           <div className="overflow-x-auto rounded-2xl border border-outline-variant/30 dark:border-zinc-800 bg-surface dark:bg-zinc-900">
             <table className="w-full text-left text-xs font-sans border-collapse">
+              <caption className="sr-only">
+                Matriz de impacto ambiental por alimento. Los valores «por 100 g de proteína» usan la proteína en crudo/seco (FAO INFOODS vía Our World in Data).
+              </caption>
               <thead>
                 <tr className="bg-surface-dim/50 dark:bg-zinc-800/60 border-b border-outline-variant/20 dark:border-zinc-800 text-[11px] font-mono uppercase tracking-wider text-on-surface-variant">
-                  <th className="py-3.5 px-4 font-bold">Alimento</th>
-                  <th
-                    onClick={() => handleSort("ghgKgCO2eqPerKg")}
-                    className="py-3.5 px-4 text-right cursor-pointer hover:text-on-surface select-none"
-                  >
-                    <div className="inline-flex items-center gap-1">
-                      <span>GEI (kg CO₂eq)</span>
-                      <ArrowUpDown className="w-3 h-3" />
-                    </div>
-                  </th>
-                  <th
-                    onClick={() => handleSort("landM2PerKg")}
-                    className="py-3.5 px-4 text-right cursor-pointer hover:text-on-surface select-none"
-                  >
-                    <div className="inline-flex items-center gap-1">
-                      <span>Suelo (m²)</span>
-                      <ArrowUpDown className="w-3 h-3" />
-                    </div>
-                  </th>
-                  <th
-                    onClick={() => handleSort("waterLitresPerKg")}
-                    className="py-3.5 px-4 text-right cursor-pointer hover:text-on-surface select-none"
-                  >
-                    <div className="inline-flex items-center gap-1">
-                      <span>Agua dulce (L)</span>
-                      <ArrowUpDown className="w-3 h-3" />
-                    </div>
-                  </th>
-                  <th
-                    onClick={() => handleSort("eutrophicationGramsPO4eqPerKg")}
-                    className="py-3.5 px-4 text-right cursor-pointer hover:text-on-surface select-none"
-                  >
-                    <div className="inline-flex items-center gap-1">
-                      <span>Eutrofización (g PO₄)</span>
-                      <ArrowUpDown className="w-3 h-3" />
-                    </div>
-                  </th>
+                  <th scope="col" className="py-3.5 px-4 font-bold sticky left-0 bg-surface-dim/95 dark:bg-zinc-800/95 backdrop-blur-xs z-10 shadow-[1px_0_0_0_rgba(0,0,0,0.06)] dark:shadow-[1px_0_0_0_rgba(255,255,255,0.06)]">Alimento</th>
+                  {COLUMNS.map((col) => (
+                    <th
+                      key={col.field}
+                      scope="col"
+                      aria-sort={sortDirection(col.field)}
+                      className="py-3.5 px-4 text-right"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => handleSort(col.field)}
+                        className="inline-flex items-center gap-1 cursor-pointer hover:text-on-surface select-none rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+                      >
+                        <span>{col.label} ({unitFor(col)})</span>
+                        <ArrowUpDown className="w-3 h-3" aria-hidden="true" />
+                      </button>
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-outline-variant/10 dark:divide-zinc-800/60 font-mono">
+                {filteredData.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="py-8 px-4 text-center text-xs font-sans text-on-surface-variant">
+                      Sin resultados para «{searchTerm}». Prueba con otro término o cambia de categoría.
+                    </td>
+                  </tr>
+                )}
                 {filteredData.map((item) => {
                   const ghg = normalizationMode === "per_kg" ? item.ghgKgCO2eqPerKg : item.ghgKgCO2eqPer100gProt;
                   const land = normalizationMode === "per_kg" ? item.landM2PerKg : item.landM2Per100gProt;
@@ -306,26 +343,27 @@ export default function FoodEnvironmentalMatrix() {
                       key={item.id}
                       className="hover:bg-surface-dim/40 dark:hover:bg-zinc-800/40 transition-colors"
                     >
-                      <td className="py-3 px-4 font-sans font-semibold text-on-surface">
+                      <td className="py-3 px-4 font-sans font-semibold text-on-surface sticky left-0 bg-surface/95 dark:bg-zinc-900/95 backdrop-blur-xs z-10 shadow-[1px_0_0_0_rgba(0,0,0,0.06)] dark:shadow-[1px_0_0_0_rgba(255,255,255,0.06)]">
                         <div className="flex items-center gap-2">
                           <span
                             className="w-2 h-2 rounded-full shrink-0"
+                            aria-hidden="true"
                             style={{ backgroundColor: FOOD_CATEGORIES_INFO[item.category].color }}
                           />
-                          <span>{item.name}</span>
+                          <span className="whitespace-nowrap">{item.name}</span>
                         </div>
                       </td>
                       <td className={`py-3 px-4 text-right font-bold ${ghg > 20 ? "text-red-600 dark:text-red-400" : ghg < 2 ? "text-emerald-600 dark:text-emerald-400" : "text-on-surface"}`}>
-                        {ghg.toFixed(2)}
+                        {formatEs(ghg, 2)}
                       </td>
                       <td className={`py-3 px-4 text-right ${land > 50 ? "text-red-600 dark:text-red-400 font-bold" : "text-on-surface"}`}>
-                        {land.toFixed(1)}
+                        {formatEs(land, 1)}
                       </td>
                       <td className="py-3 px-4 text-right text-on-surface">
-                        {water.toLocaleString("es-ES")}
+                        {formatEs(water, 1)}
                       </td>
                       <td className={`py-3 px-4 text-right ${eutro > 50 ? "text-red-600 dark:text-red-400 font-bold" : "text-on-surface"}`}>
-                        {eutro.toFixed(1)}
+                        {formatEs(eutro, 1)}
                       </td>
                     </tr>
                   );
@@ -333,6 +371,11 @@ export default function FoodEnvironmentalMatrix() {
               </tbody>
             </table>
           </div>
+          <p className="text-[11px] font-mono text-on-surface-variant/70">
+            {normalizationMode === "per_kg"
+              ? "Valores por kilogramo de producto (Poore & Nemecek 2018, procesado por Our World in Data)."
+              : "Valores por 100 g de proteína; base proteica en crudo/seco (FAO INFOODS vía Our World in Data)."}
+          </p>
         </div>
       )}
 
@@ -344,7 +387,7 @@ export default function FoodEnvironmentalMatrix() {
               Simulador de Ahorro Ecológico Individual por Sustitución Semanal
             </h4>
             <p className="text-xs text-on-surface-variant">
-              Calcula exactamente cuánto impacto ambiental ahorras al año al sustituir una ración semanal de carne o lácteos por una opción vegetal.
+              Calcula cuánto impacto ambiental ahorras al año al sustituir una ración semanal de carne o lácteos por una opción vegetal.
             </p>
           </div>
 
@@ -352,17 +395,18 @@ export default function FoodEnvironmentalMatrix() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 bg-surface-dim/40 dark:bg-zinc-800/40 rounded-2xl border border-outline-variant/20 dark:border-zinc-800">
             {/* 1. What you replace */}
             <div className="space-y-1.5">
-              <label className="text-xs font-mono uppercase tracking-wider text-red-600 dark:text-red-400 font-bold block">
+              <label htmlFor="replace-food" className="text-xs font-mono uppercase tracking-wider text-red-600 dark:text-red-400 font-bold block">
                 1. Alimento a sustituir:
               </label>
               <select
+                id="replace-food"
                 value={replaceFoodId}
                 onChange={(e) => setReplaceFoodId(e.target.value)}
-                className="w-full px-3 py-2 bg-surface dark:bg-zinc-900 border border-outline-variant/30 rounded-xl text-xs font-sans text-on-surface cursor-pointer"
+                className="w-full px-3 py-2 bg-surface dark:bg-zinc-900 border border-outline-variant/30 rounded-xl text-base sm:text-xs font-sans text-on-surface cursor-pointer"
               >
                 {MASTER_FOOD_MATRIX.filter((f) => f.category === "ruminant" || f.category === "non_ruminant" || f.category === "dairy_eggs").map((f) => (
                   <option key={f.id} value={f.id}>
-                    {f.name} ({f.ghgKgCO2eqPerKg} kg CO₂/kg)
+                    {f.name} ({formatEs(f.ghgKgCO2eqPerKg, 1)} kg CO₂/kg)
                   </option>
                 ))}
               </select>
@@ -370,18 +414,22 @@ export default function FoodEnvironmentalMatrix() {
 
             {/* 2. Amount per week */}
             <div className="space-y-1.5">
-              <label className="text-xs font-mono uppercase tracking-wider text-primary font-bold block">
+              <label htmlFor="weekly-grams" className="text-xs font-mono uppercase tracking-wider text-primary font-bold block">
                 2. Cantidad semanal:
               </label>
               <div className="flex items-center gap-2">
                 <input
+                  id="weekly-grams"
                   type="number"
                   min={50}
                   max={2000}
                   step={50}
                   value={weeklyGrams}
-                  onChange={(e) => setWeeklyGrams(Math.max(50, Number(e.target.value)))}
-                  className="w-full px-3 py-2 bg-surface dark:bg-zinc-900 border border-outline-variant/30 rounded-xl text-xs font-mono font-bold text-on-surface text-center"
+                  onChange={(e) => {
+                    const n = Number(e.target.value);
+                    setWeeklyGrams(Number.isFinite(n) ? Math.min(2000, Math.max(50, n)) : 50);
+                  }}
+                  className="w-full px-3 py-2 bg-surface dark:bg-zinc-900 border border-outline-variant/30 rounded-xl text-base sm:text-xs font-mono font-bold text-on-surface text-center"
                 />
                 <span className="text-xs font-mono text-on-surface-variant shrink-0">gramos/sem</span>
               </div>
@@ -389,27 +437,34 @@ export default function FoodEnvironmentalMatrix() {
 
             {/* 3. Replaced with */}
             <div className="space-y-1.5">
-              <label className="text-xs font-mono uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-bold block">
+              <label htmlFor="with-food" className="text-xs font-mono uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-bold block">
                 3. Sustituir por:
               </label>
               <select
+                id="with-food"
                 value={withFoodId}
                 onChange={(e) => setWithFoodId(e.target.value)}
-                className="w-full px-3 py-2 bg-surface dark:bg-zinc-900 border border-outline-variant/30 rounded-xl text-xs font-sans text-on-surface cursor-pointer"
+                className="w-full px-3 py-2 bg-surface dark:bg-zinc-900 border border-outline-variant/30 rounded-xl text-base sm:text-xs font-sans text-on-surface cursor-pointer"
               >
                 {MASTER_FOOD_MATRIX.filter((f) => f.category === "plant_protein" || f.category === "plant_staple").map((f) => (
                   <option key={f.id} value={f.id}>
-                    {f.name} ({f.ghgKgCO2eqPerKg} kg CO₂/kg)
+                    {f.name} ({formatEs(f.ghgKgCO2eqPerKg, 1)} kg CO₂/kg)
                   </option>
                 ))}
               </select>
             </div>
           </div>
 
+          {increasesAnyImpact && (
+            <div className="p-3 rounded-xl border border-amber-500/30 bg-amber-500/10 text-xs font-mono text-amber-700 dark:text-amber-400">
+              ⚠️ Esta combinación aumenta el impacto en al menos un indicador; se muestran solo los ahorros netos positivos.
+            </div>
+          )}
+
           {/* Results Grid */}
           <div className="space-y-3">
             <span className="text-xs font-mono uppercase tracking-widest text-on-surface-variant font-bold block">
-              Tu Ahorro Ecológico Neto Cada Año ({annualKg.toFixed(1)} kg consumidos):
+              Tu Ahorro Ecológico Neto Cada Año ({formatEs(annualKg, 1)} kg consumidos):
             </span>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -419,10 +474,10 @@ export default function FoodEnvironmentalMatrix() {
                   💨 Emisiones Evitadas
                 </span>
                 <div className="text-2xl sm:text-3xl font-mono font-black text-emerald-600 dark:text-emerald-400">
-                  {Math.round(savedGhgKg).toLocaleString("es-ES")} kg CO₂
+                  {formatEs(Math.round(savedGhgKg))} kg CO₂
                 </div>
                 <p className="text-xs text-on-surface-variant font-sans">
-                  ≈ {carKmEquivalent.toLocaleString("es-ES")} km en coche de gasolina no conducidos
+                  ≈ {formatEs(carKmEquivalent)} km en coche de gasolina no conducidos
                 </p>
               </div>
 
@@ -432,7 +487,7 @@ export default function FoodEnvironmentalMatrix() {
                   🌲 Suelo Ahorrado
                 </span>
                 <div className="text-2xl sm:text-3xl font-mono font-black text-emerald-600 dark:text-emerald-400">
-                  {Math.round(savedLandM2).toLocaleString("es-ES")} m²
+                  {formatEs(Math.round(savedLandM2))} m²
                 </div>
                 <p className="text-xs text-on-surface-variant font-sans">
                   ≈ {tennisCourtsEquivalent} pistas de tenis de naturaleza devuelta
@@ -445,10 +500,10 @@ export default function FoodEnvironmentalMatrix() {
                   💧 Agua Dulce Ahorrada
                 </span>
                 <div className="text-2xl sm:text-3xl font-mono font-black text-emerald-600 dark:text-emerald-400">
-                  {Math.round(savedWaterL).toLocaleString("es-ES")} Litros
+                  {formatEs(Math.round(savedWaterL))} Litros
                 </div>
                 <p className="text-xs text-on-surface-variant font-sans">
-                  ≈ {showersEquivalent.toLocaleString("es-ES")} duchas completas de 8 minutos
+                  ≈ {formatEs(showersEquivalent)} duchas completas de 8 minutos
                 </p>
               </div>
 
@@ -458,7 +513,7 @@ export default function FoodEnvironmentalMatrix() {
                   🌊 Eutrofización Evitada
                 </span>
                 <div className="text-2xl sm:text-3xl font-mono font-black text-emerald-600 dark:text-emerald-400">
-                  {Math.round(savedEutrophG).toLocaleString("es-ES")} g PO₄
+                  {formatEs(Math.round(savedEutrophG))} g PO₄
                 </div>
                 <p className="text-xs text-on-surface-variant font-sans">
                   Protección de ríos y acuíferos frente a floraciones tóxicas
@@ -476,7 +531,7 @@ export default function FoodEnvironmentalMatrix() {
         onClose={() => setIsModalOpen(false)}
         rawDataset={{
           normalizationMode,
-          foodMatrix: filteredData
+          foodMatrix: MASTER_FOOD_MATRIX
         }}
         datasetName="food_environmental_matrix"
       />

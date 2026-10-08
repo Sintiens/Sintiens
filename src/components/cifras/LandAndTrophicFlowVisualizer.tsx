@@ -8,6 +8,7 @@ import {
   type TrophicEfficiencyItem
 } from "../../data/cifras/trophicData";
 import ScientificEvidenceModal from "./ScientificEvidenceModal";
+import { formatEs } from "../../utils/format";
 
 export default function LandAndTrophicFlowVisualizer() {
   const [selectedProductIndex, setSelectedProductIndex] = useState<number>(0);
@@ -17,14 +18,32 @@ export default function LandAndTrophicFlowVisualizer() {
 
   const inputCalories = 100;
   const currentProduct: TrophicEfficiencyItem = TROPHIC_EFFICIENCY_DATA[selectedProductIndex] || TROPHIC_EFFICIENCY_DATA[0]!;
-  const retainedCalories = ((inputCalories * currentProduct.caloricEfficiencyPercent) / 100).toFixed(1);
-  const lostCalories = (inputCalories - Number(retainedCalories)).toFixed(1);
+  const retainedCaloriesNum = (inputCalories * currentProduct.caloricEfficiencyPercent) / 100;
+  const retainedCalories = formatEs(retainedCaloriesNum, 1);
+  const lostCaloriesNum = inputCalories - retainedCaloriesNum;
+  const lostCalories = formatEs(lostCaloriesNum, 1);
 
-  // Rewilding continuous calculations
-  // Max at 100% shift: 3100 million ha, 547 Gt CO2 (Hayek et al. 2021 / Poore & Nemecek 2018)
-  const calcLandFreedMha = Math.round((rewildingPercent / 100) * 3100);
-  const calcCo2CapturedGt = Math.round((rewildingPercent / 100) * 547);
-  const calcFossilYearsOffset = ((calcCo2CapturedGt / 37.0)).toFixed(1); // 37 Gt CO2 annual global emissions
+  // Escenarios de rewilding: interpolación entre los hitos de REWILDING_SCENARIOS
+  // (25/50/75/100% → tierra liberada y CO₂ capturado), no un simple escalado lineal.
+  const interpolateScenario = (percent: number, key: "landFreedMillionHa" | "co2SequestrationGt"): number => {
+    const points = [...REWILDING_SCENARIOS].sort((a, b) => a.shiftPercent - b.shiftPercent);
+    const first = points[0];
+    if (!first) return 0;
+    if (percent <= first.shiftPercent) return Math.round((first[key] * percent) / first.shiftPercent);
+    for (let i = 1; i < points.length; i++) {
+      const a = points[i - 1]!;
+      const b = points[i]!;
+      if (percent <= b.shiftPercent) {
+        const t = (percent - a.shiftPercent) / (b.shiftPercent - a.shiftPercent);
+        return Math.round(a[key] + t * (b[key] - a[key]));
+      }
+    }
+    return points[points.length - 1]![key];
+  };
+
+  const calcLandFreedMha = interpolateScenario(rewildingPercent, "landFreedMillionHa");
+  const calcCo2CapturedGt = interpolateScenario(rewildingPercent, "co2SequestrationGt");
+  const calcFossilYearsOffset = formatEs(calcCo2CapturedGt / 37.0, 1); // 37 Gt CO2 annual global emissions
 
   return (
     <div className="w-full bg-surface dark:bg-zinc-900/60 rounded-2xl border border-outline-variant/30 dark:border-zinc-800 p-6 sm:p-8 space-y-8 text-left relative overflow-hidden shadow-sm">
@@ -33,7 +52,7 @@ export default function LandAndTrophicFlowVisualizer() {
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-mono font-bold tracking-widest text-primary dark:text-emerald-400 uppercase bg-primary/10 dark:bg-emerald-500/10 px-2 py-0.5 rounded border border-primary/20">
-              TERMODINÁMICA Y EFICIENCIA TRÓFICA · EXHIBIT VII
+              TERMODINÁMICA Y EFICIENCIA TRÓFICA · EXHIBIT VIII
             </span>
             <span className="text-xs font-mono text-on-surface-variant/60">
               Science (2018) & Nature Sustainability (2021)
@@ -56,8 +75,10 @@ export default function LandAndTrophicFlowVisualizer() {
       </div>
 
       {/* Sub Tabs */}
-      <div className="flex items-center gap-2 border-b border-outline-variant/20 dark:border-zinc-800 pb-2">
+      <div role="tablist" aria-label="Vistas de termodinámica y suelo" className="flex flex-wrap items-center gap-2 border-b border-outline-variant/20 dark:border-zinc-800 pb-2">
         <button
+          role="tab"
+          aria-selected={activeSubTab === "trophic_loss"}
           onClick={() => setActiveSubTab("trophic_loss")}
           className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
             activeSubTab === "trophic_loss"
@@ -68,6 +89,8 @@ export default function LandAndTrophicFlowVisualizer() {
           <Zap className="w-3.5 h-3.5" /> Disipación Calórica por Especie
         </button>
         <button
+          role="tab"
+          aria-selected={activeSubTab === "harvest_flow"}
           onClick={() => setActiveSubTab("harvest_flow")}
           className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
             activeSubTab === "harvest_flow"
@@ -78,6 +101,8 @@ export default function LandAndTrophicFlowVisualizer() {
           <PieChart className="w-3.5 h-3.5" /> Destino de la Cosecha Mundial
         </button>
         <button
+          role="tab"
+          aria-selected={activeSubTab === "rewilding"}
           onClick={() => setActiveSubTab("rewilding")}
           className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
             activeSubTab === "rewilding"
@@ -154,22 +179,22 @@ export default function LandAndTrophicFlowVisualizer() {
 
             {/* Visual Loss Bar */}
             <div className="space-y-2 pt-2">
-              <div className="h-8 w-full rounded-xl overflow-hidden flex shadow-inner bg-zinc-950 p-1 border border-zinc-800">
+              <div className="h-8 w-full rounded-xl overflow-hidden flex bg-surface-dim p-1 border border-outline-variant">
                 <div
-                  style={{ width: `${retainedCalories}%` }}
-                  className="bg-emerald-500 rounded-l-lg transition-all duration-500 flex items-center justify-center text-[10px] font-mono font-bold text-white overflow-hidden"
+                  style={{ width: `${retainedCaloriesNum}%` }}
+                  className="bg-ch6 rounded-l-lg transition-all duration-500 flex items-center justify-center text-[10px] font-mono font-bold text-ch6-on overflow-hidden"
                 >
-                  {Number(retainedCalories) > 5 ? `${retainedCalories} kcal útiles` : ""}
+                  {retainedCaloriesNum > 5 ? `${retainedCalories} kcal útiles` : ""}
                 </div>
                 <div
-                  style={{ width: `${lostCalories}%` }}
-                  className="bg-red-600/80 rounded-r-lg transition-all duration-500 flex items-center justify-center text-[10px] font-mono font-bold text-white overflow-hidden"
+                  style={{ width: `${lostCaloriesNum}%` }}
+                  className="bg-ch1/85 rounded-r-lg transition-all duration-500 flex items-center justify-center text-[10px] font-mono font-bold text-ch1-on overflow-hidden"
                 >
-                  {lostCalories} kcal disipadas en calor y heces ({currentProduct.energyLossPercent}%)
+                  <span className="hidden sm:inline">{lostCalories} kcal disipadas en calor y heces ({currentProduct.energyLossPercent}%)</span>
                 </div>
               </div>
 
-              <div className="flex justify-between text-[11px] font-mono">
+              <div className="flex flex-col gap-1 sm:flex-row sm:justify-between text-[11px] font-mono">
                 <span className="text-emerald-600 dark:text-emerald-400 font-bold">
                   🟢 Energía comestible final: {retainedCalories} kcal ({currentProduct.caloricEfficiencyPercent}% eficiencia)
                 </span>
@@ -258,6 +283,8 @@ export default function LandAndTrophicFlowVisualizer() {
               max={100}
               step={5}
               value={rewildingPercent}
+              aria-label="Reducción global del consumo ganadero"
+              aria-valuetext={`${rewildingPercent}%`}
               onChange={(e) => setRewildingPercent(Number(e.target.value))}
               className="w-full accent-emerald-500 cursor-pointer h-2 bg-surface-dim rounded-lg"
             />
@@ -269,10 +296,10 @@ export default function LandAndTrophicFlowVisualizer() {
                   🌲 Suelo Agrícola Liberado
                 </span>
                 <span className="text-2xl font-mono font-bold text-emerald-600 dark:text-emerald-400">
-                  {calcLandFreedMha.toLocaleString("es-ES")} Mha
+                  {formatEs(calcLandFreedMha)} Mha
                 </span>
                 <span className="text-[10px] font-mono text-on-surface-variant/80 block">
-                  ({(calcLandFreedMha / 100).toFixed(1)} millones de km²)
+                  ({formatEs(calcLandFreedMha / 100, 1)} millones de km²)
                 </span>
               </div>
 

@@ -712,7 +712,7 @@ export default React.memo(function TimelineExplorer({ onRedirectToConcept }: Tim
               setLayoutView("swimlanes");
               setIsCompareMode(false);
             }}
-            className={`px-4 py-2 rounded-xl text-xs font-bold tracking-tight transition-all duration-300 cursor-pointer ${
+            className={`px-4 py-2 min-h-[40px] flex items-center justify-center rounded-xl text-xs font-bold tracking-tight transition-all duration-300 cursor-pointer ${
               layoutView === "swimlanes"
                 ? "bg-surface border border-outline-variant/30 text-on-surface shadow-sm scale-[1.01]"
                 : "text-on-surface-variant hover:text-on-surface"
@@ -722,7 +722,7 @@ export default React.memo(function TimelineExplorer({ onRedirectToConcept }: Tim
           </button>
           <button
             onClick={() => setLayoutView("detallado")}
-            className={`px-4 py-2 rounded-xl text-xs font-bold tracking-tight transition-all duration-300 cursor-pointer ${
+            className={`px-4 py-2 min-h-[40px] flex items-center justify-center rounded-xl text-xs font-bold tracking-tight transition-all duration-300 cursor-pointer ${
               layoutView === "detallado"
                 ? "bg-surface border border-outline-variant/30 text-on-surface shadow-sm scale-[1.01]"
                 : "text-on-surface-variant hover:text-on-surface"
@@ -742,7 +742,7 @@ export default React.memo(function TimelineExplorer({ onRedirectToConcept }: Tim
                 setCompareB(null);
                 setSelectedMilestone(null);
               }}
-              className={`flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold tracking-tight transition-all duration-300 cursor-pointer border ${
+              className={`flex items-center justify-center gap-2 px-4 py-2 min-h-[40px] rounded-xl text-xs font-bold tracking-tight transition-all duration-300 cursor-pointer border ${
                 isCompareMode
                   ? "bg-cyan-500/10 border-cyan-500 text-cyan-600 dark:text-cyan-400 shadow-md ring-1 ring-cyan-500/30"
                   : "bg-white dark:bg-zinc-950 hover:bg-zinc-150/40 dark:hover:bg-zinc-900 border-zinc-200 dark:border-zinc-850 text-zinc-655 dark:text-zinc-400"
@@ -762,7 +762,7 @@ export default React.memo(function TimelineExplorer({ onRedirectToConcept }: Tim
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar hito..."
               aria-label="Buscar hito en la cronología"
-              className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 focus:border-zinc-400 dark:focus:border-zinc-700 rounded-xl pl-9 pr-3 py-2 text-xs text-zinc-900 dark:text-white placeholder-zinc-450 outline-none focus:ring-1 focus:ring-zinc-300 dark:focus:ring-zinc-750 transition-all font-sans"
+              className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 focus:border-zinc-400 dark:focus:border-zinc-700 rounded-xl pl-9 pr-3 py-2 text-base sm:text-xs text-zinc-900 dark:text-white placeholder-zinc-450 outline-none focus:ring-1 focus:ring-zinc-300 dark:focus:ring-zinc-750 transition-all font-sans"
             />
           </div>
         </div>
@@ -786,7 +786,7 @@ export default React.memo(function TimelineExplorer({ onRedirectToConcept }: Tim
               <button
                 type="button"
                 onClick={() => setMobileActiveTrack("todos")}
-                className={`px-4 py-2 rounded-full text-xs font-mono font-bold tracking-tight whitespace-nowrap transition-all cursor-pointer border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${
+                className={`px-4 py-2 min-h-[40px] flex items-center justify-center rounded-full text-xs font-mono font-bold tracking-tight whitespace-nowrap transition-all cursor-pointer border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${
                   mobileActiveTrack === "todos"
                     ? "bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 border-transparent shadow-md"
                     : "bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-550 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-850"
@@ -804,7 +804,7 @@ export default React.memo(function TimelineExplorer({ onRedirectToConcept }: Tim
                     key={trackKey}
                     type="button"
                     onClick={() => setMobileActiveTrack(trackKey)}
-                    className={`px-4 py-2 rounded-full text-xs font-mono font-bold tracking-tight whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${
+                    className={`px-4 py-2 min-h-[40px] rounded-full text-xs font-mono font-bold tracking-tight whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${
                       isSelected
                         ? `${
                             trackKey === "usos" ? "bg-sky-500 text-white border-transparent shadow-md" :
@@ -926,7 +926,7 @@ export default React.memo(function TimelineExplorer({ onRedirectToConcept }: Tim
                                 }}
                                 title={`${m.title} (${m.yearLabel})`}
                                 aria-label={`Ir al hito: ${m.title} (${m.yearLabel})`}
-                                className="-m-1 w-6 h-6 flex items-center justify-center cursor-pointer rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/50"
+                                className="-m-0.5 sm:-m-1 p-2 sm:p-0 min-w-[36px] min-h-[36px] sm:min-w-0 sm:min-h-0 sm:w-6 sm:h-6 flex items-center justify-center cursor-pointer rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/50"
                               >
                                 <span
                                   aria-hidden="true"

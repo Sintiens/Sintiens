@@ -53,7 +53,7 @@ export default function MultiSpeciesConfinementVisualizer() {
       </div>
 
       {/* Species Selector Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-outline-variant/20 dark:border-zinc-800">
+      <div role="tablist" aria-label="Especies analizadas" className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-outline-variant/20 dark:border-zinc-800">
         {[
           { id: "hen", label: "Gallina Ponedora", icon: "🐔" },
           { id: "broiler_barn", label: "Pollo de Engorde en Nave", icon: "🍗" },
@@ -63,6 +63,8 @@ export default function MultiSpeciesConfinementVisualizer() {
         ].map((tab) => (
           <button
             key={tab.id}
+            role="tab"
+            aria-selected={selectedSpecies === tab.id}
             onClick={() => handleSpeciesChange(tab.id as SpeciesTab)}
             className={`px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-2 shrink-0 ${
               selectedSpecies === tab.id
@@ -70,7 +72,7 @@ export default function MultiSpeciesConfinementVisualizer() {
                 : "bg-surface-dim/40 dark:bg-zinc-800/40 text-on-surface-variant hover:text-on-surface border border-outline-variant/20"
             }`}
           >
-            <span>{tab.icon}</span> {tab.label}
+            <span aria-hidden="true">{tab.icon}</span> {tab.label}
           </button>
         ))}
       </div>
@@ -79,15 +81,16 @@ export default function MultiSpeciesConfinementVisualizer() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left: System Blueprint Canvas (7 cols) */}
         <div className="lg:col-span-7 space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
             <span className="text-xs font-mono uppercase tracking-widest text-on-surface-variant font-bold">
-              Plano Técnico a Escala: {currentSystem.name}
+              Plano Esquemático (no a escala): {currentSystem.name}
             </span>
             <div className="flex items-center gap-1.5">
               {currentProfile.systems.map((sys, idx) => (
                 <button
                   key={sys.id}
                   onClick={() => setSelectedSystemIndex(idx)}
+                  aria-pressed={selectedSystemIndex === idx}
                   className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
                     selectedSystemIndex === idx
                       ? "bg-on-surface text-surface dark:bg-white dark:text-zinc-950 shadow-xs"
@@ -101,12 +104,12 @@ export default function MultiSpeciesConfinementVisualizer() {
           </div>
 
           {/* Blueprint Display */}
-          <div className="bg-zinc-950 rounded-2xl border border-zinc-800 p-6 flex flex-col items-center justify-center min-h-[340px] relative overflow-hidden text-center shadow-inner">
+          <div className="bg-surface-dim rounded-2xl border border-outline-variant p-6 flex flex-col items-center justify-center min-h-[340px] relative overflow-hidden text-center">
             {/* Grid Pattern */}
             <div
               className="absolute inset-0 opacity-15 pointer-events-none"
               style={{
-                backgroundImage: "linear-gradient(to right, #3b82f6 1px, transparent 1px), linear-gradient(to bottom, #3b82f6 1px, transparent 1px)",
+                backgroundImage: "linear-gradient(to right, var(--ch4) 1px, transparent 1px), linear-gradient(to bottom, var(--ch4) 1px, transparent 1px)",
                 backgroundSize: "20px 20px"
               }}
             />
@@ -119,24 +122,24 @@ export default function MultiSpeciesConfinementVisualizer() {
               transition={{ duration: 0.3 }}
               className="relative border-2 border-dashed border-red-500/80 bg-red-500/10 rounded-xl p-6 flex flex-col items-center justify-center space-y-3 z-10 max-w-[280px] w-full"
             >
-              <div className="p-2 rounded-full bg-red-500/20 text-red-400">
-                <ShieldAlert className="w-6 h-6 animate-pulse" />
+              <div className="p-2 rounded-full bg-red-500/20 text-red-600 dark:text-red-400">
+                <ShieldAlert className="w-6 h-6" />
               </div>
               <div className="space-y-1">
-                <span className="text-xs font-mono font-bold text-white uppercase block">
+                <span className="text-xs font-mono font-bold text-on-surface uppercase block">
                   {currentSystem.name}
                 </span>
-                <span className="text-xs font-mono text-red-400 font-bold block">
+                <span className="text-xs font-mono text-red-700 dark:text-red-400 font-bold block">
                   {currentSystem.areaCm2OrM2}
                 </span>
-                <span className="text-[10px] font-mono text-zinc-400 block">
+                <span className="text-[10px] font-mono text-on-surface-variant block">
                   {currentSystem.densityNote}
                 </span>
               </div>
             </motion.div>
 
-            <div className="mt-4 text-[10px] font-mono text-zinc-400 z-10">
-              Estatus legal: <span className="text-zinc-300 font-bold">{currentSystem.legalStatus}</span>
+            <div className="mt-4 text-[10px] font-mono text-on-surface-variant z-10">
+              Estatus legal: <span className="text-on-surface font-bold">{currentSystem.legalStatus}</span>
             </div>
           </div>
 
@@ -160,15 +163,15 @@ export default function MultiSpeciesConfinementVisualizer() {
                   : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
               }`}
             >
-              Bienestar: {currentSystem.welfareRating} ({currentSystem.welfareScore}/10)
+              Bienestar: {({ critical: "crítico", poor: "deficiente", acceptable: "aceptable", good: "bueno", optimal: "óptimo" } as Record<string, string>)[currentSystem.welfareRating] ?? currentSystem.welfareRating} ({currentSystem.welfareScore}/10)
             </span>
           </div>
 
           {/* Checklist */}
           <div className="space-y-2">
-            {currentSystem.freedoms.map((f, idx) => (
+            {currentSystem.freedoms.map((f) => (
               <div
-                key={idx}
+                key={f.name}
                 className="p-3 bg-surface dark:bg-zinc-800/30 rounded-xl border border-outline-variant/20 dark:border-zinc-800 flex items-start gap-3"
               >
                 <div
@@ -204,8 +207,8 @@ export default function MultiSpeciesConfinementVisualizer() {
               🌿 Necesidad Biológica Natural ({currentProfile.speciesName})
             </span>
             <div className="space-y-2 text-xs font-sans text-on-surface-variant">
-              {currentProfile.naturalBehaviors.map((b, idx) => (
-                <div key={idx} className="border-b border-primary/10 last:border-0 pb-1.5 last:pb-0">
+              {currentProfile.naturalBehaviors.map((b) => (
+                <div key={b.name} className="border-b border-primary/10 last:border-0 pb-1.5 last:pb-0">
                   <div className="flex justify-between font-mono font-bold text-on-surface text-[11px]">
                     <span>{b.name}</span>
                     <span className="text-primary dark:text-emerald-400">{b.spaceRequiredCm2OrM2}</span>

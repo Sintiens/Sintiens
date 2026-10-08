@@ -104,6 +104,29 @@ export default function TabSeo({ tab }: { tab: TabType }) {
       /* URL no disponible */
     }
   }
+  // JSON-LD estructurado solo en Cifras (Dataset) para buscadores
+  const jsonLd =
+    tab === "datos"
+      ? JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Dataset",
+          name: "Cifras y evidencia — Sintiens",
+          description: seo.description,
+          url: canonical,
+          isAccessibleForFree: true,
+          license: "https://creativecommons.org/licenses/by/4.0/",
+          creator: { "@type": "Organization", name: "Sintiens", url: SITE_URL },
+          keywords: [
+            "ganadería",
+            "impacto ambiental",
+            "bienestar animal",
+            "emisiones",
+            "uso del suelo",
+            "antibióticos",
+            "biomasa"
+          ]
+        })
+      : null;
   return (
     <Helmet>
       <title>{seo.title}</title>
@@ -114,6 +137,7 @@ export default function TabSeo({ tab }: { tab: TabType }) {
       <meta property="og:url" content={canonical} />
       <meta name="twitter:title" content={seo.title} />
       <meta name="twitter:description" content={seo.description} />
+      {jsonLd && <script type="application/ld+json">{jsonLd}</script>}
     </Helmet>
   );
 }

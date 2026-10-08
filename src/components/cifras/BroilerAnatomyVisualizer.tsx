@@ -68,30 +68,26 @@ export default function BroilerAnatomyVisualizer() {
   const renderChickenSvg = (year: BroilerYearType, isSmall = false) => {
     const data = BROILER_EVOLUTION_DATA[year];
     const paths = getPaths(year);
-    const scaleFactor = Math.cbrt(data.weightAt56DaysG / 905); // Isometric volumetric scaling
 
     return (
       <div className="relative w-full h-[320px] sm:h-[380px] flex items-center justify-center overflow-hidden">
         {/* Metric Badge Overlay */}
-        <div className="absolute top-3 left-3 z-10 p-2.5 bg-zinc-950/80 backdrop-blur-md rounded-xl border border-zinc-800 text-left space-y-0.5 pointer-events-none">
+        <div className="absolute top-3 left-3 z-10 p-2.5 bg-surface/85 backdrop-blur-md rounded-xl border border-outline-variant text-left space-y-0.5 pointer-events-none">
           <span className="text-[10px] font-mono uppercase tracking-widest text-primary dark:text-emerald-400 font-bold block">
             Cepa {year} · {data.strainName}
           </span>
-          <span className="text-sm font-mono font-bold text-white">
+          <span className="text-sm font-mono font-bold text-on-surface">
             {data.weightAt56DaysG.toLocaleString("es-ES")} gramos
           </span>
-          <span className="text-[10px] font-mono text-zinc-400 block">
+          <span className="text-[10px] font-mono text-on-surface-variant block">
             Pechuga: {data.breastYieldPercent}% peso vivo
           </span>
         </div>
 
         {/* SVG Drawing */}
         <svg
-          viewBox="0 0 150 150"
-          className="w-full h-full max-h-[360px] select-none transition-transform duration-500"
-          style={{
-            transform: `scale(${scaleFactor * 0.95})`
-          }}
+          viewBox="-4 -10 156 222"
+          className="w-full h-full max-h-[360px] select-none text-on-surface transition-transform duration-500"
         >
           {/* Grid background in X-ray */}
           {isXrayMode && (
@@ -103,7 +99,7 @@ export default function BroilerAnatomyVisualizer() {
           )}
 
           {isXrayMode && (
-            <rect width="150" height="150" fill={`url(#xray-grid-${year})`} />
+            <rect x="-4" y="-10" width="156" height="222" fill={`url(#xray-grid-${year})`} />
           )}
 
           {/* 1. Body Silhouette */}
@@ -144,13 +140,22 @@ export default function BroilerAnatomyVisualizer() {
           {/* 3. Skeleton / Bones Layer (Interactive Hotspot: Skeleton) */}
           {(activePathology === "all" || activePathology === "skeleton") && (
             <g
+              role="button"
+              tabIndex={0}
+              aria-label="Resaltar sistema esquelético"
               onClick={() => setActivePathology("skeleton")}
-              className="cursor-pointer group"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setActivePathology("skeleton");
+                }
+              }}
+              className="cursor-pointer group focus-visible:outline-none focus-visible:opacity-80"
             >
               <path
                 d={paths.skeleton.spine}
                 fill="none"
-                stroke={activePathology === "skeleton" ? "#ef4444" : isXrayMode ? "#ffffff" : "#4b5563"}
+                stroke={activePathology === "skeleton" ? "#ef4444" : isXrayMode ? "currentColor" : "#4b5563"}
                 strokeWidth={activePathology === "skeleton" ? "1.8" : "1.2"}
                 strokeLinecap="round"
                 className="transition-all duration-300 group-hover:stroke-red-400"
@@ -158,7 +163,7 @@ export default function BroilerAnatomyVisualizer() {
               <path
                 d={paths.skeleton.femur}
                 fill="none"
-                stroke={activePathology === "skeleton" ? "#ef4444" : isXrayMode ? "#ffffff" : "#4b5563"}
+                stroke={activePathology === "skeleton" ? "#ef4444" : isXrayMode ? "currentColor" : "#4b5563"}
                 strokeWidth={activePathology === "skeleton" ? "2.0" : "1.4"}
                 strokeLinecap="round"
                 className="transition-all duration-300 group-hover:stroke-red-400"
@@ -166,7 +171,7 @@ export default function BroilerAnatomyVisualizer() {
               <path
                 d={paths.skeleton.tibia}
                 fill="none"
-                stroke={activePathology === "skeleton" ? "#ef4444" : isXrayMode ? "#ffffff" : "#4b5563"}
+                stroke={activePathology === "skeleton" ? "#ef4444" : isXrayMode ? "currentColor" : "#4b5563"}
                 strokeWidth={activePathology === "skeleton" ? "2.0" : "1.4"}
                 strokeLinecap="round"
                 className="transition-all duration-300 group-hover:stroke-red-400"
@@ -174,7 +179,7 @@ export default function BroilerAnatomyVisualizer() {
               <path
                 d={paths.skeleton.metatarsus}
                 fill="none"
-                stroke={activePathology === "skeleton" ? "#ef4444" : isXrayMode ? "#ffffff" : "#4b5563"}
+                stroke={activePathology === "skeleton" ? "#ef4444" : isXrayMode ? "currentColor" : "#4b5563"}
                 strokeWidth={activePathology === "skeleton" ? "1.6" : "1.2"}
                 strokeLinecap="round"
                 className="transition-all duration-300 group-hover:stroke-red-400"
@@ -182,7 +187,7 @@ export default function BroilerAnatomyVisualizer() {
               <path
                 d={paths.skeleton.digits}
                 fill="none"
-                stroke={activePathology === "skeleton" ? "#ef4444" : isXrayMode ? "#ffffff" : "#4b5563"}
+                stroke={activePathology === "skeleton" ? "#ef4444" : isXrayMode ? "currentColor" : "#4b5563"}
                 strokeWidth={activePathology === "skeleton" ? "1.4" : "1.0"}
                 strokeLinecap="round"
                 className="transition-all duration-300 group-hover:stroke-red-400"
@@ -193,8 +198,17 @@ export default function BroilerAnatomyVisualizer() {
           {/* 4. Breast Muscle Layer (Interactive Hotspot: Breast) */}
           {(activePathology === "all" || activePathology === "breast") && (
             <g
+              role="button"
+              tabIndex={0}
+              aria-label="Resaltar musculatura pectoral"
               onClick={() => setActivePathology("breast")}
-              className="cursor-pointer group"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setActivePathology("breast");
+                }
+              }}
+              className="cursor-pointer group focus-visible:outline-none focus-visible:opacity-80"
             >
               <path
                 d={paths.breast}
@@ -215,15 +229,24 @@ export default function BroilerAnatomyVisualizer() {
           {/* 5. Heart / Cardio Layer (Interactive Hotspot: Cardio) */}
           {(activePathology === "all" || activePathology === "cardio") && (
             <g
+              role="button"
+              tabIndex={0}
+              aria-label="Resaltar sistema cardiovascular"
               onClick={() => setActivePathology("cardio")}
-              className="cursor-pointer group"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setActivePathology("cardio");
+                }
+              }}
+              className="cursor-pointer group focus-visible:outline-none focus-visible:opacity-80"
             >
               <path
                 d={paths.heart.main}
                 fill="#dc2626"
                 stroke="#991b1b"
                 strokeWidth="0.6"
-                className="transition-all duration-300 animate-pulse group-hover:scale-110"
+                className="transition-all duration-300"
               />
               {paths.heart.rv && (
                 <path
@@ -255,10 +278,18 @@ export default function BroilerAnatomyVisualizer() {
           {/* 7. Pododermatitis Hotspot on Footpad */}
           {(activePathology === "all" || activePathology === "pododermatitis") && year === 2025 && (
             <g
+              role="button"
+              tabIndex={0}
+              aria-label="Resaltar almohadillas plantares"
               onClick={() => setActivePathology("pododermatitis")}
-              className="cursor-pointer group"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setActivePathology("pododermatitis");
+                }
+              }}
+              className="cursor-pointer group focus-visible:outline-none focus-visible:opacity-80"
             >
-              <circle cx="62" cy="132" r="3" fill="#b91c1c" stroke="#ef4444" strokeWidth="0.8" className="animate-ping" />
               <circle cx="62" cy="132" r="3" fill="#b91c1c" stroke="#ef4444" strokeWidth="0.8" />
             </g>
           )}
@@ -266,7 +297,7 @@ export default function BroilerAnatomyVisualizer() {
 
         {/* Hotspots Quick Guide Overlay */}
         {!isSmall && (
-          <div className="absolute bottom-3 right-3 text-[10px] font-mono text-zinc-400 bg-zinc-950/80 px-2 py-1 rounded-lg border border-zinc-800 pointer-events-none">
+          <div className="absolute bottom-3 right-3 text-[10px] font-mono text-on-surface-variant bg-surface/85 px-2 py-1 rounded-lg border border-outline-variant pointer-events-none">
             💡 Haz clic sobre el dibujo (pechuga, huesos, corazón o patas) para enfocar patologías
           </div>
         )}
@@ -294,7 +325,7 @@ export default function BroilerAnatomyVisualizer() {
             Metamorfosis Biomecánica del Pollo de Engorde (1957—2025)
           </h3>
           <p className="text-xs sm:text-sm text-on-surface-variant max-w-2xl">
-            La selección zootécnica extrema ha aumentado la masa pectoral en más de un 400% a los 56 días de vida, provocando un colapso alométrico entre el crecimiento muscular y los órganos vitales.
+            La selección zootécnica extrema ha más que cuadruplicado el peso corporal a los 56 días (905 g en 1957 → 4.202 g en 2005), provocando un colapso alométrico entre el crecimiento muscular y los órganos vitales.
           </p>
         </div>
 
@@ -318,7 +349,7 @@ export default function BroilerAnatomyVisualizer() {
               onClick={() => setIsPlaying(!isPlaying)}
               className={`p-2 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1 ${
                 isPlaying
-                  ? "bg-amber-600 text-white shadow-sm"
+                  ? "bg-ch2 text-ch2-on shadow-sm"
                   : "bg-primary text-on-primary shadow-sm"
               }`}
               title={isPlaying ? "Pausar evolución animada" : "Reproducir evolución automática"}
@@ -366,7 +397,7 @@ export default function BroilerAnatomyVisualizer() {
             onClick={() => setIsXrayMode(!isXrayMode)}
             className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
               isXrayMode
-                ? "bg-emerald-600 text-white shadow-sm"
+                ? "bg-ch6 text-ch6-on shadow-sm"
                 : "bg-surface dark:bg-zinc-800 text-on-surface-variant hover:text-on-surface border border-outline-variant/20"
             }`}
           >
@@ -393,7 +424,7 @@ export default function BroilerAnatomyVisualizer() {
             onClick={() => setActivePathology(tab.id as PathologyLayer)}
             className={`px-2.5 py-1 rounded-md text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
               activePathology === tab.id
-                ? "bg-red-600 text-white shadow-xs"
+                ? "bg-ch1 text-ch1-on shadow-xs"
                 : "bg-surface-dim/50 text-on-surface-variant hover:text-on-surface border border-outline-variant/20"
             }`}
           >
@@ -403,13 +434,13 @@ export default function BroilerAnatomyVisualizer() {
       </div>
 
       {/* Anatomical Display Canvas */}
-      <div className="bg-zinc-950 rounded-2xl border border-zinc-800 p-4 sm:p-6 overflow-hidden relative shadow-inner">
+      <div className="bg-surface-dim rounded-2xl border border-outline-variant p-4 sm:p-6 overflow-hidden relative">
         {isDualComparison ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="border border-zinc-800 rounded-xl p-2 bg-zinc-900/40">
+            <div className="border border-outline-variant rounded-xl p-2 bg-surface/50">
               {renderChickenSvg(1957, true)}
             </div>
-            <div className="border border-zinc-800 rounded-xl p-2 bg-zinc-900/40">
+            <div className="border border-outline-variant rounded-xl p-2 bg-surface/50">
               {renderChickenSvg(2025, true)}
             </div>
           </div>

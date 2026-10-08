@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "motion/react";
 import { BookOpen, Feather } from "lucide-react";
 import {
+  BIRD_BIOMASS_GROUPS,
   MAMMAL_BIOMASS_GROUPS
 } from "../../data/cifras/ecologicalData";
 import ScientificEvidenceModal from "./ScientificEvidenceModal";
@@ -12,11 +13,14 @@ export default function MammalBiomassVisualizer() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const activeGroup = MAMMAL_BIOMASS_GROUPS.find((g) => g.id === selectedGroupId) || MAMMAL_BIOMASS_GROUPS[0]!;
+  const livestockPercent = MAMMAL_BIOMASS_GROUPS.find((g) => g.id === "livestock")?.percent ?? 60;
+  const humansPercent = MAMMAL_BIOMASS_GROUPS.find((g) => g.id === "humans")?.percent ?? 36;
+  const wildPercent = MAMMAL_BIOMASS_GROUPS.find((g) => g.id === "wild_mammals")?.percent ?? 4;
 
   // 100-cell waffle grid representation
   const modernCells = Array.from({ length: 100 }, (_, idx) => {
-    if (idx < 62) return { type: "livestock", color: "#ef4444", label: "Ganado" };
-    if (idx < 96) return { type: "humans", color: "#3b82f6", label: "Humanos" };
+    if (idx < livestockPercent) return { type: "livestock", color: "#ef4444", label: "Ganado" };
+    if (idx < livestockPercent + humansPercent) return { type: "humans", color: "#3b82f6", label: "Humanos" };
     return { type: "wild_mammals", color: "#10b981", label: "Mamíferos Silvestres" };
   });
 
@@ -34,13 +38,13 @@ export default function MammalBiomassVisualizer() {
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-mono font-bold tracking-widest text-primary dark:text-emerald-400 uppercase bg-primary/10 dark:bg-emerald-500/10 px-2 py-0.5 rounded border border-primary/20">
-              ECOLOGÍA GLOBAL · EXHIBIT III
+              ECOLOGÍA GLOBAL · EXHIBIT V
             </span>
             <span className="text-xs font-mono text-on-surface-variant/50 hidden sm:inline">
               [ BAR-ON ET AL. / PNAS 2018 ]
             </span>
           </div>
-          <h3 className="text-2xl sm:text-3xl font-heading font-bold text-on-surface dark:text-zinc-100">
+          <h3 className="text-xl sm:text-2xl font-heading font-bold text-on-surface">
             Distribución de la Biomasa de Mamíferos en la Tierra
           </h3>
           <p className="text-xs sm:text-sm text-on-surface-variant/80 max-w-2xl font-light">
@@ -50,7 +54,7 @@ export default function MammalBiomassVisualizer() {
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="self-start md:self-auto flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-mono bg-surface-dim/50 dark:bg-zinc-800 hover:bg-surface-dim text-on-surface border border-outline-variant/30 dark:border-zinc-700 rounded-lg transition-colors"
+          className="self-start md:self-auto flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-mono bg-surface-dim/50 dark:bg-zinc-800 hover:bg-surface-dim text-on-surface border border-outline-variant/30 dark:border-zinc-700 rounded-xl transition-colors"
         >
           <BookOpen className="w-3.5 h-3.5 text-primary dark:text-emerald-400" />
           Respaldo Científico
@@ -62,9 +66,10 @@ export default function MammalBiomassVisualizer() {
         <div className="flex items-center gap-1 p-1 bg-surface-dim/40 dark:bg-zinc-950/60 rounded-xl border border-outline-variant/20 dark:border-zinc-800 text-xs font-mono">
           <button
             onClick={() => setEraView("modern")}
+            aria-pressed={eraView === "modern"}
             className={`px-3 py-1.5 rounded-lg transition-all ${
               eraView === "modern"
-                ? "bg-primary text-white dark:bg-emerald-600 font-bold shadow-sm"
+                ? "bg-primary text-on-primary font-bold shadow-sm"
                 : "text-on-surface-variant/70 hover:text-on-surface"
             }`}
           >
@@ -72,9 +77,10 @@ export default function MammalBiomassVisualizer() {
           </button>
           <button
             onClick={() => setEraView("prehistoric")}
+            aria-pressed={eraView === "prehistoric"}
             className={`px-3 py-1.5 rounded-lg transition-all ${
               eraView === "prehistoric"
-                ? "bg-primary text-white dark:bg-emerald-600 font-bold shadow-sm"
+                ? "bg-primary text-on-primary font-bold shadow-sm"
                 : "text-on-surface-variant/70 hover:text-on-surface"
             }`}
           >
@@ -113,14 +119,18 @@ export default function MammalBiomassVisualizer() {
           </div>
 
           {/* 10x10 Waffle Grid */}
-          <div className="w-full max-w-sm mx-auto grid grid-cols-10 gap-1.5 p-3 rounded-2xl bg-surface dark:bg-zinc-900 border border-outline-variant/20 dark:border-zinc-800 shadow-inner">
+          <div
+            role="img"
+            aria-label={`Matriz de 100 celdas: ${livestockPercent}% ganado, ${humansPercent}% humanos y ${wildPercent}% mamíferos silvestres en el Antropoceno.`}
+            className="w-full max-w-sm mx-auto grid grid-cols-10 gap-1.5 p-3 rounded-2xl bg-surface-container-low border border-outline-variant/20"
+          >
             {currentCells.map((cell, idx) => (
               <motion.div
                 key={idx}
                 initial={{ scale: 0.8, opacity: 0.5 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: idx * 0.003, duration: 0.2 }}
-                className="aspect-square rounded-sm transition-transform hover:scale-125 cursor-pointer"
+                className="aspect-square rounded-sm"
                 style={{ backgroundColor: cell.color }}
                 title={`${idx + 1}%: ${cell.label}`}
               />
@@ -128,18 +138,18 @@ export default function MammalBiomassVisualizer() {
           </div>
 
           {/* Grid Legend Bar */}
-          <div className="grid grid-cols-3 gap-2 text-[11px] font-mono border-t border-outline-variant/15 pt-3">
+          <div className="grid grid-cols-1 min-[420px]:grid-cols-3 gap-1.5 text-[11px] font-mono border-t border-outline-variant/15 pt-3">
             <div className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-sm bg-red-500 shrink-0" />
-              <span>Ganado: {eraView === "modern" ? "62%" : "0%"}</span>
+              <span>Ganado: {eraView === "modern" ? `${livestockPercent}%` : "0%"}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-sm bg-blue-500 shrink-0" />
-              <span>Humanos: {eraView === "modern" ? "34%" : "<1%"}</span>
+              <span>Humanos: {eraView === "modern" ? `${humansPercent}%` : "<1%"}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500 shrink-0" />
-              <span>Salvajes: {eraView === "modern" ? "4%" : ">99%"}</span>
+              <span>Salvajes: {eraView === "modern" ? `${wildPercent}%` : ">99%"}</span>
             </div>
           </div>
         </div>
@@ -168,9 +178,9 @@ export default function MammalBiomassVisualizer() {
                   Desglose por grupos de especies:
                 </span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {activeGroup.subGroups.map((sub, i) => (
+                  {activeGroup.subGroups.map((sub) => (
                     <div
-                      key={i}
+                      key={sub.name}
                       className="p-2.5 rounded-lg bg-surface-dim/30 dark:bg-zinc-900/60 border border-outline-variant/10 text-xs font-mono"
                     >
                       <div className="flex justify-between font-bold text-on-surface dark:text-zinc-200">
@@ -185,7 +195,7 @@ export default function MammalBiomassVisualizer() {
             )}
           </div>
 
-          {/* Avian Parallel Card (70% poultry vs 30% wild) */}
+          {/* Avian Parallel Card */}
           <div className="p-4 rounded-2xl bg-surface-dim/30 dark:bg-zinc-950/40 border border-outline-variant/20 dark:border-zinc-800 space-y-2.5">
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono font-bold text-on-surface dark:text-zinc-200 flex items-center gap-1.5">
@@ -197,13 +207,13 @@ export default function MammalBiomassVisualizer() {
 
             {/* Two-part bar */}
             <div className="w-full h-3 rounded-full overflow-hidden flex">
-              <div className="h-full bg-amber-500" style={{ width: "70%" }} title="Aves de corral: 70%" />
-              <div className="h-full bg-emerald-500" style={{ width: "30%" }} title="Aves silvestres: 30%" />
+              <div className="h-full bg-amber-500" style={{ width: `${BIRD_BIOMASS_GROUPS.poultryPercent}%` }} title={`Aves de corral: ${BIRD_BIOMASS_GROUPS.poultryPercent}%`} />
+              <div className="h-full bg-emerald-500" style={{ width: `${BIRD_BIOMASS_GROUPS.wildBirdsPercent}%` }} title={`Aves silvestres: ${BIRD_BIOMASS_GROUPS.wildBirdsPercent}%`} />
             </div>
 
-            <div className="flex justify-between text-[11px] font-mono">
-              <span className="text-amber-600 dark:text-amber-400 font-bold">70% Aves de Granja (Pollos/Pavos)</span>
-              <span className="text-emerald-600 dark:text-emerald-400 font-bold">30% Todas las Aves Salvajes</span>
+            <div className="flex flex-col gap-0.5 sm:flex-row sm:justify-between text-[11px] font-mono">
+              <span className="text-amber-600 dark:text-amber-400 font-bold">{BIRD_BIOMASS_GROUPS.poultryPercent}% Aves de Granja (Pollos/Pavos)</span>
+              <span className="text-emerald-600 dark:text-emerald-400 font-bold">{BIRD_BIOMASS_GROUPS.wildBirdsPercent}% Todas las Aves Salvajes</span>
             </div>
           </div>
         </div>

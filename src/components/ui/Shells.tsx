@@ -102,11 +102,21 @@ export function HeroFixedNav({ children, activeTab }: HeroFixedNavProps) {
     }
   }, []);
 
+  const syncActiveTop = useCallback(() => {
+    const root = document.documentElement;
+    const el = ref.current;
+    const activeTop = modeRef.current === "top" && el ? NAV_TOP_Y + el.offsetHeight : 0;
+    root.style.setProperty("--hero-nav-active-top", `${activeTop}px`);
+  }, []);
+
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
     const root = document.documentElement;
-    const apply = () => root.style.setProperty("--hero-nav-h", `${el.offsetHeight}px`);
+    const apply = () => {
+      root.style.setProperty("--hero-nav-h", `${el.offsetHeight}px`);
+      syncActiveTop();
+    };
     apply();
     syncApart();
 
@@ -126,8 +136,14 @@ export function HeroFixedNav({ children, activeTab }: HeroFixedNavProps) {
       ro.disconnect();
       mo.disconnect();
       root.style.removeProperty("--hero-nav-h");
+      root.style.removeProperty("--hero-nav-active-top");
     };
-  }, [syncApart]);
+  }, [syncApart, syncActiveTop]);
+
+  // Mantener offset sticky activo para submódulos y buscadores cuando la barra está en top o cambia de pestaña
+  useEffect(() => {
+    syncActiveTop();
+  }, [mode, activeTab, syncActiveTop]);
 
   // Re-sincronizar de inmediato y tras transiciones de pestaña
   useEffect(() => {
@@ -241,7 +257,7 @@ export function HeroFixedNav({ children, activeTab }: HeroFixedNavProps) {
       }}
     >
       <div
-        className={`w-full max-w-[1280px] px-4 md:px-8 flex justify-center transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none ${
+        className={`w-full max-w-[1280px] px-2 sm:px-4 md:px-8 min-w-0 flex justify-center transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none ${
           isOff ? "-translate-y-4 opacity-0 pointer-events-none" : "translate-y-0 opacity-100 pointer-events-auto"
         }`}
       >
@@ -280,7 +296,7 @@ interface HeroShellProps {
   children: React.ReactNode;
 }
 
-const HERO_TALL = "min-h-[calc(100dvh-4.5rem)] lg:min-h-[calc(100dvh-5rem)] max-h-[920px] pt-14 pb-6 sm:pt-16 sm:pb-8 lg:pt-20 lg:pb-10";
+const HERO_TALL = "min-h-0 sm:min-h-[calc(100dvh-4.5rem)] lg:min-h-[calc(100dvh-5rem)] max-h-[920px] pt-8 pb-6 sm:pt-16 sm:pb-8 lg:pt-20 lg:pb-10";
 const HERO_COMPACT = "pt-4 pb-8";
 
 export function HeroShell({
@@ -295,6 +311,7 @@ export function HeroShell({
   className = "",
   children,
 }: HeroShellProps) {
+  const reduced = useReducedMotion();
   const WmIcon = typeof watermark === "object" && watermark !== null ? watermark.icon : null;
   const borderCls =
     border === "none" ? "" : border === "20" ? "border-b border-outline-variant/20" : "border-b border-outline-variant/15";
@@ -342,22 +359,23 @@ export function HeroShell({
           </div>
           <HeroNavSlot />
           {cue && (
-            <div className="w-full flex-1 min-h-[48px] flex flex-col items-center justify-center">
+            <div className="w-full sm:flex-1 min-h-[48px] pt-4 sm:pt-0 flex flex-col items-center justify-center">
               <button
                 type="button"
                 onClick={() => {
                   const heroEl = document.getElementById(id);
+                  const behavior = reduced ? "auto" : "smooth";
                   if (heroEl) {
                     const nextY = heroEl.offsetTop + heroEl.offsetHeight - 48;
-                    window.scrollTo({ top: nextY, behavior: "smooth" });
+                    window.scrollTo({ top: nextY, behavior });
                   } else {
-                    window.scrollTo({ top: window.innerHeight * 0.85, behavior: "smooth" });
+                    window.scrollTo({ top: window.innerHeight * 0.85, behavior });
                   }
                 }}
                 aria-label="Desplazarse al contenido"
                 className="group flex flex-col items-center select-none relative z-10 p-2 text-primary/50 hover:text-primary transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-full"
               >
-                <div className="animate-bounce">
+                <div>
                   <svg className="w-5 h-5 transition-transform group-hover:translate-y-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                     <path d="m6 9 6 6 6-6" />
                   </svg>
@@ -446,7 +464,7 @@ export function ModalShell({ onClose, labelledBy, describedBy, className = "", c
 
   return (
     <div
-      className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-[300] flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -457,7 +475,7 @@ export function ModalShell({ onClose, labelledBy, describedBy, className = "", c
         aria-modal="true"
         aria-labelledby={labelledBy}
         aria-describedby={describedBy}
-        className={`relative w-full max-w-3xl max-h-[85vh] overflow-y-auto bg-surface text-on-surface rounded-2xl border border-outline-variant/20 shadow-2xl ${className}`}
+        className={`relative w-full max-w-3xl max-h-[90dvh] sm:max-h-[85vh] overflow-y-auto bg-surface text-on-surface rounded-2xl border border-outline-variant/20 shadow-2xl ${className}`}
       >
         {children}
       </div>

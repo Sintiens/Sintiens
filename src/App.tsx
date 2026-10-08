@@ -251,7 +251,6 @@ export default function App() {
       import("./components/GlossaryExplorer");
       import("./components/TimelineExplorer");
       import("./components/ExcusesDilemmas");
-      import("./components/DataSection");
       import("./components/NewsExplorer");
       import("./components/LaboratorioHub");
     };
@@ -425,7 +424,7 @@ export default function App() {
 
       {/* Menú persistente: vive en su apartado del hero y reaparece al subir */}
       <HeroFixedNav activeTab={activeTab}>
-        <nav aria-label="Navegación principal">
+        <nav className="w-full max-w-full min-w-0" aria-label="Navegación principal">
           <MiniTabNav activeTab={activeTab} onNavigate={handleNavigate} theme={theme} onToggleTheme={handleToggleTheme} />
         </nav>
       </HeroFixedNav>

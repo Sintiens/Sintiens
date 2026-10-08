@@ -248,7 +248,13 @@ export default memo(function NewsExplorer({ onNavigate }: { onNavigate?: (tab: T
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isStuck, setIsStuck] = useState<boolean>(false);
   const [isMainFilterOpen, setIsMainFilterOpen] = useState<boolean>(false);
-  const [isMethodologyOpen, setIsMethodologyOpen] = useState<boolean>(true);
+  const [isMethodologyOpen, setIsMethodologyOpen] = useState<boolean>(() => {
+    try {
+      return typeof window !== "undefined" ? window.innerWidth >= 768 : true;
+    } catch {
+      return true;
+    }
+  });
   const [visibleCount, setVisibleCount] = useState<number>(12);
   const INITIAL_VISIBLE = 12;
   const LOAD_MORE_STEP = 12;
@@ -1232,24 +1238,34 @@ export default memo(function NewsExplorer({ onNavigate }: { onNavigate?: (tab: T
         {/* Transparency & Methodology — colapsable para reducir scroll inicial (Fase 1) */}
         <section className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pl-1">
-            <AnimatePresence initial={false}>
-              {isMethodologyOpen && (
-                <motion.h3
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
-                  className="text-3xl md:text-4xl lg:text-5xl font-serif text-zinc-900 dark:text-zinc-100 tracking-tight leading-tight overflow-hidden"
-                >
-                  Criterios de Evaluación<br className="hidden sm:inline" /> <span className="italic font-light opacity-90">&amp; Metodología</span>
-                </motion.h3>
-              )}
-            </AnimatePresence>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono uppercase tracking-widest text-primary font-bold">
+                  Metodología
+                </span>
+                <span className="text-xs text-on-surface-variant font-mono">
+                  · Criterios editoriales
+                </span>
+              </div>
+              <AnimatePresence initial={false}>
+                {isMethodologyOpen && (
+                  <motion.h3
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
+                    className="text-2xl md:text-3xl lg:text-4xl font-serif text-zinc-900 dark:text-zinc-100 tracking-tight leading-tight mt-1 overflow-hidden"
+                  >
+                    Criterios de Evaluación &amp; Metodología
+                  </motion.h3>
+                )}
+              </AnimatePresence>
+            </div>
             <button
               type="button"
               onClick={() => setIsMethodologyOpen((v) => !v)}
               aria-expanded={isMethodologyOpen}
-              className="inline-flex items-center gap-1.5 self-start sm:self-center sm:ml-auto px-3 py-1.5 rounded-full border border-outline-variant/25 bg-surface-container/40 hover:bg-surface-container/70 text-[11px] font-mono font-medium text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer shrink-0"
+              className="inline-flex items-center gap-1.5 self-start sm:self-center sm:ml-auto px-3.5 py-2 min-h-[38px] rounded-full border border-outline-variant/25 bg-surface-container/40 hover:bg-surface-container/70 text-[11px] font-mono font-medium text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer shrink-0"
             >
               {isMethodologyOpen ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
               <span>{isMethodologyOpen ? "Ocultar" : "Mostrar"} criterios</span>
@@ -1778,7 +1794,7 @@ export default memo(function NewsExplorer({ onNavigate }: { onNavigate?: (tab: T
         <div ref={sentinelRef} className="h-0 w-full pointer-events-none" />
 
         {/* Unified Spotlight Sticky Bar — blur-md único */}
-        <div ref={controlBarRef} data-nav-avoid="true" className="sticky top-4 z-40 w-full max-w-[620px] mx-auto pt-2 relative">
+        <div ref={controlBarRef} data-nav-avoid="true" className="sticky top-[calc(var(--hero-nav-active-top,0px)+16px)] transition-[top] duration-200 z-40 w-full max-w-[620px] mx-auto pt-2 relative">
           {/* Spotlight Pill — glass unificada */}
           <div
             className={`relative rounded-full border backdrop-blur-md p-1.5 sm:p-2 flex items-center gap-1.5 sm:gap-2 transition-[box-shadow,background-color,border-color] duration-300 ${
@@ -1797,7 +1813,7 @@ export default memo(function NewsExplorer({ onNavigate }: { onNavigate?: (tab: T
                 onChange={(e) => setSearchQuery(e.target.value)}
                 aria-label="Buscar noticias por título, resumen, etiquetas o fuente"
                 aria-describedby="news-search-help"
-                className="w-full bg-surface-dim/40 dark:bg-white/[0.05] border border-outline-variant/20 dark:border-white/10 rounded-full pl-9 pr-14 py-2 text-xs sm:text-sm font-sans focus:outline-none focus:border-primary text-on-surface placeholder-on-surface-variant/45 transition-colors"
+                className="w-full bg-surface-dim/40 dark:bg-white/[0.05] border border-outline-variant/20 dark:border-white/10 rounded-full pl-9 pr-14 py-2 text-base sm:text-sm font-sans focus:outline-none focus:border-primary text-on-surface placeholder-on-surface-variant/45 transition-colors"
               />
               <span id="news-search-help" className="sr-only">Escribe para filtrar las noticias. La búsqueda es insensible a mayúsculas y examina etiquetas y especies.</span>
               <AnimatePresence>
@@ -1815,7 +1831,7 @@ export default memo(function NewsExplorer({ onNavigate }: { onNavigate?: (tab: T
                       setDebouncedQuery("");
                     }}
                     aria-label="Borrar búsqueda"
-                    className="absolute right-8 p-1 text-on-surface-variant/60 hover:text-primary cursor-pointer transition-colors"
+                    className="absolute right-7 p-2 min-w-[36px] min-h-[36px] flex items-center justify-center text-on-surface-variant/60 hover:text-primary cursor-pointer transition-colors"
                     title="Borrar búsqueda"
                   >
                     <X className="w-3.5 h-3.5" />
@@ -1851,7 +1867,7 @@ export default memo(function NewsExplorer({ onNavigate }: { onNavigate?: (tab: T
                 e.stopPropagation();
                 setIsMainFilterOpen((prev) => !prev);
               }}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-mono transition-all cursor-pointer shrink-0 ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 min-h-[36px] rounded-full text-xs font-mono transition-all cursor-pointer shrink-0 ${
                 isMainFilterOpen || totalActiveFiltersCount > 0
                   ? "bg-primary text-on-primary font-bold shadow-xs"
                   : "bg-surface-dim/50 dark:bg-white/[0.06] border border-outline-variant/30 dark:border-white/10 text-on-surface-variant hover:text-on-surface"
@@ -1875,7 +1891,7 @@ export default memo(function NewsExplorer({ onNavigate }: { onNavigate?: (tab: T
                 title="Vista Cuadrícula"
                 aria-label="Vista Cuadrícula"
                 aria-pressed={viewMode === "grid"}
-                className={`p-1.5 sm:p-2 rounded-full text-xs font-mono transition-all cursor-pointer ${
+                className={`p-2 min-w-[34px] min-h-[34px] flex items-center justify-center rounded-full text-xs font-mono transition-all cursor-pointer ${
                   viewMode === "grid"
                     ? "bg-surface dark:bg-zinc-800 text-primary shadow-xs font-bold"
                     : "text-on-surface-variant/60 hover:text-on-surface"
@@ -1890,7 +1906,7 @@ export default memo(function NewsExplorer({ onNavigate }: { onNavigate?: (tab: T
                 title="Vista Lista Compacta"
                 aria-label="Vista Lista Compacta"
                 aria-pressed={viewMode === "list"}
-                className={`p-1.5 sm:p-2 rounded-full text-xs font-mono transition-all cursor-pointer ${
+                className={`p-2 min-w-[34px] min-h-[34px] flex items-center justify-center rounded-full text-xs font-mono transition-all cursor-pointer ${
                   viewMode === "list"
                     ? "bg-surface dark:bg-zinc-800 text-primary shadow-xs font-bold"
                     : "text-on-surface-variant/60 hover:text-on-surface"
@@ -1905,7 +1921,7 @@ export default memo(function NewsExplorer({ onNavigate }: { onNavigate?: (tab: T
                 title="Vista Cronológica"
                 aria-label="Vista Cronológica"
                 aria-pressed={viewMode === "timeline"}
-                className={`p-1.5 sm:p-2 rounded-full text-xs font-mono transition-all cursor-pointer ${
+                className={`p-2 min-w-[34px] min-h-[34px] flex items-center justify-center rounded-full text-xs font-mono transition-all cursor-pointer ${
                   viewMode === "timeline"
                     ? "bg-surface dark:bg-zinc-800 text-primary shadow-xs font-bold"
                     : "text-on-surface-variant/60 hover:text-on-surface"
@@ -2422,7 +2438,7 @@ export default memo(function NewsExplorer({ onNavigate }: { onNavigate?: (tab: T
                   return Array.from(groups.entries()).map(([year, items]) => (
                     <div key={year} className="relative pb-8 last:pb-0">
                       {/* Año header */}
-                      <div data-nav-avoid="true" className="sticky top-16 z-10 flex items-center gap-3 mb-4 bg-background/80 backdrop-blur-md py-1 -ml-6 sm:-ml-8 pl-6 sm:pl-8">
+                      <div data-nav-avoid="true" className="sticky top-[calc(var(--hero-nav-active-top,0px)+64px)] transition-[top] duration-200 z-10 flex items-center gap-3 mb-4 bg-background/80 backdrop-blur-md py-1 -ml-6 sm:-ml-8 pl-6 sm:pl-8">
                         <span className="absolute left-0 sm:left-1 w-3 h-3 rounded-full bg-primary border-2 border-background shadow-sm" style={{ left: '2px' }} />
                         <span className="absolute left-0 w-3 h-3 rounded-full bg-primary/20 animate-ping" style={{ left: '2px' }} />
                         <h4 className="text-sm font-mono font-bold tracking-widest text-primary ml-4">{year}</h4>
