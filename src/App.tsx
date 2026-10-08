@@ -429,8 +429,17 @@ export default function App() {
         </nav>
       </HeroFixedNav>
 
-      {/* Main Content — noticias: ultra-densidad, gutters mínimos */}
-      <main id="contenido" className={`flex-1 w-full mx-auto py-12 lg:py-20 relative z-[1] ${activeTab === "noticias" ? "max-w-[1480px] px-2 sm:px-2 md:px-3 lg:px-3" : "max-w-[1280px] px-4 md:px-6 lg:px-8"}`}>
+      {/* Main Content — noticias y datos: densidad visual optimizada, gutters limpios */}
+      <main
+        id="contenido"
+        className={`flex-1 w-full mx-auto relative z-[1] ${
+          activeTab === "noticias"
+            ? "max-w-[1480px] px-2 sm:px-2 md:px-3 lg:px-3 py-12 lg:py-20"
+            : activeTab === "datos"
+            ? "max-w-[1520px] px-3 sm:px-5 md:px-7 lg:px-8 py-4 sm:py-6 lg:py-7"
+            : "max-w-[1280px] px-4 md:px-6 lg:px-8 py-12 lg:py-20"
+        }`}
+      >
 
         <div className="min-h-[600px]">
           <AnimatePresence mode="wait" initial={false} onExitComplete={handleExitComplete}>

@@ -17,7 +17,9 @@
     "generate:sitemap": "node scripts/generate-sitemap.mjs",
     "generate:news": "node scripts/generate-rss.mjs && node scripts/generate-sitemap.mjs",
     "favicons": "node scripts/generate-favicons.mjs",
-    "pwa-assets": "node scripts/generate-pwa-assets.mjs"
+    "pwa-assets": "node scripts/generate-pwa-assets.mjs",
+    "tweet:validate": "node scripts/publish-twitter-thread.mjs docs/hilo_twitter_mobile.md --dry-run",
+    "tweet:publish": "node scripts/publish-twitter-thread.mjs docs/hilo_twitter_mobile.md --publish"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
@@ -31,6 +33,7 @@
     "react-dom": "^19.0.1",
     "react-helmet-async": "^3.0.0",
     "recharts": "^3.8.1",
+    "twitter-api-v2": "^1.29.1",
     "vite": "^6.2.3"
   },
   "devDependencies": {

@@ -34,4 +34,9 @@ todo.json
 .tool_log/
 .antigravity/
 .playwright-mcp/
+chicken_*.png
+proto_*.png
+comparison_*.png
+chicken_test.html
+scripts/*.ts
 

@@ -12,9 +12,9 @@ Os contamos las mejoras clave 👇 (1/6)
 ---
 
 ### Tweet 2 (Navegación y persistencia)
-1️⃣ **Menú dock horizontal sin recortes**
+1️⃣ **Menú horizontal sin recortes**
 
-Las pestañas y subsecciones (Laboratorio, Argumento, Glosario) ahora se deslizan de forma continua bajo el dedo con autocentrado suave y sin saltos. La cabecera inteligente reacciona a tu scroll sin tapar contenido ni dejar huecos muertos. (2/6)
+Las pestañas y subsecciones ahora se deslizan de forma continua bajo el dedo con autocentrado suave y sin saltos. La cabecera inteligente reacciona a tu scroll sin tapar contenido ni dejar huecos muertos en pantalla. (2/6)
 
 ---
 
@@ -29,10 +29,10 @@ El mapa conceptual interactivo ahora responde con precisión a gestos táctiles 
 ---
 
 ### Tweet 4 (Gráficos y tablas sin mutilaciones)
-3️⃣ **Cifras y visualizaciones optimizadas** 📊
+3️⃣ **Cifras y datos optimizados** 📊
 
-• Gráficos con ejes inteligentes: se acabaron las etiquetas apretadas en pantallas estrechas.
-• Tablas con columnas fijas: el contexto del alimento nunca desaparece al hacer scroll horizontal.
+• Gráficos con ejes inteligentes: sin etiquetas apretadas en pantallas estrechas.
+• Tablas con columnas fijas: el nombre del alimento no desaparece al hacer scroll horizontal.
 • Tooltips con ajuste de texto seguro. (4/6)
 
 ---

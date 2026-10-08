@@ -28,12 +28,12 @@ interface ModuleNav {
 }
 
 const MODULE_NAVS: ModuleNav[] = [
-  { id: "slaughter_scale", label: "I. Sacrificio & Escala", icon: Flame, exhibits: "Exhibits I & II" },
-  { id: "anatomy_confinement", label: "II. Biología & Confinamiento", icon: Eye, exhibits: "Exhibits III & IV" },
-  { id: "climate_ecology", label: "III. Clima & Biodiversidad", icon: Globe2, exhibits: "Exhibits V, VI & VII" },
-  { id: "trophic_thermodynamics", label: "IV. Termodinámica & Suelo", icon: Zap, exhibits: "Exhibit VIII" },
-  { id: "public_health", label: "V. Antibióticos & Pandemias", icon: Pill, exhibits: "Exhibit IX" },
-  { id: "food_matrix", label: "VI. Matriz Ambiental", icon: Table, exhibits: "Exhibit X" }
+  { id: "slaughter_scale", label: "I · Sacrificios", icon: Flame, exhibits: "Módulo I: Dinámica Temporal de Sacrificio (Exhibits I & II)" },
+  { id: "anatomy_confinement", label: "II · Biología", icon: Eye, exhibits: "Módulo II: Zootecnia y Confinamiento (Exhibits III & IV)" },
+  { id: "climate_ecology", label: "III · Ecosistemas", icon: Globe2, exhibits: "Módulo III: Clima, Suelo y Biodiversidad (Exhibits V, VI & VII)" },
+  { id: "trophic_thermodynamics", label: "IV · Termodinámica", icon: Zap, exhibits: "Módulo IV: Balance Trófico y Suelo (Exhibit VIII)" },
+  { id: "public_health", label: "V · Salud Pública", icon: Pill, exhibits: "Módulo V: Bioseguridad y Resistencia Antimicrobiana (Exhibit IX)" },
+  { id: "food_matrix", label: "VI · Matriz Global", icon: Table, exhibits: "Módulo VI: Matriz Comparativa de Alimentos (Exhibit X)" }
 ];
 
 export default memo(function DataSection() {
@@ -96,7 +96,7 @@ export default memo(function DataSection() {
   };
 
   return (
-    <div className="space-y-16 w-full max-w-[1280px] mx-auto px-4 md:px-6 lg:px-8 pt-0 pb-8 text-left">
+    <div className="space-y-8 sm:space-y-10 w-full pt-0 pb-8 text-left">
       {/* SECTION 0: Academic Hero & Meta Stats Banner */}
       <HeroShell id="hero" pad="wide" border="20" cue compact watermark={{ icon: Database, size: "clamp(140px, 35vw, 360px)" }}>
         <h1 className="text-[clamp(34px,5.8vw,64px)] font-bold tracking-tight font-heading leading-[1.06] text-on-background select-text">
@@ -118,8 +118,8 @@ export default memo(function DataSection() {
         </div>
       </HeroShell>
 
-      {/* Global Key Figures Bar — glass sutil */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-4xl mx-auto text-left">
+      {/* Global Key Figures Bar — expansión a ancho completo */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 w-full text-left">
         <div className="p-4 glass-enhance rounded-xl border border-outline-variant/15 space-y-1 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative">
           <span className="text-[10px] font-mono uppercase tracking-widest text-red-600 dark:text-red-400 font-semibold block">
             Sacrificio Anual
@@ -169,12 +169,15 @@ export default memo(function DataSection() {
         </div>
       </div>
 
-      {/* STICKY FLOATING NAVIGATION — glass unificada, offset adaptativo */}
-      <nav data-nav-avoid="true" aria-label="Módulos de la sección Cifras" className="sticky top-[var(--hero-nav-active-top,0px)] z-20 py-2.5 sm:py-3 glass-enhance border-y border-outline-variant/15 -mx-4 md:-mx-6 lg:-mx-8 px-4 md:px-6 lg:px-8 transition-[top] duration-200 ease-out before:content-[''] before:absolute before:inset-0 before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative">
-        <div className="relative max-w-[1280px] mx-auto">
-          {/* Indicador de scroll horizontal sutil en móvil */}
-          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-surface/80 dark:from-surface-dim/80 to-transparent sm:hidden z-10" aria-hidden="true" />
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar scroll-px-4">
+      {/* STICKY FLOATING NAVIGATION — distribución adaptativa en ancho completo */}
+      <nav
+        data-nav-avoid="true"
+        aria-label="Módulos de la sección Cifras"
+        className="sticky top-[var(--hero-nav-active-top,0px)] z-20 py-2 sm:py-2.5 glass-enhance border-y border-outline-variant/15 -mx-3 sm:-mx-5 md:-mx-7 lg:-mx-8 px-3 sm:px-5 md:px-7 lg:px-8 transition-[top] duration-200 ease-out before:content-[''] before:absolute before:inset-0 before:bg-surface-dim/30 dark:before:bg-surface-dim/15 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative shadow-xs"
+      >
+        <div className="w-full">
+          {/* Menú responsivo: tira horizontal ultra-compacta en móvil y grid de 6 columnas de ancho completo en desktop */}
+          <div className="flex lg:grid lg:grid-cols-6 items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar w-full scroll-px-3">
             {MODULE_NAVS.map((mod) => {
               const Icon = mod.icon;
               const isActive = activeNav === mod.id;
@@ -185,13 +188,13 @@ export default memo(function DataSection() {
                   title={mod.exhibits}
                   aria-current={isActive ? "true" : undefined}
                   onClick={() => scrollToModule(mod.id)}
-                  className={`px-3.5 py-2 rounded-full text-xs font-mono font-bold transition-all shrink-0 flex items-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${
+                  className={`shrink-0 lg:w-full px-3 lg:px-2.5 py-2 rounded-xl text-xs font-mono font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${
                     isActive
-                      ? "bg-primary text-on-primary shadow-sm ring-1 ring-primary/20"
-                      : "glass-enhance border border-outline-variant/20 text-on-surface-variant hover:text-on-surface hover:border-outline-variant/40 before:content-[''] before:absolute before:inset-0 before:rounded-full before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none relative"
+                      ? "bg-primary text-on-primary shadow-sm ring-1 ring-primary/20 font-extrabold"
+                      : "glass-enhance border border-outline-variant/20 text-on-surface-variant hover:text-on-surface hover:border-outline-variant/40 bg-surface/50 dark:bg-zinc-800/40"
                   }`}
                 >
-                  <Icon className="w-3.5 h-3.5" />
+                  <Icon className="w-3.5 h-3.5 shrink-0" />
                   <span>{mod.label}</span>
                 </button>
               );
@@ -203,7 +206,7 @@ export default memo(function DataSection() {
       {/* ========================================================================= */}
       {/* MODULE I: ESCALA Y SACRIFICIO EN VIVO */}
       {/* ========================================================================= */}
-      <section className="space-y-8 scroll-mt-16 sm:scroll-mt-[calc(var(--hero-nav-h,104px)+72px)]" id="slaughter_scale">
+      <section className="space-y-5 sm:space-y-6 scroll-mt-16 sm:scroll-mt-[calc(var(--hero-nav-h,104px)+72px)]" id="slaughter_scale">
         <div className="space-y-1 border-l-2 border-red-500/60 pl-4">
           <span className="text-xs font-mono uppercase tracking-widest text-red-600 dark:text-red-400 font-bold">
             Módulo I · Dinámica Cuantitativa de Sacrificio
@@ -211,6 +214,9 @@ export default memo(function DataSection() {
           <h2 className="text-2xl sm:text-3xl font-heading font-bold text-on-surface">
             La Magnitud Temporal del Matadero
           </h2>
+          <p className="text-xs sm:text-sm text-on-surface-variant max-w-3xl leading-relaxed">
+            Flujo cuantitativo de más de 80.000 millones de animales terrestres y billones de peces sacrificados cada año a escala global (FAOSTAT 2024 & Fishcount).
+          </p>
         </div>
 
         <LiveSlaughterTicker />
@@ -220,7 +226,7 @@ export default memo(function DataSection() {
       {/* ========================================================================= */}
       {/* MODULE II: BIOLOGÍA Y CONFINAMIENTO EXTREMO */}
       {/* ========================================================================= */}
-      <section className="space-y-8 scroll-mt-16 sm:scroll-mt-[calc(var(--hero-nav-h,104px)+72px)]" id="anatomy_confinement">
+      <section className="space-y-5 sm:space-y-6 scroll-mt-16 sm:scroll-mt-[calc(var(--hero-nav-h,104px)+72px)]" id="anatomy_confinement">
         <div className="space-y-1 border-l-2 border-amber-500/60 pl-4">
           <span className="text-xs font-mono uppercase tracking-widest text-amber-600 dark:text-amber-400 font-bold">
             Módulo II · Zootecnia y Arquitectura del Confinamiento
@@ -228,6 +234,9 @@ export default memo(function DataSection() {
           <h2 className="text-2xl sm:text-3xl font-heading font-bold text-on-surface">
             Cuerpos Manipulados y Espacios Reducidos
           </h2>
+          <p className="text-xs sm:text-sm text-on-surface-variant max-w-3xl leading-relaxed">
+            Metamorfosis artificial por selección zootécnica (1957—2025) y análisis bioespacial de privación de conductas instintivas en granjas intensivas (EFSA).
+          </p>
         </div>
 
         <BroilerAnatomyVisualizer />
@@ -237,7 +246,7 @@ export default memo(function DataSection() {
       {/* ========================================================================= */}
       {/* MODULE III: CLIMA, SUELO Y BIODIVERSIDAD */}
       {/* ========================================================================= */}
-      <section className="space-y-8 scroll-mt-16 sm:scroll-mt-[calc(var(--hero-nav-h,104px)+72px)]" id="climate_ecology">
+      <section className="space-y-5 sm:space-y-6 scroll-mt-16 sm:scroll-mt-[calc(var(--hero-nav-h,104px)+72px)]" id="climate_ecology">
         <div className="space-y-1 border-l-2 border-emerald-500/60 pl-4">
           <span className="text-xs font-mono uppercase tracking-widest text-emerald-600 dark:text-emerald-400 font-bold">
             Módulo III · Huella Ecológica y Extinción de Biomasa
@@ -245,6 +254,9 @@ export default memo(function DataSection() {
           <h2 className="text-2xl sm:text-3xl font-heading font-bold text-on-surface">
             Colapso de Ecosistemas y Ciclo de Vida
           </h2>
+          <p className="text-xs sm:text-sm text-on-surface-variant max-w-3xl leading-relaxed">
+            Apropiación de la biosfera: el ganado representa el 60% de la biomasa de mamíferos terrestres, impulsa la deforestación y concentra gases de efecto invernadero.
+          </p>
         </div>
 
         <MammalBiomassVisualizer />
@@ -255,7 +267,7 @@ export default memo(function DataSection() {
       {/* ========================================================================= */}
       {/* MODULE IV: TERMODINÁMICA Y PÉRDIDA TRÓFICA */}
       {/* ========================================================================= */}
-      <section className="space-y-8 scroll-mt-16 sm:scroll-mt-[calc(var(--hero-nav-h,104px)+72px)]" id="trophic_thermodynamics">
+      <section className="space-y-5 sm:space-y-6 scroll-mt-16 sm:scroll-mt-[calc(var(--hero-nav-h,104px)+72px)]" id="trophic_thermodynamics">
         <div className="space-y-1 border-l-2 border-primary/60 pl-4">
           <span className="text-xs font-mono uppercase tracking-widest text-primary dark:text-emerald-400 font-bold">
             Módulo IV · Balance Termodinámico y Suelo
@@ -263,6 +275,9 @@ export default memo(function DataSection() {
           <h2 className="text-2xl sm:text-3xl font-heading font-bold text-on-surface">
             La Ineficiencia Metabólica de la Pirámide Trófica
           </h2>
+          <p className="text-xs sm:text-sm text-on-surface-variant max-w-3xl leading-relaxed">
+            La ganadería ocupa el 83% de las tierras agrarias mundiales pero suministra únicamente el 18% de las calorías y el 37% de las proteínas humanas consumidas.
+          </p>
         </div>
 
         <LandAndTrophicFlowVisualizer />
@@ -271,7 +286,7 @@ export default memo(function DataSection() {
       {/* ========================================================================= */}
       {/* MODULE V: SALUD PÚBLICA Y PANDEMIAS */}
       {/* ========================================================================= */}
-      <section className="space-y-8 scroll-mt-16 sm:scroll-mt-[calc(var(--hero-nav-h,104px)+72px)]" id="public_health">
+      <section className="space-y-5 sm:space-y-6 scroll-mt-16 sm:scroll-mt-[calc(var(--hero-nav-h,104px)+72px)]" id="public_health">
         <div className="space-y-1 border-l-2 border-blue-500/60 pl-4">
           <span className="text-xs font-mono uppercase tracking-widest text-blue-600 dark:text-blue-400 font-bold">
             Módulo V · Bioseguridad y Resistencia Antimicrobiana
@@ -279,6 +294,9 @@ export default memo(function DataSection() {
           <h2 className="text-2xl sm:text-3xl font-heading font-bold text-on-surface">
             El Coste Oculto para la Salud Humana
           </h2>
+          <p className="text-xs sm:text-sm text-on-surface-variant max-w-3xl leading-relaxed">
+            Uso profiláctico masivo del 73% de los antibióticos mundiales en animales sanos, acelerando la selección de superbacterias resistentes y el riesgo zoonótico.
+          </p>
         </div>
 
         <AntibioticsPublicHealthVisualizer />
@@ -287,7 +305,7 @@ export default memo(function DataSection() {
       {/* ========================================================================= */}
       {/* MODULE VI: MATRIZ AMBIENTAL DE ALIMENTOS */}
       {/* ========================================================================= */}
-      <section className="space-y-8 scroll-mt-16 sm:scroll-mt-[calc(var(--hero-nav-h,104px)+72px)]" id="food_matrix">
+      <section className="space-y-5 sm:space-y-6 scroll-mt-16 sm:scroll-mt-[calc(var(--hero-nav-h,104px)+72px)]" id="food_matrix">
         <div className="space-y-1 border-l-2 border-purple-500/60 pl-4">
           <span className="text-xs font-mono uppercase tracking-widest text-purple-600 dark:text-purple-400 font-bold">
             Módulo VI · Matriz Comparativa y Simulador Dietético
@@ -295,6 +313,9 @@ export default memo(function DataSection() {
           <h2 className="text-2xl sm:text-3xl font-heading font-bold text-on-surface">
             Evaluación Multidimensional de Alimentos
           </h2>
+          <p className="text-xs sm:text-sm text-on-surface-variant max-w-3xl leading-relaxed">
+            Metanálisis de Poore & Nemecek (Science 2018) estandarizado por 100 g de proteína: emisiones de GEI, uso de suelo, acidificación y eutrofización.
+          </p>
         </div>
 
         <FoodEnvironmentalMatrix />
