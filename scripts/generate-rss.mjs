@@ -21,7 +21,7 @@ while ((m = itemRe.exec(raw)) !== null) {
 }
 items.sort((a,b)=> a.date.localeCompare(b.date));
 
-const SITE_URL = (process.env.SITE_URL || process.env.VITE_SITE_URL || "https://sintiens.duckdns.org").replace(/\/+$/, "");
+const SITE_URL = (process.env.SITE_URL || process.env.VITE_SITE_URL || "https://sintiens.org").replace(/\/+$/, "");
 
 const esc = (s) => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&apos;");
 

@@ -46,9 +46,9 @@ export default function LandAndTrophicFlowVisualizer() {
   const calcFossilYearsOffset = formatEs(calcCo2CapturedGt / 37.0, 1); // 37 Gt CO2 annual global emissions
 
   return (
-    <div className="w-full bg-surface dark:bg-zinc-900/60 rounded-2xl border border-outline-variant/30 dark:border-zinc-800 p-6 sm:p-8 space-y-8 text-left relative overflow-hidden shadow-sm">
+    <div className="w-full bg-surface dark:bg-zinc-900/60 rounded-2xl border border-outline-variant/30 dark:border-zinc-800 p-4 sm:p-5 lg:p-6 space-y-4 sm:space-y-5 text-left relative overflow-hidden shadow-sm">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-outline-variant/20 dark:border-zinc-800 pb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-outline-variant/20 dark:border-zinc-800 pb-3.5 sm:pb-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-mono font-bold tracking-widest text-primary dark:text-emerald-400 uppercase bg-primary/10 dark:bg-emerald-500/10 px-2 py-0.5 rounded border border-primary/20">

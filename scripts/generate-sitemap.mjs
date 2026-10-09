@@ -17,7 +17,7 @@ while ((m = itemRe.exec(raw)) !== null) {
 }
 items.sort((a,b)=> a.lastmod.localeCompare(b.lastmod));
 
-const SITE_URL = (process.env.SITE_URL || process.env.VITE_SITE_URL || "https://sintiens.duckdns.org").replace(/\/+$/, "");
+const SITE_URL = (process.env.SITE_URL || process.env.VITE_SITE_URL || "https://sintiens.org").replace(/\/+$/, "");
 
 const base = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
 const buildDate = new Date().toISOString().slice(0, 10);

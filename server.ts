@@ -14,7 +14,7 @@ dotenv.config();
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
-const SITE_URL = (process.env.SITE_URL || process.env.VITE_SITE_URL || "https://sintiens.duckdns.org").replace(/\/+$/, "");
+const SITE_URL = (process.env.SITE_URL || process.env.VITE_SITE_URL || "https://sintiens.org").replace(/\/+$/, "");
 
 // Solo confía en loopback (reverse proxy local en Oracle). Evita spoof de X-Forwarded-For.
 app.set("trust proxy", "loopback");

@@ -436,7 +436,7 @@ export default function App() {
           activeTab === "noticias"
             ? "max-w-[1480px] px-2 sm:px-2 md:px-3 lg:px-3 py-12 lg:py-20"
             : activeTab === "datos"
-            ? "max-w-[1520px] px-3 sm:px-5 md:px-7 lg:px-8 py-4 sm:py-6 lg:py-7"
+            ? "max-w-[1920px] 2xl:max-w-[2040px] px-3 sm:px-5 md:px-6 lg:px-8 xl:px-10 py-2 sm:py-3 lg:py-3.5"
             : "max-w-[1280px] px-4 md:px-6 lg:px-8 py-12 lg:py-20"
         }`}
       >
@@ -541,7 +541,7 @@ export default function App() {
       </main>
 
       {/* Modern Academic Footer */}
-      <footer className="border-t border-outline-variant/20 py-16 bg-surface-dim/20 mt-32">
+      <footer className={`border-t border-outline-variant/20 py-16 bg-surface-dim/20 ${activeTab === "datos" ? "mt-12 sm:mt-16" : "mt-32"}`}>
         <div className="max-w-[1280px] mx-auto px-4 md:px-8 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6 text-on-surface-variant">
           <div className="space-y-4">
              <div className="flex items-center gap-3">

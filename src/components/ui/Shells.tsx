@@ -33,8 +33,15 @@ export function HeroCorners() {
 /*  a la portada se asienta en su apartado; al bajar se aparta.        */
 /*  El hero reserva el hueco con HeroNavSlot (altura --hero-nav-h).    */
 /* ------------------------------------------------------------------ */
-export function HeroNavSlot() {
-  return <div data-nav-slot className="w-full mt-7 sm:mt-10 lg:mt-12 shrink-0" style={{ height: "var(--hero-nav-h, 104px)" }} aria-hidden />;
+export function HeroNavSlot({ compact }: { compact?: boolean } = {}) {
+  return (
+    <div
+      data-nav-slot
+      className={`w-full ${compact ? "mt-2 sm:mt-3" : "mt-7 sm:mt-10 lg:mt-12"} shrink-0`}
+      style={{ height: "var(--hero-nav-h, 104px)" }}
+      aria-hidden
+    />
+  );
 }
 
 type HeroNavMode = "apart" | "top" | "off";
@@ -297,7 +304,7 @@ interface HeroShellProps {
 }
 
 const HERO_TALL = "min-h-0 sm:min-h-[calc(100dvh-4.5rem)] lg:min-h-[calc(100dvh-5rem)] max-h-[920px] pt-8 pb-6 sm:pt-16 sm:pb-8 lg:pt-20 lg:pb-10";
-const HERO_COMPACT = "pt-4 pb-8";
+const HERO_COMPACT = "pt-3 sm:pt-4 pb-4 sm:pb-6";
 
 export function HeroShell({
   id = "hero",
@@ -357,7 +364,7 @@ export function HeroShell({
               {children}
             </div>
           </div>
-          <HeroNavSlot />
+          <HeroNavSlot compact={compact} />
           {cue && (
             <div className="w-full sm:flex-1 min-h-[48px] pt-4 sm:pt-0 flex flex-col items-center justify-center">
               <button

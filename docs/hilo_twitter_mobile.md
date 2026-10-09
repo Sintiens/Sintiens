@@ -49,6 +49,6 @@ El mapa conceptual interactivo ahora responde con precisión a gestos táctiles 
 La ética sintiocéntrica, la termodinámica, la bioética y los datos merecen leerse con la máxima comodidad desde cualquier dispositivo.
 
 Pruébalo desde tu móvil y cuéntanos qué te parece:
-🔗 https://sintiens.duckdns.org
+🔗 https://sintiens.org
 
 #Sintiens #Accesibilidad #WebDev #MobileFirst #OpenSource

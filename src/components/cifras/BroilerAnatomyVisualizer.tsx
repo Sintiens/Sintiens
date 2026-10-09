@@ -82,17 +82,17 @@ export default function BroilerAnatomyVisualizer() {
     const is1957 = year === 1957;
     const cog = paths.centerOfGravity;
 
-    const isBreastHighlighted = activePathology === "all" || activePathology === "breast";
-    const isSkeletonHighlighted = activePathology === "all" || activePathology === "skeleton";
-    const isCardioHighlighted = activePathology === "all" || activePathology === "cardio";
+    const isBreastHighlighted = isXrayMode ? (activePathology === "all" || activePathology === "breast") : activePathology === "breast";
+    const isSkeletonHighlighted = isXrayMode || activePathology === "skeleton";
+    const isCardioHighlighted = isXrayMode || activePathology === "cardio";
     const isPodoHighlighted = activePathology === "all" || activePathology === "pododermatitis";
-    const isCogHighlighted = activePathology === "cog" || showCogVector;
+    const isCogHighlighted = showCogVector || activePathology === "cog";
 
     return (
       <div className="relative w-full h-[320px] sm:h-[380px] lg:h-[400px] flex items-center justify-center select-none overflow-hidden">
-        {/* Floating Spec Badge */}
-        <div className="absolute top-3 left-3 z-10 px-3 py-2 bg-surface/90 dark:bg-zinc-900/90 backdrop-blur-md rounded-xl border border-outline-variant/30 text-left space-y-0.5 shadow-sm pointer-events-none">
-          <div className="flex items-center gap-1.5">
+        {/* Floating Spec Badge — positioned top-right so bird's head and beak are completely unobstructed */}
+        <div className="absolute top-3 right-3 z-10 px-3 py-2 bg-surface/90 dark:bg-zinc-900/90 backdrop-blur-md rounded-xl border border-outline-variant/30 text-right space-y-0.5 shadow-sm pointer-events-none">
+          <div className="flex items-center justify-end gap-1.5">
             <span className="w-2 h-2 rounded-full bg-primary" />
             <span className="text-[10px] font-mono uppercase tracking-widest text-primary dark:text-emerald-400 font-bold">
               {opts?.customLabel || `Cepa ${year} · ${data.strainName.split("(")[0]}`}
@@ -104,10 +104,12 @@ export default function BroilerAnatomyVisualizer() {
               a 56 días
             </span>
           </div>
-          <div className="text-[10px] font-mono text-on-surface-variant flex items-center gap-2">
+          <div className="text-[10px] font-mono text-on-surface-variant flex items-center justify-end gap-2">
             <span>Pechuga: <strong className="text-on-surface">{data.breastYieldPercent}%</strong></span>
             <span>·</span>
             <span>FCR: <strong className="text-on-surface">{data.feedConversionRatio} kg/kg</strong></span>
+            <span>·</span>
+            <span>Luz: <strong className={paths.groundClearanceMm <= 10 ? "text-red-500 font-bold" : "text-on-surface"}>{paths.groundClearanceMm} mm</strong></span>
           </div>
         </div>
 
@@ -123,16 +125,41 @@ export default function BroilerAnatomyVisualizer() {
               <path d="M 16 0 L 0 0 0 16" fill="none" stroke="currentColor" strokeWidth="0.3" strokeOpacity="0.07" />
             </pattern>
 
-            {/* Subtle plumage gradient for natural optical mode */}
+            {/* Realistic plumage gradient for natural optical mode */}
             <linearGradient id={`plumage-grad-${year}`} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#f3f4f6" stopOpacity="0.95" />
-              <stop offset="60%" stopColor="#e5e7eb" stopOpacity="0.9" />
-              <stop offset="100%" stopColor="#d1d5db" stopOpacity="0.85" />
+              <stop offset="0%" stopColor="#ffffff" stopOpacity="0.99" />
+              <stop offset="50%" stopColor="#f8fafc" stopOpacity="0.96" />
+              <stop offset="85%" stopColor="#f1f5f9" stopOpacity="0.94" />
+              <stop offset="100%" stopColor="#e2e8f0" stopOpacity="0.90" />
             </linearGradient>
 
+            {/* Wing plumage gradient */}
+            <linearGradient id={`wing-grad-${year}`} x1="0%" y1="0%" x2="80%" y2="100%">
+              <stop offset="0%" stopColor="#ffffff" stopOpacity="0.98" />
+              <stop offset="70%" stopColor="#f8fafc" stopOpacity="0.95" />
+              <stop offset="100%" stopColor="#e2e8f0" stopOpacity="0.92" />
+            </linearGradient>
+
+            {/* Natural juvenile comb & wattle gradients (fleshy soft rose/coral, realistic avian tone) */}
+            <linearGradient id={`comb-grad-${year}`} x1="0%" y1="100%" x2="0%" y2="0%">
+              <stop offset="0%" stopColor="#f87171" />
+              <stop offset="100%" stopColor="#fda4af" />
+            </linearGradient>
+            <linearGradient id={`wattle-grad-${year}`} x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#fda4af" />
+              <stop offset="100%" stopColor="#f87171" />
+            </linearGradient>
+
+            {/* Floor contact shadow gradient */}
+            <radialGradient id={`floor-shadow-${year}`} cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#0f172a" stopOpacity="0.35" />
+              <stop offset="60%" stopColor="#0f172a" stopOpacity="0.12" />
+              <stop offset="100%" stopColor="#0f172a" stopOpacity="0" />
+            </radialGradient>
+
             <linearGradient id={`breast-muscle-${year}`} x1="0%" y1="0%" x2="100%" y2="80%">
-              <stop offset="0%" stopColor="#ef4444" stopOpacity={activePathology === "breast" ? 0.75 : 0.45} />
-              <stop offset="100%" stopColor="#b91c1c" stopOpacity={activePathology === "breast" ? 0.85 : 0.6} />
+              <stop offset="0%" stopColor="#ef4444" stopOpacity={activePathology === "breast" ? 0.9 : 0.7} />
+              <stop offset="100%" stopColor="#b91c1c" stopOpacity={activePathology === "breast" ? 0.98 : 0.85} />
             </linearGradient>
 
             {/* Marker for plumb line */}
@@ -184,6 +211,30 @@ export default function BroilerAnatomyVisualizer() {
             </text>
           </g>
 
+          {/* Ground Clearance Dimension Bracket (Positioned clear of breast at x=26) */}
+          <g className="select-none pointer-events-none">
+            <line
+              x1="26"
+              y1={210 - paths.groundClearanceMm}
+              x2="26"
+              y2="210"
+              stroke={paths.groundClearanceMm <= 10 ? "#ef4444" : paths.groundClearanceMm <= 25 ? "#f59e0b" : "#10b981"}
+              strokeWidth="1.2"
+              strokeDasharray="2 2"
+            />
+            <line x1="22" y1={210 - paths.groundClearanceMm} x2="30" y2={210 - paths.groundClearanceMm} stroke={paths.groundClearanceMm <= 10 ? "#ef4444" : paths.groundClearanceMm <= 25 ? "#f59e0b" : "#10b981"} strokeWidth="1" />
+            <line x1="22" y1={210} x2="30" y2={210} stroke={paths.groundClearanceMm <= 10 ? "#ef4444" : paths.groundClearanceMm <= 25 ? "#f59e0b" : "#10b981"} strokeWidth="1" />
+            <text
+              x="33"
+              y={paths.groundClearanceMm <= 15 ? 210 - paths.groundClearanceMm - 5 : Math.min(204, Math.max(120, 210 - paths.groundClearanceMm / 2 + 3))}
+              className={`text-[7.5px] font-mono font-bold ${
+                paths.groundClearanceMm <= 10 ? "fill-red-500" : paths.groundClearanceMm <= 25 ? "fill-amber-500" : "fill-emerald-500"
+              }`}
+            >
+              Luz: {paths.groundClearanceMm} mm {paths.groundClearanceMm <= 10 ? "(Colapso)" : ""}
+            </text>
+          </g>
+
           {/* ============================================================== */}
           {/* GHOST OVERLAY (1957 silhouette overlay to show expansion) */}
           {/* ============================================================== */}
@@ -209,6 +260,40 @@ export default function BroilerAnatomyVisualizer() {
             </g>
           )}
 
+          {/* Background far leg (Pata trasera en perspectiva) */}
+          {paths.plumageLeg && !isXrayMode ? (
+            <g className="select-none pointer-events-none opacity-80" fill="none" strokeLinecap="round">
+              <path d={paths.plumageLeg.drumstickFar} fill="#e2e8f0" stroke="#cbd5e1" strokeWidth="1.0" />
+              <path d={paths.plumageLeg.metatarsusFar} stroke="#d97706" strokeWidth={year >= 2005 ? "3.2" : "2.6"} />
+              <path d={paths.plumageLeg.digitsFar} stroke="#d97706" strokeWidth="2.2" />
+            </g>
+          ) : paths.skeleton.farLeg ? (
+            <g
+              stroke={isXrayMode ? "#475569" : "#d97706"}
+              strokeOpacity={isXrayMode ? "0.4" : "0.85"}
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              fill="none"
+            >
+              {isXrayMode && <path d={paths.skeleton.farLeg.femur} />}
+              <path d={paths.skeleton.farLeg.tibia} />
+              <path d={paths.skeleton.farLeg.metatarsus} />
+              <path d={paths.skeleton.farLeg.digits} />
+            </g>
+          ) : null}
+
+          {/* Ground contact shadow in natural plumage mode */}
+          {!isXrayMode && (
+            <ellipse
+              cx={year >= 2005 ? 136 : 152}
+              cy="210"
+              rx={year >= 2005 ? 68 : 52}
+              ry="4.5"
+              fill={`url(#floor-shadow-${year})`}
+              className="pointer-events-none"
+            />
+          )}
+
           {/* ============================================================== */}
           {/* 1. BODY PLUMAGE / SILHOUETTE */}
           {/* ============================================================== */}
@@ -216,62 +301,211 @@ export default function BroilerAnatomyVisualizer() {
             d={paths.body}
             fill={
               isXrayMode
-                ? "rgba(16, 185, 129, 0.07)"
+                ? "rgba(16, 185, 129, 0.08)"
                 : `url(#plumage-grad-${year})`
             }
-            stroke={isXrayMode ? "#10b981" : "#9ca3af"}
-            strokeWidth={isXrayMode ? "1.0" : "1.4"}
+            stroke={isXrayMode ? "#10b981" : "#94a3b8"}
+            strokeWidth={isXrayMode ? "1.2" : "1.5"}
             strokeLinejoin="round"
             className="transition-all duration-500"
           />
 
+          {/* Tail Feathers */}
+          {paths.tailFeathers && paths.tailFeathers.map((t, idx) => (
+            <path
+              key={idx}
+              d={t}
+              fill="none"
+              stroke={isXrayMode ? "rgba(16, 185, 129, 0.3)" : "#94a3b8"}
+              strokeWidth="1.1"
+            />
+          ))}
+
+          {/* Wing Feathers / Coverts */}
+          <path
+            d={paths.wing}
+            fill={isXrayMode ? "rgba(16, 185, 129, 0.05)" : `url(#wing-grad-${year})`}
+            stroke={isXrayMode ? "rgba(16, 185, 129, 0.45)" : "#94a3b8"}
+            strokeWidth="1.1"
+            strokeLinejoin="round"
+          />
+          {paths.wingCoverts && paths.wingCoverts.map((c, idx) => (
+            <path
+              key={idx}
+              d={c}
+              fill="none"
+              stroke={isXrayMode ? "rgba(16, 185, 129, 0.25)" : "#94a3b8"}
+              strokeWidth="0.8"
+            />
+          ))}
+
           {/* ============================================================== */}
           {/* 2. HEAD DETAILS: Comb, Wattles, Beak, Eye */}
           {/* ============================================================== */}
-          {/* Comb (Cresta) */}
+          {/* Comb (Cresta juvenil suave) */}
           <path
             d={paths.head.comb}
-            fill="#ef4444"
-            stroke="#b91c1c"
-            strokeWidth="0.8"
+            fill={`url(#comb-grad-${year})`}
+            stroke="#f43f5e"
+            strokeWidth="0.6"
             className="drop-shadow-xs"
           />
-          {/* Wattle (Barbilla) */}
+          {/* Wattle (Barbilla juvenil) */}
           <path
             d={paths.head.wattle}
-            fill="#dc2626"
-            stroke="#991b1b"
-            strokeWidth="0.6"
+            fill={`url(#wattle-grad-${year})`}
+            stroke="#fb7185"
+            strokeWidth="0.5"
           />
-          {/* Beak (Pico) */}
-          <path
-            d={paths.head.beak}
-            fill="#f59e0b"
-            stroke="#d97706"
-            strokeWidth="0.8"
-          />
-          {/* Eye (Ojo con reflejo corneal) */}
-          <circle
-            cx={paths.head.eye.cx}
-            cy={paths.head.eye.cy}
-            r={paths.head.eye.r}
-            fill="#111827"
-          />
-          <circle
-            cx={paths.head.eye.cx - 0.7}
-            cy={paths.head.eye.cy - 0.7}
-            r={paths.head.eye.r * 0.35}
-            fill="#ffffff"
-          />
+          {/* Realistic Avian Beak */}
+          {paths.head.beakUpper ? (
+            <>
+              <path
+                d={paths.head.beakUpper}
+                fill="#f59e0b"
+                stroke="#d97706"
+                strokeWidth="0.8"
+              />
+              <path
+                d={paths.head.beakLower}
+                fill="#d97706"
+                stroke="#b45309"
+                strokeWidth="0.7"
+              />
+              {paths.head.nares && (
+                <line
+                  x1={paths.head.nares.x1}
+                  y1={paths.head.nares.y1}
+                  x2={paths.head.nares.x2}
+                  y2={paths.head.nares.y2}
+                  stroke="#78350f"
+                  strokeWidth="0.8"
+                />
+              )}
+            </>
+          ) : (
+            <path
+              d={paths.head.beak}
+              fill="#f59e0b"
+              stroke="#d97706"
+              strokeWidth="0.8"
+            />
+          )}
+          {/* Realistic Avian Eye with Amber Iris, Pupil & Corneal Reflection */}
+          <g className="select-none pointer-events-none">
+            {/* Eye rim / lid */}
+            <circle
+              cx={paths.head.eye.cx}
+              cy={paths.head.eye.cy}
+              r={paths.head.eye.r + 0.6}
+              fill="#e2e8f0"
+              stroke="#94a3b8"
+              strokeWidth="0.4"
+            />
+            {/* Warm Amber Iris */}
+            <circle
+              cx={paths.head.eye.cx}
+              cy={paths.head.eye.cy}
+              r={paths.head.eye.r}
+              fill="#d97706"
+            />
+            {/* Deep Pupil */}
+            <circle
+              cx={paths.head.eye.cx}
+              cy={paths.head.eye.cy}
+              r={paths.head.eye.r * 0.58}
+              fill="#0f172a"
+            />
+            {/* Corneal Highlight */}
+            <circle
+              cx={paths.head.eye.cx - paths.head.eye.r * 0.28}
+              cy={paths.head.eye.cy - paths.head.eye.r * 0.28}
+              r={paths.head.eye.r * 0.26}
+              fill="#ffffff"
+            />
+          </g>
 
-          {/* Wing Feathers / Alula */}
-          <path
-            d={paths.wing}
-            fill={isXrayMode ? "rgba(16, 185, 129, 0.05)" : "rgba(209, 213, 219, 0.5)"}
-            stroke={isXrayMode ? "rgba(16, 185, 129, 0.45)" : "#9ca3af"}
-            strokeWidth="0.9"
-            strokeLinejoin="round"
-          />
+          {/* Near leg exterior in Plumage Mode (Yellow scaly shank & toes, drumstick hock) */}
+          {!isXrayMode && activePathology !== "skeleton" && (
+            <g strokeLinecap="round" fill="none" className="select-none">
+              {paths.plumageLeg ? (
+                <>
+                  {/* Flank Covert & Feathered Drumstick */}
+                  <path
+                    d={paths.plumageLeg.drumstickNear}
+                    fill={`url(#plumage-grad-${year})`}
+                    stroke="#94a3b8"
+                    strokeWidth="1.1"
+                  />
+                  {/* Scaly shank (metatarsus) in rich golden amber */}
+                  <path
+                    d={paths.plumageLeg.metatarsusNear}
+                    stroke="#f59e0b"
+                    strokeWidth={year >= 2005 ? "3.8" : "3.0"}
+                  />
+                  {/* Scaly toes (digits) firmly on litter */}
+                  <path
+                    d={paths.plumageLeg.digitsNear}
+                    stroke="#f59e0b"
+                    strokeWidth="2.6"
+                  />
+                  {/* Pathological lesions in plumage mode for modern strains */}
+                  {(year === 2005 || year === 2025) && (
+                    <>
+                      {/* Hock burn lesion */}
+                      <circle
+                        cx={paths.pododermatitis?.hock?.cx ?? (year === 2025 ? 142 : 146)}
+                        cy={paths.pododermatitis?.hock?.cy ?? (year === 2025 ? 194 : 186)}
+                        r={year === 2025 ? 3.6 : 2.4}
+                        fill="#991b1b"
+                        stroke="#f87171"
+                        strokeWidth="1.0"
+                      />
+                      {/* Plantar necrotic ulcer */}
+                      <circle
+                        cx={paths.pododermatitis?.footpad?.cx ?? (year === 2025 ? 140 : 144)}
+                        cy={paths.pododermatitis?.footpad?.cy ?? 209}
+                        r={year === 2025 ? 4.2 : 3.0}
+                        fill="#7f1d1d"
+                        stroke="#ef4444"
+                        strokeWidth="1.2"
+                      />
+                      <circle
+                        cx={paths.pododermatitis?.footpad?.cx ?? (year === 2025 ? 140 : 144)}
+                        cy={paths.pododermatitis?.footpad?.cy ?? 209}
+                        r={year === 2025 ? 1.8 : 1.2}
+                        fill="#000000"
+                      />
+                    </>
+                  )}
+                </>
+              ) : (
+                <>
+                  {/* Exposed drumstick feather cuff / lower tibia if bird is tall (1957/1978) */}
+                  {paths.groundClearanceMm > 25 && (
+                    <path
+                      d={paths.skeleton.tibia}
+                      stroke="#e2e8f0"
+                      strokeWidth="3.6"
+                      strokeLinecap="round"
+                    />
+                  )}
+                  {/* Scaly shank (metatarsus) in rich golden amber */}
+                  <path
+                    d={paths.skeleton.metatarsus}
+                    stroke="#f59e0b"
+                    strokeWidth="2.8"
+                  />
+                  {/* Scaly toes (digits) firmly on litter */}
+                  <path
+                    d={paths.skeleton.digits}
+                    stroke="#f59e0b"
+                    strokeWidth="2.4"
+                  />
+                </>
+              )}
+            </g>
+          )}
 
           {/* ============================================================== */}
           {/* 3. SKELETAL SYSTEM (Spine, Keel, Pelvis, Femur, Tibia, Tarsus) */}
@@ -290,33 +524,60 @@ export default function BroilerAnatomyVisualizer() {
               }}
               className="cursor-pointer group focus-visible:outline-none"
             >
-              {/* Background far leg (Pata trasera en perspectiva) */}
-              {paths.skeleton.farLeg && (
-                <g stroke="#9ca3af" strokeOpacity="0.4" strokeWidth="1.2" strokeLinecap="round">
-                  <path d={paths.skeleton.farLeg.femur} />
-                  <path d={paths.skeleton.farLeg.tibia} />
-                  <path d={paths.skeleton.farLeg.metatarsus} />
-                  <path d={paths.skeleton.farLeg.digits} />
-                </g>
-              )}
-
               {/* Spine (Columna vertebral) */}
               <path
                 d={paths.skeleton.spine}
                 fill="none"
                 stroke={activePathology === "skeleton" ? "#ef4444" : isXrayMode ? "#34d399" : "#4b5563"}
-                strokeWidth={activePathology === "skeleton" ? "2.0" : "1.2"}
+                strokeWidth={activePathology === "skeleton" ? "2.2" : "1.6"}
                 strokeLinecap="round"
                 className="transition-colors duration-300 group-hover:stroke-red-400"
               />
 
-              {/* Keel Bone (Quilla esternal) — central biological marker */}
+              {/* Thoracic Ribs (Costillas torácicas articuladas) */}
+              {paths.skeleton.ribs && paths.skeleton.ribs.map((rib, idx) => (
+                <path
+                  key={idx}
+                  d={rib}
+                  fill="none"
+                  stroke={activePathology === "skeleton" ? "#ef4444" : isXrayMode ? "#6ee7b7" : "#4b5563"}
+                  strokeWidth="1.2"
+                  strokeLinecap="round"
+                  className="transition-colors duration-300"
+                />
+              ))}
+
+              {/* Coracoid Strut (Hueso coracoides hacia el esternón) */}
+              {paths.skeleton.coracoid && (
+                <path
+                  d={paths.skeleton.coracoid}
+                  fill="none"
+                  stroke={activePathology === "skeleton" ? "#ef4444" : isXrayMode ? "#34d399" : "#4b5563"}
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  className="transition-colors duration-300"
+                />
+              )}
+
+              {/* Pelvis / Synsacrum shield */}
+              {paths.skeleton.pelvis && (
+                <path
+                  d={paths.skeleton.pelvis}
+                  fill="none"
+                  stroke={activePathology === "skeleton" ? "#ef4444" : isXrayMode ? "#34d399" : "#4b5563"}
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  className="transition-colors duration-300"
+                />
+              )}
+
+              {/* Keel Bone (Quilla esternal) — marcador central de tensión */}
               {paths.skeleton.keel && (
                 <path
                   d={paths.skeleton.keel}
                   fill="none"
                   stroke={activePathology === "skeleton" ? "#ef4444" : year >= 2005 ? "#f59e0b" : "#10b981"}
-                  strokeWidth={activePathology === "skeleton" ? "2.6" : "1.8"}
+                  strokeWidth={activePathology === "skeleton" ? "2.8" : "2.2"}
                   strokeLinecap="round"
                   className="transition-colors duration-300"
                 />
@@ -326,8 +587,8 @@ export default function BroilerAnatomyVisualizer() {
               <path
                 d={paths.skeleton.femur}
                 fill="none"
-                stroke={activePathology === "skeleton" ? "#ef4444" : isXrayMode ? "#34d399" : "#374151"}
-                strokeWidth={activePathology === "skeleton" ? "2.4" : "1.6"}
+                stroke={activePathology === "skeleton" ? "#ef4444" : "#38bdf8"}
+                strokeWidth={activePathology === "skeleton" ? "2.6" : "2.2"}
                 strokeLinecap="round"
                 className="transition-colors duration-300"
               />
@@ -336,8 +597,8 @@ export default function BroilerAnatomyVisualizer() {
               <path
                 d={paths.skeleton.tibia}
                 fill="none"
-                stroke={activePathology === "skeleton" ? "#ef4444" : year >= 2005 ? "#dc2626" : isXrayMode ? "#34d399" : "#374151"}
-                strokeWidth={activePathology === "skeleton" ? "2.6" : year >= 2005 ? "2.0" : "1.6"}
+                stroke={activePathology === "skeleton" ? "#ef4444" : year >= 2005 ? "#dc2626" : "#38bdf8"}
+                strokeWidth={activePathology === "skeleton" ? "2.8" : year >= 2005 ? "2.4" : "2.2"}
                 strokeLinecap="round"
                 className="transition-colors duration-300"
               />
@@ -346,8 +607,8 @@ export default function BroilerAnatomyVisualizer() {
               <path
                 d={paths.skeleton.metatarsus}
                 fill="none"
-                stroke={activePathology === "skeleton" ? "#ef4444" : isXrayMode ? "#34d399" : "#374151"}
-                strokeWidth={activePathology === "skeleton" ? "2.2" : "1.5"}
+                stroke={activePathology === "skeleton" ? "#ef4444" : "#38bdf8"}
+                strokeWidth={activePathology === "skeleton" ? "2.4" : "2.0"}
                 strokeLinecap="round"
                 className="transition-colors duration-300"
               />
@@ -356,8 +617,8 @@ export default function BroilerAnatomyVisualizer() {
               <path
                 d={paths.skeleton.digits}
                 fill="none"
-                stroke={activePathology === "skeleton" ? "#ef4444" : isXrayMode ? "#34d399" : "#374151"}
-                strokeWidth={activePathology === "skeleton" ? "2.0" : "1.4"}
+                stroke={activePathology === "skeleton" ? "#ef4444" : "#38bdf8"}
+                strokeWidth={activePathology === "skeleton" ? "2.2" : "1.8"}
                 strokeLinecap="round"
                 className="transition-colors duration-300"
               />
@@ -365,9 +626,9 @@ export default function BroilerAnatomyVisualizer() {
               {/* Keel bone label callout in skeleton view */}
               {activePathology === "skeleton" && paths.skeleton.keel && (
                 <g className="pointer-events-none">
-                  <circle cx="90" cy="140" r="3" fill="#ef4444" />
+                  <circle cx="85" cy="140" r="3" fill="#ef4444" />
                   <text x="75" y="132" textAnchor="end" className="text-[7.5px] font-mono fill-red-500 font-bold">
-                    Quilla Esternal {year >= 2005 ? "(Deformada por peso)" : "(Recta)"}
+                    Quilla Esternal {year >= 2005 ? "(Deformada por compresión)" : "(Recta y funcional)"}
                   </text>
                 </g>
               )}
@@ -677,12 +938,12 @@ export default function BroilerAnatomyVisualizer() {
   };
 
   return (
-    <div className="w-full bg-surface dark:bg-zinc-900/60 rounded-2xl border border-outline-variant/30 dark:border-zinc-800 p-4 sm:p-6 lg:p-7 space-y-6 text-left relative overflow-hidden shadow-sm">
+    <div className="w-full bg-surface dark:bg-zinc-900/60 rounded-2xl border border-outline-variant/30 dark:border-zinc-800 p-4 sm:p-5 lg:p-6 space-y-4 sm:space-y-5 text-left relative overflow-hidden shadow-sm">
       {/* Background glow */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
 
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-outline-variant/20 dark:border-zinc-800 pb-5">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-outline-variant/20 dark:border-zinc-800 pb-3.5 sm:pb-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-[10px] font-mono font-bold tracking-widest text-primary dark:text-emerald-400 uppercase bg-primary/10 dark:bg-emerald-500/10 px-2 py-0.5 rounded border border-primary/20">
@@ -709,7 +970,7 @@ export default function BroilerAnatomyVisualizer() {
       </div>
 
       {/* Main Interactive Controls Bar */}
-      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 bg-surface-dim/40 dark:bg-zinc-800/40 p-3 sm:p-4 rounded-xl border border-outline-variant/20 dark:border-zinc-800">
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2.5 bg-surface-dim/40 dark:bg-zinc-800/40 p-2.5 sm:p-3 rounded-xl border border-outline-variant/20 dark:border-zinc-800">
         {/* Timeline Year Selectors + Playback */}
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-[10px] font-mono uppercase tracking-wider text-on-surface-variant font-bold mr-1">

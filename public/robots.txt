@@ -4,4 +4,4 @@ Allow: /
 Disallow: /api/
 Disallow: /*.map$
 
-Sitemap: https://sintiens.duckdns.org/sitemap.xml
+Sitemap: https://sintiens.org/sitemap.xml

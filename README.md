@@ -58,9 +58,9 @@ Una herramienta interactiva impulsada por Inteligencia Artificial que recibe cua
 
 ## ☁️ Despliegue en producción (Oracle Cloud)
 
-La web de producción corre en un **VPS de Oracle Cloud** (Always Free ARM) como contenedor Docker `sintiens_app` (puerto 3000, red `sintiens_net`), detrás de **Caddy** con HTTPS automático (Let's Encrypt) y DNS de DuckDNS:
+La web de producción corre en un **VPS de Oracle Cloud** (Always Free ARM) como contenedor Docker `sintiens_app` (puerto 3000, red `sintiens_net`), detrás de **Caddy** con HTTPS automático (Let's Encrypt):
 
-👉 **[https://sintiens.duckdns.org](https://sintiens.duckdns.org)**
+👉 **[https://sintiens.org](https://sintiens.org)**
 
 - **No se usa Render ni Vercel.** El despliegue vive únicamente en el VPS.
 - La actualización de producción se hace reconstruyendo y recreando el contenedor en el VPS (`docker build` + `docker run`); un simple `git push` no actualiza la web.
