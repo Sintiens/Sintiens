@@ -1,10 +1,8 @@
-# Tuit de Anuncio — Nuevo Dominio Oficial de Sintiens
+# Tuit Oficial — Nuevo Dominio Sintiens
 
 ---
 
-### Tweet 1 (Anuncio nueva URL)
-🌐 Sintiens estrena dominio oficial: https://sintiens.org
+### Tweet 1 (Nuevo dominio)
+Sintiens ya tiene dominio oficial propio: 👉 https://sintiens.org 🚀
 
-Damos un paso adelante con una plataforma más rápida y totalmente optimizada para móviles.
-
-Toda la investigación bioética, el laboratorio interactivo y los datos, reunidos en un espacio más limpio y accesible.
+Una plataforma limpia, visual y rigurosa sobre sintiencia animal. Datos, bioética y herramientas interactivas listas para trastear en un solo lugar.
