@@ -42,7 +42,7 @@ export default function DeforestationDriversVisualizer() {
             <span className="text-[10px] font-mono font-bold tracking-widest text-primary dark:text-emerald-400 uppercase bg-primary/10 dark:bg-emerald-500/10 px-2 py-0.5 rounded border border-primary/20">
               DESTRUCCIÓN DE ECOSISTEMAS · EXHIBIT VII
             </span>
-            <span className="text-xs font-mono text-on-surface-variant/50 hidden sm:inline">
+            <span className="text-xs font-mono text-on-surface-variant/75 hidden sm:inline">
               [ PENDRILL ET AL. / SCIENCE 2022 ]
             </span>
           </div>
@@ -145,7 +145,7 @@ export default function DeforestationDriversVisualizer() {
             </ResponsiveContainer>
             </div>
           </div>
-          <span className="text-[11px] font-mono text-on-surface-variant/60 text-right mt-2 block">
+          <span className="text-[11px] font-mono text-on-surface-variant/75 text-right mt-2 block">
             Haz clic en una barra o usa los botones para ver detalles
           </span>
         </div>
@@ -164,12 +164,12 @@ export default function DeforestationDriversVisualizer() {
             </div>
 
             <div className="space-y-1 text-xs font-mono">
-              <span className="text-on-surface-variant/60 block text-[10px] uppercase">Pérdida Anual Estimada:</span>
+              <span className="text-on-surface-variant/75 block text-[10px] uppercase">Pérdida Anual Estimada:</span>
               <span className="text-on-surface font-bold text-sm dark:text-zinc-200">{selectedDriver.annualHectaresLoss}</span>
             </div>
 
             <div className="space-y-1 text-xs font-mono">
-              <span className="text-on-surface-variant/60 block text-[10px] uppercase">Biomas Más Afectados:</span>
+              <span className="text-on-surface-variant/75 block text-[10px] uppercase">Biomas Más Afectados:</span>
               <span className="text-on-surface font-medium dark:text-zinc-300">{selectedDriver.primaryRegions}</span>
             </div>
 

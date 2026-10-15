@@ -40,7 +40,7 @@ export default function MammalBiomassVisualizer() {
             <span className="text-[10px] font-mono font-bold tracking-widest text-primary dark:text-emerald-400 uppercase bg-primary/10 dark:bg-emerald-500/10 px-2 py-0.5 rounded border border-primary/20">
               ECOLOGÍA GLOBAL · EXHIBIT V
             </span>
-            <span className="text-xs font-mono text-on-surface-variant/50 hidden sm:inline">
+            <span className="text-xs font-mono text-on-surface-variant/75 hidden sm:inline">
               [ BAR-ON ET AL. / PNAS 2018 ]
             </span>
           </div>
@@ -115,7 +115,7 @@ export default function MammalBiomassVisualizer() {
             <span className="font-bold text-on-surface dark:text-zinc-200">
               {eraView === "modern" ? "Matriz de Biomasa Planetaria (1 celda = 1%)" : "Matriz Pre-Antropoceno (1 celda = 1%)"}
             </span>
-            <span className="text-on-surface-variant/60">Total: 100 Celdas</span>
+            <span className="text-on-surface-variant/75">Total: 100 Celdas</span>
           </div>
 
           {/* 10x10 Waffle Grid */}
@@ -174,7 +174,7 @@ export default function MammalBiomassVisualizer() {
 
             {activeGroup.subGroups && (
               <div className="space-y-2 pt-2">
-                <span className="text-[10px] font-mono text-on-surface-variant/60 uppercase tracking-wider block font-bold">
+                <span className="text-[10px] font-mono text-on-surface-variant/75 uppercase tracking-wider block font-bold">
                   Desglose por grupos de especies:
                 </span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -187,7 +187,7 @@ export default function MammalBiomassVisualizer() {
                         <span>{sub.name}</span>
                         <span>{sub.percent}%</span>
                       </div>
-                      <p className="text-[10px] text-on-surface-variant/60 font-sans mt-0.5">{sub.description}</p>
+                      <p className="text-[10px] text-on-surface-variant/75 font-sans mt-0.5">{sub.description}</p>
                     </div>
                   ))}
                 </div>
@@ -202,7 +202,7 @@ export default function MammalBiomassVisualizer() {
                 <Feather className="w-4 h-4 text-amber-500" />
                 La Misma Pauta en las Aves del Mundo:
               </span>
-              <span className="text-[10px] font-mono text-on-surface-variant/60">Biomasa Aviar</span>
+              <span className="text-[10px] font-mono text-on-surface-variant/75">Biomasa Aviar</span>
             </div>
 
             {/* Two-part bar */}

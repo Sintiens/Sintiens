@@ -205,7 +205,7 @@ export default function BroilerAnatomyVisualizer() {
               x="295"
               y="206"
               textAnchor="end"
-              className="text-[8px] font-mono fill-on-surface-variant/60 uppercase tracking-wider"
+              className="text-[8px] font-mono fill-on-surface-variant/75 uppercase tracking-wider"
             >
               Línea de Suelo / Yacija (y = 0 cm)
             </text>
@@ -957,7 +957,7 @@ export default function BroilerAnatomyVisualizer() {
             Metamorfosis Biomecánica del Pollo de Engorde (1957—2025)
           </h3>
           <p className="text-xs sm:text-sm text-on-surface-variant max-w-3xl leading-relaxed">
-            La cría intensiva ha multiplicado por más de 4 el peso del pollo a los 56 días (de 905 g a más de 4.200 g). Este hiperdesarrollo muscular concentra una masa extrema en la pechuga y desplaza el centro de gravedad, provocando el colapso del sistema esquelético y cardiopulmonar.
+            La cría intensiva ha multiplicado por más de 5 el peso del pollo a los 56 días (de 905 g a 4.950 g). Este hiperdesarrollo muscular concentra una masa extrema en la pechuga y desplaza el centro de gravedad, provocando el colapso del sistema esquelético y cardiopulmonar.
           </p>
         </div>
 
@@ -1094,19 +1094,19 @@ export default function BroilerAnatomyVisualizer() {
       </div>
 
       {/* Main Anatomical Display Canvas */}
-      <div className="bg-surface-dim/70 dark:bg-zinc-950/70 rounded-2xl border border-outline-variant/40 dark:border-zinc-800 p-2 sm:p-4 overflow-hidden relative shadow-inner">
+      <div className="bg-surface-dim/70 rounded-2xl border border-outline-variant/40 p-2 sm:p-4 overflow-hidden relative">
         {isDualComparison ? (
           <div className="space-y-3">
             <div className="flex items-center justify-between px-2 text-xs font-mono text-on-surface-variant">
               <span>Comparativa a Escala Real (Línea de Suelo Común): 1957 vs 2025</span>
-              <span className="text-primary font-bold">+397% Aumento de Masa Corporal</span>
+              <span className="text-primary font-bold">+447% Aumento de Masa Corporal</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="border border-outline-variant/30 rounded-xl bg-surface/60 dark:bg-zinc-900/60 p-1">
                 {renderSingleChickenSvg(1957, { isCompact: true, customLabel: "1957 · Cepa Tradicional (905 g)" })}
               </div>
               <div className="border border-outline-variant/30 rounded-xl bg-surface/60 dark:bg-zinc-900/60 p-1">
-                {renderSingleChickenSvg(2025, { isCompact: true, customLabel: "2025 · Cepa Hiper-Seleccionada (4.500 g)" })}
+                {renderSingleChickenSvg(2025, { isCompact: true, customLabel: "2025 · Cepa Hiper-Seleccionada (4.950 g)" })}
               </div>
             </div>
           </div>

@@ -377,7 +377,7 @@ export default function LiveSlaughterTicker() {
                 <span className="text-sm font-mono font-bold text-red-600 dark:text-red-400 block">
                   {formatEs(count)}
                 </span>
-                <span className="text-[9px] font-mono text-on-surface-variant/60 uppercase">
+                <span className="text-[9px] font-mono text-on-surface-variant/75 uppercase">
                   muertos
                 </span>
               </div>

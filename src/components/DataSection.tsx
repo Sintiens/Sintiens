@@ -111,7 +111,7 @@ export default memo(function DataSection() {
         </p>
 
         <div className="flex items-center justify-center gap-3 sm:gap-5 pt-1">
-          <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-1.5">
+          <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/75 flex items-center gap-1.5">
             <Database className="w-3.5 h-3.5 text-primary" />
             REPOSITORIO BIOFÍSICO · ACCESO ABIERTO
           </span>
@@ -127,7 +127,7 @@ export default memo(function DataSection() {
           <span className="text-xl sm:text-2xl font-mono font-bold text-on-surface tabular-nums">
             &gt;80.000 M
           </span>
-          <span className="text-[10px] font-mono text-on-surface-variant/60 block">
+          <span className="text-[10px] font-mono text-on-surface-variant/75 block">
             Animales terrestres / año (FAOSTAT 2024)
           </span>
         </div>
@@ -139,7 +139,7 @@ export default memo(function DataSection() {
           <span className="text-xl sm:text-2xl font-mono font-bold text-on-surface tabular-nums">
             60% Ganado
           </span>
-          <span className="text-[10px] font-mono text-on-surface-variant/60 block">
+          <span className="text-[10px] font-mono text-on-surface-variant/75 block">
             Vs 36% humanos y 4% silvestres
           </span>
         </div>
@@ -151,7 +151,7 @@ export default memo(function DataSection() {
           <span className="text-xl sm:text-2xl font-mono font-bold text-on-surface tabular-nums">
             83% Suelo
           </span>
-          <span className="text-[10px] font-mono text-on-surface-variant/60 block">
+          <span className="text-[10px] font-mono text-on-surface-variant/75 block">
             Para el 18% de las calorías
           </span>
         </div>
@@ -163,7 +163,7 @@ export default memo(function DataSection() {
           <span className="text-xl sm:text-2xl font-mono font-bold text-on-surface tabular-nums">
             73% Global
           </span>
-          <span className="text-[10px] font-mono text-on-surface-variant/60 block">
+          <span className="text-[10px] font-mono text-on-surface-variant/75 block">
             Administrados a animales de granja
           </span>
         </div>
@@ -256,7 +256,7 @@ export default memo(function DataSection() {
           <div className="p-2.5 sm:p-3 rounded-xl bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/20 text-xs text-on-surface-variant flex items-start gap-2.5">
             <span className="text-sm shrink-0">💡</span>
             <p className="leading-relaxed">
-              <strong className="text-on-surface font-semibold">Idea clave:</strong> La selección artificial ha multiplicado por 4 el peso del pollo de engorde en solo 56 días, desplazando su centro de gravedad y colapsando su soporte locomotor, mientras que las normativas de confinamiento asignan a cada individuo un espacio inferior a un folio A4.
+              <strong className="text-on-surface font-semibold">Idea clave:</strong> La selección artificial ha multiplicado por más de 5 el peso del pollo de engorde en solo 56 días, desplazando su centro de gravedad y colapsando su soporte locomotor, mientras que las normativas de confinamiento asignan a cada individuo un espacio inferior a un folio A4.
             </p>
           </div>
         </div>
