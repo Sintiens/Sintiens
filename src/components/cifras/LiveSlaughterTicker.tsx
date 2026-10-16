@@ -166,7 +166,7 @@ export default function LiveSlaughterTicker() {
                   : "bg-surface dark:bg-zinc-800 text-on-surface-variant hover:text-on-surface border border-outline-variant/20"
               }`}
             >
-              Solo Terrestres (~2.570/s)
+              Solo Terrestres (~2.626/s)
             </button>
             <button
               onClick={() => setInclusionMode("with_aquaculture")}
@@ -177,7 +177,7 @@ export default function LiveSlaughterTicker() {
                   : "bg-surface dark:bg-zinc-800 text-on-surface-variant hover:text-on-surface border border-outline-variant/20"
               }`}
             >
-              + Piscicultura (~6.502/s)
+              + Piscicultura (~6.558/s)
             </button>
             <button
               onClick={() => setInclusionMode("all_sentient")}
@@ -188,7 +188,7 @@ export default function LiveSlaughterTicker() {
                   : "bg-surface dark:bg-zinc-800 text-on-surface-variant hover:text-on-surface border border-outline-variant/20"
               }`}
             >
-              Todos (+ Pesca silvestre ~54.067/s)
+              Todos (+ Pesca silvestre ~54.122/s)
             </button>
           </div>
         </div>

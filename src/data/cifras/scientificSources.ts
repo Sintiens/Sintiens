@@ -108,7 +108,7 @@ export const SCIENTIFIC_SOURCES: Record<ScientificSourceId, ScientificSource> = 
     keyFindings: [
       "La serie del repositorio suma ≈82,8 mil millones de animales terrestres sacrificados en 2024 (≈79,8 mil millones de aves y ≈3,0 mil millones de mamíferos).",
       "El sacrificio de pollos se ha multiplicado por más de 11 desde 1961 (de 6.600 millones a 75.800 millones en 2024).",
-      "Cada segundo son sacrificados ≈2.571 animales terrestres en mataderos de todo el mundo (≈2.403 pollos/s)."
+      "Cada segundo son sacrificados ≈2.626 animales terrestres en mataderos de todo el mundo (≈2.404 pollos/s)."
     ],
     bibtex: `@misc{fao2024faostat,
   title={FAOSTAT statistical database},

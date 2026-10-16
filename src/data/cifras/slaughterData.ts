@@ -30,15 +30,15 @@ export interface CountryMeatConsumption {
   primaryMeat: string;
 }
 
-// Tasas calculadas a partir de datos consolidados FAOSTAT (2022/2023) y Fishcount UK.
+// Tasas calculadas a partir de la serie FAOSTAT 2024 (÷ 31.536.000 s/año) y Fishcount UK (peces).
 // Nota: los datos FAOSTAT se revisan anualmente; revisar la serie al actualizar el dataset.
 export const SLAUGHTER_RATES_PER_SECOND: SpeciesSlaughterRate[] = [
   {
     id: "chickens",
     name: "Pollos de engorde",
     scientificGroup: "Gallus gallus domesticus",
-    annualTotal: 74200000000, // 74.2 mil millones
-    perSecondRate: 2352.8,
+    annualTotal: 75800000000, // 75.8 mil millones
+    perSecondRate: 2403.6,
     iconType: "chicken",
     color: "#f59e0b", // amber
     notes: "Representa en torno al 91,5% de todos los vertebrados terrestres sacrificados para consumo humano (2024)."
@@ -67,8 +67,8 @@ export const SLAUGHTER_RATES_PER_SECOND: SpeciesSlaughterRate[] = [
     id: "ducks",
     name: "Patos",
     scientificGroup: "Anas platyrhynchos domesticus",
-    annualTotal: 3300000000, // 3.3 mil millones
-    perSecondRate: 104.6,
+    annualTotal: 3380000000, // 3.38 mil millones (reparto patos/pavos proporcional al de 2022)
+    perSecondRate: 107.2,
     iconType: "duck",
     color: "#10b981", // emerald
     notes: "Alta concentración en el este y sudeste asiático, además de producción de foie gras en Europa."
@@ -77,8 +77,8 @@ export const SLAUGHTER_RATES_PER_SECOND: SpeciesSlaughterRate[] = [
     id: "pigs",
     name: "Cerdos",
     scientificGroup: "Sus domesticus",
-    annualTotal: 1520000000, // 1.52 mil millones
-    perSecondRate: 48.2,
+    annualTotal: 1540000000, // 1.54 mil millones
+    perSecondRate: 48.8,
     iconType: "pig",
     color: "#f43f5e", // rose
     notes: "El mamífero terrestre más sacrificado numéricamente a nivel global."
@@ -87,8 +87,8 @@ export const SLAUGHTER_RATES_PER_SECOND: SpeciesSlaughterRate[] = [
     id: "sheep_goats",
     name: "Ovejas y Cabras",
     scientificGroup: "Ovis aries & Capra hircus",
-    annualTotal: 1100000000, // 1.10 mil millones
-    perSecondRate: 34.9,
+    annualTotal: 1120000000, // 1.12 mil millones
+    perSecondRate: 35.5,
     iconType: "sheep",
     color: "#8b5cf6", // violet
     notes: "Importante presencia en Oriente Medio, África subsahariana y cuenca mediterránea."
@@ -97,8 +97,8 @@ export const SLAUGHTER_RATES_PER_SECOND: SpeciesSlaughterRate[] = [
     id: "turkeys",
     name: "Pavos",
     scientificGroup: "Meleagris gallopavo",
-    annualTotal: 620000000, // 620 millones
-    perSecondRate: 19.7,
+    annualTotal: 630000000, // 630 millones
+    perSecondRate: 20.0,
     iconType: "turkey",
     color: "#d97706", // amber-700
     notes: "Criados principalmente en América del Norte y la Unión Europea."
@@ -107,7 +107,7 @@ export const SLAUGHTER_RATES_PER_SECOND: SpeciesSlaughterRate[] = [
     id: "cattle",
     name: "Vacas y Terneros",
     scientificGroup: "Bos taurus & Bos indicus",
-    annualTotal: 332000000, // 332 millones
+    annualTotal: 330000000, // 330 millones
     perSecondRate: 10.5,
     iconType: "cow",
     color: "#ef4444", // red
@@ -115,12 +115,12 @@ export const SLAUGHTER_RATES_PER_SECOND: SpeciesSlaughterRate[] = [
   }
 ];
 
-// Totales agregados por segundo:
-// Solo terrestres: 2.352,8 (pollos) + 104,6 (patos) + 48,2 (cerdos) + 34,9 (ovejas/cabras) + 19,7 (pavos) + 10,5 (vacas) ≈ 2.570 terrestres/segundo.
-// Con acuicultura: + 3.931,9 ≈ 6.502 animales criados/segundo.
-// Con pesca silvestre: + 47.564,6 ≈ 54.066 animales sensibles/segundo.
+// Totales agregados por segundo (serie FAOSTAT 2024):
+// Solo terrestres: 2.403,6 (pollos) + 107,2 (patos) + 48,8 (cerdos) + 35,5 (ovejas/cabras) + 20,0 (pavos) + 10,5 (vacas) ≈ 2.625,6 terrestres/segundo.
+// Con acuicultura: + 3.931,9 ≈ 6.557,5 animales criados/segundo.
+// Con pesca silvestre: + 47.564,6 ≈ 54.122 animales sensibles/segundo.
 
-export const TOTAL_TERRESTRIAL_PER_SECOND = 2570.7;
+export const TOTAL_TERRESTRIAL_PER_SECOND = 2625.6;
 export const TOTAL_AQUATIC_FARMED_PER_SECOND = 3931.9;
 export const TOTAL_WILD_FISH_PER_SECOND = 47564.6;
 

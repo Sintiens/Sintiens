@@ -225,7 +225,7 @@ export default memo(function DataSection() {
           <div className="p-2.5 sm:p-3 rounded-xl bg-red-500/5 dark:bg-red-500/10 border border-red-500/20 text-xs text-on-surface-variant flex items-start gap-2.5">
             <span className="text-sm shrink-0">💡</span>
             <p className="leading-relaxed">
-              <strong className="text-on-surface font-semibold">Idea clave:</strong> Cada segundo mueren más de 2.500 animales terrestres en mataderos comerciales (el 92% pollos). Si incluimos la pesca industrial y piscicultura, la cifra supera las 54.000 vidas sintientes por segundo.
+              <strong className="text-on-surface font-semibold">Idea clave:</strong> Cada segundo mueren más de 2.600 animales terrestres en mataderos comerciales (el 91,5% pollos). Si incluimos la pesca industrial y piscicultura, la cifra supera las 54.000 vidas sintientes por segundo.
             </p>
           </div>
         </div>

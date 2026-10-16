@@ -148,6 +148,9 @@ export default function DeforestationDriversVisualizer() {
           <span className="text-[11px] font-mono text-on-surface-variant/75 text-right mt-2 block">
             Haz clic en una barra o usa los botones para ver detalles
           </span>
+          <span className="text-[10px] font-mono text-on-surface-variant/75 text-right mt-0.5 block">
+            Reparto por commodity: Pendrill et al. 2019 (vía OWID) · marco general: Pendrill et al. 2022 (Science)
+          </span>
         </div>
 
         {/* Right Column: Active Driver Card */}
@@ -196,7 +199,7 @@ export default function DeforestationDriversVisualizer() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         rawDataset={DEFORESTATION_DRIVERS_DATA}
-        datasetName="Motores de Deforestación (Pendrill et al. 2022)"
+        datasetName="Motores de Deforestación (reparto: Pendrill et al. 2019 · marco: Science 2022)"
       />
     </div>
   );
