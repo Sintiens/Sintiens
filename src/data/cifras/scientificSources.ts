@@ -266,14 +266,14 @@ export const SCIENTIFIC_SOURCES: Record<ScientificSourceId, ScientificSource> = 
     authors: "Hayek, M. N., Harwatt, H., Ripple, W. J., & Mueller, N. D.",
     journalOrPublisher: "Nature Sustainability, 4(1), 21-24",
     year: 2021,
-    doi: "10.1038/s41893-020-00613-6",
-    url: "https://doi.org/10.1038/s41893-020-00613-6",
+    doi: "10.1038/s41893-020-00603-4",
+    url: "https://doi.org/10.1038/s41893-020-00603-4",
     institution: "Harvard University, New York University y Oregon State University",
     sampleOrScope: "Cartografía global de alta resolución del potencial de captura de carbono biológico en tierras agrícolas actualmente dedicadas a ganadería.",
-    methodologySummary: "Modelado espacial de biomasa vegetal potencial si la tierra de pastoreo y cultivo forrajero se devolviera a su estado de bosque nativo o sabana natural sin ganado.",
+    methodologySummary: "Modelado espacial de biomasa vegetal potencial si la tierra de pastoreo y cultivo forrajero se devolviera a su estado de bosque nativo o sabana natural sin ganado. Escenarios evaluados a 2050: tendencial (BAU), dieta EAT-Lancet y dieta vegana.",
     keyFindings: [
-      "La restauración de las tierras actualmente dedicadas a la ganadería podría retirar de la atmósfera cientos de gigatoneladas de CO₂ (estimación publicada: ≈358-743 Gt CO₂ hasta 2050, según escenario).",
-      "Esta captura biológica equivale a entre ≈10 y ≈20 años de las emisiones globales de combustibles fósiles actuales.",
+      "La restauración de las tierras actualmente dedicadas a la ganadería podría retirar de la atmósfera entre ≈332 y ≈547 Gt de CO₂ acumuladas a 2050 (escenarios EAT-Lancet y vegano, frente al escenario tendencial), equivalentes al 99-163% del presupuesto de emisiones compatible con 1,5 °C (66% de probabilidad).",
+      "Esta captura biológica equivale a entre ≈9 y ≈15 años de las emisiones globales de combustibles fósiles actuales (hasta ≈20 años en el límite superior del intervalo de incertidumbre del escenario vegano, −743 Gt CO₂).",
       "Contribuiría de forma significativa a los objetivos del Acuerdo de París, pero no sustituye la descarbonización de los combustibles fósiles ni garantiza por sí sola los 1,5 °C."
     ],
     bibtex: `@article{hayek2021carbon,
@@ -285,7 +285,7 @@ export const SCIENTIFIC_SOURCES: Record<ScientificSourceId, ScientificSource> = 
   pages={21--24},
   year={2021},
   publisher={Nature Publishing Group},
-  doi={10.1038/s41893-020-00613-6}
+  doi={10.1038/s41893-020-00603-4}
 }`
   },
 

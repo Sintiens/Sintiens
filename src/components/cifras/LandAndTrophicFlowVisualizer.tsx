@@ -62,7 +62,7 @@ export default function LandAndTrophicFlowVisualizer() {
             La Paradoja del Suelo Agrícola y la Disipación Calórica
           </h3>
           <p className="text-xs sm:text-sm text-on-surface-variant max-w-2xl">
-            La segunda ley de la termodinámica aplicada a la alimentación: interponer animales como convertidores de biomasa disipa entre el 76% y el 97,5% de las calorías cultivadas en calor y heces.
+            La segunda ley de la termodinámica aplicada a la alimentación: interponer animales como convertidores de biomasa disipa entre el 76% y el 98,1% de las calorías cultivadas en calor y heces.
           </p>
         </div>
 
@@ -157,6 +157,9 @@ export default function LandAndTrophicFlowVisualizer() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <span className="text-xs font-mono uppercase tracking-widest text-primary dark:text-emerald-400 font-bold">
                 Simulador de Pérdida de Energía en la Conversión: 100 kcal de Pienso Vegetal
+              </span>
+              <span className="text-[10px] font-mono text-on-surface-variant/80">
+                Retención calórica estimada a partir de los ratios de conversión pienso→producto comestible (Alexander et al. 2017)
               </span>
             </div>
 
@@ -262,7 +265,7 @@ export default function LandAndTrophicFlowVisualizer() {
               Calculadora de Reforestación y Secuestro Biológico de Carbono
             </h4>
             <p className="text-xs text-on-surface-variant">
-              Modelo basado en Hayek et al. (*Nature Sustainability*, 2021): cuantifica la superficie liberada y el CO₂ absorbido si la humanidad reduce el consumo pecuario.
+              Modelo basado en Hayek et al. (<em>Nature Sustainability</em>, 2021): cuantifica la superficie liberada y el CO₂ absorbido si la humanidad reduce el consumo pecuario. Escenarios publicados a 2050: dieta EAT-Lancet −332 Gt CO₂; dieta vegana −547 Gt (intervalo −358 a −743). Los escenarios intermedios de esta calculadora (110-380 Gt) son una estimación interna.
             </p>
           </div>
 

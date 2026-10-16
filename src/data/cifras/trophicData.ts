@@ -10,7 +10,7 @@ export interface TrophicEfficiencyItem {
   product: string;
   caloricEfficiencyPercent: number; // % kcal out per 100 kcal feed in
   proteinEfficiencyPercent: number; // % g protein out per 100 g feed in
-  feedConversionRatio: number;      // kg feed to produce 1 kg live weight
+  feedConversionRatio: number;      // kg de materia seca de pienso por kg de producto comestible (ref. Alexander et al. 2017)
   energyLossPercent: number;        // % wasted in heat and feces
   color: string;
   metabolicNote: string;
@@ -61,7 +61,7 @@ export const GLOBAL_HARVEST_FLOW_DATA: GlobalHarvestFlowItem[] = [
     percentage: 36,
     caloriesTrillionsKcal: 3600,
     color: "#ef4444",
-    description: "Maíz, soja forrajera, cebada y trigo destinados a engordar animales. Entre el 80% y el 97% de esta energía se disipa en calor corporal, movimiento y heces."
+    description: "Maíz, soja forrajera, cebada y trigo destinados a engordar animales. Más del 88% de esta energía se disipa en calor corporal, movimiento y heces."
   },
   {
     stage: "Biocombustibles y Usos Industriales",
@@ -95,37 +95,37 @@ export const REWILDING_SCENARIOS: RewildingScenario[] = [
     shiftPercent: 100,
     landFreedMillionHa: 3100,
     co2SequestrationGt: 547,
-    description: "Transición 100% basada en plantas (Poore & Nemecek 2018; Hayek et al. 2021): libera 3.100 millones de hectáreas (el tamaño del continente africano) y captura del orden de 547 Gt de CO₂ en estimaciones internas conservadoras (el rango publicado de Hayek et al. llega hasta 743 Gt según escenario), equivalente a ≈15 años de emisiones fósiles actuales."
+    description: "Transición 100% basada en plantas (Poore & Nemecek 2018; Hayek et al. 2021): libera 3.100 millones de hectáreas (el tamaño del continente africano) y captura del orden de 547 Gt de CO₂ (escenario vegano publicado: −547 Gt a 2050, intervalo −358 a −743), equivalente a ≈15 años de emisiones fósiles actuales."
   }
 ];
 
 export const TROPHIC_EFFICIENCY_DATA: TrophicEfficiencyItem[] = [
   {
     product: "Carne de Vacuno (Feedlot / Cebo)",
-    caloricEfficiencyPercent: 2.5,
+    caloricEfficiencyPercent: 1.9,
     proteinEfficiencyPercent: 3.8,
-    feedConversionRatio: 12.0,
-    energyLossPercent: 97.5,
+    feedConversionRatio: 25.0,
+    energyLossPercent: 98.1,
     color: "#b91c1c",
-    metabolicNote: "Por cada 100 kcal de pienso y forraje ingeridos, el vacuno retiene únicamente 2,5 kcal en carne comestible. El 97,5% se pierde en mantenimiento basal, metano entérico y calor."
+    metabolicNote: "Por cada 100 kcal de pienso y forraje ingeridos, el vacuno retiene únicamente 1,9 kcal en carne comestible. El 98,1% se pierde en mantenimiento basal, metano entérico y calor."
   },
   {
     product: "Carne de Cerdo",
-    caloricEfficiencyPercent: 10.0,
-    proteinEfficiencyPercent: 12.5,
-    feedConversionRatio: 4.5,
-    energyLossPercent: 90.0,
+    caloricEfficiencyPercent: 8.6,
+    proteinEfficiencyPercent: 8.9,
+    feedConversionRatio: 6.5,
+    energyLossPercent: 91.4,
     color: "#ea580c",
-    metabolicNote: "Por cada 100 kcal de cereales y soja, se obtienen 10 kcal de carne. Se pierden 9 de cada 10 calorías cultivadas."
+    metabolicNote: "Por cada 100 kcal de cereales y soja, se obtienen 8,6 kcal de carne. Se pierden más de 9 de cada 10 calorías cultivadas."
   },
   {
     product: "Pollo de Engorde (Broiler industrial)",
-    caloricEfficiencyPercent: 18.0,
-    proteinEfficiencyPercent: 21.0,
-    feedConversionRatio: 2.2,
-    energyLossPercent: 82.0,
+    caloricEfficiencyPercent: 11.2,
+    proteinEfficiencyPercent: 19.6,
+    feedConversionRatio: 3.3,
+    energyLossPercent: 88.8,
     color: "#d97706",
-    metabolicNote: "Incluso con la selección genética más extrema para conversión, se desperdicia el 82% de las calorías del pienso vegetal."
+    metabolicNote: "Incluso con la selección genética más extrema para conversión, se desperdicia el 88,8% de las calorías del pienso vegetal (y el 80,4% de su proteína)."
   },
   {
     product: "Huevos de Gallina",
@@ -140,7 +140,7 @@ export const TROPHIC_EFFICIENCY_DATA: TrophicEfficiencyItem[] = [
     product: "Leche de Vaca",
     caloricEfficiencyPercent: 24.0,
     proteinEfficiencyPercent: 26.0,
-    feedConversionRatio: 1.8,
+    feedConversionRatio: 0.7,
     energyLossPercent: 76.0,
     color: "#2563eb",
     metabolicNote: "Conversión de rumen a glándula mamaria: pérdida del 76% de la energía calórica ingerida."
