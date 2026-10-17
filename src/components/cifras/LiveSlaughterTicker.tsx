@@ -130,7 +130,7 @@ export default function LiveSlaughterTicker() {
               MONITOR EN TIEMPO REAL · EXHIBIT I
             </span>
             <span className="text-xs font-mono text-on-surface-variant/60">
-              FAOSTAT 2024 & Fishcount
+              FAOSTAT 2024 · Fishcount 2022
             </span>
           </div>
           <h3 className="text-xl sm:text-2xl font-heading font-bold text-on-surface">
@@ -166,7 +166,7 @@ export default function LiveSlaughterTicker() {
                   : "bg-surface dark:bg-zinc-800 text-on-surface-variant hover:text-on-surface border border-outline-variant/20"
               }`}
             >
-              Solo Terrestres (~2.626/s)
+              Solo Terrestres (~2.739/s)
             </button>
             <button
               onClick={() => setInclusionMode("with_aquaculture")}
@@ -177,7 +177,7 @@ export default function LiveSlaughterTicker() {
                   : "bg-surface dark:bg-zinc-800 text-on-surface-variant hover:text-on-surface border border-outline-variant/20"
               }`}
             >
-              + Piscicultura (~6.558/s)
+              + Piscicultura (~6.972/s)
             </button>
             <button
               onClick={() => setInclusionMode("all_sentient")}
@@ -188,7 +188,7 @@ export default function LiveSlaughterTicker() {
                   : "bg-surface dark:bg-zinc-800 text-on-surface-variant hover:text-on-surface border border-outline-variant/20"
               }`}
             >
-              Todos (+ Pesca silvestre ~54.122/s)
+              Todos (+ Pesca silvestre ~54.537/s)
             </button>
           </div>
         </div>

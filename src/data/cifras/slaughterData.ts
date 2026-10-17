@@ -30,28 +30,29 @@ export interface CountryMeatConsumption {
   primaryMeat: string;
 }
 
-// Tasas calculadas a partir de la serie FAOSTAT 2024 (÷ 31.536.000 s/año) y Fishcount UK (peces).
+// Tasas calculadas a partir de la base FAOSTAT QCL (sacrificio 2024) ÷ 31.536.000 s/año,
+// con peces de piscifactoría según Fishcount/Our World in Data (estimación central 2022, último dato publicado).
 // Nota: los datos FAOSTAT se revisan anualmente; revisar la serie al actualizar el dataset.
 export const SLAUGHTER_RATES_PER_SECOND: SpeciesSlaughterRate[] = [
   {
     id: "chickens",
     name: "Pollos de engorde",
     scientificGroup: "Gallus gallus domesticus",
-    annualTotal: 75800000000, // 75.8 mil millones
-    perSecondRate: 2403.6,
+    annualTotal: 78534000000, // 78.53 mil millones (FAOSTAT 2024)
+    perSecondRate: 2490.3,
     iconType: "chicken",
     color: "#f59e0b", // amber
-    notes: "Representa en torno al 91,5% de todos los vertebrados terrestres sacrificados para consumo humano (2024)."
+    notes: "Representa en torno al 91% de todos los vertebrados terrestres sacrificados para consumo humano (2024)."
   },
   {
     id: "farmed_fish",
     name: "Peces de piscifactoría",
     scientificGroup: "Teleostei (Acuicultura)",
-    annualTotal: 124000000000, // media estimada: 124 mil millones
-    perSecondRate: 3931.9,
+    annualTotal: 133500000000, // estimación central 2022 (Fishcount): 133,5 mil millones
+    perSecondRate: 4233.3,
     iconType: "fish",
     color: "#06b6d4", // cyan
-    notes: "Estimación científica conservadora de peces criados y sacrificados anualmente en granjas acuícolas (Fishcount.org.uk)."
+    notes: "Estimación central de Fishcount para 2022 (vía Our World in Data): ≈133.500 millones de peces de granja sacrificados al año (rango 86.000-185.000). Último dato publicado."
   },
   {
     id: "wild_fish",
@@ -67,8 +68,8 @@ export const SLAUGHTER_RATES_PER_SECOND: SpeciesSlaughterRate[] = [
     id: "ducks",
     name: "Patos",
     scientificGroup: "Anas platyrhynchos domesticus",
-    annualTotal: 3380000000, // 3.38 mil millones (reparto patos/pavos proporcional al de 2022)
-    perSecondRate: 107.2,
+    annualTotal: 4228000000, // 4.23 mil millones (FAOSTAT 2024)
+    perSecondRate: 134.1,
     iconType: "duck",
     color: "#10b981", // emerald
     notes: "Alta concentración en el este y sudeste asiático, además de producción de foie gras en Europa."
@@ -77,8 +78,8 @@ export const SLAUGHTER_RATES_PER_SECOND: SpeciesSlaughterRate[] = [
     id: "pigs",
     name: "Cerdos",
     scientificGroup: "Sus domesticus",
-    annualTotal: 1540000000, // 1.54 mil millones
-    perSecondRate: 48.8,
+    annualTotal: 1494000000, // 1.49 mil millones (FAOSTAT 2024)
+    perSecondRate: 47.4,
     iconType: "pig",
     color: "#f43f5e", // rose
     notes: "El mamífero terrestre más sacrificado numéricamente a nivel global."
@@ -87,8 +88,8 @@ export const SLAUGHTER_RATES_PER_SECOND: SpeciesSlaughterRate[] = [
     id: "sheep_goats",
     name: "Ovejas y Cabras",
     scientificGroup: "Ovis aries & Capra hircus",
-    annualTotal: 1120000000, // 1.12 mil millones
-    perSecondRate: 35.5,
+    annualTotal: 1268000000, // 1.27 mil millones (FAOSTAT 2024)
+    perSecondRate: 40.2,
     iconType: "sheep",
     color: "#8b5cf6", // violet
     notes: "Importante presencia en Oriente Medio, África subsahariana y cuenca mediterránea."
@@ -97,8 +98,8 @@ export const SLAUGHTER_RATES_PER_SECOND: SpeciesSlaughterRate[] = [
     id: "turkeys",
     name: "Pavos",
     scientificGroup: "Meleagris gallopavo",
-    annualTotal: 630000000, // 630 millones
-    perSecondRate: 20.0,
+    annualTotal: 504000000, // 504 millones (FAOSTAT 2024)
+    perSecondRate: 16.0,
     iconType: "turkey",
     color: "#d97706", // amber-700
     notes: "Criados principalmente en América del Norte y la Unión Europea."
@@ -106,36 +107,38 @@ export const SLAUGHTER_RATES_PER_SECOND: SpeciesSlaughterRate[] = [
   {
     id: "cattle",
     name: "Vacas y Terneros",
-    scientificGroup: "Bos taurus & Bos indicus",
-    annualTotal: 330000000, // 330 millones
-    perSecondRate: 10.5,
+    scientificGroup: "Bos taurus, Bos indicus & Bubalus bubalis",
+    annualTotal: 334000000, // 334 millones (bovino + búfalo, FAOSTAT 2024)
+    perSecondRate: 10.6,
     iconType: "cow",
     color: "#ef4444", // red
-    notes: "El ganado bovino representa la mayor biomasa corporal individual y el mayor impacto de gases de efecto invernadero."
+    notes: "Incluye búfalos de agua (FAOSTAT agrupa la carne de vacuno y de búfalo). El ganado bovino representa la mayor biomasa corporal individual y el mayor impacto de gases de efecto invernadero."
   }
 ];
 
-// Totales agregados por segundo (serie FAOSTAT 2024):
-// Solo terrestres: 2.403,6 (pollos) + 107,2 (patos) + 48,8 (cerdos) + 35,5 (ovejas/cabras) + 20,0 (pavos) + 10,5 (vacas) ≈ 2.625,6 terrestres/segundo.
-// Con acuicultura: + 3.931,9 ≈ 6.557,5 animales criados/segundo.
-// Con pesca silvestre: + 47.564,6 ≈ 54.122 animales sensibles/segundo.
+// Totales agregados por segundo (FAOSTAT QCL 2024; peces de granja, Fishcount/OWID 2022):
+// Solo terrestres: 2.490,3 (pollos) + 134,1 (patos) + 47,4 (cerdos) + 40,2 (ovejas/cabras) + 16,0 (pavos) + 10,6 (bovino/búfalo) ≈ 2.738,6 terrestres/segundo.
+// Con acuicultura: + 4.233,3 ≈ 6.971,9 animales criados/segundo.
+// Con pesca silvestre: + 47.564,6 ≈ 54.536,5 animales sensibles/segundo.
 
-export const TOTAL_TERRESTRIAL_PER_SECOND = 2625.6;
-export const TOTAL_AQUATIC_FARMED_PER_SECOND = 3931.9;
+export const TOTAL_TERRESTRIAL_PER_SECOND = 2738.6;
+export const TOTAL_AQUATIC_FARMED_PER_SECOND = 4233.3;
 export const TOTAL_WILD_FISH_PER_SECOND = 47564.6;
 
-// Serie temporal histórica 1961 - 2024 (en Miles de Millones de individuos, Billions 10^9)
+// Serie temporal histórica 1961 - 2024 (en Miles de Millones de individuos, Billions 10^9).
+// Terrestres: FAOSTAT QCL (cattle = vacuno + búfalo). Peces de piscifactoría: Fishcount/OWID,
+// estimación central; último dato publicado 2022, mantenido para 2023-2024 a falta de actualización.
 export const HISTORICAL_SLAUGHTER_SERIES: HistoricalSlaughterPoint[] = [
-  { year: 1961, chickens: 6.60, pigs: 0.38, cattle: 0.17, sheepAndGoats: 0.37, ducksAndTurkeys: 0.35, farmedFishEstimated: 3.2, totalTerrestrial: 7.87 },
-  { year: 1970, chickens: 10.8, pigs: 0.52, cattle: 0.20, sheepAndGoats: 0.44, ducksAndTurkeys: 0.48, farmedFishEstimated: 5.8, totalTerrestrial: 12.44 },
-  { year: 1980, chickens: 16.5, pigs: 0.69, cattle: 0.23, sheepAndGoats: 0.51, ducksAndTurkeys: 0.72, farmedFishEstimated: 11.2, totalTerrestrial: 18.65 },
-  { year: 1990, chickens: 27.9, pigs: 0.86, cattle: 0.27, sheepAndGoats: 0.63, ducksAndTurkeys: 1.15, farmedFishEstimated: 26.5, totalTerrestrial: 30.81 },
-  { year: 2000, chickens: 40.5, pigs: 1.15, cattle: 0.29, sheepAndGoats: 0.75, ducksAndTurkeys: 2.10, farmedFishEstimated: 54.0, totalTerrestrial: 44.79 },
-  { year: 2010, chickens: 58.1, pigs: 1.38, cattle: 0.30, sheepAndGoats: 0.88, ducksAndTurkeys: 3.20, farmedFishEstimated: 85.2, totalTerrestrial: 63.86 },
-  { year: 2015, chickens: 65.8, pigs: 1.48, cattle: 0.31, sheepAndGoats: 0.98, ducksAndTurkeys: 3.55, farmedFishEstimated: 104.0, totalTerrestrial: 72.12 },
-  { year: 2020, chickens: 72.3, pigs: 1.49, cattle: 0.32, sheepAndGoats: 1.05, ducksAndTurkeys: 3.82, farmedFishEstimated: 118.0, totalTerrestrial: 78.98 },
-  { year: 2022, chickens: 74.2, pigs: 1.52, cattle: 0.33, sheepAndGoats: 1.10, ducksAndTurkeys: 3.92, farmedFishEstimated: 124.0, totalTerrestrial: 81.07 },
-  { year: 2024, chickens: 75.8, pigs: 1.54, cattle: 0.33, sheepAndGoats: 1.12, ducksAndTurkeys: 4.01, farmedFishEstimated: 129.0, totalTerrestrial: 82.80 }
+  { year: 1961, chickens: 6.58, pigs: 0.38, cattle: 0.18, sheepAndGoats: 0.43, ducksAndTurkeys: 0.37, farmedFishEstimated: 3.2, totalTerrestrial: 7.94 },
+  { year: 1970, chickens: 11.03, pigs: 0.54, cattle: 0.22, sheepAndGoats: 0.49, ducksAndTurkeys: 0.53, farmedFishEstimated: 5.8, totalTerrestrial: 12.81 },
+  { year: 1980, chickens: 18.39, pigs: 0.76, cattle: 0.25, sheepAndGoats: 0.54, ducksAndTurkeys: 0.83, farmedFishEstimated: 11.2, totalTerrestrial: 20.76 },
+  { year: 1990, chickens: 27.18, pigs: 0.92, cattle: 0.27, sheepAndGoats: 0.69, ducksAndTurkeys: 1.37, farmedFishEstimated: 13.0, totalTerrestrial: 30.44 },
+  { year: 2000, chickens: 40.49, pigs: 1.10, cattle: 0.28, sheepAndGoats: 0.78, ducksAndTurkeys: 2.60, farmedFishEstimated: 31.0, totalTerrestrial: 45.25 },
+  { year: 2010, chickens: 56.61, pigs: 1.37, cattle: 0.31, sheepAndGoats: 0.93, ducksAndTurkeys: 3.26, farmedFishEstimated: 76.0, totalTerrestrial: 62.48 },
+  { year: 2015, chickens: 64.00, pigs: 1.48, cattle: 0.31, sheepAndGoats: 1.04, ducksAndTurkeys: 3.53, farmedFishEstimated: 107.0, totalTerrestrial: 70.36 },
+  { year: 2020, chickens: 73.09, pigs: 1.32, cattle: 0.31, sheepAndGoats: 1.17, ducksAndTurkeys: 4.17, farmedFishEstimated: 126.2, totalTerrestrial: 80.06 },
+  { year: 2022, chickens: 75.45, pigs: 1.50, cattle: 0.32, sheepAndGoats: 1.24, ducksAndTurkeys: 4.63, farmedFishEstimated: 133.5, totalTerrestrial: 83.13 },
+  { year: 2024, chickens: 78.53, pigs: 1.49, cattle: 0.33, sheepAndGoats: 1.27, ducksAndTurkeys: 4.73, farmedFishEstimated: 133.5, totalTerrestrial: 86.36 }
 ];
 
 export const COUNTRY_MEAT_CONSUMPTION_DATA: CountryMeatConsumption[] = [

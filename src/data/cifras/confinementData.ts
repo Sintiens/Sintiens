@@ -147,7 +147,7 @@ export const MULTI_SPECIES_CONFINEMENT_DATA: Record<"hen" | "sow" | "calf" | "sa
     speciesId: "broiler_barn",
     speciesName: "Pollo de Engorde en Nave",
     scientificName: "Gallus gallus domesticus (Broiler)",
-    globalPopulation: "≈75.800 millones sacrificados al año (2024)",
+    globalPopulation: "≈78.500 millones sacrificados al año (2024)",
     keyIssueSummary: "Alojados en naves industriales cerradas a densidades de hasta 42 kg/m² (18 a 22 pollos adultos por metro cuadrado) sobre camas saturadas de amoníaco.",
     naturalBehaviors: [
       {
@@ -218,7 +218,7 @@ export const MULTI_SPECIES_CONFINEMENT_DATA: Record<"hen" | "sow" | "calf" | "sa
     speciesId: "sow",
     speciesName: "Cerda Reproductora",
     scientificName: "Sus domesticus",
-    globalPopulation: "Entre 60 y 80 millones de cerdas reproductoras en el mundo (China ≈40 M)",
+    globalPopulation: "Entre 60 y 80 millones de cerdas reproductoras en el mundo (USDA FAS 2024: China ≈42 M, UE-27 ≈10,3 M, EE. UU. ≈6,1 M)",
     keyIssueSummary: "Encerradas en jaulas de gestación y parideras de barras metálicas donde no pueden darse la vuelta durante meses consecutivos.",
     naturalBehaviors: [
       {
@@ -346,7 +346,7 @@ export const MULTI_SPECIES_CONFINEMENT_DATA: Record<"hen" | "sow" | "calf" | "sa
     speciesId: "salmon",
     speciesName: "Salmón Atlántico de Acuicultura",
     scientificName: "Salmo salar",
-    globalPopulation: "Entre 500 y 700 millones de salmones en jaulas marinas cada año (≈2,8 Mt ÷ 4-5 kg)",
+    globalPopulation: "Entre 500 y 650 millones de salmones en jaulas marinas cada año (≈2,9 Mt de producción FAO ÷ 4,5-5,5 kg por pez)",
     keyIssueSummary: "Peces migratorios confinados en jaulas de red flotantes a densidades extremas donde nadan en círculos repetitivos.",
     naturalBehaviors: [
       {

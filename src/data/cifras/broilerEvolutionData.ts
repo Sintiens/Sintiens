@@ -18,7 +18,7 @@ export interface BroilerYearMetric {
   /** Ganancia media diaria implícita: (peso a 56 días − 40 g de pollito) / 56 días. */
   dailyGrowthRateGrams: number;
   breastYieldPercent: number;
-  /** FCR acumulado a 42 días (Zuidhof et al. 2014); el valor 2025 es estimación. */
+  /** FCR acumulado a 42 días: Zuidhof et al. 2014 (1957-2005); objetivos oficiales as-hatched 2022 de Ross 308 y Cobb 500 (2025). */
   feedConversionRatio: number;
   /** % de mortalidad asociada a ascitis/fallo cardíaco (histórico global ~4,7%; moderno <1%). */
   metabolicMortalityRate: number;
@@ -193,13 +193,13 @@ export const BROILER_EVOLUTION_DATA: Record<BroilerYearType, BroilerYearMetric> 
 
   2025: {
     year: 2025,
-    label: "2025 (Extrapolación Contemporánea)",
-    strainName: "Ross 708 / Cobb 500 Fast Growth (estimación)",
-    weightAt56DaysG: 4950,
+    label: "2025 (Cepas Comerciales Actuales)",
+    strainName: "Ross 308 / Cobb 500 (objetivos as-hatched 2022)",
+    weightAt56DaysG: 4480,
     daysToMarketWeight2kg: 34,
-    dailyGrowthRateGrams: 87.7,
+    dailyGrowthRateGrams: 79.3,
     breastYieldPercent: 24.8,
-    feedConversionRatio: 1.55,
+    feedConversionRatio: 1.54,
     metabolicMortalityRate: 1.0,
     systems: {
       breast: {

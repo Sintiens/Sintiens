@@ -950,14 +950,14 @@ export default function BroilerAnatomyVisualizer() {
               SELECCIÓN ZOOTÉCNICA Y ALOMETRÍA · EXHIBIT III
             </span>
             <span className="text-xs font-mono text-on-surface-variant/70">
-              Zuidhof et al. 2014 & EFSA 2023
+              Zuidhof et al. 2014 · Aviagen/Cobb 2022 · EFSA 2023
             </span>
           </div>
           <h3 className="text-xl sm:text-2xl font-heading font-bold text-on-surface">
             Metamorfosis Biomecánica del Pollo de Engorde (1957—2025)
           </h3>
           <p className="text-xs sm:text-sm text-on-surface-variant max-w-3xl leading-relaxed">
-            La cría intensiva ha multiplicado por más de 5 el peso del pollo a los 56 días (de 905 g a 4.950 g). Este hiperdesarrollo muscular concentra una masa extrema en la pechuga y desplaza el centro de gravedad, provocando el colapso del sistema esquelético y cardiopulmonar.
+            La cría intensiva ha multiplicado por casi 5 el peso del pollo a los 56 días (de 905 g a 4.480 g). Este hiperdesarrollo muscular concentra una masa extrema en la pechuga y desplaza el centro de gravedad, provocando el colapso del sistema esquelético y cardiopulmonar.
           </p>
         </div>
 
@@ -1099,14 +1099,14 @@ export default function BroilerAnatomyVisualizer() {
           <div className="space-y-3">
             <div className="flex items-center justify-between px-2 text-xs font-mono text-on-surface-variant">
               <span>Comparativa a Escala Real (Línea de Suelo Común): 1957 vs 2025</span>
-              <span className="text-primary font-bold">+447% Aumento de Masa Corporal</span>
+              <span className="text-primary font-bold">+395% Aumento de Masa Corporal</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="border border-outline-variant/30 rounded-xl bg-surface/60 dark:bg-zinc-900/60 p-1">
                 {renderSingleChickenSvg(1957, { isCompact: true, customLabel: "1957 · Cepa Tradicional (905 g)" })}
               </div>
               <div className="border border-outline-variant/30 rounded-xl bg-surface/60 dark:bg-zinc-900/60 p-1">
-                {renderSingleChickenSvg(2025, { isCompact: true, customLabel: "2025 · Cepa Hiper-Seleccionada (4.950 g)" })}
+                {renderSingleChickenSvg(2025, { isCompact: true, customLabel: "2025 · Cepa Hiper-Seleccionada (4.480 g)" })}
               </div>
             </div>
           </div>
@@ -1161,7 +1161,7 @@ export default function BroilerAnatomyVisualizer() {
             {currentData.feedConversionRatio} kg/kg
           </div>
           <span className="text-[10px] font-mono text-on-surface-variant block">
-            Pienso por kilo de carne viva
+            Pienso por kilo de carne viva (acumulado a 42 días)
           </span>
         </div>
       </div>
@@ -1323,7 +1323,7 @@ export default function BroilerAnatomyVisualizer() {
 
       {/* Scientific Modal */}
       <ScientificEvidenceModal
-        sourceId="zuidhof-broiler-2014"
+        sourceId={selectedYear === 2025 ? "aviagen-cobb-objectives-2022" : "zuidhof-broiler-2014"}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         rawDataset={{

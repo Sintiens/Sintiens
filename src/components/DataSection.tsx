@@ -220,12 +220,12 @@ export default memo(function DataSection() {
             La Magnitud Temporal del Matadero
           </h2>
           <p className="text-xs sm:text-sm text-on-surface-variant max-w-3xl leading-relaxed">
-            Flujo cuantitativo de más de 80.000 millones de animales terrestres y billones de peces sacrificados cada año a escala global.
+            Flujo cuantitativo de más de 86.000 millones de animales terrestres y billones de peces sacrificados cada año a escala global.
           </p>
           <div className="p-2.5 sm:p-3 rounded-xl bg-red-500/5 dark:bg-red-500/10 border border-red-500/20 text-xs text-on-surface-variant flex items-start gap-2.5">
             <span className="text-sm shrink-0">💡</span>
             <p className="leading-relaxed">
-              <strong className="text-on-surface font-semibold">Idea clave:</strong> Cada segundo mueren más de 2.600 animales terrestres en mataderos comerciales (el 91,5% pollos). Si incluimos la pesca industrial y piscicultura, la cifra supera las 54.000 vidas sintientes por segundo.
+              <strong className="text-on-surface font-semibold">Idea clave:</strong> Cada segundo mueren más de 2.700 animales terrestres en mataderos comerciales (el 91% pollos). Si incluimos la pesca industrial y piscicultura, la cifra supera las 54.500 vidas sintientes por segundo.
             </p>
           </div>
         </div>
@@ -244,7 +244,7 @@ export default memo(function DataSection() {
               Módulo II · Zootecnia y Arquitectura del Confinamiento
             </span>
             <span className="text-[11px] font-mono text-on-surface-variant/70">
-              Zuidhof et al. 2014 & EFSA 2023
+              Zuidhof et al. 2014 · Aviagen/Cobb 2022 · EFSA 2023
             </span>
           </div>
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-heading font-bold text-on-surface">
@@ -256,7 +256,7 @@ export default memo(function DataSection() {
           <div className="p-2.5 sm:p-3 rounded-xl bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/20 text-xs text-on-surface-variant flex items-start gap-2.5">
             <span className="text-sm shrink-0">💡</span>
             <p className="leading-relaxed">
-              <strong className="text-on-surface font-semibold">Idea clave:</strong> La selección artificial ha multiplicado por más de 5 el peso del pollo de engorde en solo 56 días, desplazando su centro de gravedad y colapsando su soporte locomotor, mientras que las normativas de confinamiento asignan a cada individuo un espacio inferior a un folio A4.
+              <strong className="text-on-surface font-semibold">Idea clave:</strong> La selección artificial ha multiplicado por casi 5 el peso del pollo de engorde en solo 56 días (de 905 g a ≈4.480 g), desplazando su centro de gravedad y colapsando su soporte locomotor, mientras que las normativas de confinamiento asignan a cada individuo un espacio inferior a un folio A4.
             </p>
           </div>
         </div>

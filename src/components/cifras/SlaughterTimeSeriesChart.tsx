@@ -101,7 +101,7 @@ export default function SlaughterTimeSeriesChart() {
             Explosión Histórica del Sacrificio y Consumo Global
           </h3>
           <p className="text-xs sm:text-sm text-on-surface-variant max-w-2xl">
-            Evolución cuantitativa de las últimas seis décadas: la avicultura industrial se ha multiplicado por más de 11x (+1.048%), convirtiéndose en el mayor volumen de sacrificio terrestre.
+            Evolución cuantitativa de las últimas seis décadas: la avicultura industrial se ha multiplicado por casi 12x (+1.094%), convirtiéndose en el mayor volumen de sacrificio terrestre.
           </p>
         </div>
 
@@ -326,10 +326,10 @@ export default function SlaughterTimeSeriesChart() {
                 🍗 Aves de Corral
               </span>
               <span className="text-xl font-mono font-bold text-on-surface">
-                +1.048%
+                +1.094%
               </span>
               <p className="text-xs text-on-surface-variant leading-relaxed">
-                De 6.600 millones en 1961 a más de 75.000 millones en 2024 debido a la intensificación de naves industriales.
+                De 6.600 millones en 1961 a más de 78.000 millones en 2024 debido a la intensificación de naves industriales.
               </p>
             </div>
 
@@ -338,10 +338,10 @@ export default function SlaughterTimeSeriesChart() {
                 🐖 Porcino
               </span>
               <span className="text-xl font-mono font-bold text-on-surface">
-                +300%
+                +297%
               </span>
               <p className="text-xs text-on-surface-variant leading-relaxed">
-                De 380 millones a 1.520 millones anuales, impulsado por el rápido incremento del consumo per cápita en Asia y la UE.
+                De 376 millones a 1.494 millones anuales, impulsado por el rápido incremento del consumo per cápita en Asia y la UE.
               </p>
             </div>
 
@@ -350,10 +350,10 @@ export default function SlaughterTimeSeriesChart() {
                 🐟 Acuicultura Marina
               </span>
               <span className="text-xl font-mono font-bold text-on-surface">
-                +3.931%
+                +4.072%
               </span>
               <p className="text-xs text-on-surface-variant leading-relaxed">
-                La piscicultura pasó de 3.200 millones de peces en 1961 a 129.000 millones en 2024, el sector ganadero de mayor crecimiento.
+                La piscicultura pasó de 3.200 millones de peces en 1961 a 133.500 millones en 2022 (último dato Fishcount), el sector ganadero de mayor crecimiento.
               </p>
             </div>
           </div>

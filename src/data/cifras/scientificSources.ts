@@ -20,6 +20,7 @@ export const SOURCE_IDS = [
   "faostat-slaughter-2024",
   "fishcount-aquatic-2020",
   "zuidhof-broiler-2014",
+  "aviagen-cobb-objectives-2022",
   "efsa-broiler-welfare-2023",
   "efsa-laying-hens-2023",
   "efsa-pigs-welfare-2022",
@@ -106,9 +107,9 @@ export const SCIENTIFIC_SOURCES: Record<ScientificSourceId, ScientificSource> = 
     sampleOrScope: "Estadísticas oficiales anuales de producción pecuaria, censos ganaderos y sacrificio en más de 200 países y territorios desde 1961 hasta el presente.",
     methodologySummary: "Agregación sistemática de registros veterinarios ministeriales, encuestas censales y declaraciones aduaneras y de mataderos oficiales de los estados miembros de la ONU.",
     keyFindings: [
-      "La serie del repositorio suma ≈82,8 mil millones de animales terrestres sacrificados en 2024 (≈79,8 mil millones de aves y ≈3,0 mil millones de mamíferos).",
-      "El sacrificio de pollos se ha multiplicado por más de 11 desde 1961 (de 6.600 millones a 75.800 millones en 2024).",
-      "Cada segundo son sacrificados ≈2.626 animales terrestres en mataderos de todo el mundo (≈2.404 pollos/s)."
+      "La serie del repositorio suma ≈86,4 mil millones de animales terrestres sacrificados en 2024 (≈83,3 mil millones de aves y ≈3,1 mil millones de mamíferos; incluye búfalos de agua).",
+      "El sacrificio de pollos se ha multiplicado por casi 12 desde 1961 (de 6.600 millones a 78.500 millones en 2024).",
+      "Cada segundo son sacrificados ≈2.739 animales terrestres en mataderos de todo el mundo (≈2.490 pollos/s)."
     ],
     bibtex: `@misc{fao2024faostat,
   title={FAOSTAT statistical database},
@@ -131,7 +132,7 @@ export const SCIENTIFIC_SOURCES: Record<ScientificSourceId, ScientificSource> = 
     methodologySummary: "Conversión matemática de toneladas métricas brutas de captura y cosecha a número individual de peces y crustáceos mediante distribuciones alométricas de peso por especie.",
     keyFindings: [
       "Se estima que entre 1,1 y 2,2 billones (10¹²) de peces silvestres fueron capturados y asfixiados anualmente durante 2000-2019.",
-      "Entre 78.000 y 171.000 millones de peces de piscifactoría fueron sacrificados en 2019 (estimación central: 124.000 millones).",
+      "Las estimaciones centrales de peces de piscifactoría sacrificados crecieron de 124.000 millones (2019) a ≈133.500 millones en 2022 (rango 86.000-185.000; series de Fishcount vía Our World in Data).",
       "Cientos de miles de millones de crustáceos decápodos (camarones, langostinos, cangrejos) son sacrificados en granjas intensivas."
     ],
     bibtex: `@article{mood2024fishcount,
@@ -172,6 +173,30 @@ export const SCIENTIFIC_SOURCES: Record<ScientificSourceId, ScientificSource> = 
   year={2014},
   publisher={Oxford University Press},
   doi={10.3382/ps.2014-04291}
+}`
+  },
+
+  "aviagen-cobb-objectives-2022": {
+    id: "aviagen-cobb-objectives-2022",
+    title: "Broiler Performance Objectives 2022: Ross 308 y Cobb 500",
+    authors: "Aviagen Ltd. & Cobb-Vantress, Inc.",
+    journalOrPublisher: "Guías técnicas de rendimiento de líneas comerciales (Performance Objectives)",
+    year: 2022,
+    url: "https://aviagen.com/assets/Tech_Center/Ross_Broiler/RossxRoss308-BroilerPerformanceObjectives2022-EN.pdf",
+    institution: "Aviagen (líneas Ross) y Cobb-Vantress (línea Cobb 500), principales proveedores de genética avícola del mundo",
+    sampleOrScope: "Objetivos oficiales de rendimiento (peso vivo, consumo de pienso y conversión alimenticia por edades diana) de las dos líneas de pollo de engorde dominantes del mercado global, publicados para lotes mixtos (as-hatched) y por sexo.",
+    methodologySummary: "Mediciones de campo y ensayos internos de las casas genéticas bajo manejo óptimo de referencia; los objetivos as-hatched son el estándar comparable en lotes mixtos.",
+    keyFindings: [
+      "A 42 días, el objetivo as-hatched 2022 es de 2.998 g para Ross 308 y 3.278 g para Cobb 500, con FCR acumulado de 1,531 y 1,555 respectivamente.",
+      "A 56 días, los objetivos as-hatched alcanzan 4.318 g (Ross 308) y 4.641 g (Cobb 500); la media de ambas líneas (≈4.480 g) multiplica por casi 5 el peso de la cepa ACRBC de 1957 (905 g; Zuidhof et al. 2014).",
+      "Los objetivos por sexo (p. ej. 4.953 g del macho Cobb 500 a 56 días) quedan por encima del promedio as-hatched y no deben usarse como referencia del lote mixto medio."
+    ],
+    bibtex: `@misc{aviagen_cobb_objectives_2022,
+  title={Broiler Performance Objectives 2022: Ross 308 and Cobb 500},
+  author={{Aviagen Ltd.} and {Cobb-Vantress, Inc.}},
+  year={2022},
+  note={Guías técnicas de rendimiento as-hatched y por sexo. Ross 308: RossxRoss308-BroilerPerformanceObjectives2022-EN.pdf; Cobb 500: 2022-Cobb500-Broiler-Performance-Nutrition-Supplement.pdf},
+  url={https://aviagen.com/assets/Tech_Center/Ross_Broiler/RossxRoss308-BroilerPerformanceObjectives2022-EN.pdf}
 }`
   },
 
