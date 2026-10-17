@@ -37,6 +37,7 @@ while ((match = itemRe.exec(raw)) !== null) {
   else ids.add(id);
 
   if (!titleM || titleM[1].length < 10) errors.push(`${id}: título muy corto o faltante`);
+  if (titleM && titleM[1].length > 70) errors.push(`${id}: título de ${titleM[1].length} caracteres (máximo 70): "${titleM[1]}"`);
   if (!sumM || sumM[1].length < 20) errors.push(`${id}: summary muy corto`);
   if (!dateM || !/^\d{4}-\d{2}-\d{2}$/.test(dateM[1])) errors.push(`${id}: date inválida ${dateM?.[1]}`);
   else {
