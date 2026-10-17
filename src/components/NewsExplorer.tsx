@@ -40,7 +40,7 @@ import {
 } from "lucide-react";
 import { NEWS_DATA, NewsItem, SourceType } from "../data/newsData";
 import { GLOSSARY_UNIFIED, GLOSSARY_BY_ID } from "../data/glossaryUnified";
-import { buildGlossaryRegex } from "../utils/glossaryPatterns";
+import { buildGlossaryRegex, splitGlossaryText } from "../utils/glossaryPatterns";
 import { SITE_URL, SITE_NAME } from "../utils/site.ts";
 import GlossaryLink from "./GlossaryLink";
 import { HeroShell } from "./ui/Shells";
@@ -146,7 +146,7 @@ const renderWithGlossary = (text: string, item: NewsItem, query: string) => {
   if (!data) return highlightMatch(text, query) as any;
   const { regex, map } = data;
   // split por glosario (captura incluye término)
-  const parts = text.split(regex);
+  const parts = splitGlossaryText(text, regex, "¿?");
   if (parts.length === 1) return highlightMatch(text, query) as any;
   const q = query.trim();
   const escQ = q ? q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") : null;

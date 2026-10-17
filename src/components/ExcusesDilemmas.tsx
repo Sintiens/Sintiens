@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import { createPortal } from "react-dom";
 import {
   Compass,
   Search,
@@ -836,7 +837,7 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
 
       {/* ───────────── HOJA MODAL (móvil) ───────────── */}
       <AnimatePresence>
-        {isMobileDetailOpen && selectedDilemma && (
+        {isMobileDetailOpen && selectedDilemma && createPortal(
           <div ref={mobileSheetRef} role="dialog" aria-modal="true" aria-label="Detalle de tesis" className="lg:hidden fixed inset-0 z-[100] flex items-end justify-center">
             <motion.div
               initial={{ opacity: 0 }}
@@ -882,7 +883,8 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
                 />
               </div>
             </motion.div>
-          </div>
+          </div>,
+          document.body
         )}
       </AnimatePresence>
     </motion.section>

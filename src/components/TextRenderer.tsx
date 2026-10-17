@@ -5,7 +5,7 @@ import { GLOSSARY_UNIFIED, GlossaryEntry } from "../data/glossaryUnified";
 import { CORE_NODES } from "../data/CORE_NODES";
 import { DILEMMAS_DATA } from "../data/DILEMMAS_DATA";
 import GlossaryLink from "./GlossaryLink";
-import { buildGlossaryRegex } from "../utils/glossaryPatterns";
+import { buildGlossaryRegex, splitGlossaryText } from "../utils/glossaryPatterns";
 
 const CATEGORY_COLOR_VAR: Record<string, string> = {
   sintiencia: "var(--ch1)",
@@ -357,7 +357,7 @@ export default function TextRenderer({ text, references }: TextRendererProps) {
             );
           }
 
-          const glossaryParts = segment.split(glossaryRegex);
+          const glossaryParts = splitGlossaryText(segment, glossaryRegex);
 
           return (
             <React.Fragment key={idx}>

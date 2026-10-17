@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Search,
@@ -1628,7 +1629,7 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
 
       {/* Mobile modal */}
       <AnimatePresence>
-        {isMobileDetailOpen && selectedEntry && (
+        {isMobileDetailOpen && selectedEntry && createPortal(
           <div ref={mobileSheetRef} role="dialog" aria-modal="true" aria-label="Detalle de glosario" className="lg:hidden fixed inset-0 z-[100] flex items-end justify-center">
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -1651,7 +1652,8 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
                 {renderEntryDetail(selectedEntry)}
               </div>
             </motion.div>
-          </div>
+          </div>,
+          document.body
         )}
       </AnimatePresence>
     </div>

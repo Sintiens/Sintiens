@@ -1,6 +1,6 @@
 import React from "react";
 import { GLOSSARY_UNIFIED, GlossaryEntry, GLOSSARY_BY_ID } from "../data/glossaryUnified";
-import { buildGlossaryRegex } from "../utils/glossaryPatterns";
+import { buildGlossaryRegex, splitGlossaryText } from "../utils/glossaryPatterns";
 
 export interface StoryTooltipItem {
   id: string;
@@ -79,7 +79,7 @@ export default function StoryTextRenderer({
     if (node === null || node === undefined) return null;
 
     if (typeof node === "string") {
-      const glossaryParts = node.split(glossaryRegex);
+      const glossaryParts = splitGlossaryText(node, glossaryRegex, "¿?");
       if (glossaryParts.length <= 1) {
         return <span key={`txt-${index}`}>{node}</span>;
       }

@@ -4,6 +4,7 @@
  * (cifras/* + charts/*) deben converger a estos componentes.
  */
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import type { LucideIcon } from "lucide-react";
 import { HERO_FULL_BLEED, HERO_ICON_STYLE } from "../../styles/glass";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
@@ -469,7 +470,7 @@ export function ModalShell({ onClose, labelledBy, describedBy, className = "", c
     };
   }, [onClose]);
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-[300] flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm"
       onMouseDown={(e) => {
@@ -486,7 +487,8 @@ export function ModalShell({ onClose, labelledBy, describedBy, className = "", c
       >
         {children}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
