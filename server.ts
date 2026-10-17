@@ -16,8 +16,10 @@ const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 const SITE_URL = (process.env.SITE_URL || process.env.VITE_SITE_URL || "https://sintiens.org").replace(/\/+$/, "");
 
-// Solo confía en loopback (reverse proxy local en Oracle). Evita spoof de X-Forwarded-For.
-app.set("trust proxy", "loopback");
+// Caddy corre en la misma red Docker (su IP no es loopback): confía solo en el
+// primer salto para que req.secure y req.ip reflejen X-Forwarded-Proto/For de
+// Caddy (necesario para HSTS y para que el rate limit use la IP real del cliente).
+app.set("trust proxy", 1);
 // No filtrar la firma del framework.
 app.disable("x-powered-by");
 
@@ -259,14 +261,28 @@ async function atomicWriteFile(filePath: string, data: string): Promise<void> {
 async function readTasks(): Promise<any[]> {
   let workspaceTasks: any[] = [];
   let workspaceReadSuccess = false;
+  let workspaceCorrupt = false;
 
   // 1. Try to read from project workspace todo.json
   try {
     const data = await fs.readFile(TASKS_FILE_PATH, "utf-8");
-    workspaceTasks = JSON.parse(data);
+    const parsed = JSON.parse(data);
+    if (!Array.isArray(parsed)) {
+      throw new Error("todo.json no contiene un array de tareas.");
+    }
+    workspaceTasks = parsed;
     workspaceReadSuccess = true;
-  } catch (err) {
-    console.warn("Workspace todo.json not found or failed to parse. Attempting backup recovery...");
+  } catch (err: any) {
+    if (err && err.code === "ENOENT") {
+      console.warn("Workspace todo.json no existe (primer arranque). Intentando recuperación desde backup...");
+    } else {
+      workspaceCorrupt = true;
+      console.error("Workspace todo.json corrupto o ilegible:", err?.message || err);
+      // Preserva el fichero dañado para inspección antes de recuperar desde backup.
+      try {
+        await fs.rename(TASKS_FILE_PATH, `${TASKS_FILE_PATH}.corrupt-${Date.now()}`);
+      } catch {}
+    }
   }
 
   // 2. ONLY attempt backup recovery if the workspace read genuinely failed (missing/corrupted)
@@ -274,7 +290,7 @@ async function readTasks(): Promise<any[]> {
     try {
       const backupData = await fs.readFile(BACKUP_FILE_PATH, "utf-8");
       const backupTasks = JSON.parse(backupData);
-      
+
       if (Array.isArray(backupTasks)) {
         console.log(`Successfully recovered ${backupTasks.length} tasks from AppData backup! Syncing to workspace.`);
         await atomicWriteFile(TASKS_FILE_PATH, JSON.stringify(backupTasks, null, 2));
@@ -283,6 +299,12 @@ async function readTasks(): Promise<any[]> {
     } catch (backupErr) {
       console.warn("No backup found or backup file is empty/corrupt.");
     }
+  }
+
+  // 3. Si el fichero existía pero estaba corrupto y no hay backup utilizable,
+  // lanza error en vez de devolver [] (evita sobrescribir tareas reales con vacío).
+  if (workspaceCorrupt) {
+    throw new Error("todo.json corrupto y sin copia de seguridad utilizable. El fichero dañado se conservó como .corrupt-<timestamp>.");
   }
 
   return workspaceTasks;
@@ -318,9 +340,15 @@ async function writeTasks(tasks: any[]): Promise<boolean> {
 
 app.get("/api/dev/tasks", async (req, res) => {
   if (!devGuard(req, res)) return;
-  const tasks = await dbMutex.run(async (): Promise<any[]> => readTasks());
-  res.json(tasks);
-  return;
+  try {
+    const tasks = await dbMutex.run(async (): Promise<any[]> => readTasks());
+    res.json(tasks);
+    return;
+  } catch (err: any) {
+    console.error("GET /api/dev/tasks failed:", err);
+    res.status(500).json({ error: err?.message || "No se pudieron leer las tareas." });
+    return;
+  }
 });
 
 app.post("/api/dev/tasks", async (req, res) => {
