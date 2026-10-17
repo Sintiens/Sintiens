@@ -659,7 +659,7 @@ style={{
             />
 
             <div className="space-y-2.5 flex-1 relative z-10">
-              <span className={`text-[10px] font-mono font-bold ${act.textColor} uppercase tracking-widest block leading-none`}>
+              <span className="text-[10px] font-mono font-bold text-on-surface-variant uppercase tracking-widest block leading-none">
                 — ACTO {act.num}
               </span>
               <h3 className={`text-base sm:text-lg lg:text-xl font-bold font-heading text-on-background ${act.hoverColor} transition-colors duration-300`}>
@@ -791,7 +791,7 @@ const isActive = activeChapter === act0.id;
 
         <motion.section variants={chapterVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} className="relative z-10 pt-0 pb-3 lg:pb-4 w-full px-3 md:px-6 xl:pl-20 xl:pr-4">
           <div
-            className={`narrative-text-container relative w-full font-serif text-[18px] md:text-[20px] leading-[1.8] font-normal transition-colors duration-300 ${isActive ? 'text-on-surface' : 'text-on-surface/35'} [&_p]:mb-5 [&_p:last-child]:mb-0`}
+            className={`narrative-text-container relative w-full font-serif text-[18px] md:text-[20px] leading-[1.8] font-normal transition-colors duration-300 ${isActive ? 'text-on-surface' : 'text-on-surface/70'} [&_p]:mb-5 [&_p:last-child]:mb-0`}
           >
             {act0.blocks.map((block, blockIndex) => (
               <div key={block.id} className="mb-10 last:mb-0 narrative-block" data-block-title={block.title} data-block-id={block.id}>
@@ -912,7 +912,7 @@ return (
           ttsTargetRef.current = el;
           centerColumnRefsByAct.current[act.id] = el;
         }}
-        className={`narrative-text-container relative w-full font-serif text-[18px] md:text-[20px] leading-[1.8] font-normal transition-colors duration-300 ${isActive ? 'text-on-surface' : 'text-on-surface/35'} [&_p]:mb-5 [&_p:last-child]:mb-0 order-1`}
+        className={`narrative-text-container relative w-full font-serif text-[18px] md:text-[20px] leading-[1.8] font-normal transition-colors duration-300 ${isActive ? 'text-on-surface' : 'text-on-surface/70'} [&_p]:mb-5 [&_p:last-child]:mb-0 order-1`}
       >
         {act.blocks.map((block, blockIndex) => (
           <div key={block.id} className="mb-10 last:mb-0 narrative-block" data-block-title={block.title} data-block-id={block.id}>
@@ -943,7 +943,7 @@ return (
             {block.deepDive && (
               <button
                 onClick={() => setDeepDiveData({ actId: act.id, actNum: act.num, actColor: act.textColor, data: block.deepDive! })}
-                className="text-sm md:text-[15px] font-medium italic text-on-surface-variant/60 hover:text-on-background transition-colors mt-4 block text-left cursor-pointer"
+                className="text-sm md:text-[15px] font-medium italic text-on-surface-variant/85 hover:text-on-background transition-colors mt-4 block text-left cursor-pointer"
               >
                 + Profundizar en {block.deepDive.label}
               </button>

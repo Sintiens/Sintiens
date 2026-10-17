@@ -12,35 +12,20 @@ import { PAGE_SUB, PAGE_CAT } from "./styles/motionTokens";
 import { useReducedMotion } from "./hooks/useReducedMotion";
 import ThemeReveal from "./components/ThemeReveal";
 
-const storyPromise = import("./components/StoryMode");
-const glossaryPromise = import("./components/GlossaryExplorer");
-const timelinePromise = import("./components/TimelineExplorer");
-const excusesPromise = import("./components/ExcusesDilemmas");
-const dataPromise = import("./components/DataSection");
-const newsPromise = import("./components/NewsExplorer");
-const labHubPromise = import("./components/LaboratorioHub");
-const rawlsPromise = import("./components/RawlsianMachine");
-const thermoPromise = import("./components/ThermodynamicMatrix");
-const neuroPromise = import("./components/NeurobiologyViewer");
-const nutriPromise = import("./components/NutriCompare");
-const welfarePromise = import("./components/WelfarewashingScanner");
-const aiValidatorPromise = import("./components/AiValidator");
-const impactCalcPromise = import("./components/ImpactCalculator");
-
-const StoryMode = lazy(() => storyPromise);
-const GlossaryExplorer = lazy(() => glossaryPromise);
-const TimelineExplorer = lazy(() => timelinePromise);
-const ExcusesDilemmas = lazy(() => excusesPromise);
-const ImpactCalculator = lazy(() => impactCalcPromise);
-const AiValidator = lazy(() => aiValidatorPromise);
-const DataSection = lazy(() => dataPromise);
-const NewsExplorer = lazy(() => newsPromise);
-const LaboratorioHub = lazy(() => labHubPromise);
-const RawlsianMachine = lazy(() => rawlsPromise);
-const ThermodynamicMatrix = lazy(() => thermoPromise);
-const NeurobiologyViewer = lazy(() => neuroPromise);
-const NutriCompare = lazy(() => nutriPromise);
-const WelfarewashingScanner = lazy(() => welfarePromise);
+const StoryMode = lazy(() => import("./components/StoryMode"));
+const GlossaryExplorer = lazy(() => import("./components/GlossaryExplorer"));
+const TimelineExplorer = lazy(() => import("./components/TimelineExplorer"));
+const ExcusesDilemmas = lazy(() => import("./components/ExcusesDilemmas"));
+const DataSection = lazy(() => import("./components/DataSection"));
+const NewsExplorer = lazy(() => import("./components/NewsExplorer"));
+const LaboratorioHub = lazy(() => import("./components/LaboratorioHub"));
+const RawlsianMachine = lazy(() => import("./components/RawlsianMachine"));
+const ThermodynamicMatrix = lazy(() => import("./components/ThermodynamicMatrix"));
+const NeurobiologyViewer = lazy(() => import("./components/NeurobiologyViewer"));
+const NutriCompare = lazy(() => import("./components/NutriCompare"));
+const WelfarewashingScanner = lazy(() => import("./components/WelfarewashingScanner"));
+const AiValidator = lazy(() => import("./components/AiValidator"));
+const ImpactCalculator = lazy(() => import("./components/ImpactCalculator"));
 const DevModeOverlay = lazy(() => import("./components/DevModeOverlay"));
 const DevErrorBoundary = lazy(() => import("./components/DevErrorBoundary"));
 
@@ -48,6 +33,7 @@ import AppErrorBoundary from "./components/AppErrorBoundary";
 import { PageSkeleton, HeroFixedNav } from "./components/ui/Shells";
 import TabSeo from "./components/TabSeo";
 import LegalNotice from "./components/LegalNotice";
+import NotFound from "./components/NotFound";
 
 function LazyTabWrapper({ children, fallback }: { children: React.ReactNode; fallback?: React.ReactNode }) {
   return (
@@ -104,6 +90,11 @@ function isLegalPath(pathname: string): boolean {
   return pathname.replace(/\/+$/, "") === LEGAL_PATH;
 }
 
+function isKnownPath(pathname: string): boolean {
+  const cleanPath = pathname.replace(/\/+$/, "") || "/";
+  return cleanPath === LEGAL_PATH || cleanPath in PATH_TO_TAB;
+}
+
 function getTabFromPath(pathname: string): TabType {
   const cleanPath = pathname.replace(/\/+$/, "") || "/";
   return PATH_TO_TAB[cleanPath] ?? DEFAULT_TAB;
@@ -115,6 +106,9 @@ export default function App() {
   );
   const [legalOpen, setLegalOpen] = useState<boolean>(() =>
     isLegalPath(window.location.pathname)
+  );
+  const [notFound, setNotFound] = useState<boolean>(() =>
+    !isLegalPath(window.location.pathname) && !isKnownPath(window.location.pathname)
   );
   const [passedArgument, setPassedArgument] = useState<string | null>(null);
   const [redirectEntryId, setRedirectEntryId] = useState<string | null>(null);
@@ -152,7 +146,7 @@ export default function App() {
   }, [theme]);
 
   const navigateToTab = (tab: TabType) => {
-    if (tab === activeTab && !legalOpen) return;
+    if (tab === activeTab && !legalOpen && !notFound) return;
     // Guardar filtros de noticias al salir para restaurarlos al volver
     if (activeTab === "noticias") {
       try {
@@ -172,6 +166,7 @@ export default function App() {
     window.history.pushState({ tab }, "", targetUrl);
     setActiveTab(tab);
     setLegalOpen(false);
+    setNotFound(false);
   };
 
   const navFnRef = useRef(navigateToTab);
@@ -188,8 +183,9 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    // Una carga directa de /privacidad conserva su URL (no reescribirla al tab por defecto)
-    if (isLegalPath(window.location.pathname)) return;
+    // Una carga directa de /privacidad conserva su URL (no reescribirla al tab por defecto).
+    // Una ruta desconocida tampoco se reescribe: la pinta NotFound y el servidor ya dio 404.
+    if (isLegalPath(window.location.pathname) || !isKnownPath(window.location.pathname)) return;
     const qs = window.location.search;
     const hash = window.location.hash;
     const base = TAB_PATHS[activeTab];
@@ -209,9 +205,11 @@ export default function App() {
     const onPopState = (e: PopStateEvent) => {
       if (isLegalPath(window.location.pathname)) {
         setLegalOpen(true);
+        setNotFound(false);
         return;
       }
       setLegalOpen(false);
+      setNotFound(!isKnownPath(window.location.pathname));
       const fromState = e.state?.tab as unknown;
       const tab = isValidTab(fromState)
         ? fromState
@@ -225,6 +223,32 @@ export default function App() {
   useEffect(() => {
     const loader = document.querySelector(".instant-loader-container");
     if (loader) loader.remove();
+  }, []);
+
+  // React 19 inserta sus propios metadatos (title/meta/link) al montar. El HTML
+  // servido lleva una copia para bots que no ejecutan JS; cuando el cliente ya
+  // tiene un <title> propio, retiramos la copia para no dejar duplicados.
+  // En /noticias espera a que cargue NewsExplorer (pestaña perezosa).
+  useEffect(() => {
+    const removeServerSeo = () => {
+      const hasClientTitle = [...document.head.querySelectorAll("title")].some(
+        (title) => !title.hasAttribute("data-server-seo")
+      );
+      if (!hasClientTitle) return false;
+      document.head.querySelectorAll('[data-server-seo="true"]').forEach((el) => el.remove());
+      return true;
+    };
+    const interval = window.setInterval(() => {
+      if (removeServerSeo()) window.clearInterval(interval);
+    }, 100);
+    const stop = window.setTimeout(() => {
+      removeServerSeo();
+      window.clearInterval(interval);
+    }, 6000);
+    return () => {
+      window.clearInterval(interval);
+      window.clearTimeout(stop);
+    };
   }, []);
 
   useEffect(() => {
@@ -262,21 +286,6 @@ export default function App() {
     import("./data/glossaryUnified")
       .then(m => setGlossaryData({ GLOSSARY_BY_ID: m.GLOSSARY_BY_ID, GLOSSARY_UNIFIED: m.GLOSSARY_UNIFIED }))
       .catch(err => console.error("Failed to load glossary data:", err));
-
-    // Precargar componentes principales en tiempo ocioso para navegación instantánea
-    const prefetchTabs = () => {
-      import("./components/StoryMode");
-      import("./components/GlossaryExplorer");
-      import("./components/TimelineExplorer");
-      import("./components/ExcusesDilemmas");
-      import("./components/NewsExplorer");
-      import("./components/LaboratorioHub");
-    };
-    if (typeof window !== "undefined" && "requestIdleCallback" in window) {
-      (window as any).requestIdleCallback(prefetchTabs, { timeout: 1500 });
-    } else {
-      setTimeout(prefetchTabs, 400);
-    }
   }, []);
 
   const dilemmaExpandTimerRef = useRef<number | null>(null);
@@ -450,7 +459,7 @@ export default function App() {
         Saltar al contenido
       </a>
       {/* SEO por tab: title/description/canonical/OG dinámicos */}
-      <TabSeo tab={activeTab} legal={legalOpen} />
+      {!notFound && <TabSeo tab={activeTab} legal={legalOpen} />}
       {/* Reveal fallback (Safari/Firefox) — se monta solo durante la animación */}
       {reveal && (
         <ThemeReveal rect={reveal.rect} nextTheme={reveal.nextTheme} onDone={handleRevealDone} />
@@ -468,6 +477,7 @@ export default function App() {
       {/* Main Content — noticias y datos: densidad visual optimizada, gutters limpios */}
       <main
         id="contenido"
+        tabIndex={-1}
         className={`flex-1 w-full mx-auto relative z-[1] ${
           activeTab === "noticias"
             ? "max-w-[1480px] px-2 sm:px-2 md:px-3 lg:px-3 py-12 lg:py-20"
@@ -481,8 +491,10 @@ export default function App() {
           <LazyTabWrapper>
             <LegalNotice onBack={closeLegalPage} />
           </LazyTabWrapper>
+        ) : notFound ? (
+          <NotFound onNavigate={handleNavigate} />
         ) : (
-        <div className="min-h-[600px]">
+        <div className="min-h-[100dvh]">
           <AnimatePresence mode="wait" initial={false} onExitComplete={handleExitComplete}>
             <motion.div
               key={activeTab}
@@ -590,7 +602,7 @@ export default function App() {
                 <SintiensLogo className="w-5 h-7 shrink-0" />
                 <span className="text-technical-sm font-bold tracking-[0.2em]">Sintiens</span>
              </div>
-             <p className="text-body-md opacity-70 max-w-xl">
+             <p className="text-body-md opacity-90 max-w-xl">
                Un proyecto educativo dedicado a la deconstrucción moral y el análisis científico de la sintiencia.
              </p>
           </div>
@@ -601,13 +613,13 @@ export default function App() {
                 e.preventDefault();
                 openLegalPage();
               }}
-              className="text-body-md opacity-70 hover:opacity-100 underline-offset-4 hover:underline transition-opacity"
+              className="text-body-md opacity-90 hover:opacity-100 underline-offset-4 hover:underline transition-opacity"
             >
               Privacidad y aviso legal
             </a>
             <a
               href="mailto:sotolabx@sintiens.org"
-              className="text-technical-sm opacity-50 hover:opacity-90 transition-opacity"
+              className="text-technical-sm opacity-90 hover:opacity-100 transition-opacity"
             >
               sotolabx@sintiens.org
             </a>

@@ -227,17 +227,17 @@ export default memo(function ImpactCalculator() {
             Calcula la huella acumulada de recursos naturales y vidas de animales sintientes según las decisiones dietéticas en el tiempo.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5 pt-1.5">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-1.5">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/85 flex items-center gap-1.5">
               <Heart className="w-3.5 h-3.5 text-primary" />
               VIDAS DE ANIMALES
             </span>
             <span className="w-px h-3.5 bg-outline-variant/50 hidden sm:inline" />
-            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-1.5">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/85 flex items-center gap-1.5">
               <Droplet className="w-3.5 h-3.5 text-primary" />
               AGUA VIRTUAL
             </span>
             <span className="w-px h-3.5 bg-outline-variant/50 hidden sm:inline" />
-            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-1.5">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/85 flex items-center gap-1.5">
               <Flame className="w-3.5 h-3.5 text-primary" />
               CO₂ &amp; METANO
             </span>
@@ -324,10 +324,12 @@ export default memo(function ImpactCalculator() {
                 min="0"
                 max={POPULATION_STEPS.length - 1}
                 value={scaleIndex}
+                aria-label="Escala de población"
+                aria-valuetext={POPULATION_STEPS[scaleIndex]?.label}
                 onChange={(e) => setScaleIndex(Number(e.target.value))}
                 className="w-full accent-primary h-2 bg-surface-dim rounded-full appearance-none cursor-pointer border border-outline-variant/20"
               />
-              <div className="flex justify-between text-[9px] font-mono text-on-surface-variant/50 pt-0.5">
+              <div className="flex justify-between text-[9px] font-mono text-on-surface-variant/85 pt-0.5">
                 <span>1 persona</span>
                 <span>España</span>
                 <span>8.000M (Planeta)</span>
@@ -362,7 +364,7 @@ export default memo(function ImpactCalculator() {
 
               {/* Fine-Tuning Meals Grid */}
               <div className="space-y-2 pt-2">
-                <span className="text-[10px] font-mono text-on-surface-variant/50 uppercase tracking-widest block">
+                <span className="text-[10px] font-mono text-on-surface-variant/85 uppercase tracking-widest block">
                   Ajuste fino semanal (14 comidas principales a la semana):
                 </span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -412,6 +414,8 @@ export default memo(function ImpactCalculator() {
                   max="100"
                   step="10"
                   value={challengeTarget}
+                  aria-label="Objetivo de reducción de huella"
+                  aria-valuetext={`${challengeTarget}%`}
                   onChange={(e) => setChallengeTarget(Number(e.target.value))}
                   className="w-full accent-primary h-2 bg-surface-dim rounded-full appearance-none cursor-pointer border border-outline-variant/20"
                 />

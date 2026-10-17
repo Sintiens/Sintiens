@@ -59,9 +59,9 @@ export default memo(function LaboratorioHub({ onNavigate }: LaboratorioHubProps)
                 <span className="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded bg-primary/10 text-primary font-semibold inline-block">
                   EXPERIMENTO ÉTICO
                 </span>
-                <h3 className="text-xl font-bold font-heading text-on-surface">
+                <h2 className="text-xl font-bold font-heading text-on-surface">
                   El Velo de la Ignorancia
-                </h3>
+                </h2>
                 <p className="text-on-surface-variant/75 font-serif leading-relaxed text-xs sm:text-sm">
                   Diseña las leyes del planeta y atraviesa el Velo de Rawls para nacer al azar en la biosfera.
                 </p>
@@ -81,9 +81,9 @@ export default memo(function LaboratorioHub({ onNavigate }: LaboratorioHubProps)
                 <span className="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-400 font-semibold inline-block">
                   FÍSICA & ECOLOGÍA
                 </span>
-                <h3 className="text-xl font-bold font-heading text-on-surface">
+                <h2 className="text-xl font-bold font-heading text-on-surface">
                   Termodinámica Trófica
-                </h3>
+                </h2>
                 <p className="text-on-surface-variant/75 font-serif leading-relaxed text-xs sm:text-sm">
                   Diagrama de Sankey: visualiza el 90-98% de calorías y cereal que se disipan en animales.
                 </p>
@@ -103,9 +103,9 @@ export default memo(function LaboratorioHub({ onNavigate }: LaboratorioHubProps)
                 <span className="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded bg-blue-500/10 text-blue-700 dark:text-blue-400 font-semibold inline-block">
                   NEUROCIENCIA
                 </span>
-                <h3 className="text-xl font-bold font-heading text-on-surface">
+                <h2 className="text-xl font-bold font-heading text-on-surface">
                   Bases de la Consciencia
-                </h3>
+                </h2>
                 <p className="text-on-surface-variant/75 font-serif leading-relaxed text-xs sm:text-sm">
                   Visor anatómico interactivo: vías del dolor, sistema límbico y tratados de Cambridge y Nueva York.
                 </p>
@@ -128,9 +128,9 @@ export default memo(function LaboratorioHub({ onNavigate }: LaboratorioHubProps)
                 <span className="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-semibold inline-block">
                   BIOQUÍMICA CLÍNICA
                 </span>
-                <h3 className="text-xl font-bold font-heading text-on-surface">
+                <h2 className="text-xl font-bold font-heading text-on-surface">
                   Nutrición Clínica & Evidencia
-                </h3>
+                </h2>
                 <p className="text-on-surface-variant/75 font-serif leading-relaxed text-xs sm:text-sm">
                   Desmitificador molecular: B12, hierro hemo vs no hemo, proteínas DIAAS y consensos AND/Harvard.
                 </p>
@@ -150,9 +150,9 @@ export default memo(function LaboratorioHub({ onNavigate }: LaboratorioHubProps)
                 <span className="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded bg-red-500/10 text-red-700 dark:text-red-400 font-semibold inline-block">
                   DERECHO & ETOLOGÍA
                 </span>
-                <h3 className="text-xl font-bold font-heading text-on-surface">
+                <h2 className="text-xl font-bold font-heading text-on-surface">
                   Escáner de Welfarewashing
-                </h3>
+                </h2>
                 <p className="text-on-surface-variant/75 font-serif leading-relaxed text-xs sm:text-sm">
                   Pantalla dividida: el marketing y la ley frente a las cláusulas de excepción y dictámenes de la EFSA.
                 </p>
@@ -172,10 +172,10 @@ export default memo(function LaboratorioHub({ onNavigate }: LaboratorioHubProps)
                 <Calculator className="w-5 h-5" />
               </div>
               <div className="space-y-1.5">
-                <span className="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded bg-surface-dim text-on-surface-variant/60 font-semibold inline-block">
+                <span className="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded bg-surface-dim text-on-surface-variant/85 font-semibold inline-block">
                   HUELLA ECOLÓGICA
                 </span>
-                <h3 className="text-xl font-bold font-heading text-on-surface">Calculadora de Impacto</h3>
+                <h2 className="text-xl font-bold font-heading text-on-surface">Calculadora de Impacto</h2>
                 <p className="text-on-surface-variant/75 font-serif leading-relaxed text-xs sm:text-sm">
                   Calcula tu huella exacta en agua, CO2, suelo deforestado y vidas de animales salvadas.
                 </p>
@@ -192,10 +192,10 @@ export default memo(function LaboratorioHub({ onNavigate }: LaboratorioHubProps)
                 <BrainCircuit className="w-5 h-5" />
               </div>
               <div className="space-y-1.5">
-                <span className="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded bg-surface-dim text-on-surface-variant/60 font-semibold inline-block">
+                <span className="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded bg-surface-dim text-on-surface-variant/85 font-semibold inline-block">
                   ANÁLISIS SOCRÁTICO
                 </span>
-                <h3 className="text-xl font-bold font-heading text-on-surface">Validador con IA</h3>
+                <h2 className="text-xl font-bold font-heading text-on-surface">Validador con IA</h2>
                 <p className="text-on-surface-variant/75 font-serif leading-relaxed text-xs sm:text-sm">
                   Deconstrucción socrática de argumentos y extracción de axiomas implícitos con Gemini.
                 </p>

@@ -498,7 +498,7 @@ export function ModalShell({ onClose, labelledBy, describedBy, className = "", c
 /* ------------------------------------------------------------------ */
 export function PageSkeleton({ label = "Cargando sección" }: { label?: string }) {
   return (
-    <div className="w-full" aria-label={label} role="status">
+    <div className="w-full max-h-[calc(100dvh-3rem)] overflow-hidden sm:max-h-none sm:overflow-visible" aria-label={label} role="status">
       <HeroShell id="hero-skeleton" cue={true} watermark={null}>
         <div className="space-y-3 w-full flex flex-col items-center justify-center">
           <div className="h-9 sm:h-11 w-48 sm:w-64 rounded-full bg-surface-dim/40 animate-pulse" />

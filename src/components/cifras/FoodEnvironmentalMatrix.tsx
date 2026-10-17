@@ -163,7 +163,7 @@ export default function FoodEnvironmentalMatrix() {
             <span className="text-[10px] font-mono font-bold tracking-widest text-primary dark:text-emerald-400 uppercase bg-primary/10 dark:bg-emerald-500/10 px-2 py-0.5 rounded border border-primary/20">
               MATRIZ COMPARATIVA Y SIMULADOR · EXHIBIT X
             </span>
-            <span className="text-xs font-mono text-on-surface-variant/60">
+            <span className="text-xs font-mono text-on-surface-variant/85">
               Metaanálisis Science (Poore & Nemecek 2018)
             </span>
           </div>
@@ -218,7 +218,7 @@ export default function FoodEnvironmentalMatrix() {
           <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 bg-surface-dim/40 dark:bg-zinc-800/40 p-4 rounded-xl border border-outline-variant/20 dark:border-zinc-800">
             {/* Search Input */}
             <div className="relative flex-1">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60" aria-hidden="true" />
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/85" aria-hidden="true" />
               <input
                 type="text"
                 aria-label="Buscar alimento en la matriz"

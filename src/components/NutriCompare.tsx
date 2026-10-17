@@ -157,9 +157,9 @@ export default function NutriCompare({ onNavigateToTab: _onNavigateToTab }: Nutr
                     <span className="text-[10px] font-mono uppercase tracking-widest text-primary font-bold">
                       Evidencia Bioquímica y Cinética
                     </span>
-                    <h3 className="text-xl sm:text-2xl font-heading font-bold text-on-surface">
+                    <h2 className="text-xl sm:text-2xl font-heading font-bold text-on-surface">
                       {currentNutrient.name}
-                    </h3>
+                    </h2>
                     <span className="text-xs font-mono text-on-surface-variant/70 italic block">
                       {currentNutrient.chemicalName}
                     </span>
@@ -192,9 +192,9 @@ export default function NutriCompare({ onNavigateToTab: _onNavigateToTab }: Nutr
                 
                 {/* Sources Card */}
                 <div className="bg-surface/80 dark:bg-surface-dim/50 border border-outline-variant/30 rounded-2xl p-6 space-y-4 shadow-sm">
-                  <h4 className="text-xs font-mono uppercase tracking-wider text-primary font-bold flex items-center gap-1.5 border-b border-outline-variant/20 pb-3">
+                  <h3 className="text-xs font-mono uppercase tracking-wider text-primary font-bold flex items-center gap-1.5 border-b border-outline-variant/20 pb-3">
                     <Leaf className="w-4 h-4" /> Fuentes Vegetales Óptimas:
-                  </h4>
+                  </h3>
 
                   <div className="space-y-3">
                     {currentNutrient.optimalPlantSources.map((src, idx) => (
@@ -203,7 +203,7 @@ export default function NutriCompare({ onNavigateToTab: _onNavigateToTab }: Nutr
                           <span className="font-bold text-on-surface">{src.name}</span>
                           <span className="text-primary font-bold">{src.nutrientAmount}</span>
                         </div>
-                        <span className="text-[10px] text-on-surface-variant/60 block">Ración: {src.portion}</span>
+                        <span className="text-[10px] text-on-surface-variant/85 block">Ración: {src.portion}</span>
                         <p className="text-[11px] text-on-surface-variant/80 font-sans pt-0.5">
                           {src.absorptionNote}
                         </p>
@@ -214,9 +214,9 @@ export default function NutriCompare({ onNavigateToTab: _onNavigateToTab }: Nutr
 
                 {/* Health Risk Contrast Card */}
                 <div className="bg-surface-dim/40 border border-outline-variant/30 rounded-2xl p-6 space-y-4">
-                  <h4 className="text-xs font-mono uppercase tracking-wider text-on-surface font-bold flex items-center gap-1.5 border-b border-outline-variant/20 pb-3">
+                  <h3 className="text-xs font-mono uppercase tracking-wider text-on-surface font-bold flex items-center gap-1.5 border-b border-outline-variant/20 pb-3">
                     <Scale className="w-4 h-4 text-primary" /> Matriz de Riesgo / Beneficio:
-                  </h4>
+                  </h3>
 
                   <div className="space-y-3 text-xs">
                     <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl space-y-1">
@@ -255,9 +255,9 @@ export default function NutriCompare({ onNavigateToTab: _onNavigateToTab }: Nutr
                 <span className="text-[10px] font-mono uppercase tracking-widest text-primary font-bold">
                   Infografía Interactiva de Bioquímica
                 </span>
-                <h3 className="text-2xl font-heading font-bold text-on-surface">
+                <h2 className="text-2xl font-heading font-bold text-on-surface">
                   ¿De Dónde Procede Realmente la Vitamina B12?
-                </h3>
+                </h2>
                 <p className="text-xs sm:text-sm font-sans text-on-surface-variant">
                   Rastreo del origen primario de la cobalamina y la suplementación oculta de la industria cárnica.
                 </p>
@@ -271,9 +271,9 @@ export default function NutriCompare({ onNavigateToTab: _onNavigateToTab }: Nutr
                   <div className="w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-mono font-bold text-xs">
                     1
                   </div>
-                  <h4 className="font-heading font-bold text-sm text-on-surface">
+                  <h3 className="font-heading font-bold text-sm text-on-surface">
                     Bacterias del Suelo
-                  </h4>
+                  </h3>
                   <p className="text-xs font-sans text-on-surface-variant leading-relaxed">
                     Microorganismos anaerobios (*Pseudomonas*, *Propionibacterium*) presentes en tierra virgen y aguas no tratadas sintetizan la cobalamina. Ni plantas ni animales tienen genes para crearla.
                   </p>
@@ -284,9 +284,9 @@ export default function NutriCompare({ onNavigateToTab: _onNavigateToTab }: Nutr
                   <div className="w-8 h-8 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-mono font-bold text-xs">
                     2
                   </div>
-                  <h4 className="font-heading font-bold text-sm text-on-surface">
+                  <h3 className="font-heading font-bold text-sm text-on-surface">
                     Pienso Suplementado
-                  </h4>
+                  </h3>
                   <p className="text-xs font-sans text-on-surface-variant leading-relaxed">
                     El ganado industrial vive sobre hormigón y come forrajes lavados. La industria administra suplementos sintéticos de cobalto y B12 en el pienso de vacas, cerdos y aves para que no enfermen.
                   </p>
@@ -297,9 +297,9 @@ export default function NutriCompare({ onNavigateToTab: _onNavigateToTab }: Nutr
                   <div className="w-8 h-8 rounded-full bg-red-500/20 text-red-700 dark:text-red-300 flex items-center justify-center font-mono font-bold text-xs">
                     3A
                   </div>
-                  <h4 className="font-heading font-bold text-sm text-red-950 dark:text-red-200">
+                  <h3 className="font-heading font-bold text-sm text-red-950 dark:text-red-200">
                     Vía Indirecta (Carne)
-                  </h4>
+                  </h3>
                   <p className="text-xs font-sans text-on-surface-variant leading-relaxed">
                     El consumidor omnívoro ingiere la B12 que fue administrada al animal, acompañada de grasas saturadas, colesterol, residuos de antibióticos y el coste del sacrificio.
                   </p>
@@ -310,9 +310,9 @@ export default function NutriCompare({ onNavigateToTab: _onNavigateToTab }: Nutr
                   <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-mono font-bold text-xs">
                     3B
                   </div>
-                  <h4 className="font-heading font-bold text-sm text-emerald-950 dark:text-emerald-200">
+                  <h3 className="font-heading font-bold text-sm text-emerald-950 dark:text-emerald-200">
                     Vía Directa (Suplemento)
-                  </h4>
+                  </h3>
                   <p className="text-xs font-sans text-on-surface-variant leading-relaxed">
                     El vegano toma directamente la B12 pura obtenida por fermentación bacteriana en laboratorio. Más limpia, más económica (~5€/año), sin intermediarios ni sufrimiento.
                   </p>
@@ -355,9 +355,9 @@ export default function NutriCompare({ onNavigateToTab: _onNavigateToTab }: Nutr
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-outline-variant/20 pb-3">
                     <div>
-                      <h4 className="text-lg font-heading font-bold text-on-surface">
+                      <h3 className="text-lg font-heading font-bold text-on-surface">
                         {cons.institution}
-                      </h4>
+                      </h3>
                       <span className="text-xs font-mono text-on-surface-variant/70">
                         {cons.country} · {cons.year}
                       </span>

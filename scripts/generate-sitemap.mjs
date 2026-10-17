@@ -20,7 +20,8 @@ items.sort((a,b)=> a.lastmod.localeCompare(b.lastmod));
 const SITE_URL = (process.env.SITE_URL || process.env.VITE_SITE_URL || "https://sintiens.org").replace(/\/+$/, "");
 
 const base = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
-const buildDate = new Date().toISOString().slice(0, 10);
+// Sin lastmod en rutas estáticas: cambiaba en cada build y perdía significado.
+// Las noticias sí conservan la fecha real de verificación/publicación.
 
 const staticUrls = [
   { loc: `${SITE_URL}/`, changefreq: "weekly", priority: "1.0" },
@@ -42,7 +43,7 @@ const staticUrls = [
 
 let xml = base;
 for(const u of staticUrls){
-  xml += `  <url>\n    <loc>${u.loc}</loc>\n    <lastmod>${buildDate}</lastmod>\n    <changefreq>${u.changefreq}</changefreq>\n    <priority>${u.priority}</priority>\n  </url>\n`;
+  xml += `  <url>\n    <loc>${u.loc}</loc>\n    <changefreq>${u.changefreq}</changefreq>\n    <priority>${u.priority}</priority>\n  </url>\n`;
 }
 for(const it of items){
   const loc = `${SITE_URL}/noticias?id=${it.id}`;

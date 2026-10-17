@@ -19,7 +19,7 @@ while ((m = itemRe.exec(raw)) !== null) {
   const source = get(/source:\s+"([^"]+)"/);
   if (id) items.push({ id, title, summary, date, url, source });
 }
-items.sort((a,b)=> a.date.localeCompare(b.date));
+items.sort((a,b)=> b.date.localeCompare(a.date));
 
 const SITE_URL = (process.env.SITE_URL || process.env.VITE_SITE_URL || "https://sintiens.org").replace(/\/+$/, "");
 

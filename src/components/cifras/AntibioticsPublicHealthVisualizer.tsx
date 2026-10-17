@@ -48,7 +48,7 @@ export default function AntibioticsPublicHealthVisualizer() {
             <span className="text-[10px] font-mono font-bold tracking-widest text-primary dark:text-emerald-400 uppercase bg-primary/10 dark:bg-emerald-500/10 px-2 py-0.5 rounded border border-primary/20">
               SALUD PÚBLICA Y BIOSEGURIDAD GLOBAL · EXHIBIT IX
             </span>
-            <span className="text-xs font-mono text-on-surface-variant/60">
+            <span className="text-xs font-mono text-on-surface-variant/85">
               Science (2017) & EMA ESVAC (2022)
             </span>
           </div>

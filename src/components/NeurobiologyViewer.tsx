@@ -259,7 +259,7 @@ export default function NeurobiologyViewer({ onNavigateToTab: _onNavigateToTab }
 
             {/* Brain Selector Interactive Pills */}
             <div className="space-y-2 pt-2 border-t border-outline-variant/20">
-              <span className="text-[10px] font-mono uppercase text-on-surface-variant/60 tracking-wider block">
+              <span className="text-[10px] font-mono uppercase text-on-surface-variant/85 tracking-wider block">
                 Haz clic en una región para analizarla:
               </span>
               <div className="flex flex-wrap gap-2">
@@ -298,9 +298,9 @@ export default function NeurobiologyViewer({ onNavigateToTab: _onNavigateToTab }
                     {activeStructure.category === "nociception" ? "Vía del Dolor / Nocicepción" : activeStructure.category === "limbic" ? "Emoción & Vínculo Afectivo" : "Integración Consciente"}
                   </span>
                 </div>
-                <h3 className="text-xl sm:text-2xl font-heading font-bold text-on-surface">
+                <h2 className="text-xl sm:text-2xl font-heading font-bold text-on-surface">
                   {activeStructure.name}
-                </h3>
+                </h2>
               </div>
 
               {/* Description */}
@@ -350,7 +350,7 @@ export default function NeurobiologyViewer({ onNavigateToTab: _onNavigateToTab }
                           className={`w-5 h-5 rounded-full text-[10px] font-mono font-bold transition-all cursor-pointer ${
                             activeExperimentIndex === idx
                               ? "bg-primary text-on-primary"
-                              : "bg-surface-dim text-on-surface-variant/60 hover:text-on-surface"
+                              : "bg-surface-dim text-on-surface-variant/85 hover:text-on-surface"
                           }`}
                         >
                           {idx + 1}
@@ -366,10 +366,10 @@ export default function NeurobiologyViewer({ onNavigateToTab: _onNavigateToTab }
                   return (
                     <div className="space-y-3 text-xs">
                       <div>
-                        <h4 className="font-heading font-bold text-sm text-on-surface">
+                        <h3 className="font-heading font-bold text-sm text-on-surface">
                           {exp.title}
-                        </h4>
-                        <span className="font-mono text-[10px] text-on-surface-variant/60 block">
+                        </h3>
+                        <span className="font-mono text-[10px] text-on-surface-variant/85 block">
                           {exp.leadResearcherAndYear}
                         </span>
                       </div>
@@ -408,9 +408,9 @@ export default function NeurobiologyViewer({ onNavigateToTab: _onNavigateToTab }
               <span className="text-[10px] font-mono uppercase tracking-widest text-primary font-bold block">
                 TRATADOS NEUROCIENTÍFICOS GLOBALES
               </span>
-              <h3 className="text-xl sm:text-2xl font-heading font-bold text-on-surface">
+              <h2 className="text-xl sm:text-2xl font-heading font-bold text-on-surface">
                 Consenso Académico Internacional sobre la Consciencia
-              </h3>
+              </h2>
             </div>
           </div>
 
@@ -425,13 +425,13 @@ export default function NeurobiologyViewer({ onNavigateToTab: _onNavigateToTab }
                     <span className="text-[10px] font-mono uppercase font-bold text-primary">
                       {decl.institution}
                     </span>
-                    <span className="text-[10px] font-mono text-on-surface-variant/60">
+                    <span className="text-[10px] font-mono text-on-surface-variant/85">
                       {decl.year}
                     </span>
                   </div>
-                  <h4 className="font-heading font-bold text-base text-on-surface">
+                  <h3 className="font-heading font-bold text-base text-on-surface">
                     {decl.title}
-                  </h4>
+                  </h3>
                   <p className="text-xs font-serif italic text-on-surface-variant/90 leading-relaxed border-l-2 border-primary/40 pl-3">
                     {decl.verbatimQuote}
                   </p>

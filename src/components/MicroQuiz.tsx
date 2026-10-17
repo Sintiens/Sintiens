@@ -98,7 +98,7 @@ const MicroQuiz: React.FC<{ quiz: MicroQuizData; accent: string }> = ({ quiz, ac
                     answered && isAnswerCorrect
                       ? `${accentText}`
                       : answered && isSelected
-                        ? "text-on-surface-variant/60"
+                        ? "text-on-surface-variant/85"
                         : "text-on-surface-variant/50"
                   }`}
                   style={

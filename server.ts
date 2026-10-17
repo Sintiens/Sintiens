@@ -8,6 +8,8 @@ import fs from "fs/promises";
 import fsSync from "fs";
 import { fileURLToPath } from "url";
 import os from "os";
+import { LEGAL_SEO, TAB_SEO, type SeoEntry } from "./src/data/seoRoutes";
+import { NEWS_DATA, type NewsItem } from "./src/data/newsData";
 
 
 dotenv.config();
@@ -15,6 +17,166 @@ dotenv.config();
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 const SITE_URL = (process.env.SITE_URL || process.env.VITE_SITE_URL || "https://sintiens.org").replace(/\/+$/, "");
+const SITE_HOST = new URL(SITE_URL).host;
+const SEO_BY_PATH = new Map<string, SeoEntry>(
+  Object.values(TAB_SEO).map((entry) => [entry.path, entry])
+);
+const META_DESCRIPTION_MAX = 158;
+
+type ResolvedSeo = SeoEntry & {
+  canonical: string;
+  notFound?: boolean;
+  noindex?: boolean;
+  news?: NewsItem;
+};
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function truncateMeta(value: string, max = META_DESCRIPTION_MAX): string {
+  const clean = value.replace(/\s+/g, " ").trim();
+  if (clean.length <= max) return clean;
+  const cut = clean.slice(0, max - 1);
+  const lastSpace = cut.lastIndexOf(" ");
+  return `${(lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut).trimEnd()}…`;
+}
+
+function resolveSeo(req: express.Request): ResolvedSeo {
+  let cleanPath = "/";
+  try {
+    cleanPath = decodeURIComponent(req.path || "/").replace(/\/+$/, "") || "/";
+  } catch {
+    cleanPath = (req.path || "/").replace(/\/+$/, "") || "/";
+  }
+
+  if (cleanPath === LEGAL_SEO.path) {
+    return { ...LEGAL_SEO, canonical: `${SITE_URL}${LEGAL_SEO.path}` };
+  }
+
+  if (cleanPath === "/noticias") {
+    const rawId = typeof req.query.id === "string" ? req.query.id.trim() : "";
+    const item = rawId ? NEWS_DATA.find((news) => news.id === rawId) : undefined;
+    if (item) {
+      const canonical = `${SITE_URL}/noticias?id=${encodeURIComponent(item.id)}`;
+      return {
+        title: `${item.title} — Sintiens`,
+        description: truncateMeta(item.summary),
+        path: canonical,
+        canonical,
+        news: item,
+      };
+    }
+  }
+
+  const entry = SEO_BY_PATH.get(cleanPath);
+  if (entry) {
+    return { ...entry, canonical: `${SITE_URL}${entry.path}` };
+  }
+
+  return {
+    title: "Página no encontrada — Sintiens",
+    description: "La página que buscas no existe o ha cambiado de dirección. Vuelve al inicio para seguir explorando.",
+    path: cleanPath,
+    canonical: `${SITE_URL}${cleanPath}`,
+    notFound: true,
+    noindex: true,
+  };
+}
+
+function renderIndexHtml(template: string, seo: ResolvedSeo): string {
+  let html = template;
+
+  const replaceOrAppend = (pattern: RegExp, replacement: string) => {
+    if (pattern.test(html)) {
+      html = html.replace(pattern, replacement);
+    } else {
+      html = html.replace("</head>", `${replacement}\n</head>`);
+    }
+  };
+
+  replaceOrAppend(
+    /<title[^>]*>[\s\S]*?<\/title>/,
+    `<title data-rh="true" data-server-seo="true">${escapeHtml(seo.title)}</title>`
+  );
+  replaceOrAppend(
+    /<meta name="description"[^>]*>/,
+    `<meta name="description" content="${escapeHtml(seo.description)}" data-rh="true" data-server-seo="true" />`
+  );
+  replaceOrAppend(
+    /<link rel="canonical"[^>]*>/,
+    `<link rel="canonical" href="${escapeHtml(seo.canonical)}" data-rh="true" data-server-seo="true" />`
+  );
+  replaceOrAppend(
+    /<meta property="og:title"[^>]*>/,
+    `<meta property="og:title" content="${escapeHtml(seo.title)}" data-rh="true" data-server-seo="true" />`
+  );
+  replaceOrAppend(
+    /<meta property="og:description"[^>]*>/,
+    `<meta property="og:description" content="${escapeHtml(seo.description)}" data-rh="true" data-server-seo="true" />`
+  );
+  replaceOrAppend(
+    /<meta property="og:url"[^>]*>/,
+    `<meta property="og:url" content="${escapeHtml(seo.canonical)}" data-rh="true" data-server-seo="true" />`
+  );
+  replaceOrAppend(
+    /<meta name="twitter:title"[^>]*>/,
+    `<meta name="twitter:title" content="${escapeHtml(seo.title)}" data-rh="true" data-server-seo="true" />`
+  );
+  replaceOrAppend(
+    /<meta name="twitter:description"[^>]*>/,
+    `<meta name="twitter:description" content="${escapeHtml(seo.description)}" data-rh="true" data-server-seo="true" />`
+  );
+  replaceOrAppend(
+    /<meta name="robots"[^>]*>/,
+    `<meta name="robots" content="${seo.noindex ? "noindex, nofollow" : "index, follow"}" data-server-seo="true" />`
+  );
+
+  if (seo.news) {
+    const news = seo.news;
+    const image = news.image || `${SITE_URL}/og-image.png`;
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "NewsArticle",
+      headline: news.title,
+      description: truncateMeta(news.summary, 300),
+      datePublished: news.date,
+      dateModified: news.verifiedAt || news.date,
+      inLanguage: "es-ES",
+      articleSection: news.category,
+      author: { "@type": "Organization", name: "Sintiens", url: SITE_URL },
+      publisher: {
+        "@type": "Organization",
+        name: "Sintiens",
+        logo: { "@type": "ImageObject", url: `${SITE_URL}/og-image.png` },
+      },
+      image: [image],
+      mainEntityOfPage: { "@type": "WebPage", "@id": seo.canonical },
+      url: seo.canonical,
+    };
+    const safeJson = JSON.stringify(jsonLd).replace(/</g, "\\u003c");
+    replaceOrAppend(
+      /<meta property="og:image"[^>]*>/,
+      `<meta property="og:image" content="${escapeHtml(image)}" />`
+    );
+    html = html.replace(
+      "</head>",
+      `  <script type="application/ld+json" id="seo-news-jsonld">${safeJson}</script>\n</head>`
+    );
+  }
+
+  if (seo.noindex) {
+    html = html.replace(/<link rel="canonical"[^>]*>\s*/g, "");
+  }
+
+  return html;
+}
+
 
 // Caddy corre en la misma red Docker (su IP no es loopback): confía solo en el
 // primer salto para que req.secure y req.ip reflejen X-Forwarded-Proto/For de
@@ -202,7 +364,20 @@ app.use((req, res, next) => {
   next();
 });
 
-// Stable ESM/CJS relative path resolution for the local database
+// Dominio canónico: www → ápice con 301 (SEO: evita contenido duplicado).
+// Caddy pasa el Host original; req.protocol respeta X-Forwarded-Proto por trust proxy.
+if (process.env.NODE_ENV === "production") {
+  app.use((req, res, next) => {
+    const requestHost = (req.hostname || "").toLowerCase();
+    const canonicalHost = SITE_HOST.toLowerCase();
+    if (requestHost === `www.${canonicalHost}`) {
+      res.redirect(301, `${req.protocol}://${canonicalHost}${req.originalUrl}`);
+      return;
+    }
+    next();
+  });
+}
+
 let tasksDirectory = process.cwd();
 try {
   if (typeof import.meta.url === "string") {
@@ -915,6 +1090,19 @@ Devuelve tu diagnóstico EXACTAMENTE en formato JSON conforme a la estructura de
   }
 });
 
+// Errores de parseo/cuerpo demasiado grande: responder JSON, no el HTML por defecto de Express.
+app.use((err: any, _req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (err?.type === "entity.too.large" || err?.status === 413) {
+    res.status(413).json({ error: "La petición es demasiado grande (máximo 200 KB)." });
+    return;
+  }
+  if (err instanceof SyntaxError && (err as { status?: number }).status === 400 && "body" in err) {
+    res.status(400).json({ error: "El cuerpo JSON no es válido." });
+    return;
+  }
+  next(err);
+});
+
 async function startServer() {
   // Vite / static middleware setup
   if (process.env.NODE_ENV !== "production") {
@@ -925,9 +1113,19 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), "dist");
+    const indexPath = path.join(distPath, "index.html");
+    let indexTemplate = "";
+    try {
+      indexTemplate = await fs.readFile(indexPath, "utf8");
+    } catch (err) {
+      console.error("No se pudo leer dist/index.html para la inyección SEO:", err);
+    }
     // Bloquear explícitamente artefactos del backend si existieran en dist/
     app.get(["/server.cjs", "/server.cjs.map"], (_req, res) => {
       res.status(404).end();
+    });
+    app.get("/index.html", (_req, res) => {
+      res.redirect(301, "/");
     });
     // Rutas legacy → redirección permanente a las canónicas (SEO: evita duplicados)
     const LEGACY_REDIRECTS: Record<string, string> = {
@@ -965,7 +1163,9 @@ async function startServer() {
         index: false,
       })
     );
-    // SPA fallback for non-API routes; /api/* 404s properly instead of returning HTML
+    // SPA fallback for non-API routes; /api/* 404s properly instead of returning HTML.
+    // El HTML se renderiza con metadatos por ruta/noticia para que los bots que no
+    // ejecutan JavaScript (redes sociales, Bing) reciban título y descripción reales.
     app.get(/^\/(?!api(?:\/|$)).*/, (req, res) => {
       // Las peticiones con extensión (p. ej. /favicon-raro.ico) nunca deben
       // recibir HTML: si llegaron aquí es que el archivo no existe.
@@ -973,8 +1173,14 @@ async function startServer() {
         res.status(404).type("text/plain").send("Not found");
         return;
       }
+      const seo = resolveSeo(req);
+      res.status(seo.notFound ? 404 : 200);
       res.setHeader("Cache-Control", "no-cache");
-      res.sendFile(path.join(distPath, "index.html"));
+      if (indexTemplate) {
+        res.type("html").send(renderIndexHtml(indexTemplate, seo));
+        return;
+      }
+      res.sendFile(indexPath);
     });
     app.use("/api", (_req, res) => {
       res.status(404).json({ error: "Ruta de API no encontrada." });

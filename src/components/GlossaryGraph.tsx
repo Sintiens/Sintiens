@@ -1316,7 +1316,7 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId, searchQu
 
               {/* Categorías */}
               <div className="mb-6">
-                <div className="text-[9px] font-mono uppercase tracking-widest text-on-surface-variant/60 mb-2">
+                <div className="text-[9px] font-mono uppercase tracking-widest text-on-surface-variant/85 mb-2">
                   Categoría
                 </div>
                 <div className="space-y-1.5">
@@ -1356,7 +1356,7 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId, searchQu
 
               {/* Tipos */}
               <div className="mb-6">
-                <div className="text-[9px] font-mono uppercase tracking-widest text-on-surface-variant/60 mb-2">
+                <div className="text-[9px] font-mono uppercase tracking-widest text-on-surface-variant/85 mb-2">
                   Tipo
                 </div>
                 <div className="space-y-1.5">
@@ -1392,7 +1392,7 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId, searchQu
 
               {/* Agrupar */}
               <div className="mb-6">
-                <div className="text-[9px] font-mono uppercase tracking-widest text-on-surface-variant/60 mb-2">
+                <div className="text-[9px] font-mono uppercase tracking-widest text-on-surface-variant/85 mb-2">
                   Agrupar por
                 </div>
                 <div className="flex flex-col gap-1.5">
@@ -1483,7 +1483,7 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId, searchQu
             {/* Stats */}
             <div className="grid grid-cols-3 gap-2 mb-4">
               <div className="text-center p-2 rounded-md border border-outline-variant/20 bg-surface-dim/30">
-                <div className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/60 mb-0.5">
+                <div className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/85 mb-0.5">
                   Apariciones
                 </div>
                 <div className="text-[14px] font-mono text-primary font-bold">
@@ -1491,7 +1491,7 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId, searchQu
                 </div>
               </div>
               <div className="text-center p-2 rounded-md border border-outline-variant/20 bg-surface-dim/30">
-                <div className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/60 mb-0.5">
+                <div className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/85 mb-0.5">
                   Centralidad
                 </div>
                 <div className="text-[14px] font-mono text-primary font-bold">
@@ -1499,7 +1499,7 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId, searchQu
                 </div>
               </div>
               <div className="text-center p-2 rounded-md border border-outline-variant/20 bg-surface-dim/30">
-                <div className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/60 mb-0.5">
+                <div className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/85 mb-0.5">
                   Conexiones
                 </div>
                 <div className="text-[14px] font-mono text-primary font-bold">
@@ -1511,7 +1511,7 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId, searchQu
             {/* Connections */}
             {detailConnections.length > 0 && (
               <div className="mb-4">
-                <div className="text-[9px] font-mono uppercase tracking-widest text-on-surface-variant/60 mb-2">
+                <div className="text-[9px] font-mono uppercase tracking-widest text-on-surface-variant/85 mb-2">
                   Conectado con
                 </div>
                 <div className="space-y-1 max-h-64 overflow-y-auto custom-scrollbar pr-1">
@@ -1590,10 +1590,10 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId, searchQu
                 </p>
               )}
               <div className="flex items-center gap-3 mt-2 pt-2 border-t border-outline-variant/15">
-                <span className="text-[9px] font-mono uppercase tracking-widest text-on-surface-variant/60">
+                <span className="text-[9px] font-mono uppercase tracking-widest text-on-surface-variant/85">
                   Centralidad <span className="text-primary font-bold">{hoveredNode.centrality}</span>
                 </span>
-                <span className="text-[9px] font-mono uppercase tracking-widest text-on-surface-variant/60">
+                <span className="text-[9px] font-mono uppercase tracking-widest text-on-surface-variant/85">
                   Conexiones <span className="text-primary font-bold">
                     {links.filter(
                       (l) => l.source === hoveredNode.id || l.target === hoveredNode.id
@@ -1610,7 +1610,7 @@ export default function GlossaryGraph({ onSelectEntry, selectedEntryId, searchQu
         {nodes.length > 0 && !hoveredNode && !detailNodeId && (
           <div className="absolute bottom-4 left-4 z-10 pointer-events-none">
             <div className="glass-enhance rounded-md px-2.5 py-1.5 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-sm before:z-[-1] before:pointer-events-none">
-              <span className="text-[9px] font-mono uppercase tracking-widest text-on-surface-variant/60">
+              <span className="text-[9px] font-mono uppercase tracking-widest text-on-surface-variant/85">
                 <Network className="w-3 h-3 inline mr-1 -mt-0.5" />
                 Arrastra · Rueda = zoom · / = buscar · F = foco · L = etiquetas · Backspace = atrás
               </span>

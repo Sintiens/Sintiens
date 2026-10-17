@@ -88,7 +88,7 @@
   --surface-variant: oklch(92% 0.002 160);
   
   --on-surface: oklch(15% 0.015 160);
-  --on-surface-variant: oklch(45% 0.02 160);
+  --on-surface-variant: oklch(38% 0.02 160);
   --on-background: oklch(15% 0.015 160);
   
   --primary: var(--on-surface); /* Changed to monochrome for premium look */
@@ -136,7 +136,7 @@
   --surface-variant: oklch(28% 0.002 160);
   
   --on-surface: oklch(90% 0.005 160);
-  --on-surface-variant: oklch(70% 0.01 160);
+  --on-surface-variant: oklch(78% 0.01 160);
   --on-background: oklch(90% 0.005 160);
   
   --primary: oklch(75% 0.04 155); /* Lighter Forest Green for dark mode */

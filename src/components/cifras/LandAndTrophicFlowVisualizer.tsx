@@ -54,7 +54,7 @@ export default function LandAndTrophicFlowVisualizer() {
             <span className="text-[10px] font-mono font-bold tracking-widest text-primary dark:text-emerald-400 uppercase bg-primary/10 dark:bg-emerald-500/10 px-2 py-0.5 rounded border border-primary/20">
               TERMODINÁMICA Y EFICIENCIA TRÓFICA · EXHIBIT VIII
             </span>
-            <span className="text-xs font-mono text-on-surface-variant/60">
+            <span className="text-xs font-mono text-on-surface-variant/85">
               Science (2018) & Nature Sustainability (2021)
             </span>
           </div>
@@ -191,7 +191,7 @@ export default function LandAndTrophicFlowVisualizer() {
                 </div>
                 <div
                   style={{ width: `${lostCaloriesNum}%` }}
-                  className="bg-ch1/85 rounded-r-lg transition-all duration-500 flex items-center justify-center text-[10px] font-mono font-bold text-ch1-on overflow-hidden"
+                  className="bg-ch1 rounded-r-lg transition-all duration-500 flex items-center justify-center text-[10px] font-mono font-bold text-ch1-on overflow-hidden"
                 >
                   <span className="hidden sm:inline">{lostCalories} kcal disipadas en calor y heces ({currentProduct.energyLossPercent}%)</span>
                 </div>

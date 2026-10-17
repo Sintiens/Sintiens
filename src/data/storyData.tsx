@@ -426,7 +426,7 @@ export const actsData: ActData[] = [
         exhibit: { id: "cage-space", label: "el espacio vital de una gallina enjaulada" },
         deepDive: {
           id: "dd-ganaderia-industrial",
-          label: "las granjas factor�a (CAFO)",
+          label: "las granjas factoría (CAFO)",
           nodes: [
           {
             id: "granjas_factoria",

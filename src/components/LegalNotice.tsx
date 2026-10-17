@@ -4,7 +4,7 @@ interface LegalNoticeProps {
 
 const EMAIL = "sotolabx@sintiens.org";
 const H2 = "font-heading text-xl md:text-2xl font-semibold text-on-surface";
-const LINK = "text-primary hover:underline underline-offset-4";
+const LINK = "text-primary underline underline-offset-4 hover:no-underline";
 const LEAD = "text-on-surface";
 
 /**

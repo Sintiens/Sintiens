@@ -166,7 +166,7 @@ export default function ThermodynamicMatrix({ onNavigateToTab: _onNavigateToTab 
           {scaleMode === "daily" ? (
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <label className="text-xs font-mono text-on-surface-variant flex items-center gap-1.5">
+                <label htmlFor="daily-protein" className="text-xs font-mono text-on-surface-variant flex items-center gap-1.5">
                   <Utensils className="w-4 h-4 text-primary" /> Proteína requerida en la dieta diaria:
                 </label>
                 <span className="text-sm font-mono font-bold text-primary">
@@ -175,6 +175,7 @@ export default function ThermodynamicMatrix({ onNavigateToTab: _onNavigateToTab 
               </div>
               <input
                 type="range"
+                id="daily-protein"
                 min="25"
                 max="250"
                 step="25"
@@ -182,7 +183,7 @@ export default function ThermodynamicMatrix({ onNavigateToTab: _onNavigateToTab 
                 onChange={(e) => setDailyGramsProtein(Number(e.target.value))}
                 className="w-full h-2 bg-surface-dim rounded-lg appearance-none cursor-pointer accent-primary"
               />
-              <div className="flex justify-between text-[10px] font-mono text-on-surface-variant/60">
+              <div className="flex justify-between text-[10px] font-mono text-on-surface-variant/85">
                 <span>25g (Mínimo individual)</span>
                 <span>100g (Dieta estándar alta)</span>
                 <span>250g (Consumo familiar / atleta)</span>
@@ -191,7 +192,7 @@ export default function ThermodynamicMatrix({ onNavigateToTab: _onNavigateToTab 
           ) : (
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <label className="text-xs font-mono text-on-surface-variant flex items-center gap-1.5">
+                <label htmlFor="macro-hectares" className="text-xs font-mono text-on-surface-variant flex items-center gap-1.5">
                   <LandPlot className="w-4 h-4 text-primary" /> Superficie de cultivo de cereal/soja analizada:
                 </label>
                 <span className="text-sm font-mono font-bold text-primary">
@@ -200,6 +201,7 @@ export default function ThermodynamicMatrix({ onNavigateToTab: _onNavigateToTab 
               </div>
               <input
                 type="range"
+                id="macro-hectares"
                 min="10"
                 max="1000"
                 step="10"
@@ -207,7 +209,7 @@ export default function ThermodynamicMatrix({ onNavigateToTab: _onNavigateToTab 
                 onChange={(e) => setMacroHectares(Number(e.target.value))}
                 className="w-full h-2 bg-surface-dim rounded-lg appearance-none cursor-pointer accent-primary"
               />
-              <div className="flex justify-between text-[10px] font-mono text-on-surface-variant/60">
+              <div className="flex justify-between text-[10px] font-mono text-on-surface-variant/85">
                 <span>10 ha (Finca pequeña)</span>
                 <span>100 ha (Explotación media)</span>
                 <span>1.000 ha (Latifundio agroindustrial)</span>
@@ -372,7 +374,7 @@ export default function ThermodynamicMatrix({ onNavigateToTab: _onNavigateToTab 
           {/* Quick Metrics Summary Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="bg-surface-dim/60 p-4 rounded-xl border border-outline-variant/20 space-y-1">
-              <span className="text-[10px] font-mono uppercase text-on-surface-variant/60 block">
+              <span className="text-[10px] font-mono uppercase text-on-surface-variant/85 block">
                 Tierra Requerida:
               </span>
               <div className="text-lg sm:text-xl font-mono font-bold text-on-surface">
@@ -384,7 +386,7 @@ export default function ThermodynamicMatrix({ onNavigateToTab: _onNavigateToTab 
             </div>
 
             <div className="bg-surface-dim/60 p-4 rounded-xl border border-outline-variant/20 space-y-1">
-              <span className="text-[10px] font-mono uppercase text-on-surface-variant/60 block">
+              <span className="text-[10px] font-mono uppercase text-on-surface-variant/85 block">
                 Emisiones de GEI:
               </span>
               <div className="text-lg sm:text-xl font-mono font-bold text-on-surface">
@@ -396,7 +398,7 @@ export default function ThermodynamicMatrix({ onNavigateToTab: _onNavigateToTab 
             </div>
 
             <div className="bg-surface-dim/60 p-4 rounded-xl border border-outline-variant/20 space-y-1">
-              <span className="text-[10px] font-mono uppercase text-on-surface-variant/60 block">
+              <span className="text-[10px] font-mono uppercase text-on-surface-variant/85 block">
                 Gasto de Agua Dulce:
               </span>
               <div className="text-lg sm:text-xl font-mono font-bold text-on-surface">
@@ -410,7 +412,7 @@ export default function ThermodynamicMatrix({ onNavigateToTab: _onNavigateToTab 
             </div>
 
             <div className="bg-surface-dim/60 p-4 rounded-xl border border-outline-variant/20 space-y-1">
-              <span className="text-[10px] font-mono uppercase text-on-surface-variant/60 block">
+              <span className="text-[10px] font-mono uppercase text-on-surface-variant/85 block">
                 Personas Alimentables:
               </span>
               <div className="text-lg sm:text-xl font-mono font-bold text-primary">
@@ -558,7 +560,7 @@ export default function ThermodynamicMatrix({ onNavigateToTab: _onNavigateToTab 
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono">
             <div className="bg-surface-dim/60 p-4 rounded-xl border border-outline-variant/20 space-y-1.5">
-              <span className="text-[10px] text-on-surface-variant/60 uppercase block">Superficie Liberable:</span>
+              <span className="text-[10px] text-on-surface-variant/85 uppercase block">Superficie Liberable:</span>
               <div className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
                 3.100 M hectáreas
               </div>
@@ -568,7 +570,7 @@ export default function ThermodynamicMatrix({ onNavigateToTab: _onNavigateToTab 
             </div>
 
             <div className="bg-surface-dim/60 p-4 rounded-xl border border-outline-variant/20 space-y-1.5">
-              <span className="text-[10px] text-on-surface-variant/60 uppercase block">Secuestro de Carbono:</span>
+              <span className="text-[10px] text-on-surface-variant/85 uppercase block">Secuestro de Carbono:</span>
               <div className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
                 8.1 Gt CO2 / año
               </div>
@@ -578,7 +580,7 @@ export default function ThermodynamicMatrix({ onNavigateToTab: _onNavigateToTab 
             </div>
 
             <div className="bg-surface-dim/60 p-4 rounded-xl border border-outline-variant/20 space-y-1.5">
-              <span className="text-[10px] text-on-surface-variant/60 uppercase block">Capacidad de Alimentación:</span>
+              <span className="text-[10px] text-on-surface-variant/85 uppercase block">Capacidad de Alimentación:</span>
               <div className="text-xl font-bold text-primary">
                 +4.000 M personas
               </div>

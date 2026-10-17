@@ -154,9 +154,9 @@ export default function WelfarewashingScanner({ onNavigateToTab: _onNavigateToTa
                       </span>
                       <ShieldCheck className="w-4 h-4 text-primary" />
                     </div>
-                    <h3 className="text-xl sm:text-2xl font-heading font-bold text-on-surface">
+                    <h2 className="text-xl sm:text-2xl font-heading font-bold text-on-surface">
                       Lo que se promete
-                    </h3>
+                    </h2>
                   </div>
 
                   {/* Official Regulation & Quote */}
@@ -181,7 +181,7 @@ export default function WelfarewashingScanner({ onNavigateToTab: _onNavigateToTa
 
                   {/* Public Perception */}
                   <div className="space-y-1 text-xs">
-                    <span className="font-mono text-[10px] text-on-surface-variant/60 uppercase block">
+                    <span className="font-mono text-[10px] text-on-surface-variant/85 uppercase block">
                       Percepción del Consumidor:
                     </span>
                     <p className="font-sans text-on-surface-variant leading-relaxed text-[11px]">
@@ -190,7 +190,7 @@ export default function WelfarewashingScanner({ onNavigateToTab: _onNavigateToTa
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-outline-variant/20 text-[10px] font-mono text-on-surface-variant/60 flex items-center gap-1.5">
+                <div className="pt-4 border-t border-outline-variant/20 text-[10px] font-mono text-on-surface-variant/85 flex items-center gap-1.5">
                   <Info className="w-3.5 h-3.5" /> Marco normativo formal de la Unión Europea
                 </div>
               </div>
@@ -205,9 +205,9 @@ export default function WelfarewashingScanner({ onNavigateToTab: _onNavigateToTa
                       </span>
                       <XCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
                     </div>
-                    <h3 className="text-xl sm:text-2xl font-heading font-bold text-on-surface">
+                    <h2 className="text-xl sm:text-2xl font-heading font-bold text-on-surface">
                       Lo que ocurre en la granja
-                    </h3>
+                    </h2>
                   </div>
 
                   {/* Escape Clause & Application % */}
@@ -295,7 +295,7 @@ export default function WelfarewashingScanner({ onNavigateToTab: _onNavigateToTa
                       <h4 className="font-heading font-bold text-base text-on-surface">
                         {seal.sealName}
                       </h4>
-                      <span className="text-[10px] font-mono text-on-surface-variant/60 block">
+                      <span className="text-[10px] font-mono text-on-surface-variant/85 block">
                         {seal.promoter}
                       </span>
                     </div>
@@ -315,9 +315,9 @@ export default function WelfarewashingScanner({ onNavigateToTab: _onNavigateToTa
                     {currentSeal.auditGrade}
                   </span>
                 </div>
-                <h3 className="text-2xl font-heading font-bold text-on-surface">
+                <h2 className="text-2xl font-heading font-bold text-on-surface">
                   {currentSeal.sealName}
-                </h3>
+                </h2>
               </div>
 
               {/* What it claims */}

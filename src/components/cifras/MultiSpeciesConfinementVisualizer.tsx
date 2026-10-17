@@ -32,7 +32,7 @@ export default function MultiSpeciesConfinementVisualizer() {
             <span className="text-[10px] font-mono font-bold tracking-widest text-primary dark:text-emerald-400 uppercase bg-primary/10 dark:bg-emerald-500/10 px-2 py-0.5 rounded border border-primary/20">
               ARQUITECTURA DEL CONFINAMIENTO · EXHIBIT IV
             </span>
-            <span className="text-xs font-mono text-on-surface-variant/60">
+            <span className="text-xs font-mono text-on-surface-variant/85">
               Estándares de la EFSA y Directivas UE
             </span>
           </div>

@@ -237,7 +237,7 @@ export default function RawlsianMachine({ onNavigateToTab: _onNavigateToTab }: R
       {/* MAIN CONTAINER */}
       <div className="w-full max-w-[1280px] mx-auto px-4 md:px-6 lg:px-8 space-y-12">
         {/* PROGRESS STEPPER */}
-        <div className="flex items-center justify-between border-b border-outline-variant/20 pb-4 font-mono text-[11px] uppercase tracking-wider text-on-surface-variant/60">
+        <div className="flex items-center justify-between border-b border-outline-variant/20 pb-4 font-mono text-[11px] uppercase tracking-wider text-on-surface-variant">
           <div className="flex items-center gap-2">
             <span
               className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
@@ -304,7 +304,7 @@ export default function RawlsianMachine({ onNavigateToTab: _onNavigateToTab }: R
                   <h2 className="text-lg sm:text-xl font-heading font-semibold text-on-surface">
                     Paso 1: Redacta la Legislación del Mundo
                   </h2>
-                  <p className="text-xs font-mono text-on-surface-variant/60">
+                  <p className="text-xs font-mono text-on-surface-variant">
                     Define los 5 artículos de la carta magna. Recuerda: todavía no sabes qué especie te tocará ser.
                   </p>
                 </div>
@@ -418,7 +418,7 @@ export default function RawlsianMachine({ onNavigateToTab: _onNavigateToTab }: R
                     <ChevronLeft className="w-4 h-4" /> Anterior
                   </button>
 
-                  <div className="text-xs font-mono text-on-surface-variant/60">
+                  <div className="text-xs font-mono text-on-surface-variant">
                     {configuredLaws.length} / {CONSTITUTIONAL_DILEMMAS.length} leyes configuradas
                   </div>
 
@@ -491,13 +491,13 @@ export default function RawlsianMachine({ onNavigateToTab: _onNavigateToTab }: R
 
             {/* Rolling specimen preview card */}
             <div className="bg-surface-dim/60 border border-outline-variant/40 rounded-2xl p-6 w-full max-w-md shadow-xl backdrop-blur-md">
-              <span className="text-[10px] font-mono uppercase text-on-surface-variant/60 tracking-wider block mb-1">
+              <span className="text-[10px] font-mono uppercase text-on-surface-variant tracking-wider block mb-1">
                 Espécimen en escaneo:
               </span>
               <div className="text-lg font-heading font-semibold text-primary truncate">
                 {rollingCandidate.commonName}
               </div>
-              <div className="text-xs font-mono italic text-on-surface-variant/60">
+              <div className="text-xs font-mono italic text-on-surface-variant">
                 {rollingCandidate.scientificName}
               </div>
               <div className="mt-3 text-[11px] font-mono text-on-surface-variant">
@@ -592,11 +592,11 @@ export default function RawlsianMachine({ onNavigateToTab: _onNavigateToTab }: R
 
                     <div className="grid grid-cols-2 gap-4 text-xs font-mono pt-1">
                       <div className="bg-surface-dim/60 p-3 rounded-xl border border-outline-variant/20">
-                        <span className="text-[10px] text-on-surface-variant/60 uppercase block">Vida en libertad:</span>
+                        <span className="text-[10px] text-on-surface-variant uppercase block">Vida en libertad:</span>
                         <span className="font-bold text-on-surface text-sm">{assignedSpecimen.naturalLifespan}</span>
                       </div>
                       <div className="bg-surface-dim/60 p-3 rounded-xl border border-outline-variant/20">
-                        <span className="text-[10px] text-on-surface-variant/60 uppercase block">Vida en explotación:</span>
+                        <span className="text-[10px] text-on-surface-variant uppercase block">Vida en explotación:</span>
                         <span className="font-bold text-red-600 dark:text-red-400 text-sm">{assignedSpecimen.actualLifespan}</span>
                       </div>
                     </div>
@@ -753,7 +753,7 @@ export default function RawlsianMachine({ onNavigateToTab: _onNavigateToTab }: R
                     <span className="uppercase text-on-surface-variant font-bold flex items-center gap-2">
                       <Compass className="w-4 h-4 text-primary" /> Estadísticas de tu Sesión
                     </span>
-                    <span className="text-on-surface-variant/60">{rollHistory.length} vidas experimentadas</span>
+                    <span className="text-on-surface-variant">{rollHistory.length} vidas experimentadas</span>
                   </div>
 
                   <div className="space-y-2 text-xs font-mono">

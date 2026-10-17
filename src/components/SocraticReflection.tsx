@@ -260,15 +260,15 @@ export default function SocraticReflection() {
       {/* Header of the reflection box */}
       <div className="flex flex-row items-center lg:items-end gap-4 lg:gap-8 pb-4 mb-2 relative z-10 px-4">
         <div className="flex-1 min-w-[60%] lg:min-w-0 pr-10 lg:pr-0">
-          <h3 className="text-4xl md:text-5xl font-serif text-zinc-900 dark:text-zinc-100 tracking-tight leading-none pl-4">
+          <h2 className="text-4xl md:text-5xl font-serif text-zinc-900 dark:text-zinc-100 tracking-tight leading-none pl-4">
             Preguntas Comunes<br />& Reflexiones
-          </h3>
+          </h2>
         </div>
         
         <div className="shrink-0 mr-5 xl:mr-20">
           <button
             onClick={handleShuffle}
-            className="flex items-center gap-1 text-[10px] font-bold font-mono text-zinc-400 hover:text-primary transition-colors cursor-pointer uppercase tracking-widest select-none"
+            className="flex items-center gap-1 text-[10px] font-bold font-mono text-zinc-600 dark:text-zinc-400 hover:text-primary transition-colors cursor-pointer uppercase tracking-widest select-none"
             title="Cambiar preguntas"
           >
             <RotateCcw 
@@ -324,9 +324,9 @@ export default function SocraticReflection() {
                           </div>
 
                           <div className="space-y-4">
-                            <h4 className="text-[20px] lg:text-[24px] font-serif italic text-zinc-900 dark:text-zinc-100 leading-[1.2]">
+                            <h3 className="text-[20px] lg:text-[24px] font-serif italic text-zinc-900 dark:text-zinc-100 leading-[1.2]">
                               "{item.question}"
-                            </h4>
+                            </h3>
                           </div>
                         </div>
 
@@ -336,7 +336,7 @@ export default function SocraticReflection() {
                               e.stopPropagation();
                               handleToggleCard(item.id);
                             }}
-                            className="w-full pt-4 border-t border-zinc-100 dark:border-zinc-800/50 text-[10px] font-bold font-mono tracking-widest text-zinc-500 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors flex items-center justify-between gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded uppercase"
+                            className="w-full pt-4 border-t border-zinc-100 dark:border-zinc-800/50 text-[10px] font-bold font-mono tracking-widest text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors flex items-center justify-between gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded uppercase"
                           >
                             <span>Profundizar</span>
                             <ArrowRight className="w-4 h-4" />
@@ -352,9 +352,9 @@ export default function SocraticReflection() {
                             <span className="inline-block text-[10px] font-sans font-bold tracking-widest text-zinc-400 uppercase">
                               {item.badgeText}
                             </span>
-                            <h4 className="text-[32px] md:text-4xl font-serif italic text-zinc-900 dark:text-zinc-100 leading-[1.2]">
+                            <h3 className="text-[32px] md:text-4xl font-serif italic text-zinc-900 dark:text-zinc-100 leading-[1.2]">
                               "{item.question}"
-                            </h4>
+                            </h3>
                           </div>
 
                           <button
@@ -378,18 +378,18 @@ export default function SocraticReflection() {
                         >
                           <div className="space-y-12">
                             <div className="space-y-4">
-                              <h4 className="text-[10px] font-bold text-zinc-400 font-mono uppercase tracking-widest border-b border-zinc-100 dark:border-zinc-800/50 pb-2">
+                              <h3 className="text-[10px] font-bold text-zinc-400 font-mono uppercase tracking-widest border-b border-zinc-100 dark:border-zinc-800/50 pb-2">
                                 Análisis Racional
-                              </h4>
+                              </h3>
                               <div className="text-[15px] text-zinc-600 dark:text-zinc-400 leading-[1.8] font-light">
                                 {item.reflection}
                               </div>
                             </div>
 
                             <div className="space-y-4">
-                              <h4 className="text-[10px] font-bold text-zinc-400 font-mono uppercase tracking-widest border-b border-zinc-100 dark:border-zinc-800/50 pb-2">
+                              <h3 className="text-[10px] font-bold text-zinc-400 font-mono uppercase tracking-widest border-b border-zinc-100 dark:border-zinc-800/50 pb-2">
                                 Ejercicio Deductivo
-                              </h4>
+                              </h3>
                               <div className="bg-zinc-50 dark:bg-zinc-900/50 p-8 border border-zinc-200 dark:border-zinc-800">
                                 <p className="text-[17px] text-zinc-900 dark:text-zinc-200 leading-[1.6] italic font-serif">
                                   &ldquo;{item.deepDiveQuestion}&rdquo;

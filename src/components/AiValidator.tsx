@@ -418,17 +418,17 @@ export default memo(function AiValidator({
             deconstruirá su validez lógica y expondrá sus sesgos.
           </p>
           <div className="flex items-center justify-center gap-3 sm:gap-5 pt-1.5">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/85 flex items-center gap-2">
               <BrainCircuit className="w-3.5 h-3.5" />
               4 MODOS
             </span>
             <span className="w-px h-3.5 bg-outline-variant/50" />
-            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/85 flex items-center gap-2">
               <History className="w-3.5 h-3.5" />
               {history.length} ANÁLISIS
             </span>
             <span className="w-px h-3.5 bg-outline-variant/50" />
-            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/85 flex items-center gap-2">
               <Microscope className="w-3.5 h-3.5" />
               GEMINI 2.5
             </span>
@@ -444,14 +444,14 @@ export default memo(function AiValidator({
       {/* ═════════════════════════ SELECTOR DE MODO ═════════════════════════ */}
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-technical-xs uppercase tracking-widest text-on-surface-variant/50 flex items-center gap-2">
+          <span className="text-technical-xs uppercase tracking-widest text-on-surface-variant/85 flex items-center gap-2">
             <Gauge className="w-3.5 h-3.5" />
             Modo de Análisis
           </span>
           {history.length > 0 && (
             <button
               onClick={() => setShowHistory((v) => !v)}
-              className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/60 hover:text-primary transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/85 hover:text-primary transition-colors flex items-center gap-1.5 cursor-pointer"
             >
               <History className="w-3.5 h-3.5" />
               Historial ({history.length})
@@ -516,13 +516,13 @@ export default memo(function AiValidator({
               disabled={loading}
               rows={2}
             />
-            <span className="absolute bottom-3 right-4 text-[9px] font-mono text-on-surface-variant/60 select-none pointer-events-none">
+            <span className="absolute bottom-3 right-4 text-[9px] font-mono text-on-surface-variant/85 select-none pointer-events-none">
               {userInput.length} car.
             </span>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center justify-between">
-            <span className="text-[9px] font-mono uppercase tracking-widest text-on-surface-variant/60 hidden sm:flex items-center gap-1.5">
+            <span className="text-[9px] font-mono uppercase tracking-widest text-on-surface-variant/85 hidden sm:flex items-center gap-1.5">
               <kbd className="px-1.5 py-0.5 rounded border border-outline-variant/30 bg-surface-dim/40">Ctrl</kbd>
               <span>+</span>
               <kbd className="px-1.5 py-0.5 rounded border border-outline-variant/30 bg-surface-dim/40">Enter</kbd>
@@ -543,7 +543,7 @@ export default memo(function AiValidator({
         <div className="border-t border-outline-variant/15 pt-4">
           <button
             onClick={() => setShowLibrary((v) => !v)}
-            className="flex items-center justify-between w-full text-[10px] font-mono text-on-surface-variant/60 uppercase tracking-widest hover:text-on-surface transition-colors cursor-pointer"
+            className="flex items-center justify-between w-full text-[10px] font-mono text-on-surface-variant/85 uppercase tracking-widest hover:text-on-surface transition-colors cursor-pointer"
           >
             <span className="flex items-center gap-2">
               <Lightbulb className="w-3.5 h-3.5" />
@@ -611,7 +611,7 @@ export default memo(function AiValidator({
                 </h4>
                 <button
                   onClick={clearHistory}
-                  className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/50 hover:text-ch1 transition-colors flex items-center gap-1.5 cursor-pointer"
+                  className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/85 hover:text-ch1 transition-colors flex items-center gap-1.5 cursor-pointer"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                   Limpiar
@@ -648,14 +648,14 @@ export default memo(function AiValidator({
                         <span className="block text-[12px] text-on-surface truncate group-hover:text-primary transition-colors">
                           "{entry.argument}"
                         </span>
-                        <span className="block text-[9px] font-mono uppercase tracking-widest text-on-surface-variant/60 mt-0.5">
+                        <span className="block text-[9px] font-mono uppercase tracking-widest text-on-surface-variant/85 mt-0.5">
                           {m.label} · {new Date(entry.timestamp).toLocaleDateString("es-ES", { day: "numeric", month: "short" })}
                         </span>
                       </button>
                       <button
                         onClick={() => setHistory((prev) => prev.filter((h) => h.id !== entry.id))}
                         aria-label="Eliminar del historial"
-                        className="p-1.5 rounded-md text-on-surface-variant/50 hover:text-ch1 hover:bg-surface-dim/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 transition-all cursor-pointer shrink-0"
+                        className="p-1.5 rounded-md text-on-surface-variant/85 hover:text-ch1 hover:bg-surface-dim/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 transition-all cursor-pointer shrink-0"
                       >
                         <X className="w-3.5 h-3.5" />
                       </button>
@@ -741,7 +741,7 @@ export default memo(function AiValidator({
                   <h3 className="text-lg font-bold text-on-surface leading-normal font-heading">
                     “{analysis.argumentSummary}”
                   </h3>
-                  <p className="text-[11px] text-on-surface-variant/50 italic truncate">
+                  <p className="text-[11px] text-on-surface-variant/85 italic truncate">
                     Sobre: “{lastAnalyzedText}”
                   </p>
                 </div>
@@ -853,7 +853,7 @@ export default memo(function AiValidator({
                 <div className="absolute left-6 top-1/2 -translate-y-1/2 opacity-[0.02] text-on-surface pointer-events-none">
                   <Brain className="w-24 h-24" />
                 </div>
-                <div className="flex items-center justify-center gap-1.5 text-on-surface-variant/60 text-[10px] font-mono tracking-widest uppercase">
+                <div className="flex items-center justify-center gap-1.5 text-on-surface-variant/85 text-[10px] font-mono tracking-widest uppercase">
                   <Sparkles className="w-3 h-3" />
                   PREGUNTA SOCRÁTICA FINAL
                 </div>
@@ -947,7 +947,7 @@ function ResultSection({
         {icon}
         {title}
       </h4>
-      {intro && <p className="text-[11px] text-on-surface-variant/60 leading-relaxed mb-2">{intro}</p>}
+      {intro && <p className="text-[11px] text-on-surface-variant/85 leading-relaxed mb-2">{intro}</p>}
       {children}
     </div>
   );

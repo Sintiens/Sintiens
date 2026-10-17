@@ -129,7 +129,7 @@ export default function LiveSlaughterTicker() {
               <span className="w-2 h-2 rounded-full bg-red-500" />
               MONITOR EN TIEMPO REAL · EXHIBIT I
             </span>
-            <span className="text-xs font-mono text-on-surface-variant/60">
+            <span className="text-xs font-mono text-on-surface-variant/85">
               FAOSTAT 2024 · Fishcount 2022
             </span>
           </div>

@@ -178,7 +178,7 @@ export default function SocraticTrainer({
             </p>
           </div>
 
-          <div className="text-[10px] font-mono text-on-surface-variant/60 bg-surface-dim px-2.5 py-1 rounded-full border border-outline-variant/20 shrink-0">
+          <div className="text-[10px] font-mono text-on-surface-variant/85 bg-surface-dim px-2.5 py-1 rounded-full border border-outline-variant/20 shrink-0">
             Paso {history.length}
           </div>
         </div>

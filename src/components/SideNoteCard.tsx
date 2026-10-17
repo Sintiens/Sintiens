@@ -39,7 +39,7 @@ export default function SideNoteCard({ item, type, actColor, onClose }: SideNote
 
       <div className="border-b border-outline-variant/20 dark:border-zinc-800 pb-2 mb-2.5 pr-6">
         <div className="flex items-center gap-2">
-          <span className={`shrink-0 inline-flex items-center justify-center w-5 h-5 rounded-md ${type === "glossary" ? `${actColor} bg-current/10` : "text-on-surface-variant/60"}`}>
+          <span className={`shrink-0 inline-flex items-center justify-center w-5 h-5 rounded-md ${type === "glossary" ? `${actColor} bg-current/10` : "text-on-surface-variant/85"}`}>
             {type === "glossary"
               ? <BookText className="w-3 h-3" />
               : <Quote className="w-3 h-3" />

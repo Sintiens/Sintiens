@@ -562,10 +562,10 @@ export default React.memo(function TimelineExplorer({ onRedirectToConcept }: Tim
           </div>
 
 
-            <h4 className="text-[10px] font-bold tracking-wider text-zinc-700 dark:text-zinc-300 font-mono flex items-center gap-1.5 transition-colors">
+            <h3 className="text-[10px] font-bold tracking-wider text-zinc-700 dark:text-zinc-300 font-mono flex items-center gap-1.5 transition-colors">
               <span className="h-1.5 w-1.5 rounded-full bg-zinc-800 dark:bg-white animate-pulse" />
               HECHOS HISTÓRICOS Y CIENTÍFICOS:
-            </h4>
+            </h3>
             <ul className="space-y-2 text-xs text-zinc-650 dark:text-zinc-400 leading-relaxed font-light select-text">
               {milestone.scientificFacts.map((fact, i) => (
                 <li key={i} className="flex items-start gap-2 bg-white dark:bg-zinc-950/40 p-3 rounded-xl border border-zinc-200/60 dark:border-zinc-800/40 transition-colors">
@@ -958,7 +958,7 @@ export default React.memo(function TimelineExplorer({ onRedirectToConcept }: Tim
                   <div className="py-24 text-center space-y-3">
                     <Clock className="w-12 h-12 stroke-1 text-zinc-400 dark:text-zinc-700 mx-auto animate-pulse" />
                     <div className="space-y-1">
-                      <h4 className="text-sm font-semibold text-zinc-900 dark:text-white">Sin hitos coincidentes</h4>
+                      <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">Sin hitos coincidentes</h3>
                       <p className="text-xs text-zinc-505">Intenta buscar con otros términos o cambia la perspectiva de filtrado.</p>
                     </div>
                   </div>
@@ -982,10 +982,10 @@ export default React.memo(function TimelineExplorer({ onRedirectToConcept }: Tim
                           <div className="col-span-1 lg:col-span-8 py-3 border-b border-zinc-250/60 dark:border-zinc-900/60 transition-colors">
                             <div className="flex items-center gap-4">
                               <div className="w-3 h-3 rounded-full bg-purple-500/70 animate-pulse shadow-[0_0_8px_rgba(168,85,247,0.4)]" />
-                              <h3 className="text-sm font-black text-zinc-800 dark:text-zinc-100 tracking-wider font-heading uppercase">
+                              <h2 className="text-sm font-black text-zinc-800 dark:text-zinc-100 tracking-wider font-heading uppercase">
                                 {era.name}
-                              </h3>
-                              <span className="text-[10px] font-mono text-zinc-400 dark:text-zinc-650 bg-zinc-100 dark:bg-zinc-950 p-1.5 px-2.5 rounded-lg border border-zinc-250/40 dark:border-zinc-900/40 ml-auto">
+                              </h2>
+                              <span className="text-[10px] font-mono text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-950 p-1.5 px-2.5 rounded-lg border border-zinc-250/40 dark:border-zinc-900/40 ml-auto">
                                 {era.period}
                               </span>
                             </div>
@@ -1100,9 +1100,9 @@ export default React.memo(function TimelineExplorer({ onRedirectToConcept }: Tim
                                         )}
                                       </div>
                                     </div>
-                                    <h4 className="text-sm sm:text-base font-black tracking-tight text-zinc-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors leading-snug font-heading">
+                                    <h3 className="text-sm sm:text-base font-black tracking-tight text-zinc-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors leading-snug font-heading">
                                       {milestone.title}
-                                    </h4>
+                                    </h3>
                                   </div>
 
                                   <p className="text-xs font-light text-zinc-550 dark:text-zinc-400 leading-relaxed">
@@ -1328,7 +1328,7 @@ export default React.memo(function TimelineExplorer({ onRedirectToConcept }: Tim
                     <div className="py-16 text-center space-y-3 -ml-6 lg:-ml-8">
                       <Clock className="w-10 h-10 stroke-1 text-zinc-400 dark:text-zinc-700 mx-auto animate-pulse" />
                       <div className="space-y-1">
-                        <h4 className="text-sm font-semibold text-zinc-900 dark:text-white">Sin correspondencias</h4>
+                        <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">Sin correspondencias</h3>
                         <p className="text-xs text-zinc-505">Ningún hito coincide con el término de búsqueda.</p>
                       </div>
                     </div>
@@ -1391,9 +1391,9 @@ export default React.memo(function TimelineExplorer({ onRedirectToConcept }: Tim
                             )}
                           </div>
 
-                          <h4 className="text-xs sm:text-sm font-extrabold text-zinc-900 dark:text-white tracking-tight leading-snug group-hover:text-black dark:group-hover:text-white transition-colors mb-1 font-heading">
+                          <h3 className="text-xs sm:text-sm font-extrabold text-zinc-900 dark:text-white tracking-tight leading-snug group-hover:text-black dark:group-hover:text-white transition-colors mb-1 font-heading">
                             {m.title}
-                          </h4>
+                          </h3>
 
                           <p className="text-[11px] leading-relaxed text-zinc-550 dark:text-zinc-400 font-light line-clamp-2">
                             {m.shortDesc}
@@ -1433,7 +1433,7 @@ export default React.memo(function TimelineExplorer({ onRedirectToConcept }: Tim
                     <div className="space-y-4">
                       <div className="flex items-center gap-1.5">
                         <span className="p-1 rounded bg-cyan-500/10 border border-cyan-500/20 text-[9px] font-mono text-cyan-600 dark:text-cyan-400 font-bold">ANÁLISIS</span>
-                        <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-400">DESFASE ÉTICO-INDUSTRIAL</h4>
+                        <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-400">DESFASE ÉTICO-INDUSTRIAL</h3>
                       </div>
 
                       <p className="text-xs text-zinc-500 font-light leading-relaxed">

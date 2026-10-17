@@ -482,10 +482,10 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
             {/* Distribución de consenso */}
             <div className="glass-enhance border border-outline-variant/30 rounded-2xl p-6 space-y-5 relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none">
               <div className="flex items-center justify-between">
-                <h3 className="text-technical-sm text-primary font-bold flex items-center gap-2">
+                <h2 className="text-technical-sm text-primary font-bold flex items-center gap-2">
                   <BarChart3 className="w-4 h-4" />
                   Distribución de Consenso
-                </h3>
+                </h2>
                 <span className="text-[10px] font-mono text-on-surface-variant/40">{stats.total} TESIS</span>
               </div>
               <div className="space-y-4">
@@ -529,10 +529,10 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
             <div className="glass-enhance border border-outline-variant/30 rounded-2xl p-6 space-y-5 relative z-10 before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-surface-dim/20 dark:before:bg-surface-dim/10 before:backdrop-blur-md before:z-[-1] before:pointer-events-none flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-technical-sm text-primary font-bold flex items-center gap-2">
+                  <h2 className="text-technical-sm text-primary font-bold flex items-center gap-2">
                     <Layers className="w-4 h-4" />
                     Categorías Dialécticas
-                  </h3>
+                  </h2>
                   <span className="text-[10px] font-mono text-on-surface-variant/40">{CATEGORY_OPTIONS.length - 1} EJES</span>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -554,7 +554,7 @@ export default React.memo(function ExcusesDilemmas({ onAnalyzeTrigger }: Excuses
                             {cat.label}
                           </span>
                         </div>
-                        <div className="text-[10px] font-mono text-on-surface-variant/60">
+                        <div className="text-[10px] font-mono text-on-surface-variant/85">
                           {count} justificaciones
                         </div>
                       </button>
@@ -945,7 +945,7 @@ function DilemmaDetail({
             onClick={onGoBack}
             disabled={history.length === 0}
             aria-label="Tesis anterior"
-            className="p-1.5 rounded-md text-on-surface-variant/60 hover:text-primary hover:bg-surface-dim/50 disabled:opacity-25 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-all cursor-pointer"
+            className="p-1.5 rounded-md text-on-surface-variant/85 hover:text-primary hover:bg-surface-dim/50 disabled:opacity-25 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-all cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
           </button>
@@ -953,7 +953,7 @@ function DilemmaDetail({
             onClick={onGoForward}
             disabled={forwardStack.length === 0}
             aria-label="Tesis siguiente"
-            className="p-1.5 rounded-md text-on-surface-variant/60 hover:text-primary hover:bg-surface-dim/50 disabled:opacity-25 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-all cursor-pointer"
+            className="p-1.5 rounded-md text-on-surface-variant/85 hover:text-primary hover:bg-surface-dim/50 disabled:opacity-25 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-all cursor-pointer"
           >
             <ArrowRight className="w-3.5 h-3.5" />
           </button>

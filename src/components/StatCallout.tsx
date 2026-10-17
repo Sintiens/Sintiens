@@ -29,7 +29,7 @@ const StatCallouts: React.FC<{ items: StatCalloutData[]; accent: string }> = ({ 
             {s.label}
           </div>
           {s.detail && (
-            <div className="text-[10px] font-sans font-light text-on-surface-variant/60 leading-snug mt-1">
+            <div className="text-[10px] font-sans font-light text-on-surface-variant/85 leading-snug mt-1">
               {s.detail}
             </div>
           )}

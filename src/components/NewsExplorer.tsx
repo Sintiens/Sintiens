@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useRef, memo, Fragment } from "react";
 import type { MouseEvent as ReactMouseEvent } from "react";
+import { Helmet } from "react-helmet-async";
 import { motion, AnimatePresence } from "motion/react";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import type { TabType } from "../types";
@@ -43,6 +44,15 @@ import { GLOSSARY_UNIFIED, GLOSSARY_BY_ID } from "../data/glossaryUnified";
 import { buildGlossaryRegex, splitGlossaryText } from "../utils/glossaryPatterns";
 import { SITE_URL, SITE_NAME } from "../utils/site.ts";
 import GlossaryLink from "./GlossaryLink";
+
+/** Descripción de metadatos: recorta en palabra y mantiene <158 caracteres. */
+function metaDescription(text: string, max = 158): string {
+  const clean = text.replace(/\s+/g, " ").trim();
+  if (clean.length <= max) return clean;
+  const cut = clean.slice(0, max - 1);
+  const lastSpace = cut.lastIndexOf(" ");
+  return `${(lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut).trimEnd()}…`;
+}
 import { HeroShell } from "./ui/Shells";
 
 // Safe hostname extraction for favicon URLs
@@ -268,6 +278,10 @@ export default memo(function NewsExplorer({ onNavigate }: { onNavigate?: (tab: T
     }
   });
   const [expandedIds, setExpandedIds] = useState<Set<string>>(() => new Set());
+  const deepLinkNews = useMemo(
+    () => (deepLinkTargetId ? NEWS_DATA.find((news) => news.id === deepLinkTargetId) ?? null : null),
+    [deepLinkTargetId]
+  );
   const controlBarRef = useRef<HTMLDivElement | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const newsTitleRef = useRef<HTMLDivElement | null>(null);
@@ -810,7 +824,7 @@ export default memo(function NewsExplorer({ onNavigate }: { onNavigate?: (tab: T
           onClick={(e) => handleCopyLink(e, item.id)}
           title="Copiar enlace a esta noticia"
           aria-label="Copiar enlace directo"
-          className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-surface-dim/60 dark:bg-surface-container/60 hover:bg-primary/10 border border-outline-variant/25 hover:border-primary/30 text-on-surface-variant/60 hover:text-primary transition-all cursor-pointer shrink-0"
+          className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-surface-dim/60 dark:bg-surface-container/60 hover:bg-primary/10 border border-outline-variant/25 hover:border-primary/30 text-on-surface-variant/85 hover:text-primary transition-all cursor-pointer shrink-0"
         >
           {copiedId === item.id ? (
             <Check className="w-3.5 h-3.5 text-emerald-500" />
@@ -891,9 +905,9 @@ export default memo(function NewsExplorer({ onNavigate }: { onNavigate?: (tab: T
             </div>
 
             {/* Título — serif editorial, mayor contraste + highlight búsqueda + glosario */}
-            <h4 className={`font-serif text-[19px] md:text-[20px] font-semibold leading-[1.25] tracking-tight text-on-surface group-hover/card:text-primary transition-colors ${isExpanded(item.id) ? "" : "line-clamp-3"}`}>
+            <h3 className={`font-serif text-[19px] md:text-[20px] font-semibold leading-[1.25] tracking-tight text-on-surface group-hover/card:text-primary transition-colors ${isExpanded(item.id) ? "" : "line-clamp-3"}`}>
               {renderWithGlossary(item.title, item, debouncedQuery) as any}
-            </h4>
+            </h3>
 
             {/* Summary + análisis detallado al expandir */}
             {(() => {
@@ -1036,9 +1050,9 @@ export default memo(function NewsExplorer({ onNavigate }: { onNavigate?: (tab: T
               {getCategoryLabel(item.category)}
             </div>
 
-            <h4 className={`font-serif text-[16px] md:text-[17px] font-semibold leading-snug text-on-surface group-hover/row:text-primary transition-colors ${isExpanded(item.id) ? "" : "line-clamp-2"}`}>
+            <h3 className={`font-serif text-[16px] md:text-[17px] font-semibold leading-snug text-on-surface group-hover/row:text-primary transition-colors ${isExpanded(item.id) ? "" : "line-clamp-2"}`}>
               {highlightMatch(item.title, debouncedQuery) as any}
-            </h4>
+            </h3>
 
             {(() => {
               const expanded = isExpanded(item.id);
@@ -1179,7 +1193,7 @@ export default memo(function NewsExplorer({ onNavigate }: { onNavigate?: (tab: T
               onClick={(e) => handleCopyLink(e, item.id)}
               title="Copiar enlace"
               aria-label="Copiar enlace"
-              className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-surface-dim/50 dark:bg-surface-container/50 hover:bg-primary/10 border border-outline-variant/20 hover:border-primary/30 text-on-surface-variant/60 hover:text-primary transition-all cursor-pointer shrink-0"
+              className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-surface-dim/50 dark:bg-surface-container/50 hover:bg-primary/10 border border-outline-variant/20 hover:border-primary/30 text-on-surface-variant/85 hover:text-primary transition-all cursor-pointer shrink-0"
             >
               {copiedId === item.id ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Link2 className="w-3.5 h-3.5" />}
             </button>
@@ -1202,6 +1216,43 @@ export default memo(function NewsExplorer({ onNavigate }: { onNavigate?: (tab: T
 
   return (
     <div id="news-section-view" className="space-y-8 w-full relative max-w-full mx-auto">
+      <Helmet>
+        <title>{deepLinkNews ? `${deepLinkNews.title} — Sintiens` : "Noticias — Sintiens"}</title>
+        <meta
+          name="description"
+          content={
+            deepLinkNews
+              ? metaDescription(deepLinkNews.summary)
+              : "Avances científicos, legales y sociales sobre sintiencia animal y transición alimentaria, verificados y con fuentes."
+          }
+        />
+        <link
+          rel="canonical"
+          href={deepLinkNews ? `${SITE_URL}/noticias?id=${encodeURIComponent(deepLinkNews.id)}` : `${SITE_URL}/noticias`}
+        />
+        <meta property="og:title" content={deepLinkNews ? `${deepLinkNews.title} — Sintiens` : "Noticias — Sintiens"} />
+        <meta
+          property="og:description"
+          content={
+            deepLinkNews
+              ? metaDescription(deepLinkNews.summary)
+              : "Avances científicos, legales y sociales sobre sintiencia animal y transición alimentaria, verificados y con fuentes."
+          }
+        />
+        <meta
+          property="og:url"
+          content={deepLinkNews ? `${SITE_URL}/noticias?id=${encodeURIComponent(deepLinkNews.id)}` : `${SITE_URL}/noticias`}
+        />
+        <meta name="twitter:title" content={deepLinkNews ? `${deepLinkNews.title} — Sintiens` : "Noticias — Sintiens"} />
+        <meta
+          name="twitter:description"
+          content={
+            deepLinkNews
+              ? metaDescription(deepLinkNews.summary)
+              : "Avances científicos, legales y sociales sobre sintiencia animal y transición alimentaria, verificados y con fuentes."
+          }
+        />
+      </Helmet>
 
       {/* ───────────── HERO ───────────── */}
       <HeroShell id="hero" pad="wide" border="none" cue watermark={{ icon: Newspaper, size: "clamp(140px, 35vw, 400px)" }}>
@@ -1249,7 +1300,7 @@ export default memo(function NewsExplorer({ onNavigate }: { onNavigate?: (tab: T
               </div>
               <AnimatePresence initial={false}>
                 {isMethodologyOpen && (
-                  <motion.h3
+                  <motion.h2
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
@@ -1257,7 +1308,7 @@ export default memo(function NewsExplorer({ onNavigate }: { onNavigate?: (tab: T
                     className="text-2xl md:text-3xl lg:text-4xl font-serif text-zinc-900 dark:text-zinc-100 tracking-tight leading-tight mt-1 overflow-hidden"
                   >
                     Criterios de Evaluación &amp; Metodología
-                  </motion.h3>
+                  </motion.h2>
                 )}
               </AnimatePresence>
             </div>
@@ -1759,9 +1810,9 @@ export default memo(function NewsExplorer({ onNavigate }: { onNavigate?: (tab: T
         {/* News Database & Explorer Section Header */}
         <div ref={newsTitleRef} className="pl-1 pt-4 sm:pt-6 space-y-2">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <h3 className="text-3xl md:text-4xl lg:text-5xl font-serif text-zinc-900 dark:text-zinc-100 tracking-tight leading-tight">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif text-zinc-900 dark:text-zinc-100 tracking-tight leading-tight">
               Explorador de Noticias<br className="hidden sm:inline" /> <span className="italic font-light opacity-90">&amp; Archivo Documental</span>
-            </h3>
+            </h2>
             <div className="flex flex-col items-start sm:items-end gap-1 shrink-0 self-start sm:self-center">
               <span className="inline-flex items-center gap-1.5 text-[11px] font-mono font-medium px-2.5 py-1 rounded-full border bg-surface-container/50 border-outline-variant/25 text-on-surface-variant">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
@@ -1771,7 +1822,7 @@ export default memo(function NewsExplorer({ onNavigate }: { onNavigate?: (tab: T
                 )}
               </span>
               {hasAnyActiveFilter && (
-                <span className="text-[11px] font-mono text-on-surface-variant/60">
+                <span className="text-[11px] font-mono text-on-surface-variant/85">
                   {totalActiveFiltersCount > 0 ? `${totalActiveFiltersCount} filtro${totalActiveFiltersCount > 1 ? "s" : ""} activo${totalActiveFiltersCount > 1 ? "s" : ""}` : "búsqueda activa"}
                   {" — "}
                   <button
@@ -1831,7 +1882,7 @@ export default memo(function NewsExplorer({ onNavigate }: { onNavigate?: (tab: T
                       setDebouncedQuery("");
                     }}
                     aria-label="Borrar búsqueda"
-                    className="absolute right-7 p-2 min-w-[36px] min-h-[36px] flex items-center justify-center text-on-surface-variant/60 hover:text-primary cursor-pointer transition-colors"
+                    className="absolute right-7 p-2 min-w-[36px] min-h-[36px] flex items-center justify-center text-on-surface-variant/85 hover:text-primary cursor-pointer transition-colors"
                     title="Borrar búsqueda"
                   >
                     <X className="w-3.5 h-3.5" />
@@ -1894,7 +1945,7 @@ export default memo(function NewsExplorer({ onNavigate }: { onNavigate?: (tab: T
                 className={`p-2 min-w-[34px] min-h-[34px] flex items-center justify-center rounded-full text-xs font-mono transition-all cursor-pointer ${
                   viewMode === "grid"
                     ? "bg-surface dark:bg-zinc-800 text-primary shadow-xs font-bold"
-                    : "text-on-surface-variant/60 hover:text-on-surface"
+                    : "text-on-surface-variant/85 hover:text-on-surface"
                 }`}
               >
                 <LayoutGrid className="w-3.5 h-3.5" />
@@ -1909,7 +1960,7 @@ export default memo(function NewsExplorer({ onNavigate }: { onNavigate?: (tab: T
                 className={`p-2 min-w-[34px] min-h-[34px] flex items-center justify-center rounded-full text-xs font-mono transition-all cursor-pointer ${
                   viewMode === "list"
                     ? "bg-surface dark:bg-zinc-800 text-primary shadow-xs font-bold"
-                    : "text-on-surface-variant/60 hover:text-on-surface"
+                    : "text-on-surface-variant/85 hover:text-on-surface"
                 }`}
               >
                 <List className="w-3.5 h-3.5" />
@@ -1924,7 +1975,7 @@ export default memo(function NewsExplorer({ onNavigate }: { onNavigate?: (tab: T
                 className={`p-2 min-w-[34px] min-h-[34px] flex items-center justify-center rounded-full text-xs font-mono transition-all cursor-pointer ${
                   viewMode === "timeline"
                     ? "bg-surface dark:bg-zinc-800 text-primary shadow-xs font-bold"
-                    : "text-on-surface-variant/60 hover:text-on-surface"
+                    : "text-on-surface-variant/85 hover:text-on-surface"
                 }`}
               >
                 <ScrollText className="w-3.5 h-3.5" />
@@ -2441,7 +2492,7 @@ export default memo(function NewsExplorer({ onNavigate }: { onNavigate?: (tab: T
                       <div data-nav-avoid="true" className="sticky top-[calc(var(--hero-nav-active-top,0px)+64px)] transition-[top] duration-200 z-10 flex items-center gap-3 mb-4 bg-background/80 backdrop-blur-md py-1 -ml-6 sm:-ml-8 pl-6 sm:pl-8">
                         <span className="absolute left-0 sm:left-1 w-3 h-3 rounded-full bg-primary border-2 border-background shadow-sm" style={{ left: '2px' }} />
                         <span className="absolute left-0 w-3 h-3 rounded-full bg-primary/20 animate-ping" style={{ left: '2px' }} />
-                        <h4 className="text-sm font-mono font-bold tracking-widest text-primary ml-4">{year}</h4>
+                        <h3 className="text-sm font-mono font-bold tracking-widest text-primary ml-4">{year}</h3>
                         <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-surface-container border border-outline-variant/20 text-on-surface-variant/70">
                           {items.length} noticia{items.length > 1 ? "s" : ""}
                         </span>
@@ -2465,7 +2516,7 @@ export default memo(function NewsExplorer({ onNavigate }: { onNavigate?: (tab: T
             <div className="w-full text-center py-16 glass-enhance border border-outline-variant/30 rounded-2xl bg-surface-dim/10 flex flex-col items-center justify-center space-y-5 p-6">
               <Newspaper className="w-12 h-12 text-on-surface-variant/30 stroke-[1.5]" />
               <div className="space-y-1.5 max-w-md">
-                <h4 className="text-base font-heading font-semibold text-on-surface">No se encontraron noticias coincidentes</h4>
+                <h3 className="text-base font-heading font-semibold text-on-surface">No se encontraron noticias coincidentes</h3>
                 <p className="text-xs text-on-surface-variant/70 font-light">
                   Prueba a ajustar los criterios de búsqueda o explora algunos de los temas más consultados:
                 </p>
@@ -2508,7 +2559,7 @@ export default memo(function NewsExplorer({ onNavigate }: { onNavigate?: (tab: T
         {/* Paginación cuidadosa — evita renderizar 50 cards con motion */}
         {sortedNews.length > 0 && (
           <div className="flex flex-col items-center gap-3 pt-8">
-            <div className="text-[11px] font-mono text-on-surface-variant/60">
+            <div className="text-[11px] font-mono text-on-surface-variant/85">
               Mostrando <strong className="text-on-surface">{paginatedNews.length}</strong> de <strong className="text-on-surface">{sortedNews.length}</strong> noticias filtradas
               {sortedNews.length !== NEWS_DATA.length && (
                 <span> • {NEWS_DATA.length} en archivo total</span>
@@ -2557,10 +2608,10 @@ export default memo(function NewsExplorer({ onNavigate }: { onNavigate?: (tab: T
         {/* Newsletter CTA — distribución cuidadosa */}
         <div className="mt-10 rounded-2xl border border-outline-variant/20 bg-gradient-to-br from-primary/5 via-surface-container/20 to-surface-dim/20 p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="space-y-1">
-            <h4 className="text-sm font-semibold font-heading text-on-surface flex items-center gap-2">
+            <h3 className="text-sm font-semibold font-heading text-on-surface flex items-center gap-2">
               <Newspaper className="w-4 h-4 text-primary" />
               Mantente al día sin ruido
-            </h4>
+            </h3>
             <p className="text-xs text-on-surface-variant/70 leading-relaxed max-w-md">
               Resumen mensual con solo los avances y vulneraciones verificados. Sin spam, con fuentes originales y criterio transparente.
             </p>

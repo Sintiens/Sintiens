@@ -247,10 +247,10 @@ function CritiqueSection({ critiques }: { critiques: GlossaryCritique[] }) {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
   return (
     <div className="space-y-3">
-      <h4 className={DETAIL_SECTION_TITLE}>
+      <h3 className={DETAIL_SECTION_TITLE}>
         <ShieldAlert className="w-4 h-4" />
         Críticas frecuentes
-      </h4>
+      </h3>
       <div className="space-y-2">
         {critiques.map((c, i) => {
           const isOpen = openIdx === i;
@@ -296,13 +296,13 @@ function AppearancesSection({
   const visible = showAll ? appearances : appearances.slice(0, 4);
   return (
     <div className="space-y-3">
-      <h4 className={`${DETAIL_SECTION_TITLE} justify-between`}>
+      <h3 className={`${DETAIL_SECTION_TITLE} justify-between`}>
         <span className="flex items-center gap-2">
           <Hash className="w-4 h-4" />
           Aparece en
         </span>
-        <span className="text-[10px] font-mono text-on-surface-variant/60 font-normal">{appearances.length} lugares</span>
-      </h4>
+        <span className="text-[10px] font-mono text-on-surface-variant/85 font-normal">{appearances.length} lugares</span>
+      </h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {visible.map((app, i) => {
           const target = getAppearanceTarget(app);
@@ -793,7 +793,7 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
               onClick={handleGoBack}
               disabled={history.length === 0}
               aria-label="Término anterior"
-              className="p-1.5 rounded-md text-on-surface-variant/60 hover:text-primary hover:bg-surface-dim/50 disabled:opacity-25 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-all"
+              className="p-1.5 rounded-md text-on-surface-variant/85 hover:text-primary hover:bg-surface-dim/50 disabled:opacity-25 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-all"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
             </button>
@@ -801,7 +801,7 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
               onClick={handleGoForward}
               disabled={forwardStack.length === 0}
               aria-label="Término siguiente"
-              className="p-1.5 rounded-md text-on-surface-variant/60 hover:text-primary hover:bg-surface-dim/50 disabled:opacity-25 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-all"
+              className="p-1.5 rounded-md text-on-surface-variant/85 hover:text-primary hover:bg-surface-dim/50 disabled:opacity-25 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-all"
             >
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
@@ -827,7 +827,7 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
                 onClick={handleRandom}
                 aria-label="Concepto aleatorio"
                 title="Concepto aleatorio"
-                className="p-2 min-w-[38px] min-h-[38px] flex items-center justify-center rounded-md text-on-surface-variant/60 hover:text-primary hover:bg-surface-dim/50 transition-all"
+                className="p-2 min-w-[38px] min-h-[38px] flex items-center justify-center rounded-md text-on-surface-variant/85 hover:text-primary hover:bg-surface-dim/50 transition-all"
               >
                 <Dices className="w-3.5 h-3.5" />
               </button>
@@ -835,7 +835,7 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
                 onClick={() => handleCopyLink(entry)}
                 aria-label="Copiar enlace del término"
                 title="Copiar enlace"
-                className="p-2 min-w-[38px] min-h-[38px] flex items-center justify-center rounded-md text-on-surface-variant/60 hover:text-primary hover:bg-surface-dim/50 transition-all"
+                className="p-2 min-w-[38px] min-h-[38px] flex items-center justify-center rounded-md text-on-surface-variant/85 hover:text-primary hover:bg-surface-dim/50 transition-all"
               >
                 {copiedId === entry.id ? (
                   <Check className="w-3.5 h-3.5 text-primary" />
@@ -865,7 +865,7 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
           {entry.altTerms && entry.altTerms.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-2">
               {entry.altTerms.map((alt) => (
-                <span key={alt} className="text-[10px] italic text-on-surface-variant/60 px-2 py-0.5 border-l border-outline-variant/30">
+                <span key={alt} className="text-[10px] italic text-on-surface-variant/85 px-2 py-0.5 border-l border-outline-variant/30">
                   {alt}
                 </span>
               ))}
@@ -890,7 +890,7 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
           <div className="p-5 border border-outline-variant/15 rounded-lg bg-surface-dim/20 backdrop-blur-sm">
             <div className="flex items-center gap-2 mb-3">
               <User className="w-4 h-4 text-primary" />
-              <h4 className={DETAIL_SECTION_TITLE}>Ficha de autor</h4>
+              <h3 className={DETAIL_SECTION_TITLE}>Ficha de autor</h3>
             </div>
             <div className="space-y-2 text-body-sm text-on-surface-variant">
               {entry.author.era && (
@@ -930,10 +930,10 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
         {/* Conecta con — unified: related terms + system nodes + dilemmas */}
         {(entry.relatedEntries?.length || entry.relatedNodes?.length || entry.relatedDilemmas?.length || coOccurrences.length) ? (
           <div className="space-y-3">
-            <h4 className={DETAIL_SECTION_TITLE}>
+            <h3 className={DETAIL_SECTION_TITLE}>
               <Network className="w-4 h-4" />
               Conecta con
-            </h4>
+            </h3>
 
             <div className="flex flex-wrap gap-2">
               {/* Related glossary entries */}
@@ -1015,10 +1015,10 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
         {/* References — always visible, compact */}
         {refs.length > 0 && (
           <div className="space-y-3">
-            <h4 className={DETAIL_SECTION_TITLE}>
+            <h3 className={DETAIL_SECTION_TITLE}>
               <BookMarked className="w-4 h-4" />
               Referencias
-            </h4>
+            </h3>
             <ol className="space-y-2.5">
               {refs.map((ref) => (
                 <li key={ref.id} className="text-[11px] leading-relaxed text-on-surface-variant/80 font-sans pl-3 border-l border-outline-variant/30 flex items-start gap-2">
@@ -1118,10 +1118,10 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
                 {highlight(entry.term, searchQuery)}
               </span>
             </div>
-            <p className="text-[11px] text-on-surface-variant/70 leading-relaxed line-clamp-2">
+            <p className="text-[11px] text-on-surface-variant leading-relaxed line-clamp-2">
               {highlight(entry.shortDef, searchQuery)}
             </p>
-            <div className="flex items-center gap-2.5 flex-wrap text-[9px] font-mono uppercase tracking-widest text-on-surface-variant/50">
+            <div className="flex items-center gap-2.5 flex-wrap text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/80">
               <span className="flex items-center gap-1" style={{ color: catColor }}>
                 <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: catColor }} />
                 {GLOSSARY_CATEGORIES.find((c) => c.id === entry.category)?.label}
@@ -1168,11 +1168,11 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
         <div className="space-y-8">
           {groupedByCategory.map(({ category, entries }) => (
             <div key={category.id}>
-              <h5 className="text-[10px] font-mono uppercase tracking-widest mb-3 flex items-center gap-2" style={{ color: `var(--${category.color})` }}>
+              <h3 className="text-[10px] font-mono uppercase tracking-widest mb-3 flex items-center gap-2" style={{ color: `var(--${category.color})` }}>
                 {CATEGORY_ICON[category.id]}
                 {category.label}
                 <span className="text-on-surface-variant/40">({entries.length})</span>
-              </h5>
+              </h3>
               <div className="space-y-1">
                 {entries.map((e) => renderListItem(e))}
               </div>
@@ -1187,11 +1187,11 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
         <div className="space-y-8">
           {groupedByType.map(({ type, entries }) => (
             <div key={type.id}>
-              <h5 className="text-[10px] font-mono uppercase tracking-widest mb-3 flex items-center gap-2 text-primary">
+              <h3 className="text-[10px] font-mono uppercase tracking-widest mb-3 flex items-center gap-2 text-primary">
                 {TYPE_ICON[type.id]}
                 {type.label}
                 <span className="text-on-surface-variant/40">({entries.length})</span>
-              </h5>
+              </h3>
               <div className="space-y-1">
                 {entries.map((e) => renderListItem(e))}
               </div>
@@ -1203,6 +1203,7 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
 
     return (
       <div className="space-y-6">
+        <h2 className="sr-only">Entradas del glosario por letra</h2>
         <div className="flex flex-wrap gap-1.5 py-2 -mx-1 px-1 overflow-x-auto no-scrollbar">
           {groupedAz.map(({ letter }) => (
             <button
@@ -1217,10 +1218,10 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
         </div>
         {groupedAz.map(({ letter, entries }) => (
           <div key={letter} ref={(el) => { azSectionRefs.current[letter] = el; }}>
-            <h5 className="text-[10px] font-mono uppercase tracking-widest mb-3 text-on-surface-variant/40 py-1 scroll-mt-[180px]">
+            <h3 className="text-[10px] font-mono uppercase tracking-widest mb-3 text-on-surface-variant py-1 scroll-mt-[180px]">
               {letter}
-              <span className="ml-2 text-on-surface-variant/30">({entries.length})</span>
-            </h5>
+              <span className="ml-2 text-on-surface-variant/70">({entries.length})</span>
+            </h3>
             <div className="space-y-1">
               {entries.map((e) => renderListItem(e))}
             </div>
@@ -1277,7 +1278,7 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
               );
             })}
           </div>
-          <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-4 flex-wrap text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/60 py-3 px-4 border-t border-outline-variant/15 bg-background/40 backdrop-blur-sm">
+          <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-4 flex-wrap text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/85 py-3 px-4 border-t border-outline-variant/15 bg-background/40 backdrop-blur-sm">
             {GLOSSARY_CATEGORIES.map((c) => (
               <span key={c.id} className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full" style={{ backgroundColor: `var(--${c.color})` }} />
@@ -1391,7 +1392,7 @@ export default React.memo(function GlossaryExplorer({ initialEntryId, onClearIni
             aria-label="Buscar en el glosario"
             className="w-full bg-surface-dim/50 border border-outline-variant/25 focus:border-primary/50 rounded-full pl-9 pr-16 py-2 sm:py-1.5 text-base sm:text-sm outline-none transition-all placeholder:text-on-surface-variant/40 backdrop-blur-md"
           />
-          <kbd className="absolute right-9 top-1/2 -translate-y-1/2 pointer-events-none px-1.5 py-0.5 rounded border border-outline-variant/30 bg-surface-dim/40 text-[10px] font-mono text-on-surface-variant/60 select-none hidden sm:inline">
+          <kbd className="absolute right-9 top-1/2 -translate-y-1/2 pointer-events-none px-1.5 py-0.5 rounded border border-outline-variant/30 bg-surface-dim/40 text-[10px] font-mono text-on-surface-variant/85 select-none hidden sm:inline">
             /
           </kbd>
           {searchQuery && (
