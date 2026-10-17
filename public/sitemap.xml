@@ -85,6 +85,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://sintiens.org/privacidad</loc>
+    <lastmod>2026-10-17</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
     <loc>https://sintiens.org/noticias?id=world-ley-corea-dog-meat-ban-2024</loc>
     <lastmod>2024-01-11</lastmod>
     <changefreq>monthly</changefreq>

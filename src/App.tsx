@@ -47,6 +47,7 @@ const DevErrorBoundary = lazy(() => import("./components/DevErrorBoundary"));
 import AppErrorBoundary from "./components/AppErrorBoundary";
 import { PageSkeleton, HeroFixedNav } from "./components/ui/Shells";
 import TabSeo from "./components/TabSeo";
+import LegalNotice from "./components/LegalNotice";
 
 function LazyTabWrapper({ children, fallback }: { children: React.ReactNode; fallback?: React.ReactNode }) {
   return (
@@ -97,6 +98,12 @@ const PATH_TO_TAB: Record<string, TabType> = {
 };
 const DEFAULT_TAB: TabType = "historia_narrativa";
 
+const LEGAL_PATH = "/privacidad";
+
+function isLegalPath(pathname: string): boolean {
+  return pathname.replace(/\/+$/, "") === LEGAL_PATH;
+}
+
 function getTabFromPath(pathname: string): TabType {
   const cleanPath = pathname.replace(/\/+$/, "") || "/";
   return PATH_TO_TAB[cleanPath] ?? DEFAULT_TAB;
@@ -105,6 +112,9 @@ function getTabFromPath(pathname: string): TabType {
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>(() =>
     getTabFromPath(window.location.pathname)
+  );
+  const [legalOpen, setLegalOpen] = useState<boolean>(() =>
+    isLegalPath(window.location.pathname)
   );
   const [passedArgument, setPassedArgument] = useState<string | null>(null);
   const [redirectEntryId, setRedirectEntryId] = useState<string | null>(null);
@@ -142,7 +152,7 @@ export default function App() {
   }, [theme]);
 
   const navigateToTab = (tab: TabType) => {
-    if (tab === activeTab) return;
+    if (tab === activeTab && !legalOpen) return;
     // Guardar filtros de noticias al salir para restaurarlos al volver
     if (activeTab === "noticias") {
       try {
@@ -161,6 +171,7 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
     window.history.pushState({ tab }, "", targetUrl);
     setActiveTab(tab);
+    setLegalOpen(false);
   };
 
   const navFnRef = useRef(navigateToTab);
@@ -177,6 +188,8 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    // Una carga directa de /privacidad conserva su URL (no reescribirla al tab por defecto)
+    if (isLegalPath(window.location.pathname)) return;
     const qs = window.location.search;
     const hash = window.location.hash;
     const base = TAB_PATHS[activeTab];
@@ -194,6 +207,11 @@ export default function App() {
     const isValidTab = (value: unknown): value is TabType =>
       typeof value === "string" && (Object.values(TAB_PATHS) as string[]).includes(value);
     const onPopState = (e: PopStateEvent) => {
+      if (isLegalPath(window.location.pathname)) {
+        setLegalOpen(true);
+        return;
+      }
+      setLegalOpen(false);
       const fromState = e.state?.tab as unknown;
       const tab = isValidTab(fromState)
         ? fromState
@@ -348,6 +366,24 @@ export default function App() {
     navFnRef.current(tab);
   }, []);
 
+  const openLegalPage = useCallback(() => {
+    if (isLegalPath(window.location.pathname)) return;
+    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    window.history.pushState({ legal: true }, "", LEGAL_PATH);
+    setLegalOpen(true);
+  }, []);
+
+  const closeLegalPage = useCallback(() => {
+    // Si llegamos aquí navegando dentro de la app, el botón «Volver» retrocede;
+    // si es una carga directa de /privacidad, vuelve a la pestaña activa.
+    if (window.history.state?.legal) {
+      window.history.back();
+      return;
+    }
+    window.history.replaceState({ tab: activeTab }, "", TAB_PATHS[activeTab]);
+    setLegalOpen(false);
+  }, [activeTab]);
+
   const reduceMotion = useReducedMotion();
   const [reveal, setReveal] = useState<{ rect: DOMRect; nextTheme: "dark" | "light" } | null>(null);
 
@@ -414,7 +450,7 @@ export default function App() {
         Saltar al contenido
       </a>
       {/* SEO por tab: title/description/canonical/OG dinámicos */}
-      <TabSeo tab={activeTab} />
+      <TabSeo tab={activeTab} legal={legalOpen} />
       {/* Reveal fallback (Safari/Firefox) — se monta solo durante la animación */}
       {reveal && (
         <ThemeReveal rect={reveal.rect} nextTheme={reveal.nextTheme} onDone={handleRevealDone} />
@@ -441,6 +477,11 @@ export default function App() {
         }`}
       >
 
+        {legalOpen ? (
+          <LazyTabWrapper>
+            <LegalNotice onBack={closeLegalPage} />
+          </LazyTabWrapper>
+        ) : (
         <div className="min-h-[600px]">
           <AnimatePresence mode="wait" initial={false} onExitComplete={handleExitComplete}>
             <motion.div
@@ -530,6 +571,7 @@ export default function App() {
             </motion.div>
           </AnimatePresence>
         </div>
+        )}
 
         {import.meta.env.DEV && coreNodes && glossaryData && (
           <LazyTabWrapper>
@@ -551,6 +593,24 @@ export default function App() {
              <p className="text-body-md opacity-70 max-w-xl">
                Un proyecto educativo dedicado a la deconstrucción moral y el análisis científico de la sintiencia.
              </p>
+          </div>
+          <div className="flex flex-col items-center md:items-end gap-3 text-center md:text-right">
+            <a
+              href={LEGAL_PATH}
+              onClick={(e) => {
+                e.preventDefault();
+                openLegalPage();
+              }}
+              className="text-body-md opacity-70 hover:opacity-100 underline-offset-4 hover:underline transition-opacity"
+            >
+              Privacidad y aviso legal
+            </a>
+            <a
+              href="mailto:sotolabx@sintiens.org"
+              className="text-technical-sm opacity-50 hover:opacity-90 transition-opacity"
+            >
+              sotolabx@sintiens.org
+            </a>
           </div>
         </div>
       </footer>

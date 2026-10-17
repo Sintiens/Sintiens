@@ -37,6 +37,7 @@ const staticUrls = [
   { loc: `${SITE_URL}/laboratorio/impacto`, changefreq: "monthly", priority: "0.7" },
   { loc: `${SITE_URL}/laboratorio/descomponer`, changefreq: "monthly", priority: "0.7" },
   { loc: `${SITE_URL}/noticias`, changefreq: "weekly", priority: "0.8" },
+  { loc: `${SITE_URL}/privacidad`, changefreq: "yearly", priority: "0.3" },
 ];
 
 let xml = base;

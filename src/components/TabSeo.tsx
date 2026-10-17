@@ -91,7 +91,26 @@ export const TAB_SEO: Record<TabType, SeoEntry> = {
   },
 };
 
-export default function TabSeo({ tab }: { tab: TabType }) {
+export default function TabSeo({ tab, legal = false }: { tab: TabType; legal?: boolean }) {
+  // Página legal (ruta /privacidad): SEO propio, sin JSON-LD de tab
+  if (legal) {
+    const title = "Privacidad y aviso legal — Sintiens";
+    const description =
+      "Cómo trata Sintiens tus datos: servicios de IA (Google Gemini), tipografías de Google Fonts, almacenamiento local, derechos y condiciones de uso.";
+    const canonical = `${SITE_URL}/privacidad`;
+    return (
+      <Helmet>
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <link rel="canonical" href={canonical} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonical} />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+      </Helmet>
+    );
+  }
   const seo = TAB_SEO[tab];
   // En noticias, un ?id= concreto es una página indexable propia: su canonical
   // debe incluirlo (coincide con lo listado en sitemap.xml)

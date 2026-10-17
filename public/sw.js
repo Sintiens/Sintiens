@@ -1,7 +1,7 @@
 // Service Worker for Sintiens - Offline caching and performance
 // Bump all version suffixes on each deploy to invalidate stale caches
-const STATIC_CACHE_NAME = 'sintiens-static-v3';
-const DYNAMIC_CACHE_NAME = 'sintiens-dynamic-v3';
+const STATIC_CACHE_NAME = 'sintiens-static-v4';
+const DYNAMIC_CACHE_NAME = 'sintiens-dynamic-v4';
 // Límite de entradas del caché dinámico (LRU aproximada: se purgan las más antiguas).
 const DYNAMIC_MAX_ITEMS = 80;
 
@@ -26,6 +26,7 @@ function isCacheableAsset(response) {
 const STATIC_ASSETS = [
   '/',
   '/index.html',
+  '/privacidad',
   '/manifest.json',
   '/favicon.ico',
   '/favicon-32x32.png',
