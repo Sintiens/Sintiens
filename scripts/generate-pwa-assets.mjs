@@ -22,17 +22,21 @@ for (const size of [192, 512]) {
   console.log(`  icon-${size}x${size}.png`);
 }
 
-// 2) Maskable 512 (logo al 60% centrado, fondo oscuro)
-const maskable = await sharp(logo)
-  .resize(307, 307)
+// 2) Maskable 512 (logo al 60% centrado SOBRE el lienzo oscuro).
+// El fondo va primero y el logo se compone ENCIMA: antes se componía el fondo
+// (512x512) sobre el logo (307x307) y lo tapaba por completo.
+const MASK_SIZE = 512;
+const LOGO_SIZE = 307; // ~60% del lienzo: dentro de la zona segura de Android
+const maskable = await sharp({
+  create: { width: MASK_SIZE, height: MASK_SIZE, channels: 4, background: "#09090b" },
+})
   .composite([
     {
-      input: await sharp({ create: { width: 512, height: 512, channels: 4, background: "#09090b" } }).png().toBuffer(),
-      left: 0,
-      top: 0,
+      input: await sharp(logo).resize(LOGO_SIZE, LOGO_SIZE).png().toBuffer(),
+      left: Math.round((MASK_SIZE - LOGO_SIZE) / 2),
+      top: Math.round((MASK_SIZE - LOGO_SIZE) / 2),
     },
   ])
-  .resize(512, 512)
   .png()
   .toBuffer();
 writeFileSync(join(publicDir, "icon-512-maskable.png"), maskable);
