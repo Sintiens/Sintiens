@@ -12,6 +12,7 @@ import type { TabType } from "../types";
 import { SPRING_NAV, DUR, EASE_SUBTLE } from "../styles/motionTokens";
 import { useReducedMotion } from "../hooks/useReducedMotion";
 import { lockScroll, unlockScroll } from "../utils/scrollLock";
+import MobileNavPrototype from "./MobileNavPrototype";
 
 const PRELOAD_MAP: Record<string, () => Promise<any>> = {
   historia_narrativa: () => import("./StoryMode"),
@@ -36,6 +37,21 @@ function preloadTab(tab: string) {
   PRELOAD_MAP[tab]?.();
 }
 
+/** Prototipos de navegación móvil: ?nav=A / ?nav=B (se recuerda en la sesión). */
+function getPrototypeVariant(): "A" | "B" | null {
+  try {
+    const fromQuery = new URLSearchParams(window.location.search).get("nav");
+    if (fromQuery === "A" || fromQuery === "B") {
+      sessionStorage.setItem("sintiens_nav_proto", fromQuery);
+      return fromQuery;
+    }
+    const fromSession = sessionStorage.getItem("sintiens_nav_proto");
+    return fromSession === "A" || fromSession === "B" ? fromSession : null;
+  } catch {
+    return null;
+  }
+}
+
 interface MiniTabNavProps {
   activeTab: TabType;
   onNavigate: (tab: TabType) => void;
@@ -54,6 +70,7 @@ export default function MiniTabNav({ activeTab, onNavigate, theme, onToggleTheme
   const menuButtonRef = useRef<HTMLButtonElement | null>(null);
   const menuPanelRef = useRef<HTMLDivElement | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [prototypeVariant] = useState<"A" | "B" | null>(getPrototypeVariant);
 
   // Cerrar el menú móvil al cambiar de sección.
   useEffect(() => {
@@ -145,6 +162,15 @@ export default function MiniTabNav({ activeTab, onNavigate, theme, onToggleTheme
 
   return (
     <div className="relative flex flex-col items-center gap-1.5 sm:gap-2 px-1 py-0.5 w-full max-w-full min-w-0" data-minitabnav="true">
+      {prototypeVariant ? (
+        <MobileNavPrototype
+          variant={prototypeVariant}
+          activeTab={activeTab}
+          onNavigate={onNavigate}
+          themeToggle={themeToggle}
+        />
+      ) : (
+      <>
       {/* Móvil: un botón de menú claro en lugar de una píldora que se corta */}
       <div className="flex sm:hidden items-center gap-2 w-full max-w-full min-w-0">
         <button
@@ -225,6 +251,8 @@ export default function MiniTabNav({ activeTab, onNavigate, theme, onToggleTheme
             );
           })}
         </div>
+      )}
+      </>
       )}
 
       {/* Escritorio: píldora principal + tema, sin cambios de comportamiento */}
