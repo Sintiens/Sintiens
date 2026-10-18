@@ -77,3 +77,14 @@ La compacta recorta un 24 % en móvil portada y un 30 % en Laboratorio respecto 
 
 Lo que se pierde en móvil es la frase de contexto de cada subapartado; se mantiene la descripción del capítulo y, en escritorio, las frases de cada subapartado.
 
+### Categorías de una sola página
+
+Glosario y Noticias solo tienen un apartado. En la primera versión de la compacta aparecía un subapartado duplicado («2.1 GLOSARIO» dentro de Glosario), que sobraba. Ahora, cuando el capítulo tiene un solo apartado, se muestra un botón directo:
+
+- «Abrir Glosario →» o «Abrir Noticias →».
+- Sin numeración duplicada.
+- La nav baja a **252 px en móvil** y **287 px en escritorio** en esas páginas.
+
+Capturas: [Glosario](opcion2-compacta-glosario.png), [Noticias](opcion2-compacta-noticias.png), [Cifras](opcion2-compacta-cifras.png) y [320 px](opcion2-compacta-320.png).
+
+
