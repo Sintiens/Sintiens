@@ -13,6 +13,7 @@ import { SPRING_NAV, DUR, EASE_SUBTLE } from "../styles/motionTokens";
 import { useReducedMotion } from "../hooks/useReducedMotion";
 import { lockScroll, unlockScroll } from "../utils/scrollLock";
 import MobileNavPrototype from "./MobileNavPrototype";
+import NavConceptPrototype from "./NavConceptPrototype";
 
 const PRELOAD_MAP: Record<string, () => Promise<any>> = {
   historia_narrativa: () => import("./StoryMode"),
@@ -37,16 +38,21 @@ function preloadTab(tab: string) {
   PRELOAD_MAP[tab]?.();
 }
 
-/** Prototipos de navegación móvil: ?nav=A / ?nav=B (se recuerda en la sesión). */
-function getPrototypeVariant(): "A" | "B" | null {
+/** Prototipos de navegación: ?nav=A|B|INDEX|MAP|COMPASS (se recuerda en la sesión). */
+type PrototypeVariant = "A" | "B" | "INDEX" | "MAP" | "COMPASS";
+
+function getPrototypeVariant(): PrototypeVariant | null {
+  const variants: PrototypeVariant[] = ["A", "B", "INDEX", "MAP", "COMPASS"];
   try {
-    const fromQuery = new URLSearchParams(window.location.search).get("nav");
-    if (fromQuery === "A" || fromQuery === "B") {
+    const fromQuery = new URLSearchParams(window.location.search).get("nav")?.toUpperCase();
+    if (fromQuery && variants.includes(fromQuery as PrototypeVariant)) {
       sessionStorage.setItem("sintiens_nav_proto", fromQuery);
-      return fromQuery;
+      return fromQuery as PrototypeVariant;
     }
     const fromSession = sessionStorage.getItem("sintiens_nav_proto");
-    return fromSession === "A" || fromSession === "B" ? fromSession : null;
+    return fromSession && variants.includes(fromSession as PrototypeVariant)
+      ? (fromSession as PrototypeVariant)
+      : null;
   } catch {
     return null;
   }
@@ -70,7 +76,7 @@ export default function MiniTabNav({ activeTab, onNavigate, theme, onToggleTheme
   const menuButtonRef = useRef<HTMLButtonElement | null>(null);
   const menuPanelRef = useRef<HTMLDivElement | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [prototypeVariant] = useState<"A" | "B" | null>(getPrototypeVariant);
+  const [prototypeVariant] = useState<PrototypeVariant | null>(getPrototypeVariant);
 
   // Cerrar el menú móvil al cambiar de sección.
   useEffect(() => {
@@ -178,6 +184,14 @@ export default function MiniTabNav({ activeTab, onNavigate, theme, onToggleTheme
           themeToggle={themeToggle}
         />
       )}
+      {(prototypeVariant === "INDEX" || prototypeVariant === "MAP" || prototypeVariant === "COMPASS") && (
+        <NavConceptPrototype
+          variant={prototypeVariant}
+          activeTab={activeTab}
+          onNavigate={onNavigate}
+          themeToggle={themeToggle}
+        />
+      )}
       {!prototypeVariant && (
       <>
       {/* Móvil: un botón de menú claro en lugar de una píldora que se corta */}
@@ -267,7 +281,7 @@ export default function MiniTabNav({ activeTab, onNavigate, theme, onToggleTheme
       {/* Escritorio: píldora principal + tema, sin cambios de comportamiento */}
       <div
         className="hidden sm:flex flex-nowrap items-center justify-start sm:justify-center gap-1.5 sm:gap-2.5 w-full max-w-full min-w-0 px-1 sm:px-0"
-        style={{ display: prototypeVariant === "B" ? "none" : undefined }}
+        style={{ display: prototypeVariant !== null && prototypeVariant !== "A" ? "none" : undefined }}
       >
         <div ref={mainDockRef} className={dockContainer}>
           {CATEGORIES.map((cat) => {
@@ -314,7 +328,7 @@ export default function MiniTabNav({ activeTab, onNavigate, theme, onToggleTheme
             exit={{ opacity: 0, y: -4, scale: 0.98 }}
             transition={{ duration: DUR.fast, ease: EASE_SUBTLE }}
             className="hidden sm:flex items-center justify-start sm:justify-center w-full max-w-full min-w-0 px-1 sm:px-0"
-            style={{ display: prototypeVariant === "B" ? "none" : undefined }}
+            style={{ display: prototypeVariant !== null && prototypeVariant !== "A" ? "none" : undefined }}
           >
             <div ref={subDockRef} className={subDockContainer}>
               {subSections.map((sub) => {
