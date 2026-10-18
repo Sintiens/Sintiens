@@ -162,14 +162,23 @@ export default function MiniTabNav({ activeTab, onNavigate, theme, onToggleTheme
 
   return (
     <div className="relative flex flex-col items-center gap-1.5 sm:gap-2 px-1 py-0.5 w-full max-w-full min-w-0" data-minitabnav="true">
-      {prototypeVariant ? (
+      {prototypeVariant === "B" && (
         <MobileNavPrototype
-          variant={prototypeVariant}
+          variant="B"
           activeTab={activeTab}
           onNavigate={onNavigate}
           themeToggle={themeToggle}
         />
-      ) : (
+      )}
+      {prototypeVariant === "A" && (
+        <MobileNavPrototype
+          variant="A"
+          activeTab={activeTab}
+          onNavigate={onNavigate}
+          themeToggle={themeToggle}
+        />
+      )}
+      {!prototypeVariant && (
       <>
       {/* Móvil: un botón de menú claro en lugar de una píldora que se corta */}
       <div className="flex sm:hidden items-center gap-2 w-full max-w-full min-w-0">
@@ -256,7 +265,10 @@ export default function MiniTabNav({ activeTab, onNavigate, theme, onToggleTheme
       )}
 
       {/* Escritorio: píldora principal + tema, sin cambios de comportamiento */}
-      <div className="hidden sm:flex flex-nowrap items-center justify-start sm:justify-center gap-1.5 sm:gap-2.5 w-full max-w-full min-w-0 px-1 sm:px-0">
+      <div
+        className="hidden sm:flex flex-nowrap items-center justify-start sm:justify-center gap-1.5 sm:gap-2.5 w-full max-w-full min-w-0 px-1 sm:px-0"
+        style={{ display: prototypeVariant === "B" ? "none" : undefined }}
+      >
         <div ref={mainDockRef} className={dockContainer}>
           {CATEGORIES.map((cat) => {
             const isActive = activeCategory === cat.id;
@@ -302,6 +314,7 @@ export default function MiniTabNav({ activeTab, onNavigate, theme, onToggleTheme
             exit={{ opacity: 0, y: -4, scale: 0.98 }}
             transition={{ duration: DUR.fast, ease: EASE_SUBTLE }}
             className="hidden sm:flex items-center justify-start sm:justify-center w-full max-w-full min-w-0 px-1 sm:px-0"
+            style={{ display: prototypeVariant === "B" ? "none" : undefined }}
           >
             <div ref={subDockRef} className={subDockContainer}>
               {subSections.map((sub) => {

@@ -99,7 +99,10 @@ export default function MobileNavPrototype({
   };
 
   return (
-    <div className="sm:hidden w-full max-w-full min-w-0" data-nav-prototype={variant}>
+    <div
+      className={variant === "B" ? "w-full max-w-full min-w-0" : "sm:hidden w-full max-w-full min-w-0"}
+      data-nav-prototype={variant}
+    >
       {variant === "A" ? (
         <div className="flex w-full min-w-0 items-center gap-1.5">
           <div className="flex min-w-0 flex-1 items-center rounded-full border border-outline-variant/25 bg-surface/85 dark:bg-surface-container/70 shadow-sm backdrop-blur-md p-1">
@@ -124,7 +127,7 @@ export default function MobileNavPrototype({
             <span className="text-[9px] font-mono uppercase tracking-[0.18em] text-on-surface-variant">Explorar</span>
             {themeToggle}
           </div>
-          <div className="grid grid-cols-2 gap-1.5 rounded-2xl border border-outline-variant/20 bg-surface/75 p-1.5 shadow-sm backdrop-blur-md dark:bg-surface-container/55">
+          <div className="grid grid-cols-2 gap-1.5 rounded-2xl border border-outline-variant/20 bg-surface/75 p-1.5 shadow-sm backdrop-blur-md dark:bg-surface-container/55 sm:grid-cols-4 sm:gap-2 sm:p-2">
             {CATEGORIES.map((category) => {
               const Icon = CATEGORY_ICONS[category.id as keyof typeof CATEGORY_ICONS];
               const isActive = category.id === activeCategory;
@@ -138,17 +141,17 @@ export default function MobileNavPrototype({
                     onNavigate(category.defaultTabId);
                   }}
                   aria-current={isActive ? "page" : undefined}
-                  className={`flex min-h-[62px] flex-col justify-between rounded-xl border px-3 py-2.5 text-left transition-colors ${
+                  className={`flex min-h-[62px] flex-col justify-between rounded-xl border px-3 py-2.5 text-left transition-colors sm:min-h-[86px] sm:px-4 sm:py-3 ${
                     isActive
                       ? "border-primary/40 bg-primary/10 text-primary"
                       : "border-outline-variant/20 bg-surface-container/30 text-on-surface hover:border-primary/25"
                   }`}
                 >
                   <span className="flex items-center justify-between gap-2">
-                    <span className="text-[12px] font-heading font-bold leading-none">{category.label}</span>
-                    <Icon className="h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
+                    <span className="text-[12px] font-heading font-bold leading-none sm:text-[14px]">{category.label}</span>
+                    <Icon className="h-3.5 w-3.5 shrink-0 opacity-80 sm:h-4 sm:w-4" aria-hidden />
                   </span>
-                  <span className="mt-1 block text-[9px] font-sans leading-tight opacity-65">
+                  <span className="mt-1 block text-[9px] font-sans leading-tight opacity-70 sm:text-[10px]">
                     {CATEGORY_HINTS[category.id]}
                   </span>
                 </a>
@@ -159,8 +162,17 @@ export default function MobileNavPrototype({
       )}
 
       {activeSubs.length > 1 && (
-        <div className="relative mt-1.5 flex w-full min-w-0 items-center gap-1.5">
-          <div className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto rounded-full border border-outline-variant/15 bg-surface-dim/45 p-1 no-scrollbar shadow-sm backdrop-blur-md dark:bg-surface-container/45">
+        <div className="relative mt-2 w-full min-w-0 rounded-2xl border border-primary/15 bg-primary/[0.035] p-2 sm:p-2.5">
+          <div className="mb-1.5 flex items-center gap-2 px-1">
+            <span className="text-[9px] font-mono uppercase tracking-[0.16em] text-primary sm:text-[10px]">
+              Dentro de {activeCategoryData.label}
+            </span>
+            <span className="h-px flex-1 bg-primary/15" />
+            <span className="text-[9px] font-mono uppercase tracking-widest text-on-surface-variant">
+              {activeSubs.length} apartados
+            </span>
+          </div>
+          <div className="flex flex-wrap items-center gap-1">
             {visibleSubs.map((sub) => {
               const isActive = sub.tabId === activeTab;
               return (
@@ -173,8 +185,10 @@ export default function MobileNavPrototype({
                     onNavigate(sub.tabId);
                   }}
                   aria-current={isActive ? "page" : undefined}
-                  className={`flex min-h-[34px] shrink-0 items-center rounded-full px-2.5 text-[9px] font-mono uppercase tracking-[0.06em] transition-colors ${
-                    isActive ? "bg-primary/15 font-bold text-primary" : "text-on-surface-variant hover:text-on-surface"
+                  className={`flex min-h-[32px] items-center rounded-lg border px-2.5 text-[9px] font-mono uppercase tracking-[0.06em] transition-colors sm:min-h-[34px] sm:text-[10px] ${
+                    isActive
+                      ? "border-primary/25 bg-primary/15 font-bold text-primary"
+                      : "border-transparent text-on-surface-variant hover:bg-surface-dim/50 hover:text-on-surface"
                   }`}
                 >
                   {sub.label}
@@ -188,7 +202,7 @@ export default function MobileNavPrototype({
                 onClick={() => setMoreOpen((open) => !open)}
                 aria-expanded={moreOpen}
                 aria-controls="mobile-more-subs"
-                className="flex min-h-[34px] shrink-0 items-center gap-1 rounded-full px-2.5 text-[9px] font-mono uppercase tracking-[0.06em] text-primary hover:bg-primary/10"
+                className="flex min-h-[32px] items-center gap-1 rounded-lg px-2.5 text-[9px] font-mono uppercase tracking-[0.06em] text-primary hover:bg-primary/10 sm:min-h-[34px] sm:text-[10px]"
               >
                 +{hiddenSubs.length} <ChevronDown className={`h-3 w-3 transition-transform ${moreOpen ? "rotate-180" : ""}`} aria-hidden />
               </button>
