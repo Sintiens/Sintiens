@@ -52,3 +52,28 @@ Por eso no la implementaría exactamente como está. La ajustaría así:
 - Mantener el panel del capítulo como «página», porque es lo que hace evidente la relación padre-hijo.
 
 Con esos ajustes, la opción 2 sería mejor en conjunto. Tal cual, es mejor en claridad pero peor en espacio.
+
+## Versión compacta
+
+Implementada como `?nav=SPLITC`. Capturas:
+
+- [Compacta en móvil](opcion2-compacta-movil.png)
+- [Compacta en escritorio](opcion2-compacta-escritorio.png)
+- [Compacta en Laboratorio, móvil](opcion2-compacta-laboratorio-movil.png)
+- [Compacta en Laboratorio, escritorio](opcion2-compacta-laboratorio-escritorio.png)
+- [Comparativa actual / opción 2 / compacta](actual-opcion2-compacta.png)
+
+| Métrica | Actual | Opción 2 | Compacta |
+|---|---:|---:|---:|
+| Altura en móvil, portada | 48 px cerrada / 557 px abierta | 396 px | **300 px** |
+| Altura en móvil, Laboratorio | 48 px cerrada | 566 px | **396 px** |
+| Altura en escritorio, portada | 101 px | 332 px | **290 px** |
+| Altura en escritorio, Laboratorio | 101 px | 373 px | 386 px |
+| Enlaces visibles en móvil | 0 cerrada / 16 abierta | 8 | 8 |
+| Objetivos táctiles | 44 px | menores | 44 px |
+| axe-core móvil / escritorio | 0 / 0 | 0 / 0 | 0 / 0 |
+
+La compacta recorta un 24 % en móvil portada y un 30 % en Laboratorio respecto a la opción 2. En escritorio recorta un 13 % en portada, pero en Laboratorio sube 13 px porque las filas ahora cumplen 44 px. Sigue siendo más alta que la actual cerrada, pero es más baja que el panel móvil actual abierto (557–566 px) y mucho más clara.
+
+Lo que se pierde en móvil es la frase de contexto de cada subapartado; se mantiene la descripción del capítulo y, en escritorio, las frases de cada subapartado.
+
