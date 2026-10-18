@@ -39,10 +39,10 @@ function preloadTab(tab: string) {
 }
 
 /** Prototipos de navegación: ?nav=A|B|INDEX|MAP|COMPASS (se recuerda en la sesión). */
-type PrototypeVariant = "A" | "B" | "INDEX" | "MAP" | "COMPASS";
+type PrototypeVariant = "A" | "B" | "INDEX" | "SPLIT" | "TREE" | "MAP" | "COMPASS";
 
 function getPrototypeVariant(): PrototypeVariant | null {
-  const variants: PrototypeVariant[] = ["A", "B", "INDEX", "MAP", "COMPASS"];
+  const variants: PrototypeVariant[] = ["A", "B", "INDEX", "SPLIT", "TREE", "MAP", "COMPASS"];
   try {
     const fromQuery = new URLSearchParams(window.location.search).get("nav")?.toUpperCase();
     if (fromQuery && variants.includes(fromQuery as PrototypeVariant)) {
@@ -184,7 +184,7 @@ export default function MiniTabNav({ activeTab, onNavigate, theme, onToggleTheme
           themeToggle={themeToggle}
         />
       )}
-      {(prototypeVariant === "INDEX" || prototypeVariant === "MAP" || prototypeVariant === "COMPASS") && (
+      {(prototypeVariant === "INDEX" || prototypeVariant === "SPLIT" || prototypeVariant === "TREE" || prototypeVariant === "MAP" || prototypeVariant === "COMPASS") && (
         <NavConceptPrototype
           variant={prototypeVariant}
           activeTab={activeTab}
