@@ -253,6 +253,7 @@ export function HeroFixedNav({ children, activeTab }: HeroFixedNavProps) {
   return (
     <div
       ref={ref}
+      data-nav-mode={mode}
       inert={isOff || undefined}
       aria-hidden={isOff || undefined}
       className={`${

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Compass } from "lucide-react";
+import { Compass, X } from "lucide-react";
 import { CATEGORIES, getCategoryForTab, getPathForTab } from "../data/sections";
 import type { TabType } from "../types";
 
@@ -10,6 +10,7 @@ interface NavConceptPrototypeProps {
   activeTab: TabType;
   onNavigate: (tab: TabType) => void;
   themeToggle: ReactNode;
+  onClose?: () => void;
 }
 
 const CATEGORY_HINTS: Record<string, string> = {
@@ -43,6 +44,7 @@ export default function NavConceptPrototype({
   activeTab,
   onNavigate,
   themeToggle,
+  onClose,
 }: NavConceptPrototypeProps) {
   const activeCategory = getCategoryForTab(activeTab);
   const activeCategoryData = CATEGORIES.find((category) => category.id === activeCategory) ?? CATEGORIES[0]!;
@@ -79,7 +81,19 @@ export default function NavConceptPrototype({
   const header = (label: string) => (
     <div className="mb-3 flex items-center justify-between gap-3 px-1">
       <span className="font-mono text-[9px] uppercase tracking-[0.22em] text-on-surface-variant">{label}</span>
-      {themeToggle}
+      <div className="flex items-center gap-1">
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Cerrar índice"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface focus:outline-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40"
+          >
+            <X className="h-4 w-4" aria-hidden />
+          </button>
+        )}
+        {themeToggle}
+      </div>
     </div>
   );
 

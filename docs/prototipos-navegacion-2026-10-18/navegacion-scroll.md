@@ -1,30 +1,48 @@
-# Navegación compacta al hacer scroll
+# Navegación compacta implementada
 
-## Cómo se comporta ahora
+## Comportamiento
 
-`HeroFixedNav` tiene tres estados:
+`HeroFixedNav` mantiene sus tres estados, pero la navegación compacta cambia de forma:
 
-1. **Arriba, dentro del hero:** la nav va con el hero (`apart`).
-2. **Bajando:** desaparece (`off`).
-3. **Subiendo:** reaparece fija arriba (`top`), a 16 px del borde.
+1. **Arriba, dentro del hero:** se ve el índice completo (`apart`).
+2. **Bajando:** el índice se va con el hero y no queda nada fijo (`off`).
+3. **Subiendo:** aparece una barra fina de **50 px** a 16 px del borde (`top`).
+4. **Bajando otra vez:** la barra se oculta.
+5. **Al pulsar «Índice»:** se abre el índice completo como capa modal.
 
-Con la nav actual, ese estado fijo mide 48 px en móvil y 101 px en escritorio, así que funciona. Con la compacta, el estado fijo mediría **300 px en móvil y 290 px en escritorio**, y taparía el contenido. Se ve en las capturas marcadas como «entera (problema)».
+## Qué se implementó
 
-## Propuesta: barra fina al subir
+- `src/components/CompactIndexNav.tsx`: índice completo, barra fina y capa modal.
+- `src/components/MiniTabNav.tsx`: pasa a montar `CompactIndexNav`.
+- `src/components/NavConceptPrototype.tsx`: variante `SPLITC` reutilizada como contenido del índice, con cierre opcional.
+- `src/components/ui/Shells.tsx`: `HeroFixedNav` expone `data-nav-mode`.
 
-- **Arriba:** índice completo (300 px móvil / 290 px escritorio).
-- **Bajando:** el índice se va con el hero y no queda nada fijo.
-- **Subiendo:** aparece una barra fina de **48 px** con:
-  - móvil: `☰ Índice · Argumento · Relato` + tema;
-  - escritorio: `Índice · 01 Argumento · Glosario · Laboratorio · Noticias` + subapartados activos + tema.
-- **Bajando otra vez:** la barra fina se oculta.
-- **Al tocar «Índice»:** se abriría el índice completo como capa, sin tener que subir hasta el hero.
+La barra fina se monta con un portal a `document.body`, así no depende de la altura del wrapper ni provoca saltos. Se muestra con la intención de scroll (`wheel`/`touch`) y se oculta al bajar.
+
+## Medidas
+
+- Índice completo: **308 px** en móvil y **298 px** en escritorio.
+- Barra fina: **50 px**.
+- Capa del índice: **334 px** en móvil y **332 px** en escritorio.
+- Objetivos táctiles de 44 px en pestañas, subapartados y botones.
+- axe-core: **0 violaciones** en móvil y escritorio en el estado superior.
 
 ## Capturas
 
-- [Estados en móvil](compacta-scroll-mobile.png)
-- [Estados en escritorio](compacta-scroll-desktop.png)
-- [Barra fina en móvil](compacta-scroll-movil-barra.png)
-- [Barra fina en escritorio](compacta-scroll-escritorio-barra.png)
+- [Estados en móvil](implementado-mobile2.png)
+- [Estados en escritorio](implementado-desktop2.png)
+- [Móvil arriba](implementado-movil-arriba.png)
+- [Móvil bajando](implementado-movil-bajando.png)
+- [Móvil con barra fina](implementado-movil-barra.png)
+- [Móvil con el índice abierto](implementado-movil-indice.png)
+- [Escritorio arriba](implementado-escritorio-arriba.png)
+- [Escritorio con barra fina](implementado-escritorio-barra.png)
+- [Escritorio con el índice abierto](implementado-escritorio-indice.png)
 
-Las barras finas están **simuladas** en estas capturas: oculté la nav real e inyecté una barra con los estilos previstos. Todavía no está implementado el estado real ni la capa del índice.
+## Pruebas hechas
+
+- 360, 390, 320 y 1440 px.
+- Scroll real con rueda: arriba, bajando, subiendo, bajando otra vez.
+- Cambio de sección desde la capa (Glosario) y cierre automático.
+- Bloqueo y restauración del scroll con la capa abierta.
+- Barrido de todas las rutas sin errores de consola ni desbordamiento.
