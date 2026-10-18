@@ -13,7 +13,7 @@ interface NavConceptPrototypeProps {
 }
 
 const CATEGORY_HINTS: Record<string, string> = {
-  argumento: "Relato, cifras, cronología y dilemas",
+  argumento: "Empieza por el Relato: cifras, cronología y dilemas",
   glosario: "Conceptos, autores y obras",
   laboratorio: "7 herramientas para experimentar",
   noticias: "Casos reales y su análisis",
@@ -70,48 +70,83 @@ export default function NavConceptPrototype({
       <div className="w-full max-w-full min-w-0" data-nav-concept="INDEX">
         {header("Índice")}
         <div className="border-y border-outline-variant/25">
-          <div className="grid grid-cols-1 sm:grid-cols-4">
+          <div className="grid grid-cols-1 sm:grid-cols-4 sm:items-stretch">
             {CATEGORIES.map((category, index) => {
               const isActive = category.id === activeCategory;
               return (
-                <a
+                <div
                   key={category.id}
-                  href={getPathForTab(category.defaultTabId)}
-                  onClick={(event) => {
-                    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
-                    event.preventDefault();
-                    onNavigate(category.defaultTabId);
-                  }}
-                  aria-current={isActive ? "page" : undefined}
-                  className={`group flex min-h-[78px] flex-col justify-between border-b border-outline-variant/20 px-4 py-3 transition-colors last:border-b-0 sm:border-b-0 sm:border-r sm:last:border-r-0 ${
-                    isActive ? "bg-primary/[0.035]" : "hover:bg-surface-dim/30"
+                  className={`flex flex-col border-b border-outline-variant/20 last:border-b-0 sm:border-b-0 sm:border-r sm:last:border-r-0 ${
+                    isActive ? "bg-primary/[0.04]" : ""
                   }`}
                 >
-                  <span className="flex items-center justify-between gap-2">
-                    <span className={`font-mono text-[9px] tracking-[0.2em] ${isActive ? "text-primary" : "text-on-surface-variant/70"}`}>
-                      {NUMBERS[index]}
+                  <a
+                    href={getPathForTab(category.defaultTabId)}
+                    onClick={(event) => {
+                      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+                      event.preventDefault();
+                      onNavigate(category.defaultTabId);
+                    }}
+                    aria-current={isActive ? "page" : undefined}
+                    className={`group flex flex-col px-4 py-3 transition-colors ${isActive ? "" : "hover:bg-surface-dim/30"}`}
+                  >
+                    <span className="flex items-center justify-between gap-2">
+                      <span className={`font-mono text-[9px] tracking-[0.2em] ${isActive ? "text-primary" : "text-on-surface-variant/70"}`}>
+                        {NUMBERS[index]}
+                      </span>
+                      {isActive && <span className="h-px w-8 bg-primary" aria-hidden />}
                     </span>
-                    {isActive && <span className="h-px w-8 bg-primary" aria-hidden />}
-                  </span>
-                  <span className={`mt-1 block font-heading text-xl leading-none sm:text-[22px] ${isActive ? "text-primary" : "text-on-surface"}`}>
-                    {category.label}
-                  </span>
-                  <span className="mt-1.5 block text-[10px] leading-snug text-on-surface-variant">
-                    {CATEGORY_HINTS[category.id]}
-                  </span>
-                </a>
+                    <span className={`mt-1 block font-heading text-xl leading-none sm:text-[22px] ${isActive ? "text-primary" : "text-on-surface"}`}>
+                      {category.label}
+                    </span>
+                    <span className="mt-1.5 block text-[10px] leading-snug text-on-surface-variant">
+                      {CATEGORY_HINTS[category.id]}
+                    </span>
+                  </a>
+
+                  {isActive && activeSubs.length > 1 && (
+                    <div className="mx-4 mb-4 border-t border-primary/20 pt-2">
+                      <div className="mb-1.5 flex items-center justify-between gap-2">
+                        <span className="font-mono text-[8px] uppercase tracking-[0.14em] text-primary">
+                          Dentro de este capítulo
+                        </span>
+                        <span className="font-mono text-[8px] uppercase tracking-[0.12em] text-on-surface-variant/60">
+                          {activeSubs.length}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-x-2 gap-y-1">
+                        {activeSubs.map((sub, subIndex) => {
+                          const isActiveSub = sub.tabId === activeTab;
+                          return (
+                            <a
+                              key={sub.tabId}
+                              href={sub.path}
+                              onClick={(event) => {
+                                if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+                                event.preventDefault();
+                                onNavigate(sub.tabId);
+                              }}
+                              aria-current={isActiveSub ? "page" : undefined}
+                              className={`flex items-baseline gap-1.5 font-mono text-[9px] uppercase leading-snug tracking-[0.04em] transition-colors ${
+                                isActiveSub
+                                  ? "font-bold text-primary underline decoration-primary/50 underline-offset-4"
+                                  : "text-on-surface-variant hover:text-on-surface hover:underline hover:underline-offset-4"
+                              }`}
+                            >
+                              <span className="shrink-0 text-[8px] text-on-surface-variant/80">
+                                {index + 1}.{subIndex + 1}
+                              </span>
+                              <span>{sub.label}</span>
+                            </a>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>
-        </div>
-        <div className="mt-3 flex flex-col gap-1.5 px-1 sm:flex-row sm:items-baseline sm:gap-3">
-          <span className="shrink-0 font-mono text-[9px] uppercase tracking-[0.18em] text-primary">
-            Sumario de {activeCategoryData.label}
-          </span>
-          {subLinks("font-mono text-[10px] uppercase tracking-[0.08em]")}
-          <span className="ml-auto hidden shrink-0 font-mono text-[9px] uppercase tracking-[0.12em] text-on-surface-variant/60 sm:block">
-            {activeSubs.length} apartados
-          </span>
         </div>
       </div>
     );
