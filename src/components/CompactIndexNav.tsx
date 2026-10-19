@@ -4,7 +4,7 @@ import { Menu, Moon, Sun } from "lucide-react";
 import { CATEGORIES, getCategoryForTab, getPathForTab, getSubSectionsForTab } from "../data/sections";
 import type { TabType } from "../types";
 import { lockScroll, unlockScroll } from "../utils/scrollLock";
-import NavConceptPrototype from "./NavConceptPrototype";
+import CompactIndexContent from "./CompactIndexContent";
 
 const PRELOAD_MAP: Record<string, () => Promise<unknown>> = {
   historia_narrativa: () => import("./StoryMode"),
@@ -255,8 +255,7 @@ export default function CompactIndexNav({ activeTab, onNavigate, theme, onToggle
               className="mt-[max(0.5rem,env(safe-area-inset-top))] max-h-[calc(100dvh-1rem)] w-full max-w-3xl overflow-y-auto rounded-2xl border border-outline-variant/25 bg-surface/95 p-3 shadow-2xl backdrop-blur-xl sm:mt-0 sm:max-h-[calc(100dvh-3rem)] sm:p-4"
               onPointerDown={(event) => event.stopPropagation()}
             >
-              <NavConceptPrototype
-                variant="SPLITC"
+              <CompactIndexContent
                 activeTab={activeTab}
                 onNavigate={handleNavigate}
                 themeToggle={themeToggle}
@@ -271,8 +270,7 @@ export default function CompactIndexNav({ activeTab, onNavigate, theme, onToggle
   return (
     <div ref={navRef} className="relative w-full max-w-full min-w-0">
       {mode === "apart" ? (
-        <NavConceptPrototype
-          variant="SPLITC"
+        <CompactIndexContent
           activeTab={activeTab}
           onNavigate={handleNavigate}
           themeToggle={themeToggle}

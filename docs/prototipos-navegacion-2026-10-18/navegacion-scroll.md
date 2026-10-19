@@ -12,9 +12,9 @@
 
 ## Qué se implementó
 
+- `src/components/CompactIndexContent.tsx`: contenido del índice (pestañas, página del capítulo y sumario).
 - `src/components/CompactIndexNav.tsx`: índice completo, barra fina y capa modal.
 - `src/components/MiniTabNav.tsx`: pasa a montar `CompactIndexNav`.
-- `src/components/NavConceptPrototype.tsx`: variante `SPLITC` reutilizada como contenido del índice, con cierre opcional.
 - `src/components/ui/Shells.tsx`: `HeroFixedNav` expone `data-nav-mode`.
 
 La barra fina se monta con un portal a `document.body`, así no depende de la altura del wrapper ni provoca saltos. Se muestra con la intención de scroll (`wheel`/`touch`) y se oculta al bajar.
