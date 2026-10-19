@@ -84,7 +84,7 @@ export default function CompactIndexContent({ activeTab, onNavigate, themeToggle
               )}
             </div>
             <h3 className="mt-1 font-heading text-2xl leading-none text-primary">{activeCategoryData.label}</h3>
-            <p className="mt-1.5 text-[11px] leading-snug text-on-surface-variant">
+            <p className="mt-1.5 text-[12px] leading-snug text-on-surface-variant">
               {CATEGORY_HINTS[activeCategoryData.id]}
             </p>
             {activeSubs.length > 1 && (
@@ -110,7 +110,7 @@ export default function CompactIndexContent({ activeTab, onNavigate, themeToggle
                       <span className="shrink-0 font-mono text-[9px] opacity-60">
                         {activeIndex + 1}.{subIndex + 1}
                       </span>
-                      <span className="font-mono text-[11px] uppercase leading-tight tracking-[0.03em]">{sub.label}</span>
+                      <span className="font-mono text-[12px] uppercase leading-tight tracking-[0.03em]">{sub.label}</span>
                     </a>
                   );
                 })}
@@ -149,7 +149,7 @@ export default function CompactIndexContent({ activeTab, onNavigate, themeToggle
                       <span className={`block font-heading text-xl leading-none ${isActive ? "text-primary" : "text-on-surface"}`}>
                         {category.label}
                       </span>
-                      <span className="mt-1 block text-[11px] leading-snug text-on-surface-variant">
+                      <span className="mt-1 block text-[12px] leading-snug text-on-surface-variant">
                         {CATEGORY_HINTS[category.id]}
                       </span>
                     </span>
@@ -190,10 +190,10 @@ export default function CompactIndexContent({ activeTab, onNavigate, themeToggle
                           {activeIndex + 1}.{subIndex + 1}
                         </span>
                         <span className="min-w-0 flex-1">
-                          <span className={`block font-mono text-[11px] uppercase tracking-[0.05em] transition-colors group-hover:text-on-surface ${isActiveSub ? "font-bold" : ""}`}>
+                          <span className={`block font-mono text-[12px] uppercase tracking-[0.05em] transition-colors group-hover:text-on-surface ${isActiveSub ? "font-bold" : ""}`}>
                             {sub.label}
                           </span>
-                          <span className="mt-0.5 block text-[10px] leading-snug text-on-surface-variant/80">
+                          <span className="mt-0.5 block text-[11px] leading-snug text-on-surface-variant/80">
                             {SUB_HINTS[sub.tabId]}
                           </span>
                         </span>
