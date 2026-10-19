@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { X } from "lucide-react";
 import { CATEGORIES, getCategoryForTab, getPathForTab } from "../data/sections";
 import type { TabType } from "../types";
 
@@ -7,7 +6,6 @@ interface CompactIndexContentProps {
   activeTab: TabType;
   onNavigate: (tab: TabType) => void;
   themeToggle: ReactNode;
-  onClose?: () => void;
 }
 
 const CATEGORY_HINTS: Record<string, string> = {
@@ -36,7 +34,7 @@ const SUB_HINTS: Record<string, string> = {
   noticias: "Actualidad y casos",
 };
 
-export default function CompactIndexContent({ activeTab, onNavigate, themeToggle, onClose }: CompactIndexContentProps) {
+export default function CompactIndexContent({ activeTab, onNavigate, themeToggle }: CompactIndexContentProps) {
   const activeCategory = getCategoryForTab(activeTab);
   const activeCategoryData = CATEGORIES.find((category) => category.id === activeCategory) ?? CATEGORIES[0]!;
   const activeSubs = activeCategoryData.subSections;
@@ -44,20 +42,8 @@ export default function CompactIndexContent({ activeTab, onNavigate, themeToggle
 
   const header = (label: string) => (
     <div className="mb-3 flex items-center justify-between gap-3 px-1">
-      <span className="font-mono text-[9px] uppercase tracking-[0.22em] text-on-surface-variant">{label}</span>
-      <div className="flex items-center gap-1">
-        {onClose && (
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Cerrar índice"
-            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface focus:outline-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40"
-          >
-            <X className="h-4 w-4" aria-hidden />
-          </button>
-        )}
-        {themeToggle}
-      </div>
+      <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">{label}</span>
+      {themeToggle}
     </div>
   );
 
@@ -84,24 +70,24 @@ export default function CompactIndexContent({ activeTab, onNavigate, themeToggle
                     isActive ? "bg-primary/10 text-primary" : "text-on-surface-variant hover:bg-surface-dim/40"
                   }`}
                 >
-                  <span className="font-mono text-[8px] leading-none opacity-60">{NUMBERS[index]}</span>
-                  <span className="mt-1 font-heading text-[10px] font-semibold leading-tight">{category.label}</span>
+                  <span className="font-mono text-[9px] leading-none opacity-60">{NUMBERS[index]}</span>
+                  <span className="mt-1 font-heading text-[11px] font-semibold leading-tight">{category.label}</span>
                 </a>
               );
             })}
           </div>
           <div className="mt-2 border-y border-outline-variant/25 bg-primary/[0.035] px-4 py-3">
-            <div className="flex items-center justify-between gap-3 font-mono text-[8px] uppercase tracking-[0.16em]">
+            <div className="flex items-center justify-between gap-3 font-mono text-[9px] uppercase tracking-[0.16em]">
               <span className="text-primary">Capítulo {NUMBERS[activeIndex]}</span>
               {activeSubs.length > 1 && (
                 <span className="text-on-surface-variant/80">{apartadosLabel(activeSubs.length)}</span>
               )}
             </div>
             <h3 className="mt-1 font-heading text-2xl leading-none text-primary">{activeCategoryData.label}</h3>
-            <p className="mt-1.5 text-[10px] leading-snug text-on-surface-variant">
+            <p className="mt-1.5 text-[11px] leading-snug text-on-surface-variant">
               {CATEGORY_HINTS[activeCategoryData.id]}
             </p>
-            {activeSubs.length > 1 ? (
+            {activeSubs.length > 1 && (
               <div className="mt-3 grid grid-cols-2 gap-1">
                 {activeSubs.map((sub, subIndex) => {
                   const isActiveSub = sub.tabId === activeTab;
@@ -121,26 +107,14 @@ export default function CompactIndexContent({ activeTab, onNavigate, themeToggle
                           : "text-on-surface-variant hover:bg-surface-dim/50 hover:text-on-surface"
                       }`}
                     >
-                      <span className="shrink-0 font-mono text-[8px] opacity-60">
+                      <span className="shrink-0 font-mono text-[9px] opacity-60">
                         {activeIndex + 1}.{subIndex + 1}
                       </span>
-                      <span className="font-mono text-[9px] uppercase leading-tight tracking-[0.03em]">{sub.label}</span>
+                      <span className="font-mono text-[11px] uppercase leading-tight tracking-[0.03em]">{sub.label}</span>
                     </a>
                   );
                 })}
               </div>
-            ) : (
-              <a
-                href={getPathForTab(activeCategoryData.defaultTabId)}
-                onClick={(event) => {
-                  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
-                  event.preventDefault();
-                  onNavigate(activeCategoryData.defaultTabId);
-                }}
-                className="mt-3 flex min-h-[44px] items-center justify-between rounded-md bg-primary/10 px-3 font-mono text-[10px] uppercase tracking-[0.08em] text-primary"
-              >
-                Abrir {activeCategoryData.label} <span aria-hidden>→</span>
-              </a>
             )}
           </div>
         </div>
@@ -168,14 +142,14 @@ export default function CompactIndexContent({ activeTab, onNavigate, themeToggle
                         : "border-l-2 border-l-transparent hover:bg-surface-dim/30"
                     }`}
                   >
-                    <span className={`mt-0.5 font-mono text-[9px] tracking-[0.18em] ${isActive ? "text-primary" : "text-on-surface-variant/80"}`}>
+                    <span className={`mt-0.5 font-mono text-[10px] tracking-[0.18em] ${isActive ? "text-primary" : "text-on-surface-variant/80"}`}>
                       {NUMBERS[index]}
                     </span>
                     <span className="min-w-0">
-                      <span className={`block font-heading text-lg leading-none ${isActive ? "text-primary" : "text-on-surface"}`}>
+                      <span className={`block font-heading text-xl leading-none ${isActive ? "text-primary" : "text-on-surface"}`}>
                         {category.label}
                       </span>
-                      <span className="mt-1 block text-[9px] leading-snug text-on-surface-variant">
+                      <span className="mt-1 block text-[11px] leading-snug text-on-surface-variant">
                         {CATEGORY_HINTS[category.id]}
                       </span>
                     </span>
@@ -184,14 +158,14 @@ export default function CompactIndexContent({ activeTab, onNavigate, themeToggle
               })}
             </div>
             <div className="bg-primary/[0.025] px-5 py-4">
-              <div className="flex items-center justify-between gap-3 font-mono text-[8px] uppercase tracking-[0.16em]">
+              <div className="flex items-center justify-between gap-3 font-mono text-[9px] uppercase tracking-[0.16em]">
                 <span className="text-primary">Capítulo {NUMBERS[activeIndex]}</span>
                 {activeSubs.length > 1 && (
                   <span className="text-on-surface-variant/80">{apartadosLabel(activeSubs.length)}</span>
                 )}
               </div>
               <h3 className="mt-1 font-heading text-2xl leading-none text-primary">{activeCategoryData.label}</h3>
-              <p className="mt-1.5 text-[10px] leading-snug text-on-surface-variant">
+              <p className="mt-1.5 text-[11px] leading-snug text-on-surface-variant">
                 {CATEGORY_HINTS[activeCategoryData.id]}
               </p>
               {activeSubs.length > 1 && (
@@ -212,14 +186,14 @@ export default function CompactIndexContent({ activeTab, onNavigate, themeToggle
                           isActiveSub ? "bg-primary/[0.06] text-primary" : "text-on-surface-variant hover:bg-surface-dim/40"
                         }`}
                       >
-                        <span className="mt-0.5 shrink-0 font-mono text-[8px] opacity-60">
+                        <span className="mt-0.5 shrink-0 font-mono text-[9px] opacity-60">
                           {activeIndex + 1}.{subIndex + 1}
                         </span>
                         <span className="min-w-0 flex-1">
-                          <span className={`block font-mono text-[9px] uppercase tracking-[0.05em] transition-colors group-hover:text-on-surface ${isActiveSub ? "font-bold" : ""}`}>
+                          <span className={`block font-mono text-[11px] uppercase tracking-[0.05em] transition-colors group-hover:text-on-surface ${isActiveSub ? "font-bold" : ""}`}>
                             {sub.label}
                           </span>
-                          <span className="mt-0.5 block text-[9px] leading-snug text-on-surface-variant/80">
+                          <span className="mt-0.5 block text-[10px] leading-snug text-on-surface-variant/80">
                             {SUB_HINTS[sub.tabId]}
                           </span>
                         </span>
@@ -228,17 +202,6 @@ export default function CompactIndexContent({ activeTab, onNavigate, themeToggle
                   })}
                 </div>
               )}
-              <a
-                href={getPathForTab(activeCategoryData.defaultTabId)}
-                onClick={(event) => {
-                  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
-                  event.preventDefault();
-                  onNavigate(activeCategoryData.defaultTabId);
-                }}
-                className="mt-3 inline-flex min-h-[32px] items-center gap-1 font-mono text-[9px] uppercase tracking-[0.12em] text-primary hover:underline hover:underline-offset-4"
-              >
-                Entrar en {activeCategoryData.label} <span aria-hidden>→</span>
-              </a>
             </div>
           </div>
         </div>

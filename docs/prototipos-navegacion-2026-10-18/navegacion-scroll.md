@@ -1,48 +1,40 @@
-# Navegación compacta implementada
+# Navegación compacta — estado final
 
 ## Comportamiento
 
-`HeroFixedNav` mantiene sus tres estados, pero la navegación compacta cambia de forma:
+- **Arriba, dentro del hero:** se ve el índice completo (`apart`).
+- **Al bajar:** el índice se va con el hero y **no reaparece ninguna barra**.
+- **Al subir:** tampoco reaparece nada; se evita el solape entre dos navegaciones.
+- **Para volver a navegar:** se sube hasta el índice del hero.
 
-1. **Arriba, dentro del hero:** se ve el índice completo (`apart`).
-2. **Bajando:** el índice se va con el hero y no queda nada fijo (`off`).
-3. **Subiendo:** aparece una barra fina de **50 px** a 16 px del borde (`top`).
-4. **Bajando otra vez:** la barra se oculta.
-5. **Al pulsar «Índice»:** se abre el índice completo como capa modal.
+Esto sustituye la barra fina que aparecía y desaparecía. Se retiró porque se
+solapaba con el índice completo y resultaba visualmente pesada.
 
-## Qué se implementó
+## Cambios de esta corrección
 
-- `src/components/CompactIndexContent.tsx`: contenido del índice (pestañas, página del capítulo y sumario).
-- `src/components/CompactIndexNav.tsx`: índice completo, barra fina y capa modal.
-- `src/components/MiniTabNav.tsx`: pasa a montar `CompactIndexNav`.
+- Fuera la barra flotante y la capa modal asociada.
+- Fuera el botón «Entrar en…»: estando ya dentro del capítulo no aportaba nada.
+- Fuera el botón «Abrir Glosario/Noticias» cuando la categoría solo tiene una
+  página.
+- Texto más grande en pestañas, títulos, subapartados y descripciones.
+- Sin solape: el índice completo solo se renderiza en estado `apart`; fuera del
+  hero el contenedor queda vacío.
+
+## Archivos
+
+- `src/components/CompactIndexContent.tsx`: pestañas, página del capítulo y
+  subapartados.
+- `src/components/CompactIndexNav.tsx`: muestra el índice solo en el hero y
+  controla el estado `data-nav-mode`.
+- `src/components/MiniTabNav.tsx`: monta `CompactIndexNav`.
 - `src/components/ui/Shells.tsx`: `HeroFixedNav` expone `data-nav-mode`.
 
-La barra fina se monta con un portal a `document.body`, así no depende de la altura del wrapper ni provoca saltos. Se muestra con la intención de scroll (`wheel`/`touch`) y se oculta al bajar.
+## Pruebas
 
-## Medidas
-
-- Índice completo: **308 px** en móvil y **298 px** en escritorio.
-- Barra fina: **50 px**.
-- Capa del índice: **334 px** en móvil y **332 px** en escritorio.
-- Objetivos táctiles de 44 px en pestañas, subapartados y botones.
-- axe-core: **0 violaciones** en móvil y escritorio en el estado superior.
-
-## Capturas
-
-- [Estados en móvil](implementado-mobile2.png)
-- [Estados en escritorio](implementado-desktop2.png)
-- [Móvil arriba](implementado-movil-arriba.png)
-- [Móvil bajando](implementado-movil-bajando.png)
-- [Móvil con barra fina](implementado-movil-barra.png)
-- [Móvil con el índice abierto](implementado-movil-indice.png)
-- [Escritorio arriba](implementado-escritorio-arriba.png)
-- [Escritorio con barra fina](implementado-escritorio-barra.png)
-- [Escritorio con el índice abierto](implementado-escritorio-indice.png)
-
-## Pruebas hechas
-
-- 360, 390, 320 y 1440 px.
-- Scroll real con rueda: arriba, bajando, subiendo, bajando otra vez.
-- Cambio de sección desde la capa (Glosario) y cierre automático.
-- Bloqueo y restauración del scroll con la capa abierta.
-- Barrido de todas las rutas sin errores de consola ni desbordamiento.
+- 320, 360, 390 y 1440 px.
+- Scroll con rueda: arriba, bajando, subiendo y bajando otra vez. En ningún
+  estado aparecen dos navegaciones a la vez.
+- axe-core: **0 violaciones** en móvil y escritorio.
+- Capturas: [móvil 360](final-simple-mobile-top.png),
+  [móvil 320](final-simple-320-top.png),
+  [escritorio](final-simple-desktop-top.png).
