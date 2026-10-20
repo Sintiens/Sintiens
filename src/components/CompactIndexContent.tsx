@@ -19,6 +19,17 @@ const CATEGORY_HINTS: Record<string, string> = {
 
 const NUMBERS = ["01", "02", "03", "04"];
 
+const SINGLE_PAGE_DETAIL: Record<string, { title: string; description: string }> = {
+  glosario: {
+    title: "Consulta rápida",
+    description: "Conceptos, autores, obras y declaraciones. Lista, grafo y nube para orientarte.",
+  },
+  noticias: {
+    title: "Archivo de actualidad",
+    description: "Casos documentados con fuentes y seguimiento, ordenados por impacto.",
+  },
+};
+
 const SUB_HINTS: Record<string, string> = {
   historia_narrativa: "La historia que abre el proyecto",
   datos: "Datos, fuentes y comparativas",
@@ -87,13 +98,67 @@ export default function CompactIndexContent({ activeTab, onNavigate, themeToggle
     </div>
   );
 
-  // Glosario y Noticias solo tienen una página: no hay sumario que mostrar y
-  // repetir el título del capítulo tres veces (pestaña, panel y H1) sobra.
+  // Glosario y Noticias solo tienen una página: en móvil basta con las
+  // pestañas; en escritorio se mantiene el mismo master-detail de dos columnas
+  // para no cambiar de diseño, pero el panel usa un título propio para no
+  // repetir el nombre de la categoría.
   if (activeSubs.length <= 1) {
+    const detail = SINGLE_PAGE_DETAIL[activeCategoryData.id] ?? {
+      title: activeCategoryData.label,
+      description: CATEGORY_HINTS[activeCategoryData.id],
+    };
     return (
       <div className="w-full max-w-full min-w-0" data-compact-index="true">
-        {header("Índice")}
-        {categoryTabs}
+        <div className="sm:hidden">
+          {header("Índice")}
+          {categoryTabs}
+        </div>
+        <div className="hidden sm:block">
+          {header("Índice")}
+          <div className="grid grid-cols-[0.95fr_1.35fr] border-y border-outline-variant/25">
+            <div className="border-r border-outline-variant/25">
+              {CATEGORIES.map((category, index) => {
+                const isActive = category.id === activeCategory;
+                return (
+                  <a
+                    key={category.id}
+                    href={getPathForTab(category.defaultTabId)}
+                    onClick={(event) => {
+                      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+                      event.preventDefault();
+                      onNavigate(category.defaultTabId);
+                    }}
+                    aria-current={isActive ? "page" : undefined}
+                    className={`flex min-h-[56px] gap-3 border-b border-outline-variant/20 px-4 py-3 transition-colors last:border-b-0 ${
+                      isActive
+                        ? "border-l-2 border-l-primary bg-primary/[0.04]"
+                        : "border-l-2 border-l-transparent hover:bg-surface-dim/30"
+                    }`}
+                  >
+                    <span className={`mt-0.5 font-mono text-[10px] tracking-[0.18em] ${isActive ? "text-primary" : "text-on-surface-variant/80"}`}>
+                      {NUMBERS[index]}
+                    </span>
+                    <span className="min-w-0">
+                      <span className={`block font-heading text-xl leading-none ${isActive ? "text-primary" : "text-on-surface"}`}>
+                        {category.label}
+                      </span>
+                      <span className="mt-1 block text-[12px] leading-snug text-on-surface-variant">
+                        {CATEGORY_HINTS[category.id]}
+                      </span>
+                    </span>
+                  </a>
+                );
+              })}
+            </div>
+            <div className="bg-primary/[0.025] px-5 py-4">
+              <div className="font-mono text-[9px] uppercase tracking-[0.16em] text-primary">
+                Capítulo {NUMBERS[Math.max(0, CATEGORIES.findIndex((category) => category.id === activeCategory))]}
+              </div>
+              <h3 className="mt-1 font-heading text-2xl leading-none text-primary">{detail.title}</h3>
+              <p className="mt-1.5 text-[12px] leading-snug text-on-surface-variant">{detail.description}</p>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

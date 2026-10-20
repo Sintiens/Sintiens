@@ -17,14 +17,17 @@ No hay barra superior que aparezca y desaparezca, ni dos navegaciones a la vez.
 ## Categorías de una sola página
 
 Glosario y Noticias no tienen subapartados. Antes se repetía el nombre tres
-veces: pestaña, panel del capítulo y H1 de la página. Ahora, cuando la categoría
-solo tiene una página:
+veces: pestaña, panel del capítulo y H1 de la página. Ahora:
 
-- se muestran solo las cuatro pestañas;
-- no se pinta el panel de capítulo con título y descripción;
-- el contenido empieza inmediatamente después.
+- **Móvil:** se muestran solo las cuatro pestañas, sin panel de capítulo.
+- **Escritorio:** se mantiene el mismo master-detail de dos columnas que en
+  Argumento/Laboratorio. El panel derecho usa un título propio —«Consulta
+  rápida» en Glosario y «Archivo de actualidad» en Noticias— para no repetir
+  el nombre de la categoría.
+- Sin botones «Entrar en…» ni «Abrir…» redundantes.
 
-El índice de Glosario/Noticias baja de ~250-300 px a **110 px**.
+Así el diseño de escritorio no cambia al pasar de Argumento a Glosario, y en
+móvil se mantiene la versión compacta de pestañas.
 
 ## Texto
 
@@ -47,7 +50,8 @@ El índice de Glosario/Noticias baja de ~250-300 px a **110 px**.
 - Scroll con rueda: arriba, bajando, subiendo y bajando otra vez.
 - Botón flotante visible tras el hero en móvil; en escritorio no se renderiza.
 - Capa abre/cierra y bloquea el scroll en móvil.
-- Glosario y Noticias sin panel duplicado.
+- Glosario y Noticias mantienen el master-detail en escritorio y las pestañas
+  simples en móvil, sin repetir el título.
 - axe-core: **0 violaciones** en móvil y escritorio.
 - Barrido de rutas sin errores ni desbordamiento.
 
@@ -56,6 +60,7 @@ El índice de Glosario/Noticias baja de ~250-300 px a **110 px**.
 - [Móvil con el índice completo](final-simple-mobile-top.png)
 - [Móvil con el botón flotante](float-home-mobile-down.png)
 - [Móvil con el índice abierto](float-home-mobile-overlay.png)
-- [Glosario sin repetición](float-glosario-mobile-top.png)
-- [Glosario con el índice abierto](float-glosario-mobile-overlay.png)
-- [Escritorio con el botón flotante](float-home-desktop-down.png)
+- [Glosario en móvil](glosario-mobile-consistente.png)
+- [Glosario en escritorio, misma estructura de dos columnas](glosario-desktop-consistente.png)
+- [Noticias en escritorio, misma estructura](noticias-desktop-consistente.png)
+- [Escritorio sin botón al hacer scroll](desktop-sin-boton.png)
