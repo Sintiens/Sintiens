@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { X } from "lucide-react";
 import { CATEGORIES, getCategoryForTab, getPathForTab } from "../data/sections";
 import type { TabType } from "../types";
 
@@ -6,6 +7,7 @@ interface CompactIndexContentProps {
   activeTab: TabType;
   onNavigate: (tab: TabType) => void;
   themeToggle: ReactNode;
+  onClose?: () => void;
 }
 
 const CATEGORY_HINTS: Record<string, string> = {
@@ -34,7 +36,7 @@ const SUB_HINTS: Record<string, string> = {
   noticias: "Actualidad y casos",
 };
 
-export default function CompactIndexContent({ activeTab, onNavigate, themeToggle }: CompactIndexContentProps) {
+export default function CompactIndexContent({ activeTab, onNavigate, themeToggle, onClose }: CompactIndexContentProps) {
   const activeCategory = getCategoryForTab(activeTab);
   const activeCategoryData = CATEGORIES.find((category) => category.id === activeCategory) ?? CATEGORIES[0]!;
   const activeSubs = activeCategoryData.subSections;
@@ -43,9 +45,58 @@ export default function CompactIndexContent({ activeTab, onNavigate, themeToggle
   const header = (label: string) => (
     <div className="mb-3 flex items-center justify-between gap-3 px-1">
       <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">{label}</span>
-      {themeToggle}
+      <div className="flex items-center gap-1">
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Cerrar índice"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface focus:outline-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40"
+          >
+            <X className="h-4 w-4" aria-hidden />
+          </button>
+        )}
+        {themeToggle}
+      </div>
     </div>
   );
+
+  const categoryTabs = (
+    <div className="grid grid-cols-4 gap-1 rounded-xl border border-outline-variant/25 p-1">
+      {CATEGORIES.map((category, index) => {
+        const isActive = category.id === activeCategory;
+        return (
+          <a
+            key={category.id}
+            href={getPathForTab(category.defaultTabId)}
+            onClick={(event) => {
+              if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+              event.preventDefault();
+              onNavigate(category.defaultTabId);
+            }}
+            aria-current={isActive ? "page" : undefined}
+            className={`flex min-h-[44px] flex-col items-center justify-center rounded-lg px-1 py-1 text-center transition-colors sm:min-h-[56px] ${
+              isActive ? "bg-primary/10 text-primary" : "text-on-surface-variant hover:bg-surface-dim/40"
+            }`}
+          >
+            <span className="font-mono text-[9px] leading-none opacity-60 sm:text-[10px]">{NUMBERS[index]}</span>
+            <span className="mt-1 font-heading text-[11px] font-semibold leading-tight sm:text-sm">{category.label}</span>
+          </a>
+        );
+      })}
+    </div>
+  );
+
+  // Glosario y Noticias solo tienen una página: no hay sumario que mostrar y
+  // repetir el título del capítulo tres veces (pestaña, panel y H1) sobra.
+  if (activeSubs.length <= 1) {
+    return (
+      <div className="w-full max-w-full min-w-0" data-compact-index="true">
+        {header("Índice")}
+        {categoryTabs}
+      </div>
+    );
+  }
 
     const activeIndex = Math.max(0, CATEGORIES.findIndex((category) => category.id === activeCategory));
     return (
@@ -53,29 +104,7 @@ export default function CompactIndexContent({ activeTab, onNavigate, themeToggle
         {/* Móvil compacto: cuatro pestañas en una fila + página del capítulo */}
         <div className="sm:hidden">
           {header("Índice")}
-          <div className="grid grid-cols-4 gap-1 rounded-xl border border-outline-variant/25 p-1">
-            {CATEGORIES.map((category, index) => {
-              const isActive = category.id === activeCategory;
-              return (
-                <a
-                  key={category.id}
-                  href={getPathForTab(category.defaultTabId)}
-                  onClick={(event) => {
-                    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
-                    event.preventDefault();
-                    onNavigate(category.defaultTabId);
-                  }}
-                  aria-current={isActive ? "page" : undefined}
-                  className={`flex min-h-[44px] flex-col items-center justify-center rounded-lg px-1 py-1 text-center transition-colors ${
-                    isActive ? "bg-primary/10 text-primary" : "text-on-surface-variant hover:bg-surface-dim/40"
-                  }`}
-                >
-                  <span className="font-mono text-[9px] leading-none opacity-60">{NUMBERS[index]}</span>
-                  <span className="mt-1 font-heading text-[11px] font-semibold leading-tight">{category.label}</span>
-                </a>
-              );
-            })}
-          </div>
+          {categoryTabs}
           <div className="mt-2 border-y border-outline-variant/25 bg-primary/[0.035] px-4 py-3">
             <div className="flex items-center justify-between gap-3 font-mono text-[9px] uppercase tracking-[0.16em]">
               <span className="text-primary">Capítulo {NUMBERS[activeIndex]}</span>

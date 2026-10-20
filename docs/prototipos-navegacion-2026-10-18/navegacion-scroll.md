@@ -3,38 +3,55 @@
 ## Comportamiento
 
 - **Arriba, dentro del hero:** se ve el índice completo (`apart`).
-- **Al bajar:** el índice se va con el hero y **no reaparece ninguna barra**.
-- **Al subir:** tampoco reaparece nada; se evita el solape entre dos navegaciones.
-- **Para volver a navegar:** se sube hasta el índice del hero.
+- **Al bajar:** el índice se va con el hero.
+- **A partir de ahí:** queda un **botón flotante «Índice»** abajo a la derecha,
+  siempre visible mientras se lee.
+- **Al pulsarlo:** se abre el índice completo como capa modal.
+- **Al volver arriba:** el botón desaparece y se ve el índice del hero.
 
-Esto sustituye la barra fina que aparecía y desaparecía. Se retiró porque se
-solapaba con el índice completo y resultaba visualmente pesada.
+No hay barra superior que aparezca y desaparezca, ni dos navegaciones a la vez.
 
-## Cambios de esta corrección
+## Categorías de una sola página
 
-- Fuera la barra flotante y la capa modal asociada.
-- Fuera el botón «Entrar en…»: estando ya dentro del capítulo no aportaba nada.
-- Fuera el botón «Abrir Glosario/Noticias» cuando la categoría solo tiene una
-  página.
-- Texto más grande en pestañas, títulos, subapartados y descripciones.
-- Sin solape: el índice completo solo se renderiza en estado `apart`; fuera del
-  hero el contenedor queda vacío.
+Glosario y Noticias no tienen subapartados. Antes se repetía el nombre tres
+veces: pestaña, panel del capítulo y H1 de la página. Ahora, cuando la categoría
+solo tiene una página:
+
+- se muestran solo las cuatro pestañas;
+- no se pinta el panel de capítulo con título y descripción;
+- el contenido empieza inmediatamente después.
+
+El índice de Glosario/Noticias baja de ~250-300 px a **110 px**.
+
+## Texto
+
+- Pestañas: 11 px en móvil y 14 px en escritorio.
+- Subapartados: 12 px.
+- Descripciones: 12 px.
+- Sin botones «Entrar en…» ni «Abrir…» redundantes.
 
 ## Archivos
 
-- `src/components/CompactIndexContent.tsx`: pestañas, página del capítulo y
-  subapartados.
-- `src/components/CompactIndexNav.tsx`: muestra el índice solo en el hero y
-  controla el estado `data-nav-mode`.
+- `src/components/CompactIndexContent.tsx`: pestañas, panel del capítulo y
+  variante simple para Glosario/Noticias.
+- `src/components/CompactIndexNav.tsx`: índice del hero, botón flotante y capa.
 - `src/components/MiniTabNav.tsx`: monta `CompactIndexNav`.
 - `src/components/ui/Shells.tsx`: `HeroFixedNav` expone `data-nav-mode`.
 
 ## Pruebas
 
 - 320, 360, 390 y 1440 px.
-- Scroll con rueda: arriba, bajando, subiendo y bajando otra vez. En ningún
-  estado aparecen dos navegaciones a la vez.
+- Scroll con rueda: arriba, bajando, subiendo y bajando otra vez.
+- Botón flotante visible tras el hero; capa abre/cierra y bloquea el scroll.
+- Glosario y Noticias sin panel duplicado.
 - axe-core: **0 violaciones** en móvil y escritorio.
-- Capturas: [móvil 360](final-simple-mobile-top.png),
-  [móvil 320](final-simple-320-top.png),
-  [escritorio](final-simple-desktop-top.png).
+- Barrido de rutas sin errores ni desbordamiento.
+
+## Capturas
+
+- [Móvil con el índice completo](final-simple-mobile-top.png)
+- [Móvil con el botón flotante](float-home-mobile-down.png)
+- [Móvil con el índice abierto](float-home-mobile-overlay.png)
+- [Glosario sin repetición](float-glosario-mobile-top.png)
+- [Glosario con el índice abierto](float-glosario-mobile-overlay.png)
+- [Escritorio con el botón flotante](float-home-desktop-down.png)
