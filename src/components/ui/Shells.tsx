@@ -113,7 +113,7 @@ export function HeroFixedNav({ children, activeTab }: HeroFixedNavProps) {
   const syncActiveTop = useCallback(() => {
     const root = document.documentElement;
     const el = ref.current;
-    const activeTop = modeRef.current === "top" && el && el.offsetHeight > 0 ? NAV_TOP_Y + el.offsetHeight : 0;
+    const activeTop = modeRef.current === "top" && el ? NAV_TOP_Y + el.offsetHeight : 0;
     root.style.setProperty("--hero-nav-active-top", `${activeTop}px`);
   }, []);
 
@@ -253,7 +253,6 @@ export function HeroFixedNav({ children, activeTab }: HeroFixedNavProps) {
   return (
     <div
       ref={ref}
-      data-nav-mode={mode}
       inert={isOff || undefined}
       aria-hidden={isOff || undefined}
       className={`${
