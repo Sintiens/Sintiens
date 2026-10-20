@@ -4,10 +4,13 @@
 
 - **Arriba, dentro del hero:** se ve el índice completo (`apart`).
 - **Al bajar:** el índice se va con el hero.
-- **A partir de ahí:** queda un **botón flotante «Índice»** abajo a la derecha,
-  siempre visible mientras se lee.
+- **A partir de ahí, solo en móvil:** queda un **botón flotante «Índice»**
+  abajo a la derecha, siempre visible mientras se lee.
 - **Al pulsarlo:** se abre el índice completo como capa modal.
 - **Al volver arriba:** el botón desaparece y se ve el índice del hero.
+- **En escritorio no hay botón flotante:** el índice del hero es la única
+  navegación; al hacer scroll se va con el hero y no queda ningún control
+  flotante.
 
 No hay barra superior que aparezca y desaparezca, ni dos navegaciones a la vez.
 
@@ -42,7 +45,8 @@ El índice de Glosario/Noticias baja de ~250-300 px a **110 px**.
 
 - 320, 360, 390 y 1440 px.
 - Scroll con rueda: arriba, bajando, subiendo y bajando otra vez.
-- Botón flotante visible tras el hero; capa abre/cierra y bloquea el scroll.
+- Botón flotante visible tras el hero en móvil; en escritorio no se renderiza.
+- Capa abre/cierra y bloquea el scroll en móvil.
 - Glosario y Noticias sin panel duplicado.
 - axe-core: **0 violaciones** en móvil y escritorio.
 - Barrido de rutas sin errores ni desbordamiento.

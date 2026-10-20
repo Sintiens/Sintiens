@@ -15,6 +15,9 @@ interface CompactIndexNavProps {
 export default function CompactIndexNav({ activeTab, onNavigate, theme, onToggleTheme }: CompactIndexNavProps) {
   const [mode, setMode] = useState<"apart" | "top" | "off">("apart");
   const [overlayOpen, setOverlayOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window === "undefined" ? false : window.matchMedia("(max-width: 639px)").matches,
+  );
   const navRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
 
@@ -54,6 +57,17 @@ export default function CompactIndexNav({ activeTab, onNavigate, theme, onToggle
     setOverlayOpen(false);
   }, [activeTab]);
 
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 639px)");
+    const onChange = () => {
+      setIsMobile(query.matches);
+      if (!query.matches) setOverlayOpen(false);
+    };
+    onChange();
+    query.addEventListener("change", onChange);
+    return () => query.removeEventListener("change", onChange);
+  }, []);
+
   const closeOverlay = () => {
     setOverlayOpen(false);
     requestAnimationFrame(() => triggerRef.current?.focus());
@@ -82,7 +96,7 @@ export default function CompactIndexNav({ activeTab, onNavigate, theme, onToggle
   };
 
   const overlay =
-    overlayOpen && typeof document !== "undefined"
+    overlayOpen && isMobile && typeof document !== "undefined"
       ? createPortal(
           <div
             className="fixed inset-0 z-[200] flex items-start justify-center bg-black/55 p-2 backdrop-blur-sm sm:items-center sm:p-6"
@@ -124,6 +138,7 @@ export default function CompactIndexNav({ activeTab, onNavigate, theme, onToggle
       )}
 
       {mode !== "apart" &&
+        isMobile &&
         typeof document !== "undefined" &&
         createPortal(
           <button
@@ -132,7 +147,7 @@ export default function CompactIndexNav({ activeTab, onNavigate, theme, onToggle
             onClick={() => setOverlayOpen(true)}
             aria-expanded={overlayOpen}
             aria-controls="compact-nav-overlay"
-            className="fixed bottom-4 right-4 z-[95] inline-flex min-h-[48px] items-center gap-2 rounded-full border border-outline-variant/30 bg-surface/90 px-4 font-mono text-[10px] uppercase tracking-[0.12em] text-on-surface shadow-lg backdrop-blur-xl transition-colors hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 sm:bottom-6 sm:right-6"
+            className="fixed bottom-4 right-4 z-[95] inline-flex min-h-[48px] items-center gap-2 rounded-full border border-outline-variant/30 bg-surface/90 px-4 font-mono text-[10px] uppercase tracking-[0.12em] text-on-surface shadow-lg backdrop-blur-xl transition-colors hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
           >
             <BookOpen className="h-4 w-4" aria-hidden />
             Índice
