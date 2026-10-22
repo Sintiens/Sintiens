@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Sun, Moon, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -12,6 +13,7 @@ import type { TabType } from "../types";
 import { SPRING_NAV, DUR, EASE_SUBTLE } from "../styles/motionTokens";
 import { useReducedMotion } from "../hooks/useReducedMotion";
 import { lockScroll, unlockScroll } from "../utils/scrollLock";
+import CompactIndexContent from "./CompactIndexContent";
 
 const PRELOAD_MAP: Record<string, () => Promise<any>> = {
   historia_narrativa: () => import("./StoryMode"),
@@ -36,6 +38,22 @@ function preloadTab(tab: string) {
   PRELOAD_MAP[tab]?.();
 }
 
+type HybridVariant = "hybrid1" | "hybrid2";
+
+function getHybridVariant(): HybridVariant | null {
+  try {
+    const fromQuery = new URLSearchParams(window.location.search).get("nav");
+    if (fromQuery === "hybrid1" || fromQuery === "hybrid2") {
+      sessionStorage.setItem("sintiens_hybrid_nav", fromQuery);
+      return fromQuery;
+    }
+    const fromSession = sessionStorage.getItem("sintiens_hybrid_nav");
+    return fromSession === "hybrid1" || fromSession === "hybrid2" ? fromSession : null;
+  } catch {
+    return null;
+  }
+}
+
 interface MiniTabNavProps {
   activeTab: TabType;
   onNavigate: (tab: TabType) => void;
@@ -54,11 +72,36 @@ export default function MiniTabNav({ activeTab, onNavigate, theme, onToggleTheme
   const menuButtonRef = useRef<HTMLButtonElement | null>(null);
   const menuPanelRef = useRef<HTMLDivElement | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [hybrid] = useState<HybridVariant | null>(getHybridVariant);
+  const [hybridSheetOpen, setHybridSheetOpen] = useState(false);
 
   // Cerrar el menú móvil al cambiar de sección.
   useEffect(() => {
     setMenuOpen(false);
+    setHybridSheetOpen(false);
   }, [activeTab]);
+
+  useEffect(() => {
+    if (!hybridSheetOpen) return;
+    lockScroll();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setHybridSheetOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      unlockScroll();
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [hybridSheetOpen]);
+
+  useEffect(() => {
+    const query = window.matchMedia("(min-width: 640px)");
+    const onChange = () => {
+      if (query.matches) setHybridSheetOpen(false);
+    };
+    query.addEventListener("change", onChange);
+    return () => query.removeEventListener("change", onChange);
+  }, []);
 
   // Cerrar con Escape o al tocar fuera; bloquear el scroll de fondo.
   useEffect(() => {
@@ -145,6 +188,8 @@ export default function MiniTabNav({ activeTab, onNavigate, theme, onToggleTheme
 
   return (
     <div className="relative flex flex-col items-center gap-1.5 sm:gap-2 px-1 py-0.5 w-full max-w-full min-w-0" data-minitabnav="true">
+      {!hybrid && (
+        <>
       {/* Móvil: un botón de menú claro en lugar de una píldora que se corta */}
       <div className="flex sm:hidden items-center gap-2 w-full max-w-full min-w-0">
         <button
@@ -224,6 +269,67 @@ export default function MiniTabNav({ activeTab, onNavigate, theme, onToggleTheme
               </div>
             );
           })}
+        </div>
+      )}
+        </>
+      )}
+
+      {/* Prototipo 1: móvil con el índice rediseñado, escritorio antiguo */}
+      {hybrid === "hybrid1" && (
+        <div className="sm:hidden w-full max-w-full min-w-0">
+          <CompactIndexContent
+            activeTab={activeTab}
+            onNavigate={goToTab}
+            themeToggle={themeToggle}
+          />
+        </div>
+      )}
+
+      {/* Prototipo 2: botón Menú antiguo que abre el índice rediseñado */}
+      {hybrid === "hybrid2" && (
+        <div className="sm:hidden w-full max-w-full min-w-0">
+          <div className="flex w-full items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setHybridSheetOpen(true)}
+              aria-expanded={hybridSheetOpen}
+              aria-controls="hybrid-menu-sheet"
+              className="flex min-h-[44px] flex-1 min-w-0 items-center justify-between gap-3 rounded-full border border-outline-variant/25 bg-surface/85 px-4 py-2 text-on-surface shadow-sm backdrop-blur-md dark:bg-surface-container/70"
+            >
+              <span className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-wider">
+                <Menu className="h-4 w-4" aria-hidden />
+                Menú
+              </span>
+              <span className="truncate text-[10px] font-mono uppercase tracking-widest text-on-surface-variant">
+                {activeCategoryLabel}
+              </span>
+            </button>
+            <div className={`${dockContainer} shrink-0 px-2`}>{themeToggle}</div>
+          </div>
+          {hybridSheetOpen &&
+            createPortal(
+              <div
+                className="fixed inset-0 z-[150] flex items-start justify-center bg-black/60 p-3 backdrop-blur-sm"
+                onPointerDown={() => setHybridSheetOpen(false)}
+              >
+                <div
+                  id="hybrid-menu-sheet"
+                  className="mx-auto max-h-[calc(100dvh-1.5rem)] w-full max-w-lg overflow-y-auto rounded-2xl border border-outline-variant/25 bg-surface/95 p-3 shadow-2xl backdrop-blur-xl"
+                  onPointerDown={(event) => event.stopPropagation()}
+                >
+                  <CompactIndexContent
+                    activeTab={activeTab}
+                    onNavigate={(tab) => {
+                      setHybridSheetOpen(false);
+                      goToTab(tab);
+                    }}
+                    themeToggle={themeToggle}
+                    onClose={() => setHybridSheetOpen(false)}
+                  />
+                </div>
+              </div>,
+              document.body,
+            )}
         </div>
       )}
 
